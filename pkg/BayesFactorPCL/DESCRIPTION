@@ -1,0 +1,11 @@
+Package: BayesFactorPCL
+Type: Package
+Title: Computation of Bayes factors for simple psychological designs
+Version: 0.5
+Date: 2009-09-30
+Author: Jeff Rouder, Richard D. Morey
+Maintainer: Jeff Rouder <rouderj@missouri.edu>
+Description: The BayesFactorPCL package is a suite of functions for computing Bayes factors for simple psychological designs.
+License: GPL 2
+LazyLoad: yes
+Depends: methods
