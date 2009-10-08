@@ -1,0 +1,10 @@
+Package: sampG
+Type: Package
+Title: Samples from G
+Version: 1.0
+Date: 2009-10-08
+Author: Richard D. Morey
+Maintainer: Richard D. Morey <richarddmorey@gmail.com>
+Description: Samples from G (more later?)
+License: GPL 2
+LazyLoad: yes
