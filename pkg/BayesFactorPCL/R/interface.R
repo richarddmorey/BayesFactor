@@ -187,10 +187,7 @@ BFAnovaSelectColumns <- function(data){
 		error=""
 		## Sanity check on columns
 		depcolnum = match(tclvalue(DepCol),colnames(data))
-		if(!is.na(depcolnum)){
-			if(!identical(sort(as.integer(unique(data[,respcolnum]))),as.integer(c(0,1))))
-				error=paste(error,"Invalid dependent variable column.\n\n",sep="")
-		}else{
+		if(is.na(depcolnum)){
 			error=paste(error,"No dependent variable specified.\n\n",sep="")
 		}
 		
@@ -272,7 +269,7 @@ modalDialog <- function(title,message,reFocus)
 }
 
 
-WorkingMemSelectEffects <- function(allEffects){	
+BFAnovaSelectEffects <- function(allEffects){	
 	thisEnv=environment()
 
 	myEffs=numeric(0)
@@ -320,7 +317,7 @@ WorkingMemSelectEffects <- function(allEffects){
 		if(substr(choice,1,1)=="{" & substr(choice,nchar(choice),nchar(choice))=="}") choice=substr(choice,2,nchar(choice)-1)
 		if(is.na(pmatch("BFEffectNode",choice)) & !(choice%in%myEffs)){
 			tkinsert(tl.SelEffs,"end",choice)
-			myEeffs=cbind(myEffs,choice)
+			myEffs=cbind(myEffs,choice)
 			assign("myEffs",myEffs,pos=thisEnv)
 		}
 	##### add 
@@ -365,8 +362,8 @@ WorkingMemSelectEffects <- function(allEffects){
 	OnDone=function(){
 		error=""
 		## Sanity check on effects
-		if(identical(Keffs,numeric(0)) & identical(Aeffs,numeric(0)) & identical(Geffs,numeric(0)))
-			error=paste(error,"You must specify at least one effect on one parameter.\n\n",sep="")
+		if(identical(myEffs,numeric(0)))
+			error=paste(error,"You must add something to the model.\n\n",sep="")
 		
 		if(identical("",error)){ 
 			tclvalue(done)<-1	

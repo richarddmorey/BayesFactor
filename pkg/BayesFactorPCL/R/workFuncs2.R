@@ -38,7 +38,7 @@ listModels <- function(newDat,interestColumns){
 	names=colnames(newDat)[-1]
 	levels=1:nFactors
 	for(i in 1:nFactors){
-	  levels[i]=length(unique(newDat[,5+i])) 
+	  levels[i]=length(unique(newDat[,1+i])) 
 	}
 	modsInt=list()
 
@@ -89,8 +89,8 @@ createModCols <- function(newDat,allMods,intMods,SelCols){
       		nLvls=allMods[[3]][myCols]
       		if(length(myCols)>1){
 			newDat2=data.frame(newDat2,as.integer(as.factor(apply(cbind(newDat[,(myCols+1)]),1,paste,collapse="1"))))
-	      		names=c(names,paste(colnames(newDat)[(myCols+1)[cc=="CATEG"]],collapse=".x."))				      			
-	      		}
+	      		names=c(names,paste(colnames(newDat)[(myCols+1)],collapse=".x."))				      			
+	      		
 		}else{
 
 			newDat2=data.frame(newDat2,as.integer(as.factor(newDat[,myCols+1])))
@@ -121,8 +121,7 @@ createMeaningfulCols <- function(newDat,allMods,intMods,SelCols)
 	for(i in 1:nNewCols){
       		myCols=allMods[[1]][[intMods[i,1]]][intMods[i,2],]
       		nLvls=allMods[[3]][myCols]
-      		cc=CatOrCont(colnames(newDat)[myCols+5],SelCols)
-      		if(length(myCols)>1){
+       		if(length(myCols)>1){
 			newDat2=data.frame(newDat2,apply(cbind(namedCols[,myCols]),1,paste,collapse=".x."))
 			names=c(names,paste(colnames(newDat)[myCols+1],collapse=".x.")) 
 		}else{
@@ -135,14 +134,14 @@ return(newDat2)
 }
 
 
-createDesignMatrix(newDat2){
+createDesignMatrix=function(newDat2){
 	nCols = dim(newDat2)[2]-1
 	nRows = dim(newDat2)[1]
 	X = matrix(1,nrow=nRows,ncol=1)
 	for(i in 1:nCols){
 	      nLevs = length(unique(newDat2[,i+1]))
 	      thisCol = newDat2[,i+1]
-	      X0=matrix(0,nrow=nRows,ncols=nLevs)
+	      X0=matrix(0,nrow=nRows,ncol=nLevs)
 	      X0[nRows*(thisCol-1)+0:(nRows-1)+1]=1
 	      X=cbind(X,X0)
 	}
