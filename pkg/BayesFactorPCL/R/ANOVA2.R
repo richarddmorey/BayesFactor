@@ -68,15 +68,26 @@ doModel = function(X,y,Nks,M=1000,burnin=100,progress=0,MCMCCI=.95,rscale=1)
  		}
 	}
 
+	if(K==1){
+		MCMCN = effectiveSize(dens[,-burnin])
+		vars  = var(apply(dens[,-burnin])
 
-	MCMCN = apply(dens[,-burnin],1,effectiveSize)
-	vars  = apply(dens[,-burnin],1,var)
-
-	prior=(1/pi)^Nks
+		prior=(1/pi)^Nks
 
 
-	BF = rowMeans(dens[,-burnin])/prior
-	CI = rbind(BF + qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN),BF - qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN))
+		BF = mean(dens[,-burnin])/prior
+		CI = c(BF + qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN),BF - qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN))
+
+	}else{
+		MCMCN = apply(dens[,-burnin],1,effectiveSize)
+		vars  = apply(dens[,-burnin],1,var)
+
+		prior=(1/pi)^Nks
+
+
+		BF = rowMeans(dens[,-burnin])/prior
+		CI = rbind(BF + qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN),BF - qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN))
+	}
 	return(list(chain.beta=chain.beta,chain.sig2=chain.sig2,chain.g=chain.g,density=dens,burnin=burnin,BayesFactor=BF,CI=CI))
 }  
 
