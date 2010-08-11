@@ -53,27 +53,34 @@ doModel = function(X,y,Nks,M=1000,burnin=100,progress=0,MCMCCI=.95,rscale=1)
         	# Theorem for conditional distributions
         	# of subvectors of multivariate normal vectors
         	# See Moser (or other linear models text)
-        	for(k in 1:K)
+			S0 = 1/sqrt(c(1,chain.g[grps[-1],m]*chain.sig2[m]))
+			MuS0 = Mu*S0
+			SigS0 = diag(S0)%*%Sigma%*%diag(S0)
+			BetasS0 = chain.beta[,m]*S0
+			
+		for(k in 1:K)
 		{
 			subset = grps==k
-          		mu1 = Mu[subset]/sqrt(chain.sig2[m])
-          		mu2 = Mu[!subset]/sqrt(chain.sig2[m])
-          		known.beta = chain.beta[!subset,m]/sqrt(chain.sig2[m])
-          		S11 = Sigma[subset,subset]/chain.sig2[m]
-          		S22 = Sigma[!subset,!subset]/chain.sig2[m]
-          		S12 = Sigma[subset,!subset]/chain.sig2[m]
+          		mu1 = MuS0[subset]
+          		mu2 = MuS0[!subset]
+          		known.beta = BetasS0[!subset]
+          		S11 = SigS0[subset,subset]
+          		S22 = SigS0[!subset,!subset]
+          		S12 = SigS0[subset,!subset]
           		condMean = mu1 + S12%*%solve(S22)%*%(known.beta-mu2)
-			condVariance = S11 - S12%*%solve(S22)%*%t(S12)
+				condVariance = S11 - S12%*%solve(S22)%*%t(S12)
           		dens[k,m-1] = dmvnorm(mu1*0,condMean,condVariance)
  		}
 	}
+	
 
+	
 	if(K==1){
 		MCMCN = effectiveSize(dens[,-burnin])
 		vars  = var(dens[,-burnin])
 
-		prior=(1/pi)^Nks
-
+		#prior=(1/pi)^Nks
+		prior = (2*pi)^(-Nks/2)
 
 		BF = mean(dens[,-burnin])/prior
 		CI = c(BF + qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN),BF - qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN))
@@ -82,8 +89,8 @@ doModel = function(X,y,Nks,M=1000,burnin=100,progress=0,MCMCCI=.95,rscale=1)
 		MCMCN = apply(dens[,-burnin],1,effectiveSize)
 		vars  = apply(dens[,-burnin],1,var)
 
-		prior=(1/pi)^Nks
-
+		#prior=(1/pi)^Nks
+		prior = (2*pi)^(-Nks/2)
 
 		BF = rowMeans(dens[,-burnin])/prior
 		CI = rbind(BF + qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN),BF - qnorm((1-MCMCCI)/2)*sqrt(vars/MCMCN))
