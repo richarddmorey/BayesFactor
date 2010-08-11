@@ -70,7 +70,7 @@ doModel = function(X,y,Nks,M=1000,burnin=100,progress=0,MCMCCI=.95,rscale=1)
 
 	if(K==1){
 		MCMCN = effectiveSize(dens[,-burnin])
-		vars  = var(apply(dens[,-burnin])
+		vars  = var(dens[,-burnin])
 
 		prior=(1/pi)^Nks
 
