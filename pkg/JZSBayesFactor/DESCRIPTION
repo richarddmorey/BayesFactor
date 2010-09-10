@@ -7,6 +7,6 @@ Author: Jeff Rouder, Richard D. Morey
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The JZSBayesFactor package is a suite of functions for computing Bayes factors for simple psychological designs.
 License: GPL 2
-Depends: gtools, coda, tcltk, methods, MCMCpack, mvtnorm, logspline
+Depends:  coda, MCMCpack, logspline
 LazyLoad: yes
 
