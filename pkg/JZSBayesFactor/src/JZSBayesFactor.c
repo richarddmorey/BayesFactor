@@ -12,6 +12,8 @@
 #include <R_ext/Random.h>
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
+void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetrop, int progress, SEXP pBar, SEXP rho);
+
 
 SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
 {
@@ -91,6 +93,109 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 		chains[npars*i + 2] = g;
 		chains[npars*i + 3] = mu/sqrt(sig2);
 		chains[npars*i + 4] = densDelta;
+		
+	}
+
+	UNPROTECT(2);
+	PutRNGstate();
+	
+}
+
+
+SEXP RgibbsEqVariance(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP lambdaR, SEXP iterationsR, SEXP sdMetropR, SEXP progressR, SEXP pBar, SEXP rho)
+{
+	
+	int iterations = INTEGER_VALUE(iterationsR);
+	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
+	double lambda = NUMERIC_VALUE(rscaleR);
+	double sdMetrop = NUMBERIC_VALUE(sdMetropR);
+	double *y = REAL(yR);
+	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
+	
+	int npars = 2*J + 3;
+	
+	SEXP chainsR;
+	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+
+	gibbsEqVariance(y, N, J, I, lambda, iterations, REAL(chainsR), sdMetrop, progress, pBar, rho);
+	
+	UNPROTECT(1);
+	
+	return(chainsR);
+}
+
+void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetrop, int progress, SEXP pBar, SEXP rho)
+{
+	int i=0,j=0,m=0;
+	double yBar[J],sumy2[J],densg[J];
+	double mu[J],sig2=1,g[J],tau=1;
+	double varMu=0, shapeSig2=(1.0*N)/2+0.5,scaleSig2=1,scaleg=1;
+	int npars = 2*J + 3;
+	
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+	
+	GetRNGstate();
+	
+	for(j=0;j<J;j++)
+	{
+		yBar[j]=0;
+		sumy2[j]=0;
+		for(i=0;i<N[j];i++)
+		{
+			yBar[j] += y[j*I+i]/((float)(N[j]));
+			sumy2[j] += pow(y[j*I+i],2);
+		}
+	}
+	
+	// start MCMC
+	for(m=0; m<iterations; m++)
+	{
+		R_CheckUserInterrupt();
+	
+		
+		//Check progress
+		if(progress && !((m+1)%progress)){
+			pSampCounter[0]=m+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+
+		// sample mu
+		for(j=0;j<J;j++)
+		{
+			varMu  = sig2/(N[j]*g[j]);
+			mu[j] = rnorm(yBar,sqrt(varMu));
+			chains[npars*m + j] = mu[j];
+		}
+				
+		
+		logdensg = 0;
+		// sample g
+		for(j=0;j<J;j++)
+		{
+			//scaleg = 0.5 * (pow(mu,2)/sig2+rscaleSq);
+			//shapeg = 
+			g[j] = rgamma(shapeg,scaleg);
+			chains[npars*m + J + j] = g[j];
+			//logdensg +=  
+		}
+		chains[npars*m + J + J] = exp(logdensg);
+		
+		
+		// sample sig2
+		//scaleSig2 = 0.5*(sumy2 - 2.0 * N * yBar * mu + 1.0*N*pow(mu,2));
+		//sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
+		chains[npars*m + J + J + 1] = sig2;
+	
+		// sample tau
+		// tau = //MUST USE METROPOLIS-HASTINGS
+		chains[npars*m + J + J + 2] = tau;	
 		
 	}
 
