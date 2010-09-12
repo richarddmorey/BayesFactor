@@ -17,6 +17,28 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(mcmc(t(chains)))
 }
 
+eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, progress=TRUE){
+	N = as.integer(colSums(!is.na(y)))
+	J=as.integer(dim(y)[2])
+	I=as.integer(dim(y)[1])
+	iterations = as.integer(iterations)
+	if(progress){
+		progress = round(iterations/100)
+		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
+	}else{ 
+		pb=NULL 
+	}
+
+    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
+
+	chains = .Call("RgibbsOneSample", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
+				progress, pbFun, new.env(), package="JZSBayesFactor")
+
+	rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
+	return(mcmc(t(chains)))
+}
+
+
 dinvgamma = function (x, shape, scale = 1) 
 {
     if (shape <= 0 | scale <= 0) {

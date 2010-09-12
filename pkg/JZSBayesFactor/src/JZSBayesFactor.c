@@ -13,7 +13,10 @@
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetrop, int progress, SEXP pBar, SEXP rho);
-
+double sampleSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J, double sdMetrop, double *acc);
+double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda);
+double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J);
+double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc);
 
 SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
 {
@@ -102,35 +105,35 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 }
 
 
-SEXP RgibbsEqVariance(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP lambdaR, SEXP iterationsR, SEXP sdMetropR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsEqVariance(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP lambdaR, SEXP iterationsR, SEXP sdMetropSig2R, SEXP sdMetropTauR, SEXP progressR, SEXP pBar, SEXP rho)
 {
-	
 	int iterations = INTEGER_VALUE(iterationsR);
 	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
 	double lambda = NUMERIC_VALUE(rscaleR);
-	double sdMetrop = NUMBERIC_VALUE(sdMetropR);
+	double sdMetropSig2 = NUMERIC_VALUE(sdMetropSig2R);
+	double sdMetropTau = NUMERIC_VALUE(sdMetropTauR);
 	double *y = REAL(yR);
 	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
 	
-	int npars = 2*J + 3;
+	int npars = J + 5;
 	
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsEqVariance(y, N, J, I, lambda, iterations, REAL(chainsR), sdMetrop, progress, pBar, rho);
+	gibbsEqVariance(y, N, J, I, lambda, iterations, REAL(chainsR), sdMetropSig2, sdMetropTau, progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetrop, int progress, SEXP pBar, SEXP rho)
+void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho)
 {
-	int i=0,j=0,m=0;
+	int i=0,j=0,m=0, sumN=0;
 	double yBar[J],sumy2[J],densg[J];
-	double mu[J],sig2=1,g[J],tau=1;
-	double varMu=0, shapeSig2=(1.0*N)/2+0.5,scaleSig2=1,scaleg=1;
-	int npars = 2*J + 3;
+	double mu[J],sig2=1,tau=1;
+	double vscaleMu=0,shapeSig2=0,scaleSig2=1,totalSS=0,SS[J];
+	int npars = J + 5;
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -145,6 +148,8 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 	{
 		yBar[j]=0;
 		sumy2[j]=0;
+		shapeSig2 += N[j]/2;
+		sumN+=N[j];
 		for(i=0;i<N[j];i++)
 		{
 			yBar[j] += y[j*I+i]/((float)(N[j]));
@@ -166,40 +171,106 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 		}
 
 
+		logdensg = 0;
 		// sample mu
 		for(j=0;j<J;j++)
 		{
-			varMu  = sig2/(N[j]*g[j]);
-			mu[j] = rnorm(yBar,sqrt(varMu));
+			scaleMu  = sqrt((2.0*tau*sig2/(1.0*N[j]) + sumy2[j]/(1.0*N[j]))/(N*0.5 + tau));
+			mu[j] = scaleMu*rt(0.5*N[j] + tau) + ybar;
 			chains[npars*m + j] = mu[j];
-		}
-				
-		
-		logdensg = 0;
-		// sample g
-		for(j=0;j<J;j++)
-		{
-			//scaleg = 0.5 * (pow(mu,2)/sig2+rscaleSq);
-			//shapeg = 
-			g[j] = rgamma(shapeg,scaleg);
-			chains[npars*m + J + j] = g[j];
-			//logdensg +=  
-		}
-		chains[npars*m + J + J] = exp(logdensg);
-		
+			alpha = N[j]*0.5 + tau;
+			beta = (sumy2[j] - 2.0*N[j]*ybar[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
+			logdensg += alpha*log(beta) - lgammafn(alpha) - beta;
+		}		
+		chains[npars*m + J] = exp(logdensg);
 		
 		// sample sig2
-		//scaleSig2 = 0.5*(sumy2 - 2.0 * N * yBar * mu + 1.0*N*pow(mu,2));
-		//sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
-		chains[npars*m + J + J + 1] = sig2;
+		sig2 = sampleSig2EqVar(sig2, mu, tau, ybar, sumy2, N, sumN, J, sdMetropSig2, &chains[npars*m + J + 2])
+		chains[npars*m + J + 1] = sig2;
 	
 		// sample tau
-		// tau = //MUST USE METROPOLIS-HASTINGS
-		chains[npars*m + J + J + 2] = tau;	
+		sig2 = sampleSig2EqVar(tau, mu, sig2, ybar, sumy2, N, J, lambda, sdMetropTau, &chains[npars*m + J + 4])
+		chains[npars*m + J + 3] = tau;	
 		
 	}
 
 	UNPROTECT(2);
 	PutRNGstate();
 	
+}
+
+double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc)
+{
+	// we're going to do log(tau) instead.
+	double z, b, logratio, logTau = log(tau), cand, expCand;
+	
+	z = rnorm(0,sdMetrop);
+	cand = logTau + z;
+	expCand = exp(cand);
+	
+	logratio = logFullCondTauEqVar(expCand, mu, sig2, ybar, sumy2, N, J, lambda) - logFullCondTauEqVar(tau, mu, sig2, ybar, sumy2, N, J, lambda)
+			+ (expCand - tau);  
+	
+	b = log(runif(0,1));
+	if(b > logratio){
+		acc[0]=0;
+		return(tau);
+	}else{
+		acc[0]=1;
+		return(expCand);
+	}
+}
+
+
+double sampleSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J, double sdMetrop, double *acc)
+{
+	// we're going to do log(sig2) instead.
+	double z, b, logratio, logSig2 = log(sig2), cand, expCand;
+	
+	z = rnorm(0,sdMetrop);
+	cand = logSig2 + z;
+	expCand = exp(cand);
+	
+	logratio = logFullCondTauEqVar(expCand, mu, tau, ybar, sumy2, N, sumN, J) - logFullCondTauEqVar(sig2, mu, tau, ybar, sumy2, N, sumN, J)
+			+ (expCand - sig2);  
+	
+	b = log(runif(0,1));
+	if(b > logratio){
+		acc[0]=0;
+		return(sig2);
+	}else{
+		acc[0]=1;
+		return(expCand);
+	}
+}
+
+
+double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda)
+{
+	if(tau<=0){ return(-DBL_MAX);}
+	double jpart=0, logDens = 0;
+	int j=0;
+	
+	for(j=0;j<J;j++)
+	{
+		jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*(log(tau + (sumy2[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + sumy2[j]/N)));
+	}
+	logDens = jpart - lambda*tau + J*tau*log(tau) - J*lgammafn(tau);
+	
+	return(logDens)
+}
+
+double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J)
+{
+	if(sig2<=0){ return(-DBL_MAX);}
+	double jpart=0, s2=0, logDens = 0;
+	int j=0;
+	
+	for(j=0;j<J;j++)
+	{
+		jpart += -(N[j]*0.5 + tau)*(log(tau + (sumy2[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + sumy2[j]/N)));
+	}
+	logDens = jpart -(0.5*sumN+1)*log(sig2)
+	
+	return(logDens)
 }
