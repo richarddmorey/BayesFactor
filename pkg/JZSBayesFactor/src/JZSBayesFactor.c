@@ -132,7 +132,7 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 	int i=0,j=0,m=0, sumN=0;
 	double yBar[J],sumy2[J],logdensg;
 	double mu[J],sig2=1,tau=1,SS[J];
-	double scaleMu=0,alpha=0,beta=0;
+	double scaleMu=0,dfMu=0,alpha=0,beta=0;
 	int npars = J + 5;
 	
 	// progress stuff
@@ -175,8 +175,9 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 		// sample mu
 		for(j=0;j<J;j++)
 		{
-			scaleMu  = sqrt((2.0*tau*sig2 + SS[j])/(N[j]*(N[j]*0.5 + tau)));
-			mu[j] = scaleMu * rt(0.5 * N[j] + tau) + yBar[j];
+			dfMu = N[j] + 2*tau - 1;
+			scaleMu  = sqrt((2.0*tau*sig2 + SS[j])/(N[j]*dfMu));
+			mu[j] = scaleMu * rt((double)(dfMu) + yBar[j];
 			chains[npars*m + j] = mu[j];
 			alpha = N[j]*0.5 + tau;
 			beta = (sumy2[j] - 2.0*N[j]*yBar[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
