@@ -13,6 +13,8 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	chains = .Call("RgibbsOneSample", y, N, rscale, iterations,
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 
+	if(progress) close(pb);
+	
 	rownames(chains) = c("mu","sig2","g","delta","CMDE")			
 	return(mcmc(t(chains)))
 }
@@ -34,6 +36,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 	chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 
+	if(progress) close(pb);
 	rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
 	return(mcmc(t(chains)))
 }
