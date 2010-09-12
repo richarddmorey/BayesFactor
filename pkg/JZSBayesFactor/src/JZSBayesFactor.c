@@ -12,11 +12,11 @@
 #include <R_ext/Random.h>
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
-void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetrop, int progress, SEXP pBar, SEXP rho);
-double sampleSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J, double sdMetrop, double *acc);
-double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda);
-double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J);
-double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc);
+void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
+double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *sumy2, int *N, int sumN, int J, double sdMetrop, double *acc);
+double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *sumy2, int *N, int J, double lambda);
+double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
+double sampleTauEqVar(double tau, double *mu, double sig2, double *yBar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc);
 
 SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
 {
@@ -109,7 +109,7 @@ SEXP RgibbsEqVariance(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP lambdaR, SEXP ite
 {
 	int iterations = INTEGER_VALUE(iterationsR);
 	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
-	double lambda = NUMERIC_VALUE(rscaleR);
+	double lambda = NUMERIC_VALUE(lambdaR);
 	double sdMetropSig2 = NUMERIC_VALUE(sdMetropSig2R);
 	double sdMetropTau = NUMERIC_VALUE(sdMetropTauR);
 	double *y = REAL(yR);
@@ -130,9 +130,9 @@ SEXP RgibbsEqVariance(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP lambdaR, SEXP ite
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,m=0, sumN=0;
-	double yBar[J],sumy2[J],densg[J];
-	double mu[J],sig2=1,tau=1;
-	double vscaleMu=0,shapeSig2=0,scaleSig2=1,totalSS=0,SS[J];
+	double yBar[J],sumy2[J],logdensg;
+	double mu[J],sig2=1,tau=1,SS[J];
+	double scaleMu=0,alpha=0,beta=0;
 	int npars = J + 5;
 	
 	// progress stuff
@@ -148,13 +148,13 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 	{
 		yBar[j]=0;
 		sumy2[j]=0;
-		shapeSig2 += N[j]/2;
 		sumN+=N[j];
 		for(i=0;i<N[j];i++)
 		{
 			yBar[j] += y[j*I+i]/((float)(N[j]));
 			sumy2[j] += pow(y[j*I+i],2);
 		}
+		SS[j] = sumy2[j] - N[j]*pow(yBar[j],2);
 	}
 	
 	// start MCMC
@@ -175,21 +175,22 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 		// sample mu
 		for(j=0;j<J;j++)
 		{
-			scaleMu  = sqrt((2.0*tau*sig2/(1.0*N[j]) + sumy2[j]/(1.0*N[j]))/(N*0.5 + tau));
-			mu[j] = scaleMu*rt(0.5*N[j] + tau) + ybar;
+			scaleMu  = sqrt((2.0*tau*sig2 + SS[j])/(N[j]*(N[j]*0.5 + tau)));
+			mu[j] = scaleMu * rt(0.5 * N[j] + tau) + yBar[j];
 			chains[npars*m + j] = mu[j];
 			alpha = N[j]*0.5 + tau;
-			beta = (sumy2[j] - 2.0*N[j]*ybar[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
+			beta = (sumy2[j] - 2.0*N[j]*yBar[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
 			logdensg += alpha*log(beta) - lgammafn(alpha) - beta;
 		}		
 		chains[npars*m + J] = exp(logdensg);
 		
+
 		// sample sig2
-		sig2 = sampleSig2EqVar(sig2, mu, tau, ybar, sumy2, N, sumN, J, sdMetropSig2, &chains[npars*m + J + 2])
+		sig2 = sampleSig2EqVar(sig2, mu, tau, yBar, SS, N, sumN, J, sdMetropSig2, &chains[npars*m + J + 2]);
 		chains[npars*m + J + 1] = sig2;
 	
 		// sample tau
-		sig2 = sampleSig2EqVar(tau, mu, sig2, ybar, sumy2, N, J, lambda, sdMetropTau, &chains[npars*m + J + 4])
+		tau = 1;//sampleTauEqVar(tau, mu, sig2, yBar, sumy2, N, J, lambda, sdMetropTau, &chains[npars*m + J + 4]);
 		chains[npars*m + J + 3] = tau;	
 		
 	}
@@ -199,7 +200,7 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 	
 }
 
-double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc)
+double sampleTauEqVar(double tau, double *mu, double sig2, double *yBar, double *sumy2, int *N, int J, double lambda, double sdMetrop, double *acc)
 {
 	// we're going to do log(tau) instead.
 	double z, b, logratio, logTau = log(tau), cand, expCand;
@@ -208,7 +209,7 @@ double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double 
 	cand = logTau + z;
 	expCand = exp(cand);
 	
-	logratio = logFullCondTauEqVar(expCand, mu, sig2, ybar, sumy2, N, J, lambda) - logFullCondTauEqVar(tau, mu, sig2, ybar, sumy2, N, J, lambda)
+	logratio = logFullCondTauEqVar(expCand, mu, sig2, yBar, sumy2, N, J, lambda) - logFullCondTauEqVar(tau, mu, sig2, yBar, sumy2, N, J, lambda)
 			+ (expCand - tau);  
 	
 	b = log(runif(0,1));
@@ -222,7 +223,7 @@ double sampleTauEqVar(double tau, double *mu, double sig2, double *ybar, double 
 }
 
 
-double sampleSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J, double sdMetrop, double *acc)
+double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc)
 {
 	// we're going to do log(sig2) instead.
 	double z, b, logratio, logSig2 = log(sig2), cand, expCand;
@@ -231,7 +232,7 @@ double sampleSig2EqVar(double sig2, double *mu, double tau, double *ybar, double
 	cand = logSig2 + z;
 	expCand = exp(cand);
 	
-	logratio = logFullCondTauEqVar(expCand, mu, tau, ybar, sumy2, N, sumN, J) - logFullCondTauEqVar(sig2, mu, tau, ybar, sumy2, N, sumN, J)
+	logratio = logFullCondSig2EqVar(expCand, mu, tau, yBar, SS, N, sumN, J) - logFullCondSig2EqVar(sig2, mu, tau, yBar, SS, N, sumN, J)
 			+ (expCand - sig2);  
 	
 	b = log(runif(0,1));
@@ -253,24 +254,24 @@ double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, do
 	
 	for(j=0;j<J;j++)
 	{
-		jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*(log(tau + (sumy2[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + sumy2[j]/N)));
+		jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*(log(tau + (sumy2[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + sumy2[j]/N[j])));
 	}
 	logDens = jpart - lambda*tau + J*tau*log(tau) - J*lgammafn(tau);
 	
-	return(logDens)
+	return(logDens);
 }
 
-double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *sumy2, int *N, int sumN, int J)
+double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *SS, int *N, int sumN, int J)
 {
 	if(sig2<=0){ return(-DBL_MAX);}
-	double jpart=0, s2=0, logDens = 0;
+	double jpart=0, logDens = 0;
 	int j=0;
 	
 	for(j=0;j<J;j++)
 	{
-		jpart += -(N[j]*0.5 + tau)*(log(tau + (sumy2[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + sumy2[j]/N)));
+		jpart += -(N[j]*0.5 + tau)*(log(tau + (SS[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + SS[j]/N[j])));
 	}
-	logDens = jpart -(0.5*sumN+1)*log(sig2)
+	logDens = jpart -(0.5*sumN+1)*log(sig2);
 	
-	return(logDens)
+	return(logDens);
 }

@@ -31,7 +31,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 
-	chains = .Call("RgibbsOneSample", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
+	chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 
 	rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
