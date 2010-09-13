@@ -83,7 +83,7 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 		densDelta = dnorm(0,meanDelta,sqrt(varDelta),0);
 		
 		// sample sig2
-		scaleSig2 = 0.5*(sumy2 - 2.0 * N * yBar * mu + 1.0*N*pow(mu,2));
+		scaleSig2 = 0.5*(sumy2 - 2.0 * N * yBar * mu + (N + 1/g)*pow(mu,2));
 		sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
 	
 		// sample g
