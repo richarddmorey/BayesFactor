@@ -177,10 +177,10 @@ void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterati
 		{
 			dfMu = N[j] + 2*tau - 1;
 			scaleMu  = sqrt((2.0*tau*sig2 + SS[j])/(N[j]*dfMu));
-			mu[j] = scaleMu * rt((double)(dfMu) + yBar[j];
+			mu[j] = scaleMu * rt((double)(dfMu)) + yBar[j];
 			chains[npars*m + j] = mu[j];
 			alpha = N[j]*0.5 + tau;
-			beta = (sumy2[j] - 2.0*N[j]*yBar[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
+			beta = (sumy2[j] - 2.0*N[j]*yBar[j]*mu[j] + N[j]*pow(mu[j],2))/(2*sig2) + tau;
 			logdensg += alpha*log(beta) - lgammafn(alpha) - beta;
 		}		
 		chains[npars*m + J] = exp(logdensg);
@@ -248,7 +248,7 @@ double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double
 }
 
 
-double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, double *SS, int *N, int J, double lambda)
+double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda)
 {
 	if(tau<=0){ return(-DBL_MAX);}
 	double jpart=0, logDens = 0;
@@ -256,14 +256,15 @@ double logFullCondTauEqVar(double tau, double *mu, double sig2, double *ybar, do
 	
 	for(j=0;j<J;j++)
 	{
-		jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*(log(tau + (SS[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + SS[j]/N[j])));
+		//jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*(log(tau + (SS[j]/sig2)/2) + log(1+pow(mu[j]-yBar[j],2)/(2*tau*sig2/(1.0*N[j]) + SS[j]/N[j])));
+		jpart += lgammafn(N[j]*0.5 + tau) - (N[j]*0.5 + tau)*log((SS[j] + N[j]*pow(mu[j]-yBar[j],2))/(2*sig2) + tau);
 	}
 	logDens = jpart - lambda*tau + J*tau*log(tau) - J*lgammafn(tau);
 	
 	return(logDens);
 }
 
-double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, double *SS, int *N, int sumN, int J)
+double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J)
 {
 	if(sig2<=0){ return(-DBL_MAX);}
 	double jpart=0, logDens = 0;
@@ -272,7 +273,8 @@ double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *ybar, d
 	
 	for(j=0;j<J;j++)
 	{
-		jpart += -(N[j]*0.5 + tau)*(log(tau + (SS[j]/sig2)/2) + log(1+pow(mu[j]-ybar[j],2)/(2*tau*sig2/(1.0*N[j]) + SS[j]/N[j])));
+		//jpart += -(N[j]*0.5 + tau)*(log(tau + (SS[j]/sig2)/2) + log(1+pow(mu[j]-yBar[j],2)/(2*tau*sig2/(1.0*N[j]) + SS[j]/N[j])));
+		jpart += - (N[j]*0.5 + tau)*log((SS[j] + N[j]*pow(mu[j]-yBar[j],2))/(2*sig2) + tau);
 	}
 	logDens = jpart + -(0.5*sumN+1)*log(sig2);
 	

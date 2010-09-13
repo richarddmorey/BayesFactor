@@ -14,9 +14,11 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 
 	if(progress) close(pb);
-	
+	priorDens = 1/(pi*rscale)
+	postDens = mean(chains[5,])
+	BF = postDens/priorDens
 	rownames(chains) = c("mu","sig2","g","delta","CMDE")			
-	return(mcmc(t(chains)))
+	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
 eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, progress=TRUE){
@@ -38,7 +40,16 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 
 	if(progress) close(pb);
 	rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
-	return(mcmc(t(chains)))
+	tau.acc = mean(chains[J+5,])
+	sig2.acc = mean(chains[J+3,])
+	cat("Acceptance rates:\n sig2:",sig2.acc,", tau:",tau.acc,"\n")
+
+	priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=1)[[1]]
+	postDens = mean(chains[J+1,])
+	BF = postDens/priorDens
+	
+	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
+
 }
 
 
@@ -72,3 +83,16 @@ marg.like.1=ifelse(prior.cauchy,
   (1+n*r2)^(-.5)*(1+t^2/((1+n*r2)*(nu)))^(-(nu+1)/2))
 return(marg.like.0/marg.like.1)
 }
+
+
+dtau.eqVar.1 = function(x, g, lambda=1, log=FALSE)
+{
+	if(x<0) return(ifelse(log,-Inf,0))
+	J = length(g)
+	logd = -J*lgamma(x) - x * (-J*log(x) + sum(g - log(g)) + lambda) + log(lambda)
+	#logd = dgamma(g,x,rate=x,log=TRUE) + dexp(x,rate=lambda)
+	ifelse(log, logd, exp(logd))
+}
+
+dtau.eqVar=Vectorize(dtau.eqVar.1,"x")
+
