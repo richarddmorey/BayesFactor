@@ -10,13 +10,43 @@
 #include <Rconfig.h>
 #include <R_ext/Constants.h>
 #include <R_ext/Random.h>
+#include <R_ext/Lapack.h>
+#include <R_ext/Random.h>
+#include <R_ext/BLAS.h>
+
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
 double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
 double sampleTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda, double sdMetrop, double *acc);
+
+double quadform(double *x, double *A, int N, int incx);
+SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
+void rmvGaussianC(double *mu, double *Sigma, int p);
+int InvMatrixUpper(double *A, int p);
+
+/**
+ * Symmetrize a matrix by copying the strict upper triangle into the
+ * lower triangle.
+ *
+ * @param a pointer to a matrix in Fortran storage mode
+ * @param nc number of columns (and rows and leading dimension) in the matrix
+ *
+ * @return a, symmetrized
+ */
+static R_INLINE double*
+internal_symmetrize(double *a, int nc)
+{
+    int i,j;
+    for (i = 1; i < nc; i++)
+	for (j = 0; j < i; j++)
+	    a[i + j*nc] = a[j + i*nc];
+    return a;
+}
+
 
 SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
 {
@@ -281,3 +311,268 @@ double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, d
 	
 	return(logDens);
 }
+
+
+
+SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
+{
+	int iterations = INTEGER_VALUE(iterationsR);
+	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
+	double lambda = NUMERIC_VALUE(lambdaR);
+	double sdMetropSig2 = NUMERIC_VALUE(sdMetropSig2R);
+	double sdMetropTau = NUMERIC_VALUE(sdMetropTauR);
+	double *y = REAL(yR);
+	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
+	int j=0,sumN=0,counter=0;
+
+	npars = J+4;
+	
+	for(j=0;j<J;j++){
+		sumN += N[j];
+	}
+
+	double X[sumN * (J+1)]; 
+	double yVec[sumN];
+	
+	// these vectors keep track of which elements of
+	// the (sub)design matrix are nonzero, for quicker
+	// multiplication since it is sparse.
+	int nonZeroRootX[sumN];
+	int nonZeroRootXwhichJ[sumN]; //which j the element belongs to
+	
+	for(j=0;j<J;j++)
+	{
+		X[counter]=1;
+		for(i=0;i<N[j];i++){
+			X[(j+1)*sumN + counter] = 1;
+			nonZeroRootX[counter] = j*sumN+counter;
+			nonZeroRootXwhichJ[counter] = j;
+			yVec[counter]=y[j*I + i];
+			counter++;
+		}
+	}
+	
+	SEXP chainsR;
+	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+
+	gibbsOneWayAnova(y, X, N, J, sumN, nonZeroRootX, nonZeroRootXwhichJ, iterations, REAL(chainsR), sdMetropSig2, sdMetropTau, progress, pBar, rho);
+	
+	UNPROTECT(1);
+	
+	return(chainsR);
+}
+
+void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRootX, int *nonZeroRootXwhichJ, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+{
+	int i=0,j=0,m=0;
+	double ySum[J],sumy2[J],densDelta=0;
+	double sig2=1,g=1;
+	double B[(J+1)*(J+1)], double XtX[(J+1)*(J+1)], B2[J*J], ZtZ[J*J];
+	double beta[J+1],grandSum=0,grandSumSq=0;
+	double shapeSig2 = (sumN+J)/2, shapeg = (J+1)/2;
+	double rateSig2=0, rateg=0;
+	
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+	
+	npars=J+4;
+	
+	GetRNGstate();
+	
+	AZERO(B,pow(J+1,2));
+	AZERO(B2,pow(J,2));
+	XtX[0]=sumN;
+
+	for(i=0;i<sumN;i++)
+	{
+		j = nonZeroRootXwhichJ[i];
+		ySum[j] += y[i];
+		sumy2[j] += pow(y[i],2);
+	}
+	
+	
+	for(j=0;j<J;j++)
+	{
+		ySum[j]=0;
+		sumy2[j]=0;
+		grandSum += ySum[j]/((1.0)(N[j]));
+		grandSumSq += sumy2[j];
+		XtX[j+1]=N[j];
+		XtX[(J+1)*(j+1)]=N[j];
+		for(i=0;i<J;i++)
+		{
+			if(i==j)
+			{
+				XtX[(i+1)*J+(j+1)] = N[j];  
+				ZtZ[i*J + j] = N[j];
+			}else{
+				XtX[(i+1)*J+(j+1)] = 0;
+				XtX[i*J + j] = 0;
+			}
+			
+		}
+	}
+
+	beta[0]=grandSum/((1.0)(J));
+	AZER0(&beta[1],J);
+	
+	
+	// start MCMC
+	for(m=0; m<iterations; m++)
+	{
+		R_CheckUserInterrupt();
+	
+		//Check progress
+		if(progress && !((m+1)%progress)){
+			pSampCounter[0]=m+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+		// sample mu
+	    //F77_CALL(dsymv)("U", &(sizeCovMat[i]), &minusone, pointerCovMat[i], &(sizeCovMat[i]), vecWorkspace+j, &(obsCovMat[i]), &zero, tmparray, &iOne);
+
+		
+		// calculate density
+		// blah
+		chains[npars*m + (J+1) + 0] = densDelta;
+		
+		
+		tempBetaY = 0;
+		tempBetaSq= 0;
+		// sample sig2
+		for(j=0;j<J;j++)
+		{
+			tempBetaY += beta[j+1]*ySum[j];
+			tempBetaSq += pow(beta[j+1],2);
+		}
+		rateSig2 = 0.5*(sumy2 - 2*tempBetaY + (1+1/g)*tempBetaSq);
+		sig2 = rgamma(shapeSig2,1/rateSig2);
+		chains[npars*m + (J+1) + 1] = sig2;
+	
+		// sample g
+		rateg = 0.5*(tempBetaSq/sig2) + 0.5;
+		g = 1/rgamma(shapeg,1/rateg);
+		chains[npars*m + (J+1) + 2] = g;
+	}
+
+	UNPROTECT(2);
+	PutRNGstate();
+	
+}
+
+
+/**
+ * Symmetrize a matrix by copying the strict upper triangle into the
+ * lower triangle.
+ *
+ * @param a pointer to a matrix in Fortran storage mode
+ * @param nc number of columns (and rows and leading dimension) in the matrix
+ *
+ * @return a, symmetrized
+ */
+static R_INLINE double*
+internal_symmetrize(double *a, int nc)
+{
+    int i,j;
+    for (i = 1; i < nc; i++)
+	for (j = 0; j < i; j++)
+	    a[i + j*nc] = a[j + i*nc];
+    return a;
+}
+
+
+double quadform(double *x, double *A, int N, int incx)
+{
+  
+  int Nsqr = N*N,info,i=0;
+  double *B = Calloc(Nsqr,double);
+  //double one=1;
+  //double zero=0;
+  double sumSq=0;
+  double y[N];
+  int iOne=1;
+
+  for(i=0;i<N;i++){
+    y[i] = x[i*incx];
+    //printf("%d %f\n",i,y[i]);
+  }
+  Memcpy(B,A,Nsqr);
+  
+  F77_NAME(dpotrf)("U", &N, B, &N, &info);
+  F77_NAME(dtrmv)("U","N","N", &N, B, &N, y, &iOne);
+  
+  for(i=0;i<N;i++){
+    sumSq += y[i]*y[i];
+  }
+  
+  Free(B);
+  
+  return(sumSq);
+}
+
+int InvMatrixUpper(double *A, int p)
+{
+      int info1, info2;
+      F77_NAME(dpotrf)("U", &p, A, &p, &info1);
+      F77_NAME(dpotri)("U", &p, A, &p, &info2);      
+      //make sure you make it symmetric later...
+      return(info1);
+}
+
+
+SEXP rmvGaussianR(SEXP mu, SEXP Sigma)
+{
+    SEXP ans;
+    int *dims = INTEGER(getAttrib(Sigma, R_DimSymbol)), psqr, p;
+    double *scCp, *ansp;//, one = 1, zero = 0;
+
+    if (!isMatrix(Sigma) || !isReal(Sigma) || dims[0] != dims[1])
+	error("Sigma must be a square, real matrix");
+    
+    p = dims[0];
+    psqr=p*p;
+
+    PROTECT(ans = allocVector(REALSXP, p));
+    ansp = REAL(ans);
+    Memcpy(ansp, REAL(mu), p);
+
+    scCp = Memcpy(Calloc(psqr,double), REAL(Sigma), psqr);
+
+    
+    rmvGaussianC(ansp, scCp, p);
+    
+    Free(scCp);
+
+    UNPROTECT(1);
+    return ans;
+}
+
+void rmvGaussianC(double *mu, double *Sigma, int p)
+{
+  double ans[p];
+  int info, psqr,j=0, intOne=1;
+  double *scCp, one = 1; //zero = 0;
+  
+  psqr = p * p;
+  scCp = Memcpy(Calloc(psqr,double), Sigma, psqr);
+
+  F77_NAME(dpotrf)("U", &p, scCp, &p, &info);
+  if (info)
+    error("Sigma matrix is not positive-definite");
+  
+  GetRNGstate();
+  for(j=0;j<p;j++)
+    {
+      ans[j] = rnorm(0,1);
+    }
+  F77_NAME(dtrmv)("U","N","N", &p, scCp, &p, ans, &intOne);
+  F77_NAME(daxpy)(&p, &one, ans, &intOne, mu, &intOne);
+  PutRNGstate();
+  Free(scCp);
+}
+
