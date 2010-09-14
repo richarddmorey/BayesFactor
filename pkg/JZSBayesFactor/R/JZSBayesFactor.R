@@ -44,7 +44,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 	sig2.acc = mean(chains[J+3,])
 	cat("Acceptance rates:\n sig2:",sig2.acc,", tau:",tau.acc,"\n")
 
-	priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=1)[[1]]
+	priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=lambda)[[1]]
 	postDens = mean(chains[J+1,])
 	BF = postDens/priorDens
 	
