@@ -314,18 +314,16 @@ double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, d
 
 
 
-SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
 {
 	int iterations = INTEGER_VALUE(iterationsR);
 	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
-	double lambda = NUMERIC_VALUE(lambdaR);
-	double sdMetropSig2 = NUMERIC_VALUE(sdMetropSig2R);
-	double sdMetropTau = NUMERIC_VALUE(sdMetropTauR);
+	double rscale = NUMERIC_VALUE(rscaleR);
 	double *y = REAL(yR);
 	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
 	int j=0,sumN=0,counter=0;
 
-	npars = J+4;
+	npars = J+5;
 	
 	for(j=0;j<J;j++){
 		sumN += N[j];
@@ -355,14 +353,14 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP iterati
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsOneWayAnova(y, X, N, J, sumN, nonZeroRootX, nonZeroRootXwhichJ, iterations, REAL(chainsR), sdMetropSig2, sdMetropTau, progress, pBar, rho);
+	gibbsOneWayAnova(y, X, N, J, sumN, nonZeroRootX, nonZeroRootXwhichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRootX, int *nonZeroRootXwhichJ, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRootX, int *nonZeroRootXwhichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,m=0;
 	double ySum[J],sumy2[J],densDelta=0;
@@ -379,7 +377,7 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 	
-	npars=J+4;
+	npars=J+5;
 	
 	GetRNGstate();
 	
@@ -437,10 +435,13 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 	    //F77_CALL(dsymv)("U", &(sizeCovMat[i]), &minusone, pointerCovMat[i], &(sizeCovMat[i]), vecWorkspace+j, &(obsCovMat[i]), &zero, tmparray, &iOne);
 
 		
-		// calculate density
+		// calculate density (single Standardized)
 		// blah
 		chains[npars*m + (J+1) + 0] = densDelta;
 		
+		// calculate density (double Standardized)
+		// blah
+		chains[npars*m + (J+1) + 1] = densDelta;
 		
 		tempBetaY = 0;
 		tempBetaSq= 0;
@@ -452,12 +453,12 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 		}
 		rateSig2 = 0.5*(sumy2 - 2*tempBetaY + (1+1/g)*tempBetaSq);
 		sig2 = rgamma(shapeSig2,1/rateSig2);
-		chains[npars*m + (J+1) + 1] = sig2;
+		chains[npars*m + (J+1) + 2] = sig2;
 	
 		// sample g
 		rateg = 0.5*(tempBetaSq/sig2) + 0.5;
 		g = 1/rgamma(shapeg,1/rateg);
-		chains[npars*m + (J+1) + 2] = g;
+		chains[npars*m + (J+1) + 3] = g;
 	}
 
 	UNPROTECT(2);
