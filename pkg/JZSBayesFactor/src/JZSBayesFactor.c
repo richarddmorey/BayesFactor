@@ -17,7 +17,7 @@
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
 double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
@@ -27,6 +27,7 @@ double quadform(double *x, double *A, int N, int incx);
 SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
 void rmvGaussianC(double *mu, double *Sigma, int p);
 int InvMatrixUpper(double *A, int p);
+double matrixDet(double *A, int N, int log);
 
 /**
  * Symmetrize a matrix by copying the strict upper triangle into the
@@ -332,19 +333,14 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR
 	double X[sumN * (J+1)]; 
 	double yVec[sumN];
 	
-	// these vectors keep track of which elements of
-	// the (sub)design matrix are nonzero, for quicker
-	// multiplication since it is sparse.
-	int nonZeroRootX[sumN];
-	int nonZeroRootXwhichJ[sumN]; //which j the element belongs to
+	int whichJ[sumN]; //which j the element belongs to
 	
 	for(j=0;j<J;j++)
 	{
 		X[counter]=1;
 		for(i=0;i<N[j];i++){
 			X[(j+1)*sumN + counter] = 1;
-			nonZeroRootX[counter] = j*sumN+counter;
-			nonZeroRootXwhichJ[counter] = j;
+			whichJ[counter] = j;
 			yVec[counter]=y[j*I + i];
 			counter++;
 		}
@@ -353,22 +349,30 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP XR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsOneWayAnova(y, X, N, J, sumN, nonZeroRootX, nonZeroRootXwhichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
+	gibbsOneWayAnova(y, X, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRootX, int *nonZeroRootXwhichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
 {
-	int i=0,j=0,m=0;
+	int i=0,j=0,m=0,Jp1sq = Jp1sq*Jp1sq,Jsq=J*J,Jp1=J+1;
 	double ySum[J],sumy2[J],densDelta=0;
 	double sig2=1,g=1;
-	double B[(J+1)*(J+1)], double XtX[(J+1)*(J+1)], B2[J*J], ZtZ[J*J];
+	double B[Jp1sq], double XtX[Jp1sq], B2[Jsq], ZtZ[Jsq];
+	double Btemp[Jp1sq],B2temp[Jsq];
+	double muTemp[J],oneOverSig2temp=0;
 	double beta[J+1],grandSum=0,grandSumSq=0;
 	double shapeSig2 = (sumN+J)/2, shapeg = (J+1)/2;
 	double rateSig2=0, rateg=0;
+	double Xty[J+1];
+	double logDet=0;
+	double rscaleSq=rscale*rscale;
+	
+	int iOne=1;
+	double dOne=1,dZero=0;
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -380,14 +384,14 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 	npars=J+5;
 	
 	GetRNGstate();
-	
 	AZERO(B,pow(J+1,2));
 	AZERO(B2,pow(J,2));
+	
 	XtX[0]=sumN;
 
 	for(i=0;i<sumN;i++)
 	{
-		j = nonZeroRootXwhichJ[i];
+		j = whichJ[i];
 		ySum[j] += y[i];
 		sumy2[j] += pow(y[i],2);
 	}
@@ -397,7 +401,7 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 	{
 		ySum[j]=0;
 		sumy2[j]=0;
-		grandSum += ySum[j]/((1.0)(N[j]));
+		grandSum += ySum[j];
 		grandSumSq += sumy2[j];
 		XtX[j+1]=N[j];
 		XtX[(J+1)*(j+1)]=N[j];
@@ -414,8 +418,10 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 			
 		}
 	}
-
-	beta[0]=grandSum/((1.0)(J));
+	
+	Xty[0] = grandSum;
+	Memcpy(&Xty[1],ySum,J+1);
+	beta[0]=0;
 	AZER0(&beta[1],J);
 	
 	
@@ -431,17 +437,41 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 			eval(R_fcall, rho); //Update the progress bar
 		}
 
-		// sample mu
-	    //F77_CALL(dsymv)("U", &(sizeCovMat[i]), &minusone, pointerCovMat[i], &(sizeCovMat[i]), vecWorkspace+j, &(obsCovMat[i]), &zero, tmparray, &iOne);
-
+		// sample beta
+		Memcpy(Btemp,XtX,Jp1sq);
 		
-		// calculate density (single Standardized)
-		// blah
-		chains[npars*m + (J+1) + 0] = densDelta;
+		for(j=0;j<J;j++){
+			Btemp[(j+1)*(J+1)+(j+1)] += 1/g;
+		}
+		InvMatrixUpper(Btemp, J+1);
+		internal_symmetrize(Btemp,J+1);
+		for(j=0;j<Jp1sq;j++)
+			Btemp[j] *= sig2;
+		oneOverSig2temp = 1/sig2;
+		F77_CALL(dsymv)("U", &(Jp1), &oneOverSig2temp, Btemp, &(Jp1), Xty, &iOne, &dZero, beta, &iOne);
+		rmvGaussianC(beta, Btemp, J+1);
+		Memcpy(&chains[npars*m],beta,J+1);	
+		
 		
 		// calculate density (double Standardized)
-		// blah
-		chains[npars*m + (J+1) + 1] = densDelta;
+		Memcpy(B2temp,ZtZ,Jsq);
+		densDelta = -J*0.5*log(2*M_PI);
+		for(j=0;j<J;j++)
+		{
+			B2temp[j*J+j] += 1/g;
+			muTemp[j] = ySum[j]-N[j]*beta[0];
+		}
+		for(j=0;j<Jsq;j++)
+			B2temp[j] *= g;
+		InvMatrixUpper(B2temp, J);
+		internal_symmetrize(B2temp,J);
+		densDelta += -0.5*matrixDet(B2temp,J,1);
+		densDelta += quadform(muTemp, B2temp, J, 1);
+		chains[npars*m + (J+1) + 0] = exp(densDelta);
+		
+		// calculate density (single Standardized)
+		densDelta = -J*0.5*log(2*M_PI);
+		//chains[npars*m + (J+1) + 1] = densDelta;
 		
 		tempBetaY = 0;
 		tempBetaSq= 0;
@@ -456,7 +486,7 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 		chains[npars*m + (J+1) + 2] = sig2;
 	
 		// sample g
-		rateg = 0.5*(tempBetaSq/sig2) + 0.5;
+		rateg = 0.5*(tempBetaSq/sig2) + rscaleSq/2;
 		g = 1/rgamma(shapeg,1/rateg);
 		chains[npars*m + (J+1) + 3] = g;
 	}
@@ -466,6 +496,32 @@ void gibbsOneWayAnova(double *y, int *X, int *N, int J, int sumN, int *nonZeroRo
 	
 }
 
+
+// Compute determinant of an N by N matrix A
+double matrixDet(double *A, int N, int log)
+{
+//SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
+	int i=0, info=0;
+	double B[N*N], logDet=0;
+	
+	Memcpy(B,A,N*N);
+	
+	F77_CALL(dpotrf)("U", &N, B, &N, &info);
+	if(info){
+		Rprintf("Cholesky decomposition in matrixDet() returned nonzero info %d.\n",info);
+	}
+	
+	for(i=0;i<N;i++)
+	{
+		logDet += 2 * log(B[i*N+i]);
+	}
+	
+	if(log){
+		return(logDet);
+	}else{
+		return(exp(logDet));
+	}
+}
 
 /**
  * Symmetrize a matrix by copying the strict upper triangle into the
