@@ -17,7 +17,7 @@
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
-void gibbsOneWayAnova(double *y, double *X, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
 double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
@@ -358,16 +358,13 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 		sumN += N[j];
 	}
 
-	double X[sumN * (J+1)]; 
 	double yVec[sumN];
 	
 	int whichJ[sumN]; //which j the element belongs to
 	
 	for(j=0;j<J;j++)
 	{
-		X[counter]=1;
 		for(i=0;i<N[j];i++){
-			X[(j+1)*sumN + counter] = 1;
 			whichJ[counter] = j;
 			yVec[counter]=y[j*I + i];
 			counter++;
@@ -377,14 +374,14 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsOneWayAnova(y, X, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
+	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsOneWayAnova(double *y, double *X, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,m=0,Jp1sq = (J+1)*(J+1),Jsq=J*J,Jp1=J+1,npars=0;
 	double ySum[J],yBar[J],sumy2[J],densDelta=0;
@@ -393,7 +390,7 @@ void gibbsOneWayAnova(double *y, double *X, int *N, int J, int sumN, int *whichJ
 	double Btemp[Jp1sq],B2temp[Jsq],tempBetaSq=0;
 	double muTemp[J],oneOverSig2temp=0;
 	double beta[J+1],grandSum=0,grandSumSq=0;
-	double shapeSig2 = (sumN+J)/2, shapeg = (J+1)/2;
+	double shapeSig2 = (sumN+J*1.0)/2, shapeg = (J+1.0)/2;
 	double rateSig2=0, rateg=0;
 	double Xty[J+1],Zty[J];
 	double logDet=0,quadFormTemp=0;
@@ -439,12 +436,10 @@ void gibbsOneWayAnova(double *y, double *X, int *N, int J, int sumN, int *whichJ
 	{
 		XtX[j+1]=N[j];
 		XtX[(J+1)*(j+1)]=N[j];
-		XtX[(j+1)*J+(j+1)] = N[j];
 		XtX[(j+1)*(J+1) + (j+1)] = N[j];
 		ZtZ[j*J + j] = N[j];
 		yBar[j] = ySum[j]/(1.0*N[j]);
 	}
-	
 	
 	Xty[0] = grandSum;	
 	Memcpy(Xty+1,ySum,J);
@@ -504,6 +499,7 @@ void gibbsOneWayAnova(double *y, double *X, int *N, int J, int sumN, int *whichJ
 		
 		tempBetaSq = 0;
 		rateSig2 = grandSumSq - 2*beta[0]*grandSum;
+		
 		// sample sig2
 		for(j=0;j<J;j++)
 		{
