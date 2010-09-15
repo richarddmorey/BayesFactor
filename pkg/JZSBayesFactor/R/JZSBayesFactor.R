@@ -53,6 +53,40 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 }
 
 
+oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
+	N = as.integer(colSums(!is.na(y)))
+	J=as.integer(dim(y)[2])
+	I=as.integer(dim(y)[1])
+	iterations = as.integer(iterations)
+	if(progress){
+		progress = round(iterations/100)
+		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
+	}else{ 
+		pb=NULL 
+	}
+
+    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
+
+	chains = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
+				progress, pbFun, new.env(), package="JZSBayesFactor")
+
+	if(progress) close(pb);
+	rownames(chains) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
+
+	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J))  
+	postDensDouble = mean(chains[1+J+2,])
+	BFDouble = postDensDouble/priorDensDouble
+	
+	priorDensSingle = dmvnorm(rep(0,J),rep(0,J),rscale^2*diag(J))
+	postDensSingle = mean(chains[1+J+1,])
+	BFSingle = postDensSingle/priorDensSingle
+	
+	return(list(chains=mcmc(t(chains)),bayesFactor=c(single=BFSingle,double=BFDouble)))
+
+}
+
+
+
 dinvgamma = function (x, shape, scale = 1) 
 {
     if (shape <= 0 | scale <= 0) {
