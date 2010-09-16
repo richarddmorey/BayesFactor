@@ -391,7 +391,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	double muTemp[J],oneOverSig2temp=0;
 	double beta[J+1],grandSum=0,grandSumSq=0;
 	double shapeSig2 = (sumN+J*1.0)/2, shapeg = (J+1.0)/2;
-	double rateSig2=0, rateg=0;
+	double scaleSig2=0, scaleg=0;
 	double Xty[J+1],Zty[J];
 	double logDet=0,quadFormTemp=0;
 	double rscaleSq=rscale*rscale;
@@ -497,22 +497,22 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		densDelta += -0.5*quadFormTemp;
 		chains[npars*m + (J+1) + 1] = exp(densDelta);
 		
-		tempBetaSq = 0;
-		rateSig2 = grandSumSq - 2*beta[0]*grandSum;
 		
 		// sample sig2
+		tempBetaSq = 0;
+		scaleSig2 = grandSumSq - 2*beta[0]*grandSum + beta[0]*beta[0]*sumN;
 		for(j=0;j<J;j++)
 		{
-			rateSig2 += beta[0]*beta[0]*N[j] - 2.0*N[j]*(yBar[j]-beta[0])*beta[j+1] + (N[j]+1/g)*beta[j+1]*beta[j+1];
+			scaleSig2 += -2.0*(yBar[j]-beta[0])*N[j]*beta[j+1] + (N[j]+1/g)*beta[j+1]*beta[j+1];
 			tempBetaSq += beta[j+1]*beta[j+1];
 		}
-		rateSig2 *= 0.5;
-		sig2 = rgamma(shapeSig2,1/rateSig2);
+		scaleSig2 *= 0.5;
+		sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
 		chains[npars*m + (J+1) + 2] = sig2;
 	
 		// sample g
-		rateg = 0.5*(tempBetaSq/sig2 + rscaleSq);
-		g = 1/rgamma(shapeg,1/rateg);
+		scaleg = 0.5*(tempBetaSq/sig2 + rscaleSq);
+		g = 1/rgamma(shapeg,1/scaleg);
 		chains[npars*m + (J+1) + 3] = g;
 	}
 
@@ -623,7 +623,7 @@ void rmvGaussianC(double *mu, double *Sigma, int p)
   psqr = p * p;
   scCp = Memcpy(Calloc(psqr,double), Sigma, psqr);
 
-  F77_NAME(dpotrf)("U", &p, scCp, &p, &info);
+  F77_NAME(dpotrf)("L", &p, scCp, &p, &info);
   if (info){
 	error("Nonzero info from dpotrf: Sigma matrix is not positive-definite");
   }
@@ -632,7 +632,7 @@ void rmvGaussianC(double *mu, double *Sigma, int p)
     {
       ans[j] = rnorm(0,1);
     }
-  F77_NAME(dtrmv)("U","N","N", &p, scCp, &p, ans, &intOne);
+  F77_NAME(dtrmv)("L","N","N", &p, scCp, &p, ans, &intOne);
   F77_NAME(daxpy)(&p, &one, ans, &intOne, mu, &intOne);
   PutRNGstate();
   Free(scCp);

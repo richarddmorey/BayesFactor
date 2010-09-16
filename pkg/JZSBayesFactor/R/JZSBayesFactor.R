@@ -52,7 +52,6 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 
 }
 
-
 oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
