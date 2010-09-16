@@ -393,7 +393,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	double shapeSig2 = (sumN+J*1.0)/2, shapeg = (J+1.0)/2;
 	double scaleSig2=0, scaleg=0;
 	double Xty[J+1],Zty[J];
-	double logDet=0,quadFormTemp=0;
+	double logDet=0;
 	double rscaleSq=rscale*rscale;
 	
 	int iOne=1;
@@ -481,20 +481,15 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 			B2temp[j*J+j] += 1/g;
 			muTemp[j] = (ySum[j]-N[j]*beta[0])/sqrt(sig2);
 		}
-		//for(j=0;j<Jsq;j++)
-		//	B2temp[j] *= g;
 		InvMatrixUpper(B2temp, J);
 		internal_symmetrize(B2temp,J);
 		logDet = matrixDet(B2temp,J,1);
-		quadFormTemp = quadform(muTemp, B2temp, J, 1);
+		densDelta += -0.5*quadform(muTemp, B2temp, J, 1);
 		densDelta += -0.5*logDet;
-		densDelta += -0.5*quadFormTemp;
 		chains[npars*m + (J+1) + 0] = exp(densDelta);
 		
 		// calculate density (Double Standardized)
-		densDelta = -J*0.5*log(2*M_PI);
-		densDelta += logDet - J*log(g);
-		densDelta += -0.5*quadFormTemp;
+		densDelta += 0.5*J*log(g);
 		chains[npars*m + (J+1) + 1] = exp(densDelta);
 		
 		
