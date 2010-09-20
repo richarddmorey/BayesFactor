@@ -76,7 +76,7 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	postDensDouble = mean(chains[1+J+2,])
 	BFDouble = postDensDouble/priorDensDouble
 	
-	priorDensSingle = dmvnorm(rep(0,J),rep(0,J),rscale^2*diag(J))
+	priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=FALSE)
 	postDensSingle = mean(chains[1+J+1,])
 	BFSingle = postDensSingle/priorDensSingle
 	
@@ -84,6 +84,19 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 
 }
 
+
+marginal.g.oneWay = function(g,F,N,J,rscale)
+{
+dfs = (J-1)/(N*J-J)
+omega = (1+(N*g/(dfs*F+1)))/(N*g+1)
+m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+1) - (N*J-1)/2*log(omega)
+exp(m)
+}
+
+F.value.bf = function(F,N,J,rscale=1)
+{
+	1/integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]]
+}
 
 
 dinvgamma = function (x, shape, scale = 1) 
