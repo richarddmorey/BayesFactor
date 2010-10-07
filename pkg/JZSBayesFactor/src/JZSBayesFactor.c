@@ -17,12 +17,13 @@
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, int progress, SEXP pBar, SEXP rho);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
 double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
 double sampleTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda, double sdMetrop, double *acc);
 
+double LogOnePlusX(double x);
 double quadform(double *x, double *A, int N, int incx);
 SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
 void rmvGaussianC(double *mu, double *Sigma, int p);
@@ -351,7 +352,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	double *y = REAL(yR);
 	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
 	int j=0,i=0,sumN=0,counter=0,npars=0;
-
+	
 	npars = J+5;
 	
 	for(j=0;j<J;j++){
@@ -371,17 +372,22 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 		}
 	}
 	
-	SEXP chainsR;
+	SEXP chainsR,returnListR,CMDER;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+	PROTECT(returnListR = allocVector(VECSXP,2));
+	PROTECT(CMDER = allocVector(REALSXP,2));
+	
+	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), progress, pBar, rho);
+	
+	SET_VECTOR_ELT(returnListR, 0, chainsR);
+    SET_VECTOR_ELT(returnListR, 1, CMDER);
 
-	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), progress, pBar, rho);
+	UNPROTECT(3);
 	
-	UNPROTECT(1);
-	
-	return(chainsR);
+	return(returnListR);
 }
 
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,m=0,Jp1sq = (J+1)*(J+1),Jsq=J*J,Jp1=J+1,npars=0;
 	double ySum[J],yBar[J],sumy2[J],densDelta=0;
@@ -395,6 +401,9 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	double Xty[J+1],Zty[J];
 	double logDet=0;
 	double rscaleSq=rscale*rscale;
+	
+	double logSumSingle=0,logSumDouble=0;
+	
 	
 	int iOne=1;
 	double dZero=0;
@@ -486,11 +495,22 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		logDet = matrixDet(B2temp,J,1);
 		densDelta += -0.5*quadform(muTemp, B2temp, J, 1);
 		densDelta += -0.5*logDet;
-		chains[npars*m + (J+1) + 0] = exp(densDelta);
+		if(m==0){
+			logSumSingle = densDelta;
+		}else{
+			logSumSingle =  logSumSingle + LogOnePlusX(exp(densDelta-logSumSingle));
+		}
+		chains[npars*m + (J+1) + 0] = densDelta;
+		
 		
 		// calculate density (Double Standardized)
 		densDelta += 0.5*J*log(g);
-		chains[npars*m + (J+1) + 1] = exp(densDelta);
+		if(m==0){
+			logSumDouble = densDelta;
+		}else{
+			logSumDouble =  logSumDouble + LogOnePlusX(exp(densDelta-logSumDouble));
+		}
+		chains[npars*m + (J+1) + 1] = densDelta;
 		
 		
 		// sample sig2
@@ -510,10 +530,32 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		g = 1/rgamma(shapeg,1/scaleg);
 		chains[npars*m + (J+1) + 3] = g;
 	}
-
+	
+	CMDE[0] = logSumSingle - log(iterations);
+	CMDE[1] = logSumDouble - log(iterations);
+	
 	UNPROTECT(2);
 	PutRNGstate();
 	
+}
+
+double LogOnePlusX(double x)
+{
+    if (x <= -1.0)
+    {
+		error("Error: attempt to compute log(1+X) where X is %f\n.",x);
+	}
+
+    if (fabs(x) > 1/(10000.0))
+    {
+        // x is large enough that the obvious evaluation is OK
+        return( log(1.0 + x) );
+    }
+
+    // Use Taylor approx. log(1 + x) = x - x^2/2 with error roughly x^3/3
+    // Since |x| < 10^-4, |x|^3 < 10^-12, relative error less than 10^-8
+
+    return( (-0.5*x + 1.0)*x );
 }
 
 

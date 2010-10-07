@@ -66,22 +66,32 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 
-	chains = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
+	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 
 	if(progress) close(pb);
-	rownames(chains) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
-
-	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J))  
-	postDensDouble = mean(chains[1+J+2,])
-	BFDouble = postDensDouble/priorDensDouble
+	rownames(output[[1]]) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
+	names(output[[2]])=c("logCMDESingle","logCMDEDouble")
 	
-	priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=FALSE)
-	postDensSingle = mean(chains[1+J+1,])
-	BFSingle = postDensSingle/priorDensSingle
+	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
 	
-	return(list(chains=mcmc(t(chains)),bayesFactor=c(single=BFSingle,double=BFDouble)))
-
+	postDensDouble = mean(exp(output[[1]][1+J+2,]))
+	BFDouble = postDensDouble/exp(priorDensDouble)
+	BFDouble2log = output[[2]][2] - priorDensDouble
+	BFDouble2 = exp(BFDouble2log)
+	
+	priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=TRUE)
+	postDensSingle = mean(exp(output[[1]][1+J+1,]))
+	BFSingle = postDensSingle/exp(priorDensSingle)
+	BFSingle2log = output[[2]][1] - priorDensSingle
+	BFSingle2 = exp(BFSingle2log)
+	
+	return(list(chains=mcmc(t(output[[1]])),
+			logCMDE=output[[2]],
+			bayesFactor1=c(single=BFSingle,double=BFDouble),
+			bayesFactor2=c(single=BFSingle2,double=BFDouble2),
+			logBF2=c(single=BFSingle2log,double=BFDouble2log)
+			))
 }
 
 
