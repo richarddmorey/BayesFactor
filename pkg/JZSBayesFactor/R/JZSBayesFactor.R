@@ -71,13 +71,14 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 
 	if(progress) close(pb);
 	rownames(output[[1]]) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
-	names(output[[2]])=c("logCMDESingle","logCMDEDouble")
+	names(output[[2]])=c("logCMDESingle","logCMDEDouble","logCMDESingleKahan","logCMDEDoubleKahan")
 	
 	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
 	
 	postDensDouble = mean(exp(output[[1]][1+J+2,]))
 	BFDouble = postDensDouble/exp(priorDensDouble)
 	BFDouble2log = output[[2]][2] - priorDensDouble
+	BFDouble3log = output[[2]][4] - priorDensDouble
 	BFDouble2 = exp(BFDouble2log)
 	
 	priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=TRUE)
@@ -85,12 +86,14 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	BFSingle = postDensSingle/exp(priorDensSingle)
 	BFSingle2log = output[[2]][1] - priorDensSingle
 	BFSingle2 = exp(BFSingle2log)
+	BFSingle3log = output[[2]][3] - priorDensSingle
 	
 	return(list(chains=mcmc(t(output[[1]])),
-			logCMDE=output[[2]],
-			bayesFactor1=c(single=BFSingle,double=BFDouble),
-			bayesFactor2=c(single=BFSingle2,double=BFDouble2),
-			logBF2=c(single=BFSingle2log,double=BFDouble2log)
+			bayesFactorRegular=c(single=BFSingle,double=BFDouble),
+			bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
+			logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),
+			logBFKahan=c(kahanSingleLogBF=BFSingle3log,kahanDoubleLogBF=BFDouble3log),
+			logCMDE=output[[2]]
 			))
 }
 

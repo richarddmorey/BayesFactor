@@ -375,7 +375,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	SEXP chainsR,returnListR,CMDER;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 	PROTECT(returnListR = allocVector(VECSXP,2));
-	PROTECT(CMDER = allocVector(REALSXP,2));
+	PROTECT(CMDER = allocVector(REALSXP,4));
 	
 	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), progress, pBar, rho);
 	
@@ -403,7 +403,11 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	double rscaleSq=rscale*rscale;
 	
 	double logSumSingle=0,logSumDouble=0;
-	
+
+	// for Kahan sum
+	double kahanSumSingle=0, kahanSumDouble=0;
+	double kahanCSingle=0,kahanCDouble=0;
+	double kahanTempT=0, kahanTempY=0;
 	
 	int iOne=1;
 	double dZero=0;
@@ -497,8 +501,13 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		densDelta += -0.5*logDet;
 		if(m==0){
 			logSumSingle = densDelta;
+			kahanSumSingle = exp(densDelta);
 		}else{
 			logSumSingle =  logSumSingle + LogOnePlusX(exp(densDelta-logSumSingle));
+			kahanTempY = exp(densDelta) - kahanCSingle;
+			kahanTempT = kahanSumSingle + kahanTempY;
+			kahanCSingle = (kahanTempT - kahanSumSingle) - kahanTempY;
+			kahanSumSingle = kahanTempT;
 		}
 		chains[npars*m + (J+1) + 0] = densDelta;
 		
@@ -507,8 +516,13 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		densDelta += 0.5*J*log(g);
 		if(m==0){
 			logSumDouble = densDelta;
+			kahanSumDouble = exp(densDelta);
 		}else{
 			logSumDouble =  logSumDouble + LogOnePlusX(exp(densDelta-logSumDouble));
+			kahanTempY = exp(densDelta) - kahanCDouble;
+			kahanTempT = kahanSumDouble + kahanTempY;
+			kahanCDouble = (kahanTempT - kahanSumDouble) - kahanTempY;
+			kahanSumDouble = kahanTempT;
 		}
 		chains[npars*m + (J+1) + 1] = densDelta;
 		
@@ -533,6 +547,8 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	
 	CMDE[0] = logSumSingle - log(iterations);
 	CMDE[1] = logSumDouble - log(iterations);
+	CMDE[2] = log(kahanSumSingle) - log(iterations);
+	CMDE[3] = log(kahanSumDouble) - log(iterations);
 	
 	UNPROTECT(2);
 	PutRNGstate();
