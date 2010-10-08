@@ -428,7 +428,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	AZERO(B2,Jsq);
 	AZERO(XtX,Jp1sq);
 	AZERO(ZtZ,Jsq);
-	AZERO(beta,J);
+	AZERO(beta,Jp1);
 	AZERO(ySum,J);
 	AZERO(sumy2,J);
 	
@@ -472,7 +472,6 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 
 		// sample beta
 		Memcpy(Btemp,XtX,Jp1sq);
-		
 		for(j=0;j<J;j++){
 			Btemp[(j+1)*(J+1)+(j+1)] += 1/g;
 		}
