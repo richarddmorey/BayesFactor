@@ -63,11 +63,17 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	}else{ 
 		pb=NULL 
 	}
+	
+	onemvrnorm=function(pars)
+	{
+		return(mvrnorm(1,pars[[1]],pars[[2]]))
+	}
+	
 
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 
 	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
-				progress, pbFun, new.env(), package="JZSBayesFactor")
+				progress, pbFun, new.env(), onemvrnorm, package="JZSBayesFactor")
 
 	if(progress) close(pb);
 	rownames(output[[1]]) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
@@ -93,7 +99,8 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 			bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
 			logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),
 			logBFKahan=c(kahanSingleLogBF=BFSingle3log,kahanDoubleLogBF=BFDouble3log),
-			logCMDE=output[[2]]
+			logCMDE=output[[2]],
+			debug=output[[3]]
 			))
 }
 

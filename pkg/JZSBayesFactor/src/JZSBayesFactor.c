@@ -17,7 +17,7 @@
 
 void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
 double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
@@ -74,6 +74,36 @@ void debugPrintVector(double *x, int len)
 		Rprintf("%f ",x[i]);
 	}
 	Rprintf("\n");
+}
+
+/**
+ * Allocate a 3-dimensional array
+ *
+ * @param mode The R mode (e.g. INTSXP)
+ * @param nrow number of rows
+ * @param ncol number of columns
+ * @param nface number of faces
+ *
+ * @return A 3-dimensional array of the indicated dimensions and mode
+ */
+SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface)
+{
+    SEXP s, t;
+    int n;
+
+    if (nrow < 0 || ncol < 0 || nface < 0)
+	error("negative extents to 3D array");
+    if ((double)nrow * (double)ncol * (double)nface > INT_MAX)
+	error("alloc3Darray: too many elements specified");
+    n = nrow * ncol * nface;
+    PROTECT(s = allocVector(mode, n));
+    PROTECT(t = allocVector(INTSXP, 3));
+    INTEGER(t)[0] = nrow;
+    INTEGER(t)[1] = ncol;
+    INTEGER(t)[2] = nface;
+    setAttrib(s, R_DimSymbol, t);
+    UNPROTECT(2);
+    return s;
 }
 
 
@@ -344,7 +374,7 @@ double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, d
 
 
 
-SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho, SEXP mvtnorm)
 {
 	int iterations = INTEGER_VALUE(iterationsR);
 	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
@@ -372,27 +402,31 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 		}
 	}
 	
-	SEXP chainsR,returnListR,CMDER;
-	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
-	PROTECT(returnListR = allocVector(VECSXP,2));
-	PROTECT(CMDER = allocVector(REALSXP,4));
+	//We're going to add another element to returnList for debugging.
 	
-	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), progress, pBar, rho);
+	SEXP chainsR,returnListR,CMDER,debug;
+	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+	PROTECT(returnListR = allocVector(VECSXP,3));
+	PROTECT(CMDER = allocVector(REALSXP,4));
+	PROTECT(debug = allocVector(VECSXP,2));
+	
+	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), debug, progress, pBar, rho, mvtnorm);
 	
 	SET_VECTOR_ELT(returnListR, 0, chainsR);
     SET_VECTOR_ELT(returnListR, 1, CMDER);
-
-	UNPROTECT(3);
+	SET_VECTOR_ELT(returnListR, 2, debug);
+	
+	UNPROTECT(4);
 	
 	return(returnListR);
 }
 
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm)
 {
 	int i=0,j=0,m=0,Jp1sq = (J+1)*(J+1),Jsq=J*J,Jp1=J+1,npars=0;
 	double ySum[J],yBar[J],sumy2[J],densDelta=0;
 	double sig2=1,g=1;
-	double B[Jp1sq], XtX[Jp1sq], B2[Jsq], ZtZ[Jsq];
+	double XtX[Jp1sq], ZtZ[Jsq];
 	double Btemp[Jp1sq],B2temp[Jsq],tempBetaSq=0;
 	double muTemp[J],oneOverSig2temp=0;
 	double beta[J+1],grandSum=0,grandSumSq=0;
@@ -412,6 +446,24 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	int iOne=1;
 	double dZero=0;
 	
+	/* debug stuff 
+	SEXP debugSigmas, debugMus;
+	PROTECT(debugMus = allocMatrix(REALSXP, J+1, iterations));
+	PROTECT(debugSigmas = alloc3Darray(REALSXP,J+1,J+1,iterations));
+	double *cDebugSigmas = REAL(debugSigmas);
+	double *cDebugMus = REAL(debugMus);
+	
+	
+	SEXP R_mvtnormCall,SigmaR,MuR,mvtArgs,mvtnormSamp;
+	PROTECT(R_mvtnormCall = lang2(mvtnorm, R_NilValue));
+	PROTECT(SigmaR = allocMatrix(REALSXP, J+1, J+1));
+	PROTECT(MuR = allocMatrix(REALSXP, J+1, 1));
+	PROTECT(mvtArgs = allocVector(VECSXP, 2));
+	PROTECT(mvtnormSamp = allocVector(VECSXP,1));
+	 end debug stuff */
+	
+	
+	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
 	int *pSampCounter;
@@ -424,8 +476,6 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	GetRNGstate();
 
 	// Initialize to 0
-	AZERO(B,Jp1sq);
-	AZERO(B2,Jsq);
 	AZERO(XtX,Jp1sq);
 	AZERO(ZtZ,Jsq);
 	AZERO(beta,Jp1);
@@ -464,11 +514,13 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		R_CheckUserInterrupt();
 	
 		//Check progress
+		
 		if(progress && !((m+1)%progress)){
 			pSampCounter[0]=m+1;
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
+		
 
 		// sample beta
 		Memcpy(Btemp,XtX,Jp1sq);
@@ -476,16 +528,35 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 			Btemp[(j+1)*(J+1)+(j+1)] += 1/g;
 		}
 		InvMatrixUpper(Btemp, J+1);
-		internal_symmetrize(Btemp,J+1);
+		internal_symmetrize(Btemp,J+1);	
 		for(j=0;j<Jp1sq;j++)
 			Btemp[j] *= sig2;
+	
 		oneOverSig2temp = 1/sig2;
 		F77_CALL(dsymv)("U", &Jp1, &oneOverSig2temp, Btemp, &Jp1, Xty, &iOne, &dZero, beta, &iOne);
+		
+		//AZERO(beta,Jp1);
+		/* for debugging 
+		Memcpy(cDebugMus + m*Jp1,beta,Jp1);
+		Memcpy(cDebugSigmas + m*Jp1sq,Btemp,Jp1sq);
+		
+	
+		Memcpy(REAL(SigmaR),Btemp,Jp1sq);
+		Memcpy(REAL(MuR),beta,Jp1);
+		
+		SET_VECTOR_ELT(mvtArgs, 0, MuR);
+		SET_VECTOR_ELT(mvtArgs, 1, SigmaR);
+
+		SETCADR(R_mvtnormCall, mvtArgs);
+		SET_VECTOR_ELT(mvtnormSamp, 0, eval(R_mvtnormCall, rho)); // Get sample
+		Memcpy(beta,REAL(VECTOR_ELT(mvtnormSamp,0)),Jp1);
+		 end debugging */
 		rmvGaussianC(beta, Btemp, J+1);
 		Memcpy(&chains[npars*m],beta,J+1);	
 		
 		
 		// calculate density (Single Standardized)
+		
 		Memcpy(B2temp,ZtZ,Jsq);
 		densDelta = -J*0.5*log(2*M_PI);
 		for(j=0;j<J;j++)
@@ -526,6 +597,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		chains[npars*m + (J+1) + 1] = densDelta;
 		
 		
+		
 		// sample sig2
 		tempBetaSq = 0;
 		scaleSig2 = grandSumSq - 2*beta[0]*grandSum + beta[0]*beta[0]*sumN;
@@ -542,6 +614,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		scaleg = 0.5*(tempBetaSq/sig2 + rscaleSq);
 		g = 1/rgamma(shapeg,1/scaleg);
 		chains[npars*m + (J+1) + 3] = g;
+
 	}
 	
 	CMDE[0] = logSumSingle - log(iterations);
@@ -549,10 +622,17 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	CMDE[2] = log(kahanSumSingle) - log(iterations);
 	CMDE[3] = log(kahanSumDouble) - log(iterations);
 	
+	/* for debugging 
+	SET_VECTOR_ELT(debug, 0, debugMus);
+    SET_VECTOR_ELT(debug, 1, debugSigmas);
+	 end debugging */
+	
 	UNPROTECT(2);
 	PutRNGstate();
 	
 }
+
+
 
 double LogOnePlusX(double x)
 {
@@ -679,14 +759,14 @@ void rmvGaussianC(double *mu, double *Sigma, int p)
   if (info){
 	error("Nonzero info from dpotrf: Sigma matrix is not positive-definite");
   }
-  GetRNGstate();
+  //GetRNGstate();
   for(j=0;j<p;j++)
     {
       ans[j] = rnorm(0,1);
     }
   F77_NAME(dtrmv)("L","N","N", &p, scCp, &p, ans, &intOne);
   F77_NAME(daxpy)(&p, &one, ans, &intOne, mu, &intOne);
-  PutRNGstate();
+  //PutRNGstate();
   Free(scCp);
 }
 
