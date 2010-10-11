@@ -813,7 +813,7 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 	double yBar[J],sumy2[J],IWMDE=0;
 	double g[J],mu[J],sig2=1,sig2g=1,SS[J];
 	double modeIWMDE = 0, sdIWMDE = 0;
-	double sumSS=0, logSD[J], sumSD=0;
+	double sumSS=0, logVar[J], sumVar=0;
 	int npars = 2*J + 6;
 	
 	double shapeSig2 = 0, shapeSig2g = 0;
@@ -844,8 +844,8 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 		SS[j] = sumy2[j] - N[j]*pow(yBar[j],2);
 		mu[j] = yBar[j];
 		sumSS += SS[j];
-		logSD[j] = 0.5*log(SS[j]/N[j]);
-		sumSD += logSD[j];
+		logVar[j] = log(SS[j]/N[j]);
+		sumVar += logVar[j];
 	}
 	sig2 = sumSS/(sumN-J);
 	shapeSig2 = 0.5*sumN;
@@ -853,7 +853,7 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 	
 	
 	for(j=0;j<J;j++)
-		logSD[j] = logSD[j] - sumSD/J;
+		logVar[j] = logVar[j] - sumVar/J;
 	
 	
 	// start MCMC
@@ -877,21 +877,27 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 		scaleSig2=0;
 		for(j=0;j<J;j++)
 		{
-			mu[j] = rnorm(yBar[j],exp(g[j])*sqrt(sig2/N[j]));
+			//sigma
+			//mu[j] = rnorm(yBar[j],exp(g[j])*sqrt(sig2/N[j]));
+			//sigma2
+			mu[j] = rnorm(yBar[j],exp(0.5*g[j])*sqrt(sig2/N[j]));
 			g[j] = samplegEqVarM2(g[j], sig2, mu[j], sig2g, yBar[j], sumy2[j], N[j], sdMetropg, &chains[npars*m + 2*J + 4 + j]);
 			sumg2 += g[j]*g[j];	
 			sumg += g[j];
-			
-			scaleSig2 += (sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*exp(2*g[j]));
+		
+			//sigma
+			//scaleSig2 += (sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*exp(2*g[j]));
+			//sigma2
+			scaleSig2 += (sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*exp(g[j]));
 			
 			// IWMDE
 			c1 = -1/(2*sig2g);
-			c2 = N[j]*sig2g;
+			c2 = 0.5*N[j]*sig2g;
 			c3 = -(sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*sig2);
 			
-			modeIWMDE = newtonMethodEqVar2(logSD[j],c1,c2,c3,1,newtonSteps);
-			sdIWMDE = 1/sqrt(-2*c1 - 4*c3*exp(-2*modeIWMDE));
-			IWMDE += dnorm(g[j],modeIWMDE,sdIWMDE,1) + -c3*(exp(-2*g[j]) - 1) + N[j]*g[j] + g[j]*g[j]/(2*sig2g);
+			modeIWMDE = newtonMethodEqVar2(logVar[j],c1,c2,c3,1,newtonSteps);
+			sdIWMDE = 1/sqrt(-2*c1 - c3*exp(-modeIWMDE));
+			IWMDE += dnorm(g[j],modeIWMDE,sdIWMDE,1) + -c3*(exp(-g[j]) - 1) + 0.5*N[j]*g[j] + g[j]*g[j]/(2*sig2g);
 			debug[m*(2*J) + 2*j + 0] = modeIWMDE;
 			debug[m*(2*J) + 2*j + 1] = sdIWMDE;
 		}		
@@ -938,13 +944,12 @@ void decorrStepEqVarM2(double sumg, double sig2g, int J, double *g, double *sig2
 			g[j] = g[j]-z;
 			sig2[0] = sig2[0]*exp(z);
 	}
-	
 }
 
 double newtonMethodEqVar2(double xt, double c1, double c2, double c3, int iterations, int max)
 {
 	
-	xt =	xt - (c1*(xt + c2) - c3*exp(-2*xt))/(c1 + c3*exp(-2*xt));
+	xt =	xt - (2*c1*(xt + c2) - c3*exp(-xt))/(2*c1 + c3*exp(-xt));
 	if(iterations==max){
 		return(xt);
 	}else{
@@ -974,6 +979,9 @@ double samplegEqVarM2(double g, double sig2, double mu, double sig2g, double yBa
 
 double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N)
 {
-	return(-0.5/sig2g * pow(g + N*sig2g,2) - exp(-2*g)*(sumy2 - 2*mu*N*yBar + N*mu*mu)/(2*sig2));
+	//sigma
+	//return(-0.5/sig2g * pow(g + N*sig2g,2) - exp(-2*g)*(sumy2 - 2*mu*N*yBar + N*mu*mu)/(2*sig2));
+	//sigma2
+	return(-0.5/sig2g * pow(g + 0.5*N*sig2g,2) - exp(-g)*(sumy2 - 2*mu*N*yBar + N*mu*mu)/(2*sig2));
 }
 
