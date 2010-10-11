@@ -21,7 +21,7 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
-eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, progress=TRUE){
+eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, g.metrop.sd=1.5, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
@@ -34,22 +34,38 @@ eqVarGibbs = function(y,iterations=1000,lambda=1, sig2.metrop.sd=1 ,tau.metrop.s
 	}
 
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
-
-	chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
+	if(whichModel==1){
+		chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
 				progress, pbFun, new.env(), package="JZSBayesFactor")
-
-	if(progress) close(pb);
-	rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
-	tau.acc = mean(chains[J+5,])
-	sig2.acc = mean(chains[J+3,])
-	cat("Acceptance rates:\n sig2:",sig2.acc,", tau:",tau.acc,"\n")
-
-	priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=lambda)[[1]]
-	postDens = mean(chains[J+1,])
-	BF = postDens/priorDens
 	
-	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
+		rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
+		tau.acc = mean(chains[J+5,])
+		sig2.acc = mean(chains[J+3,])
+		cat("Acceptance rates:\n sig2:",sig2.acc,", tau:",tau.acc,"\n")
 
+		priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=lambda)[[1]]
+		postDens = mean(chains[J+1,])
+		BF = postDens/priorDens
+	
+		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF)
+	}
+	if(whichModel==2){
+		chains = .Call("RgibbsEqVarianceM2", y, N, J, I, alpha, beta, iterations, g.metrop.sd, decorr.metrop.sd, as.integer(newtonSteps),
+				progress, pbFun, new.env(), package="JZSBayesFactor")
+	
+		rownames(chains) = c(paste("mu",1:J,sep=""),paste("g",1:J,sep=""),"sig2","sig2g","IWMDE","decorr.acc",paste("g.acc",1:J,sep=""));			
+		decorr.acc = mean(chains[2*J+4,])
+		g.acc = rowMeans(chains[2*J+ 4 + 1:J,])
+		cat("Acceptance rates:\n decorr:",decorr.acc,", g:",g.acc,"\n")
+
+		#priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=lambda)[[1]]
+		postDens = mean(exp(chains[2*J+3,]))
+		#BF = postDens/priorDens
+		returnList = list()
+	}
+	
+	if(progress) close(pb);
+	return(returnList)
 }
 
 oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){

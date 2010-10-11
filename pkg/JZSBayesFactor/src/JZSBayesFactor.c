@@ -770,3 +770,195 @@ void rmvGaussianC(double *mu, double *Sigma, int p)
   Free(scCp);
 }
 
+
+SEXP RgibbsEqVarianceM2(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP alphaR, SEXP betaR, SEXP iterationsR, SEXP sdMetropgR, SEXP sdDecorrR, SEXP newtonStepsR, SEXP progressR, SEXP pBar, SEXP rho)
+{
+	int iterations = INTEGER_VALUE(iterationsR);
+	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
+	double alpha = NUMERIC_VALUE(alphaR);
+	double beta = NUMERIC_VALUE(betaR);
+	double sdMetropg = NUMERIC_VALUE(sdMetropgR);
+	double sdDecorr = NUMERIC_VALUE(sdDecorrR);
+	double *y = REAL(yR);
+	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
+	
+	int newtonSteps = INTEGER_VALUE(newtonStepsR);	
+	int npars = 2*J + 6;
+	
+	SEXP chainsR;
+	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+
+	gibbsEqVarianceM2(y, N, J, I, alpha, beta, iterations, REAL(chainsR), sdMetropg, sdDecorr, newtonSteps, progress, pBar, rho);
+	
+	UNPROTECT(1);
+	
+	return(chainsR);
+}
+
+void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double beta, int iterations, double *chains, double sdMetropg, double sdDecorr, int newtonSteps, int progress, SEXP pBar, SEXP rho)
+{
+	int i=0,j=0,m=0, sumN=0;
+	double yBar[J],sumy2[J],IWMDE=0;
+	double g[J],mu[J],sig2=1,sig2g=1,SS[J];
+	double scaleMu=0, modeIWMDE = 0, sdIWMDE = 0;
+	sumSS=0, logSD[J], sumSD=0;
+	int npars = 2*J + 6;
+	
+	double shapeSig2 = 0, shapeSig2g = 0;
+	double scaleSig2 = 0, scaleSig2g = 0;
+	double sumg2=0, sumg=0;
+	
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+	
+	GetRNGstate();
+	
+	for(j=0;j<J;j++)
+	{
+		yBar[j]=0;
+		sumy2[j]=0;
+		sumN+=N[j];
+		g[j]=0;
+		for(i=0;i<N[j];i++)
+		{
+			yBar[j] += y[j*I+i]/((double)(N[j]));
+			sumy2[j] += pow(y[j*I+i],2);
+		}
+		SS[j] = sumy2[j] - N[j]*pow(yBar[j],2);
+		mu[j] = yBar;
+		sumSS += SS[j];
+		logSD[j] = 0.5*log(SS[j]/N[j]);
+		sumSD += logSD;
+	}
+	sig2 = sumSS/(sumN-J);
+	shapeSig2 = 0.5*sumN;
+	shapeSig2g = 0.5*J + alpha;
+	
+	
+	for(j=0;j<J;j++)
+		logSD[j] = logSD[j] - sumSD/J;
+	
+	
+	// start MCMC
+	for(m=0; m<iterations; m++)
+	{
+		R_CheckUserInterrupt();
+	
+		
+		//Check progress
+		if(progress && !((m+1)%progress)){
+			pSampCounter[0]=m+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+
+		// sample mu and g
+		IWMDE=0;
+		sumg2=0;
+		sumg=0;
+		for(j=0;j<J;j++)
+		{
+			mu[j] = rnorm(yBar[j],exp(g[j])*sqrt(sig2/N[j]));
+			g[j] = samplegEqVarM2(g[j], sig2, mu[j], sig2g, yBar[j], sumy2[j], N[j], sdMetrop, &chains[npars*m + 2*J + 4 + j]);
+			sumg2 += g[j]*g[j];	
+			sumg += g[j];
+			// IWMDE
+			c1 = -1/(2*sig2g);
+			c2 = N[j]*sig2g;
+			c3 = -(sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*sig2);
+			
+			modeIWMDE = newtonMethodEqVar2(logSD[j],c1,c2,c3,1,newtonSteps);
+			sdIWMDE = 1/sqrt(-2*c1 - 4*c3*exp(-2*mode));
+			IWMDE += dnorm(g[j],modeIWMDE,sdIWMDE,1);// + BLAH - BLAH;//ADD WEIGHT
+		}		
+		
+		
+		// sample sig2
+		scaleSig2 = 0;
+		for(j=0;j<J;j++){
+			scaleSig2 += (sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*exp(2*g[j]));
+		}
+		sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
+	
+		// sample sig2g
+		scaleSig2g = sumg2/2 + beta;
+		sig2g = 1/rgamma(shapeSig2g,1/scaleSig2g);
+	
+		// Decorelating step
+		decorrStepEqVarM2(sumg, sig2g, J, &g[0], &sig2, sdDecorr, &chains[npars*m + 2*J + 3]);
+		
+		// copy to chains
+		Memcpy(chains + npars*m, mu, J);
+		Memcpy(chains + npars*m + J, g, J);
+		chains[npars*m + 2*J + 0] = IWMDE; 
+		chains[npars*m + 2*J + 1] = sig2; 
+		chains[npars*m + 2*J + 2] = sig2g; 
+	}
+
+	UNPROTECT(2);
+	PutRNGstate();
+	
+}
+
+
+int decorrStepEqVarM2(double sumg, double sig2g, int J, double *g, double *sig2, double sdDecorr, double *acc)
+{
+	double z, logratio,j;
+	
+	z = rnorm(1,0, sdDecorr);
+	logratio = -J*z*z + 2*z*sumg)/(2*sig2g);
+	
+	
+	b = log(runif(0,1));
+	if(b > logratio){
+		acc[0]=0;
+	}else{
+		acc[0]=1;
+		for(j=0;j<J;j++)
+			g[j] = g[j]-z;
+			sig2[0] = sig2[0]*exp(z);
+	}
+	
+}
+
+double newtonMethodEqVar2(double xt, double c1, double c2, double c3, int iterations, int max)
+{
+	xt =	xt - (c1*(xt + c2) - c3*exp(-2*xt))/(c1 + c3*exp(-2*xt));
+	if(iterations==max){
+		return(xt)
+	}else{
+		return(newtonMethodEqVar2(xt,c1,c2,c3,iterations+1,max));
+	}
+
+
+}
+
+
+double samplegEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N, double sdMetrop, double *acc)
+{
+	double z, b, logratio, cand;
+	
+	z = rnorm(0,sdMetrop);
+	cand = g + z;
+	
+	logratio = fullCondgEqVarM2(cand, sig2, mu, sig2g, yBar, sumy2, N) - fullCondgEqVarM2(sig2, sig2, mu, sig2g, yBar, sumy2, N); 
+	
+	b = log(runif(0,1));
+	if(b > logratio){
+		acc[0]=0;
+		return(g);
+	}else{
+		acc[0]=1;
+		return(cand);
+	}
+}
+
+double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N)
+{
+	return(-0.5/sig2g * pow(g + N*sig2g,2) - exp(-2*g)*(sumy2 - 2*mu*N*yBar + N*mu*mu)/(2*sig2));
+}
