@@ -21,7 +21,7 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
-eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, g.metrop.sd=1.5, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
+eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
 	alpha=0.5
 	beta=M2scale^2/2
 	N = as.integer(colSums(!is.na(y)))
@@ -52,6 +52,9 @@ eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 
 		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF,acc.rates=c(sig2=sig2.acc,tau=tau.acc))
 	}
 	if(whichModel==2){
+		CI= var(y[,1])*(N[1]-1)/qchisq(c(0.025,0.975),N[1]-1)
+		g.metrop.sd = -diff(log(CI))/3 * M2.metrop.scale
+		decorr.metrop.sd = g.metrop.sd
 		output = .Call("RgibbsEqVarianceM2", y, N, J, I, alpha, beta, iterations, g.metrop.sd, decorr.metrop.sd, as.integer(newtonSteps),
 				progress, pbFun, new.env(), package="JZSBayesFactor")
 		if(progress) close(pb);
