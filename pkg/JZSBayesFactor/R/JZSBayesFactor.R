@@ -21,7 +21,9 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
-eqVarGibbs = function(y,iterations=1000,lambda=1, alpha=2, beta=2, sig2.metrop.sd=1 ,tau.metrop.sd=1, g.metrop.sd=1.5, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
+eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, g.metrop.sd=1.5, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
+	alpha=0.5
+	beta=M2scale^2/2
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])

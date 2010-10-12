@@ -794,7 +794,7 @@ SEXP RgibbsEqVarianceM2(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP alphaR, SEXP be
 	
 	SEXP chainsR, debugR, returnList;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
-	PROTECT(debugR = allocMatrix(REALSXP, J*2, iterations));
+	PROTECT(debugR = allocMatrix(REALSXP, J*5, iterations));
 	PROTECT(returnList = allocVector(VECSXP, 2));
 	
 	gibbsEqVarianceM2(y, N, J, I, alpha, beta, iterations, REAL(chainsR), REAL(debugR), sdMetropg, sdDecorr, newtonSteps, progress, pBar, rho);
@@ -895,11 +895,15 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 			c2 = 0.5*N[j]*sig2g;
 			c3 = -(sumy2[j] - 2*mu[j]*N[j]*yBar[j] + N[j]*mu[j]*mu[j])/(2*sig2);
 			
-			modeIWMDE = newtonMethodEqVar2(logVar[j],c1,c2,c3,1,newtonSteps);
+			//modeIWMDE = newtonMethodEqVar2(logVar[j],c1,c2,c3,1,newtonSteps);
+			modeIWMDE = newtonMethodEqVar2(g[j],c1,c2,c3,1,newtonSteps);
 			sdIWMDE = 1/sqrt(-2*c1 - c3*exp(-modeIWMDE));
 			IWMDE += dnorm(g[j],modeIWMDE,sdIWMDE,1) + -c3*(exp(-g[j]) - 1) + 0.5*N[j]*g[j] + g[j]*g[j]/(2*sig2g);
 			debug[m*(2*J) + 2*j + 0] = modeIWMDE;
 			debug[m*(2*J) + 2*j + 1] = sdIWMDE;
+			debug[m*(2*J) + 2*j + 2] = c1;
+			debug[m*(2*J) + 2*j + 3] = c2;
+			debug[m*(2*J) + 2*j + 4] = c3;
 		}		
 		
 		// sample sig2
