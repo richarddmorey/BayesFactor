@@ -790,7 +790,7 @@ SEXP RgibbsEqVarianceM2(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP alphaR, SEXP be
 	int J = INTEGER_VALUE(JR),I = INTEGER_VALUE(IR);
 	
 	int newtonSteps = INTEGER_VALUE(newtonStepsR);	
-	int npars = 2*J + 6;
+	int npars = 3*J + 4;
 	
 	SEXP chainsR, debugR, returnList;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
@@ -814,7 +814,7 @@ void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double bet
 	double g[J],mu[J],sig2=1,sig2g=1,SS[J];
 	double modeIWMDE = 0, sdIWMDE = 0;
 	double sumSS=0, logVar[J], sumVar=0;
-	int npars = 2*J + 6;
+	int npars = 3*J + 4;
 	
 	double shapeSig2 = 0, shapeSig2g = 0;
 	double scaleSig2 = 0, scaleSig2g = 0;

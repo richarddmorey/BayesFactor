@@ -98,7 +98,7 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 				progress, pbFun, new.env(), onemvrnorm, package="JZSBayesFactor")
 
 	if(progress) close(pb);
-	rownames(output[[1]]) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
+	rownames(output[[1]]) = c("mu",paste("alpha",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
 	names(output[[2]])=c("logCMDESingle","logCMDEDouble","logCMDESingleKahan","logCMDEDoubleKahan")
 	
 	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
