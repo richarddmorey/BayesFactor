@@ -1,4 +1,4 @@
-JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
+ttest.Gibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
@@ -11,7 +11,7 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	
 	chains = .Call("RgibbsOneSample", y, N, rscale, iterations,
-				progress, pbFun, new.env(), package="JZSBayesFactor")
+				progress, pbFun, new.env(), package="BayesFactorPCL")
 
 	if(progress) close(pb);
 	priorDens = 1/(pi*rscale)
@@ -21,7 +21,8 @@ JZSgibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
-eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=1){
+eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=2){
+	if(!(whichModel%in%c(1,2))) stop("Argument whichModel model must be either 1 or 2.")
 	alpha=0.5
 	beta=M2scale^2/2
 	N = as.integer(colSums(!is.na(y)))
@@ -38,7 +39,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	if(whichModel==1){
 		chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
-				progress, pbFun, new.env(), package="JZSBayesFactor")
+				progress, pbFun, new.env(), package="BayesFactorPCL")
 		if(progress) close(pb);
 		rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
 		tau.acc = mean(chains[J+5,])
@@ -56,7 +57,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 
 		g.metrop.sd = -diff(log(CI))/3 * M2.metrop.scale
 		decorr.metrop.sd = g.metrop.sd
 		output = .Call("RgibbsEqVarianceM2", y, N, J, I, alpha, beta, iterations, g.metrop.sd, decorr.metrop.sd, as.integer(newtonSteps),
-				progress, pbFun, new.env(), package="JZSBayesFactor")
+				progress, pbFun, new.env(), package="BayesFactorPCL")
 		if(progress) close(pb);
 		chains = output[[1]]
 		rownames(chains) = c(paste("mu",1:J,sep=""),paste("g",1:J,sep=""),"IWMDE","sig2","sig2g","decorr.acc",paste("g.acc",1:J,sep=""));			
@@ -74,7 +75,7 @@ eqVarGibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 
 	return(returnList)
 }
 
-oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
+oneWayAOV.Gibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
@@ -95,7 +96,7 @@ oneWayAOVGibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 
 	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
-				progress, pbFun, new.env(), onemvrnorm, package="JZSBayesFactor")
+				progress, pbFun, new.env(), onemvrnorm, package="BayesFactorPCL")
 
 	if(progress) close(pb);
 	rownames(output[[1]]) = c("mu",paste("alpha",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
@@ -135,7 +136,7 @@ m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+
 exp(m)
 }
 
-F.value.bf = function(F,N,J,rscale=1)
+oneWayAOV.Quad = function(F,N,J,rscale=1)
 {
 	1/integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]]
 }
@@ -160,7 +161,7 @@ t2=(-(nu+1)/2)*log(1+t^2/((1+n*g*r2)*(nu)))
 return(dinvgamma(g,.5,.5)*exp(t1+t2))
 }
 
-t.value.bf=function(t,n1,n2=0,sd=1,prior.cauchy=T)
+ttest.Quad=function(t,n1,n2=0,rscale=1,prior.cauchy=TRUE)
 {
 nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))

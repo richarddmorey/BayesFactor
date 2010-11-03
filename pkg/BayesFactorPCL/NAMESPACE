@@ -1,4 +1,4 @@
-useDynLib(JZSBayesFactor)
+useDynLib(BayesFactorPCL)
 
-exportPattern("^[^\\.]")
+exportPattern(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad)
 

@@ -1,11 +1,11 @@
-Package: JZSBayesFactor
+Package: BayesFactorPCL
 Type: Package
 Title: Computation of Bayes factors for simple psychological designs
-Version: 0.5
-Date: 2009-09-30
-Author: Jeff Rouder, Richard D. Morey
+Version: 0.6
+Date: 2010-10-30
+Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
-Description: The JZSBayesFactor package is a suite of functions for computing Bayes factors for simple psychological designs.
+Description: The BayesFactorPCL package is a suite of functions for computing various Bayes factors for simple psychological designs. Examples include the t test, one-way ANOVA, and an equal-variance test.
 License: GPL 2
 Depends:  coda, mvtnorm
 LazyLoad: yes
