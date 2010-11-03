@@ -1,4 +1,0 @@
-useDynLib(BayesFactorPCL)
-
-exportPattern("^[^\\.]")
-
