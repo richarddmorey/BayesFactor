@@ -130,10 +130,10 @@ oneWayAOV.Gibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 
 marginal.g.oneWay = function(g,F,N,J,rscale)
 {
-dfs = (J-1)/(N*J-J)
-omega = (1+(N*g/(dfs*F+1)))/(N*g+1)
-m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+1) - (N*J-1)/2*log(omega)
-exp(m)
+	dfs = (J-1)/(N*J-J)
+	omega = (1+(N*g/(dfs*F+1)))/(N*g+1)
+	m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+1) - (N*J-1)/2*log(omega)
+	exp(m)
 }
 
 oneWayAOV.Quad = function(F,N,J,rscale=1)
@@ -156,21 +156,21 @@ dinvgamma = function (x, shape, scale = 1)
 
 t.joint=function(g,t,n,nu,r2)
 {
-t1=-.5*log(1+n*g*r2)
-t2=(-(nu+1)/2)*log(1+t^2/((1+n*g*r2)*(nu)))
-return(dinvgamma(g,.5,.5)*exp(t1+t2))
+	t1=-.5*log(1+n*g*r2)
+	t2=(-(nu+1)/2)*log(1+t^2/((1+n*g*r2)*(nu)))
+	return(dinvgamma(g,.5,.5)*exp(t1+t2))
 }
 
 ttest.Quad=function(t,n1,n2=0,rscale=1,prior.cauchy=TRUE)
 {
-nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
-n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
-r2=sd*sd
-marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
-marg.like.1=ifelse(prior.cauchy,
-  integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)$value,
-  (1+n*r2)^(-.5)*(1+t^2/((1+n*r2)*(nu)))^(-(nu+1)/2))
-return(marg.like.0/marg.like.1)
+	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
+	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
+	r2=sd*sd
+	marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
+	marg.like.1=ifelse(prior.cauchy,
+	integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)$value,
+		(1+n*r2)^(-.5)*(1+t^2/((1+n*r2)*(nu)))^(-(nu+1)/2))
+	return(marg.like.0/marg.like.1)
 }
 
 
@@ -185,3 +185,13 @@ dtau.eqVar.1 = function(x, g, lambda=1, log=FALSE)
 
 dtau.eqVar=Vectorize(dtau.eqVar.1,"x")
 
+integrand.regression=function(g,N,p,R2)
+{
+       a=.5*((N-p-1)*log(1+g)-(N-1)*log(1+g*(1-R2)))
+       exp(a)*dinvgamma(g,shape=.5,scale=N/2)
+}
+
+linearReg.Quad=function(N,p,R2) {
+	h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2)
+	return(h$value)
+}
