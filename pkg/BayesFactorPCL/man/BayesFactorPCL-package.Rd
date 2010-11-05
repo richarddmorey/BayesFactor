@@ -31,7 +31,7 @@ Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 }
 \references{
 \item{}{Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. (2009). Bayesian t–tests
-for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 752-760}{}
+for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 752-760}
 
 \item{}{Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
 Estimation to Improve Bayes Factor Computation.}

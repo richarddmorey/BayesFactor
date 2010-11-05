@@ -61,7 +61,7 @@ output = ttest.Gibbs(y)
 
 ## Look at the posterior distribution of the mean
 plot(output$chains[,1])
-
+}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{htest}

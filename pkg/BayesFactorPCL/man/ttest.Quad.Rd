@@ -67,15 +67,13 @@ For samples from the marginal posterior distributions of the parameters, see \co
 ## Student's sleep data
 plot(extra ~ group, data = sleep)
 
-## t.test() gives a t value of 0.07919
+## t.test() gives a t value of -1.8608
 t.test(extra ~ group, data = sleep, var.equal=TRUE)
 
-## Gives a Bayes factor of about 2.51
+## Gives a Bayes factor of about 1.02
 ## in favor of the null hypothesis
-ttest.Quad(t = 0.07919, n1 = 10, n2 = 10)
-
-
-
+ttest.Quad(t = -1.8608, n1 = 10, n2 = 10, rscale=sqrt(2))
+}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{htest}

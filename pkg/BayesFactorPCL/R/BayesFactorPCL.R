@@ -21,7 +21,7 @@ ttest.Gibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
 }
 
-eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, decorr.metrop.sd=1.5, newtonSteps=6, progress=TRUE, whichModel=2){
+eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, newtonSteps=6, progress=TRUE, whichModel=2){
 	if(!(whichModel%in%c(1,2))) stop("Argument whichModel model must be either 1 or 2.")
 	alpha=0.5
 	beta=M2scale^2/2
@@ -68,7 +68,7 @@ eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=1, sig2.metrop
 		priorDens = (2*pi)^(-J/2)/gamma(alpha) * gamma(J/2+alpha) * beta^(-J/2)
 		postDens = mean(exp(chains[2*J+1,]))
 		BF = postDens/priorDens
-		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF,acc.rates=c(decorr=decorr.acc,g=g.acc),debug=output[[2]])
+		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF,acc.rates=c(decorr=decorr.acc,g=g.acc))
 	}
 	
 	
