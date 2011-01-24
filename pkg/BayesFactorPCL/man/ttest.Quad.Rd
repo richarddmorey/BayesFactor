@@ -5,7 +5,7 @@
 A function to compute the Bayes factors for one- or two-sample designs
 }
 \description{
-This function computes the Bayes factor corresponding to a one-sample or two-sample $t$~test, using Gaussian quadrature integration. 
+This function computes the Bayes factor corresponding to a one-sample or two-sample t~test, using Gaussian quadrature integration. 
 See details about priors in the details.
 }
 \usage{
@@ -14,7 +14,7 @@ ttest.Quad(t, n1, n2 = 0, rscale = 1, prior.cauchy = TRUE)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{t}{
-	The $t$ value obtained from the corresponding $t$~test
+	The t value obtained from the corresponding t~test
 }
   \item{n1}{
 Sample size for first group
@@ -32,8 +32,8 @@ Use a Cauchy prior for the prior on effect size? If false, the prior on effect s
 \details{
 This Bayes factor tests the null hypothesis that the mean of a normal population is 0. 
 Specifically, the Bayes factor compares two hypotheses: that the standardized effect size is 0, or that the 
-standardized effect size is not 0. For one-sample tests, the standardized effect size is $\mu/\sigma$; 
-for two sample tests, the standardized effect size is $(\mu_2-\mu_1)/\sigma$.
+standardized effect size is not 0. For one-sample tests, the standardized effect size is mu/sigma; 
+for two sample tests, the standardized effect size is (mu_2-mu_1)/sigma.
 
 A noninformative Jeffreys prior is placed on the variance of the normal population, while a Cauchy 
 prior is placed on the standardized effect size. The \code{rscale} argument controls the scale of the prior 

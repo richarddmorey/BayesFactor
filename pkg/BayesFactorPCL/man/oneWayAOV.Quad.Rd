@@ -29,8 +29,8 @@ oneWayAOV.Quad(F, N, J, rscale = 1)
 \details{
 This Bayes factor tests the null hypothesis that the mean of a multivariate normal population is 0. 
 Specifically, the Bayes factor compares two hypotheses: that the standardized effect size is 0, or that the 
-standardized effect size is not 0. Here, the standardized effect size is $\mu/\sigma$ where $\mu$ is the vector of true 
-group means and $\sigma$ is the error variance. 
+standardized effect size is not 0. Here, the standardized effect size is mu/sigma where mu is the vector of true 
+group means and sigma is the error variance. 
 
 A noninformative Jeffreys prior is placed on the error variance, while a multivariate t(1) prior is placed on
 standardized effect size. The \code{rscale} argument controls the scale of the prior 
