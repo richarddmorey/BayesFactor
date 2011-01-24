@@ -1,4 +1,4 @@
-ttest.Gibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
+ttest.Gibbs = function(y,iterations=10000,rscale=1,progress=TRUE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
@@ -18,7 +18,7 @@ ttest.Gibbs = function(y,iterations=1000,rscale=1,progress=TRUE){
 	postDens = mean(chains[5,])
 	BF = postDens/priorDens
 	rownames(chains) = c("mu","sig2","g","delta","CMDE")			
-	return(list(chains=mcmc(t(chains)),bayesFactor=BF))
+	return(list(chains=mcmc(t(chains)),BF=BF))
 }
 
 eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, newtonSteps=6, progress=TRUE, whichModel=2){
@@ -50,7 +50,7 @@ eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metr
 		postDens = mean(chains[J+1,])
 		BF = postDens/priorDens
 	
-		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF,acc.rates=c(sig2=sig2.acc,tau=tau.acc))
+		returnList = list(chains=mcmc(t(chains)),BF=BF,acc.rates=c(sig2=sig2.acc,tau=tau.acc))
 	}
 	if(whichModel==2){
 		CI= var(y[,1])*(N[1]-1)/qchisq(c(0.025,0.975),N[1]-1)
@@ -68,14 +68,14 @@ eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metr
 		priorDens = (2*pi)^(-J/2)/gamma(alpha) * gamma(J/2+alpha) * beta^(-J/2)
 		postDens = mean(exp(chains[2*J+1,]))
 		BF = postDens/priorDens
-		returnList = list(chains=mcmc(t(chains)),bayesFactor=BF,acc.rates=c(decorr=decorr.acc,g=g.acc))
+		returnList = list(chains=mcmc(t(chains)),BF=BF,acc.rates=c(decorr=decorr.acc,g=g.acc))
 	}
 	
 	
 	return(returnList)
 }
 
-oneWayAOV.Gibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
@@ -118,13 +118,14 @@ oneWayAOV.Gibbs = function(y,iterations=1000,rscale=1, progress=TRUE){
 	BFSingle3log = output[[2]][3] - priorDensSingle
 	
 	return(list(chains=mcmc(t(output[[1]])),
-			bayesFactorRegular=c(single=BFSingle,double=BFDouble),
-			bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
-			logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),
-			logBFKahan=c(kahanSingleLogBF=BFSingle3log,kahanDoubleLogBF=BFDouble3log),
-			logCMDE=output[[2]],
-			debug=output[[3]]
-			))
+			BF=BFDouble))
+			#bayesFactorRegular=c(single=BFSingle,double=BFDouble),
+			#bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
+			#logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),
+			#logBFKahan=c(kahanSingleLogBF=BFSingle3log,kahanDoubleLogBF=BFDouble3log),
+			#logCMDE=output[[2]],
+			#debug=output[[3]]
+			#))
 }
 
 

@@ -40,10 +40,10 @@ distribution, with \code{rscale=1} yielding a standard multivariate t(1). See th
 A scalar giving the Bayes factor in favor of the null hypothesis that the standardized effect size is 0.
 }
 \references{
-\item{}{Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
-Estimation to Improve Bayes Factor Computation.}
+Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
+Estimation to Improve Bayes Factor Computation.
 
-\item{}{Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \link{http://pcl.missouri.edu/bayesfactor}}
+Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \author{
 Richard D. Morey

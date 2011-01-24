@@ -1,5 +1,5 @@
 \name{linearReg.Quad}
-\alias{linearRed.Quad}
+\alias{linearReg.Quad}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 A function to compute the Bayes factors regression designs
@@ -31,12 +31,12 @@ This Bayes factor tests the hypothesis that all slopes are 0.
 A scalar giving the Bayes factor in favor of the alternative hypothesis at least one slope is nonzero.
 }
 \references{
-\item{}{Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection.
-Journal of the American Statistical Association, 103, pp. 410-423}
+Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection.
+Journal of the American Statistical Association, 103, pp. 410-423
 
-\item{}{Rouder, J. N.  and Morey, R. D. (submitted). Bayesian testing in regression.}
+Rouder, J. N.  and Morey, R. D. (submitted). Bayesian testing in regression.
 
-\item{}{Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \link{http://pcl.missouri.edu/bayesfactor}}
+Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \author{
 Jeffrey N. Rouder
@@ -65,7 +65,8 @@ summary(lm1)
 
 ## Bayes factor
 ## The Bayes factor is 792240.6;
-## the data strongly favor the alternative
+## the data strongly favor hypothesis that 
+## the slope is not 0.
 linearReg.Quad(30,1,0.6813)
 
 

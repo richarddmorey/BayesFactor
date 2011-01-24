@@ -44,11 +44,10 @@ instead of a Cauchy prior. See the references below for more details.
 A scalar giving the Bayes factor in favor of the null hypothesis that the effect size is 0.
 }
 \references{
+Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. (2009). Bayesian t–tests
+for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 752-760
 
-\item{}{Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. (2009). Bayesian t–tests
-for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 752-760}
-
-\item{}{Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \link{http://pcl.missouri.edu/bayesfactor}}
+Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \author{
 Jeffrey N. Rouder and Richard D. Morey

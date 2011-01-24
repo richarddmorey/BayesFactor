@@ -50,7 +50,7 @@ Report progress with a text progress bar?
 \details{
 This function computes a Bayes factor test for equal variances for an arbitrary number of independent groups. All observations are 
 assumed normally distributed; each group is allowed to have its own mean mu_j and variance sigma^2_j = g_j * sigma^2.
-Noninformative Jeffreys priors are placed on \mu_j and sigma^2.
+Noninformative Jeffreys priors are placed on mu_j and sigma^2.
 
 Under Model~1, the prior distribution on g is a gamma with rate and shape both equal to tau. 
 An exponential prior with rate \code{lambda} is placed on tau. This model is not recommended because the gamma distribution lacks multiplicative 
@@ -66,7 +66,7 @@ higher numbers of steps lead to more efficient estimates of the Bayes factor. Se
 An object of class mcmc, containing MCMC chains for all parameters
 }
 
-\item{bayesFactor}{
+\item{BF}{
 The Bayes factor in favor of the null hypothesis that all group variances are equal
 }
 
@@ -75,8 +75,8 @@ Acceptance rates for the Metropolis-Hastings steps
 }
 }
 \references{
-\item{}{Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
-Estimation to Improve Bayes Factor Computation.}
+Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
+Estimation to Improve Bayes Factor Computation.
 }
 \author{
 Richard D. Morey

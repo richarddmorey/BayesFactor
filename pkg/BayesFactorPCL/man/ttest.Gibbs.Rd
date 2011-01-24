@@ -9,7 +9,7 @@ This function samples from the posterior distributions of parameters for
 one-sample designs, using Gibbs sampling.  See details about priors in the details.
 }
 \usage{
-ttest.Gibbs(y, iterations = 1000, rscale = 1, progress = TRUE)
+ttest.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE)
 }
 \arguments{
   \item{y}{
@@ -35,11 +35,10 @@ A list containing the following:
 \item{BF}{An MCMC estimate of the Bayes factor, computed using the Savage-Dickey method (Morey, Rouder, Pratte, and Speckman, submitted)}
 }
 \references{
+Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
+Estimation to Improve Bayes Factor Computation.
 
-\item{}{Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
-Estimation to Improve Bayes Factor Computation.}
-
-\item{}{Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \link{http://pcl.missouri.edu/bayesfactor}}
+Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \author{
 Richard D. Morey
