@@ -166,7 +166,7 @@ ttest.Quad=function(t,n1,n2=0,rscale=1,prior.cauchy=TRUE)
 {
 	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
-	r2=sd*sd
+	r2=rscale^2
 	marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
 	marg.like.1=ifelse(prior.cauchy,
 	integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)$value,
