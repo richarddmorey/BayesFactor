@@ -28,6 +28,11 @@ double newtonMethodEqVar2(double xt, double c1, double c2, double c3, int iterat
 double samplegEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N, double sdMetrop, double *acc);
 double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N);
 
+SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtX, SEXP RXty, SEXP Ryty, SEXP RN, SEXP RP, SEXP Rg0, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho);
+double jeffSamplerNwayAov(double *samples, int iters, double *XtX, double *Xty, double yty, int N, int P, double g0 ,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho);
+double jeffmlikeNWayAov(double *XtX, double *Xty, double yty, int N, int P, double *g);
+
+
 
 
 double LogOnePlusX(double x);
@@ -427,6 +432,123 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	
 	return(returnListR);
 }
+
+
+double jeffmlikeNWayAov(double *XtX, double *Xty, double yty, int N, int P, double *g)
+{
+	double *W,ldetS=0,ldetW,top,bottom1,bottom2,q;
+	int i = 0, Psqr=P*P;
+	
+	W = Memcpy(Calloc(Psqr,double),XtX,Psqr);
+	
+	for(i=0;i<P;i++)
+	{
+		ldetS += log(g[i]);
+		W[i + P*i] = W[i + P*i] + 1/g[i];
+	}
+	InvMatrixUpper(W, P);
+	internal_symmetrize(W, P);
+	ldetW = matrixDet(W, P, 1);
+	
+	q = quadform(Xty, W, P, 1);
+	
+	top = lgamma(N*0.5) + 0.5*ldetW;
+	bottom1 = 0.5*N * log(yty - q);
+	bottom2 = 0.5*N * log(M_PI) + 0.5*ldetS;
+	
+	Free(W);
+	
+	return(exp(top-bottom1-bottom2));	
+}
+
+double jeffSamplerNwayAov(double *samples, int iters, double *XtX, double *Xty, double yty, int N, int P, double g0 ,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho)
+{
+	int i=0,j=0;
+	double avg = 0, g1[nGs],g2[P];
+	
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+
+	
+	for(i=0;i<iters;i++)
+	{
+		R_CheckUserInterrupt();
+	
+		
+		//Check progress
+		if(progress && !((i+1)%progress)){
+			pSampCounter[0]=i+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+
+	
+		for(j=0;j<nGs;j++)
+		{
+			g1[j] = 1/rgamma(a[j],1/b[j]);
+		}
+	
+		g2[0] = g0;
+	
+		for(j=0;j<(P-1);j++)
+		{
+			g2[j+1] = g1[gMap[j]];
+		}
+	
+		samples[i] = jeffmlikeNWayAov(XtX, Xty, yty, N, P, g2);
+		avg += samples[i];
+	}
+	
+	UNPROTECT(2);
+	
+	return(avg/iters);
+	
+}
+
+SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtX, SEXP RXty, SEXP Ryty, SEXP RN, SEXP RP, SEXP Rg0, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho)
+{
+	double *a,*b,yty,*Xty,*XtX,*samples,*avg,g0;
+	int iters,nGs,*gMap,N,P,progress;
+
+	SEXP Rsamples,Ravg,returnList;
+	
+	iters = INTEGER_VALUE(Riters);
+	XtX = REAL(RXtX);
+	Xty = REAL(RXty);
+	yty = REAL(Ryty)[0];
+	nGs = INTEGER_VALUE(RnGs);
+	gMap = INTEGER_POINTER(RgMap);
+	a = REAL(Ra);
+	b = REAL(Rb);
+	N = INTEGER_VALUE(RN);
+	P = INTEGER_VALUE(RP);
+	g0 = REAL(Rg0)[0];
+	progress = INTEGER_VALUE(progressR);
+	
+	PROTECT(Rsamples = allocVector(REALSXP,iters));
+	PROTECT(Ravg = allocVector(REALSXP,1));
+	PROTECT(returnList = allocVector(VECSXP,2));
+	
+	samples = REAL(Rsamples);
+	avg = REAL(Ravg);
+	
+	GetRNGstate();
+	avg[0] = jeffSamplerNwayAov(samples, iters, XtX, Xty, yty, N, P, g0, nGs, gMap, a, b, progress, pBar, rho);
+	PutRNGstate();
+	
+	SET_VECTOR_ELT(returnList, 0, Ravg);
+    SET_VECTOR_ELT(returnList, 1, Rsamples);
+	
+	UNPROTECT(3);
+	
+	return(returnList);
+}
+
 
 void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm)
 {
@@ -988,4 +1110,6 @@ double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double y
 	//sigma2
 	return(-0.5/sig2g * pow(g + 0.5*N*sig2g,2) - exp(-g)*(sumy2 - 2*mu*N*yBar + N*mu*mu)/(2*sig2));
 }
+
+
 

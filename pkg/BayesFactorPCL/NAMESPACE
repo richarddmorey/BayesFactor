@@ -1,4 +1,4 @@
 useDynLib(BayesFactorPCL)
 
-exportPattern(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad)
+exportPattern(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad,nWayAOV.MC)
 
