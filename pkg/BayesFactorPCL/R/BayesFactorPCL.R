@@ -1,8 +1,11 @@
-nWayAOV.MC = function(y,X,struc,g0=10000,iterations=10000,rscale=1,progress=FALSE){
+nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE){
 
 	N = as.integer(dim(X)[1])
-	P = as.integer(dim(X)[2])
+	P = as.integer(dim(X)[2])-1
+	X = as.matrix(X[,-1],N,P)
 	nGs = length(struc)
+	
+	nullLike = - ((N-1)/2)*log((N-1)*var(y))
 	
 	iterations = as.integer(iterations)
 
@@ -15,9 +18,11 @@ nWayAOV.MC = function(y,X,struc,g0=10000,iterations=10000,rscale=1,progress=FALS
 	
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	
-	XtX = t(X) %*% X
-	Xty = t(X) %*% as.matrix(y,cols=1)
-	yty = sum(y^2)
+	C = diag(N) - matrix(1/N,N,N)
+	XtCX = t(X) %*% C %*% X
+	XtCy = t(X) %*% C %*% as.matrix(y,cols=1)
+	ytCy = var(y)*(N-1)
+	
 	a = rep(0.5,nGs)
 	if(length(b)>1){
 		b = rscale^2/2
@@ -27,12 +32,12 @@ nWayAOV.MC = function(y,X,struc,g0=10000,iterations=10000,rscale=1,progress=FALS
 	
 	gMap = as.integer(inverse.rle(list(values = (1:nGs)-1, lengths = struc)))
 	
-	returnList = .Call("RjeffSamplerNwayAov", iterations, XtX, Xty, yty, N, P, g0, nGs, gMap, a, b,
+	returnList = .Call("RjeffSamplerNwayAov", iterations, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b,
 				as.integer(progress), pbFun, new.env(), package="BayesFactorPCL")
 
 	if(progress) close(pb);
 	
-	return(returnList[[1]])
+	return(log(returnList[[1]]) - nullLike)
 }
 
 ttest.Gibbs = function(y,iterations=10000,rscale=1,progress=TRUE){
