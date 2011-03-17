@@ -460,7 +460,7 @@ double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, d
 	
 	Free(W);
 	
-	return(exp(top-bottom1-bottom2));	
+	return(top-bottom1-bottom2);	
 }
 
 double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho)
@@ -502,12 +502,17 @@ double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy
 		}
 	
 		samples[i] = jeffmlikeNWayAov(XtCX, XtCy, ytCy, N, P, g2);
-		avg += samples[i];
+		if(i==0)
+		{
+			avg = samples[i];
+		}else{
+			avg = LogOnePlusX(exp(avg-samples[i]))+samples[i];
+		}
 	}
 	
 	UNPROTECT(2);
 	
-	return(avg/iters);
+	return(avg-log(iters));
 	
 }
 

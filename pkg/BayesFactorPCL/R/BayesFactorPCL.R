@@ -1,4 +1,4 @@
-nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE){
+nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
 
 	N = as.integer(dim(X)[1])
 	P = as.integer(dim(X)[2])-1
@@ -39,7 +39,20 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE){
 
 	if(progress) close(pb);
 	
-	return(log(returnList[[1]]) - nullLike)
+	#if((returnList[[1]] - nullLike)==Inf){
+	#	browser()
+	#}
+	
+	bf = log(sum(exp(returnList[[2]]-log(iterations)-nullLike)))
+	
+	if(samples)
+	{
+		#return(list(returnList[[1]] - nullLike,returnList[[2]]))
+		return(list(bf,returnList[[2]]))
+	}else{
+		#return(returnList[[1]] - nullLike)
+		return(bf)
+	}
 }
 
 ttest.Gibbs = function(y,iterations=10000,rscale=1,progress=TRUE){
