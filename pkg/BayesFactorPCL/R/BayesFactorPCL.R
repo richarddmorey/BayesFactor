@@ -24,10 +24,12 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE){
 	ytCy = var(y)*(N-1)
 	
 	a = rep(0.5,nGs)
-	if(length(b)>1){
+	if(length(rscale)==nGs){
 		b = rscale^2/2
-	}else{
+	}else if(length(rscale)==1){		
 		b = rep(rscale^2/2,nGs)
+	}else{
+		stop(paste("Length of rscale vector wrong. Was",length(rscale),"and should be",nGs,"."))
 	}
 	
 	gMap = as.integer(inverse.rle(list(values = (1:nGs)-1, lengths = struc)))
