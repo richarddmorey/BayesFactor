@@ -43,7 +43,8 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	#	browser()
 	#}
 	
-	bf = log(sum(exp(returnList[[2]]-log(iterations)-nullLike)))
+	#bf = log(sum(exp(returnList[[2]]-log(iterations)-nullLike)))
+	bf = returnList[[1]] - nullLike
 	
 	if(samples)
 	{

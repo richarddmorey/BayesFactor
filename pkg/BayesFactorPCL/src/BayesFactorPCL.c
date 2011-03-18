@@ -34,7 +34,7 @@ double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, d
 
 
 
-
+double LogOnePlusExpX(double x);
 double LogOnePlusX(double x);
 double quadform(double *x, double *A, int N, int incx);
 SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
@@ -506,7 +506,8 @@ double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy
 		{
 			avg = samples[i];
 		}else{
-			avg = LogOnePlusX(exp(avg-samples[i]))+samples[i];
+			avg = LogOnePlusExpX(samples[i]-avg)+avg;
+			//avg = LogOnePlusX(exp(avg-samples[i]))+samples[i];
 		}
 	}
 	
@@ -767,7 +768,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 }
 
 
-
+/*
 double LogOnePlusX(double x)
 {
     if (x <= -1.0)
@@ -785,6 +786,65 @@ double LogOnePlusX(double x)
     // Since |x| < 10^-4, |x|^3 < 10^-12, relative error less than 10^-8
 
     return( (-0.5*x + 1.0)*x );
+}
+*/
+
+// Calculate log(1 + x), preventing loss of precision for small values of x.
+// The input x must be larger than -1 so that log(1 + x) is real.
+// Taken from http://www.codeproject.com/KB/recipes/avoiding_overflow.aspx
+double LogOnePlusX(double x)
+{
+    if (x <= -1.0)
+    {
+        
+        error("Attempt to compute log(1+x) on x<=-1!");
+    }
+
+	if (fabs(x) > 0.375)
+    {
+        // x is sufficiently large that the obvious evaluation is OK
+        return log(1.0 + x);
+    }
+
+	// For smaller arguments we use a rational approximation
+	// to the function log(1+x) to avoid the loss of precision
+	// that would occur if we simply added 1 to x then took the log.
+
+    const double p1 =  -0.129418923021993e+01;
+    const double p2 =   0.405303492862024e+00;
+    const double p3 =  -0.178874546012214e-01;
+    const double q1 =  -0.162752256355323e+01;
+    const double q2 =   0.747811014037616e+00;
+    const double q3 =  -0.845104217945565e-01;
+    double t, t2, w;
+
+    t = x/(x + 2.0);
+    t2 = t*t;
+    w = (((p3*t2 + p2)*t2 + p1)*t2 + 1.0)/(((q3*t2 + q2)*t2 + q1)*t2 + 1.0);
+    return 2.0*t*w;
+}
+
+// return log(1 + exp(x)), preventing cancellation and overflow */
+// From http://www.codeproject.com/KB/recipes/avoiding_overflow.aspx
+double LogOnePlusExpX(double x)
+{
+    const double LOG_DBL_EPSILON = log(DBL_EPSILON);
+    const double LOG_ONE_QUARTER = log(0.25);
+
+    if (x > -LOG_DBL_EPSILON)
+    {
+        // log(exp(x) + 1) == x to machine precision
+        return x;
+    }
+    else if (x > LOG_ONE_QUARTER)
+    {
+        return log( 1.0 + exp(x) );
+    }
+    else
+    {
+        // Prevent loss of precision that would result from adding small argument to 1.
+        return LogOnePlusX( exp(x) );
+    }
 }
 
 
