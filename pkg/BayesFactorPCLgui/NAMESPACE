@@ -1,4 +1,4 @@
-useDynLib(BayesFactorPCL)
+#useDynLib(BayesFactorPCLgui)
 
 import(RGtk2)
 import(grDevices)

@@ -25,9 +25,9 @@ thawGUI <- function() {
 getpackagefile <- function(filename) {
 	## Try firstly to load from the installed package
 	## Otherwise, look locally.
-	myPath <- system.file("etc", filename, package = "BayesFactorPCL")
+	myPath <- system.file("etc", filename, package = "BayesFactorPCLgui")
 	if (identical(myPath, "")) 
-		myPath <- file.path("BayesFactorPCL", "BayesFactorPCL", "inst", 
+		myPath <- file.path("BayesFactorPCLgui", "BayesFactorPCLgui", "inst", 
 			"etc", filename)
 	if (!file.exists(myPath)) stop("could not find file ", filename)
 	myPath
