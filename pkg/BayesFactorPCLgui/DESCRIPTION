@@ -1,0 +1,13 @@
+Package: BayesFactorPCLgui
+Type: Package
+Title: GTK+ front end for the BayesFactorPCL package
+Version: 0.1
+Date: 2011-3-18
+Author: Richard D. Morey
+Maintainer: Richard D. Morey <richarddmorey@gmail.com>
+Description: The BayesFactorPCLgui package provides, using RGtk2, a a gui for computing various Bayes factors for simple psychological designs. See BayesFactorPCLgui for more details.
+License: GPL 2
+Depends:  gWidgets, gWidgetsRGtk2, cairoDevice, BayesFactorPCL
+Imports: RGtk2, grDevices, XML
+LazyLoad: yes
+

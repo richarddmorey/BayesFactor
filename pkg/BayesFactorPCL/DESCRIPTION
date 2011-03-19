@@ -7,7 +7,6 @@ Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactorPCL package is a suite of functions for computing various Bayes factors for simple psychological designs. Examples include the t test, one-way ANOVA, and an equal-variance test.
 License: GPL 2
-Depends:  coda, mvtnorm, gWidgets, gWidgetsRGtk2, cairoDevice
-Imports: RGtk2, grDevices, XML
+Depends:  coda, mvtnorm
 LazyLoad: yes
 
