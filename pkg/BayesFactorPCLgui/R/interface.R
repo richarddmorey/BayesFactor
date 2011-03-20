@@ -37,15 +37,17 @@ BFgui <- function(project = NULL, projectFile= NULL,CSVfile = NULL, dataFrame = 
 	
 	#.setInitialSensitivity()
 
+	.setupDataAnalysisTypeComboBox()
+	
 		# load files/dataframes
 	if(!is.null(dataFrame)){
 		if(is.data.frame(dataFrame)){
-			theWidget("dataFilenameEntry")$setText("<Loaded from data.frame>")
-			#.setDataForColumnSelection(dataFrame)
+			theWidget("entryDataFilename")$setText("<Loaded from dataframe>")
+			.setDataForColumnSelection(dataFrame)
 		}
 	}else if(!is.null(CSVfile))
 	{
-		#.openCSVFile(CSVfile)
+		.OpenCSVFile(CSVfile)
 	}else if(!is.null(project))
 	{
 		#.loadProject(project)
@@ -53,6 +55,7 @@ BFgui <- function(project = NULL, projectFile= NULL,CSVfile = NULL, dataFrame = 
 	{
 		#.loadProjectFile(projectFile)
 	}
+	
 	
 	StateEnv$win$present()
 	return(invisible(NULL))

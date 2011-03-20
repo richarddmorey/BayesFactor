@@ -3,6 +3,8 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
+    <property name="default_width">800</property>
+    <property name="default_height">600</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -149,7 +151,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="vbox8">
+              <object class="GtkVBox" id="boxAnalysisPage">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
@@ -181,44 +183,50 @@
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <child>
-                          <object class="GtkButton" id="button1">
+                          <object class="GtkButton" id="buttonDataUnlock">
                             <property name="label" translatable="yes">Unlock</property>
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler=".clicked_data_unlock"/>
                           </object>
                           <packing>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button2">
+                          <object class="GtkButton" id="buttonDataLoadCSV">
                             <property name="label" translatable="yes">CSV</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler=".clicked_data_load_csv"/>
                           </object>
                           <packing>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button3">
+                          <object class="GtkButton" id="buttonDataLoadDataframe">
                             <property name="label" translatable="yes">Data frame</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler=".clicked_data_load_dataframe"/>
                           </object>
                           <packing>
                             <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button4">
+                          <object class="GtkButton" id="buttonDataLoadProject">
                             <property name="label" translatable="yes">Saved analysis</property>
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler=".clicked_data_load_project"/>
                           </object>
                           <packing>
                             <property name="position">3</property>
@@ -246,7 +254,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry2">
+                          <object class="GtkEntry" id="entryDataFilename">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>
@@ -278,7 +286,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox3">
+                  <object class="GtkHBox" id="boxDataColumns">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkFrame" id="frame2">
@@ -296,7 +304,7 @@
                                 <property name="hscrollbar_policy">automatic</property>
                                 <property name="vscrollbar_policy">automatic</property>
                                 <child>
-                                  <object class="GtkTreeView" id="treeview1">
+                                  <object class="GtkTreeView" id="treeviewDataColumns">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                   </object>
@@ -329,44 +337,50 @@
                             <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkButton" id="button5">
+                              <object class="GtkButton" id="buttonDataDV">
                                 <property name="label" translatable="yes">DV --&gt;</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <signal name="clicked" handler=".clicked_data_dv"/>
                               </object>
                               <packing>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button6">
+                              <object class="GtkButton" id="buttonDataFixedIV">
                                 <property name="label" translatable="yes">Fixed IV--&gt;</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <signal name="clicked" handler=".clicked_data_fixed_iv"/>
                               </object>
                               <packing>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button7">
+                              <object class="GtkButton" id="buttonDataRandomIV">
                                 <property name="label" translatable="yes">Random IV --&gt;</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <signal name="clicked" handler=".clicked_data_random_iv"/>
                               </object>
                               <packing>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button8">
+                              <object class="GtkButton" id="buttonDataContinuousIV">
                                 <property name="label" translatable="yes">Continuous IV --&gt;</property>
                                 <property name="visible">True</property>
+                                <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="xalign">0.54000002145767212</property>
+                                <signal name="clicked" handler=".clicked_data_continuous_iv"/>
                               </object>
                               <packing>
                                 <property name="position">3</property>
@@ -379,11 +393,12 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="button9">
+                          <object class="GtkButton" id="buttonDataRemoveIV">
                             <property name="label" translatable="yes">&lt;-- Remove IV</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler=".clicked_data_remove_iv"/>
                           </object>
                           <packing>
                             <property name="fill">False</property>
@@ -415,7 +430,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkEntry" id="entry1">
+                              <object class="GtkEntry" id="entryDataY">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="editable">False</property>
@@ -457,7 +472,7 @@
                                     <property name="hscrollbar_policy">automatic</property>
                                     <property name="vscrollbar_policy">automatic</property>
                                     <child>
-                                      <object class="GtkTreeView" id="treeview2">
+                                      <object class="GtkTreeView" id="treeviewDataIVs">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                       </object>
@@ -489,7 +504,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHBox" id="hbox4">
+                  <object class="GtkHBox" id="boxDataDoAnalysis">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkHBox" id="hbox9">
@@ -506,8 +521,11 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="combobox1">
+                          <object class="GtkHBox" id="boxDataAnalysisType">
                             <property name="visible">True</property>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </object>
                           <packing>
                             <property name="position">1</property>
@@ -519,11 +537,12 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button10">
+                      <object class="GtkButton" id="buttonDataDoAnalysis">
                         <property name="label" translatable="yes">Do Analysis</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="clicked" handler=".clicked_data_do_analysis"/>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -574,7 +593,7 @@
                                 <property name="hscrollbar_policy">automatic</property>
                                 <property name="vscrollbar_policy">automatic</property>
                                 <child>
-                                  <object class="GtkTreeView" id="treeview3">
+                                  <object class="GtkTreeView" id="treeviewAnalysisBFs">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                   </object>
@@ -610,7 +629,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry3">
+                          <object class="GtkEntry" id="entryAnalysisAgainst">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>

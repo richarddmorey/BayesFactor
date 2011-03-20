@@ -60,6 +60,10 @@ getpackagefile <- function(filename) {
 			eval(parse(text=paste("is.data.frame(",x,")",sep="")),env=globalenv())
 				}
 	)
+	
+	if(length(n)==0){
+		return(data.frame())
+	}
 	n=n[n]
 	data.frame(Name=names(n))
 }
@@ -79,7 +83,7 @@ getpackagefile <- function(filename) {
 		container = toplevel,
 		action=NULL,
 		handler = function(h,...) {
-			#.setDataForColumnSelection(eval(parse(text=as.character(svalue(h$obj)))))
+			.setDataForColumnSelection(eval(parse(text=as.character(svalue(h$obj)))))
 			dispose(toplevel)
 		},toplevel=toplevel)
 }
