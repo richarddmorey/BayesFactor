@@ -154,8 +154,76 @@ as.integer(COLUMNS[name])
 
 .clicked_data_do_analysis <- function(button)
 {
-	#stuff here
+	treeview2 = theWidget("treeviewDataIVs")
+	model2 <- gtkTreeViewGetModel(treeview2)
+
+	# Check to make sure we defined at least one column of interest
+	nRows <- gtkTreeModelIterNChildren(model2, NULL)	
+	if(nRows==0)
+	{
+		gmessage(paste("You must define at least one column of interest."), title="Data error",
+					icon="error",toolkit=guiToolkit("RGtk2"))
+		return(0)
+	}
+	
+	# Check to make sure we've defined necessary columns
+	yText <- bfEnv$responseCol <- theWidget("entryDataY")$getText()
+	
+	if(yText=="")
+	{
+		gmessage(paste("You must define the dependent variable."), title="Data error",
+					icon="error",toolkit=guiToolkit("RGtk2"))
+		return(0)
+	}
+
+	# Disable the column selection
+	.activeColumnSelection(FALSE)
+	
+	# Do the analysis here
+	.buildAnalysisEnvironment()
+	.doBayesFactorAnalysis()
+	
+	# Turn the page
+	gtkNotebookSetCurrentPage(theWidget("notebook1"), .notebookPages("analysis"))
+
+	
+	StateEnv$win$present()
 }
+
+.buildAnalysisEnvironment <- function()
+{
+	analysisTypeCombo = StateEnv$typeCombo
+	
+	bfEnv$settings = list()
+	bfEnv$settings$iterations = as.numeric(theWidget("entrySettingsIterations")$getText())
+	bfEnv$settings$analysisType = analysisTypeCombo$getActiveText()
+	
+	bfEnv$nFixedFac #= nFac = 
+	bfEnv$y  
+	
+	bfEnv$designMatrices = list()
+	bfEnv$designMatrices[[2^nFac]] = matrix(nrow=0,ncol=0)
+	bfEnv$dataRandom
+	bfEnv$dataFixed
+	
+	
+	bfEnv$totalN = length(bfEnv$y)
+}
+
+.doBayesFactorAnalysis <- function()
+{
+	analysisType = bfEnv$settings$analysisType
+	
+	if(analysisType=="All"){
+		bfEnv$bayesFactors = sort(
+				c(null=0,
+				all.Nways(bfEnv,iterations=bfEnv$settings$iterations)
+			   ))*log10(exp(1))
+	}
+	
+	.setAnalysisResults()
+}
+
 
 .changed_data_analysis_type <- function(button)
 {
@@ -277,7 +345,12 @@ as.integer(COLUMNS[name])
 .clearInterfaceForDataLoad <- function(removeModels=TRUE)
 {
 	# Models
-	if(removeModels) bfEnv$Models=NULL
+	if(removeModels){
+		bfEnv$designMatrices=NULL
+		bfEnv$data = NULL
+		bfEnv$dataRandom = NULL
+		bfEnv$dataFixed = NULL
+	}
 	
 	# Analysis
 	if(!is.null(theWidget("treeviewAnalysisBFs")$getModel()))

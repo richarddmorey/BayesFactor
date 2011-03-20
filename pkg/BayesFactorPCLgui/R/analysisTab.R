@@ -5,3 +5,9 @@
 	theWidget("boxAnalysisPage")$setSensitive(status)
 
 }
+
+.setAnalysisResults <- function()
+{
+
+
+}

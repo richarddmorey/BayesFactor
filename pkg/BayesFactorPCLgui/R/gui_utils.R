@@ -1,3 +1,11 @@
+
+.notebookPages <- function(name)
+{
+COLUMNS <- c(intro=0,data=1,analysis=2,settings=3,log=4)
+as.integer(COLUMNS[name])
+}
+
+
 .fileSafeString <- function(string)
 {
 	gsub("[^\\w-\\s]","_",string,perl=TRUE)
@@ -225,7 +233,7 @@ packageIsAvailable <- function(pkg, msg=NULL)
 
 .setInitialSensitivity<-function()
 {
-	#.womActiveColumnSelection(FALSE)
+	.activeColumnSelection(FALSE)
 	#.womActiveModelTab(FALSE)
 	#.womActiveAnalysisTab(FALSE)
 	#.womActiveDiagnosticsTab(FALSE)

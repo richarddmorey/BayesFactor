@@ -4,7 +4,7 @@ if (!exists("StateEnv", environment(), inherits=FALSE)) {
 }
 # stores all project information
 if (!exists("wommbatAnalysis", environment(), inherits=FALSE)) {
-	bfEnv <- new.env()
+	bfEnv <- new.env(parent = baseenv())
 }
 
 BFgui <- function(project = NULL, projectFile= NULL,CSVfile = NULL, dataFrame = NULL) {
@@ -28,18 +28,17 @@ BFgui <- function(project = NULL, projectFile= NULL,CSVfile = NULL, dataFrame = 
 	StateEnv$win$setTitle("Bayes Factors")
 
 	# connect the callbacks (event handlers)
-	#gladeXMLSignalAutoconnect(StateEnv$GUI)
 	StateEnv$GUI$connectSignals(NULL)
 	StateEnv$handlers = list()
 
 	#.loadTooltips()
 	#.populateTextviews()
 	
-	#.setInitialSensitivity()
+	.setInitialSensitivity()
 
 	.setupDataAnalysisTypeComboBox()
 	
-		# load files/dataframes
+	# load files/dataframes
 	if(!is.null(dataFrame)){
 		if(is.data.frame(dataFrame)){
 			theWidget("entryDataFilename")$setText("<Loaded from dataframe>")
