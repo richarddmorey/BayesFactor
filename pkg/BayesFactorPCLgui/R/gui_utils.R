@@ -2,6 +2,17 @@ bfPCL_extractEnv <- function()
 return(bfEnv)
 
 
+.charVectorToAlternatingCol <- function(v)
+{
+	cols = c("#FFFFFF","#AAAAAA")
+	r = rle(v)
+	x = r$values
+	r$values = (0:(length(x)-1))%%2 + 1
+	v = inverse.rle(r)
+	cols[v]
+}
+
+
 .notebookPages <- function(name)
 {
 COLUMNS <- c(intro=0,data=1,analysis=2,settings=3,log=4)
