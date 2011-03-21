@@ -1,3 +1,32 @@
+# Taken from the WLE package source by Claudio Agostinelli <claudio at unive.it>
+
+binary <- function(x, dim) {
+
+   if (x==0) {
+       pos <- 1
+   } else {
+       pos <- floor(log(x, 2))+1
+   }
+
+   if (!missing(dim)) {
+       if (pos<=dim) {
+           pos <- dim
+       } else {
+           warning("the value of `dim` is too small")
+       }  
+   }
+
+   bin <- rep(0, pos)
+   dicotomy <- rep(FALSE, pos)
+   for (i in pos:1) {
+        bin[i] <- floor(x/2^(i-1))
+        dicotomy[i] <- bin[i]==1
+        x <- x-((2^(i-1))*bin[i])
+   }
+   return(list(binary=bin, dicotomy=dicotomy))
+}
+
+
 
 design.mat.single=function(v,reduce=TRUE)
 {
@@ -106,9 +135,9 @@ my.design = function(effNum,fixed=TRUE,env)
   }
 }
 
-nWayAOV2 = function(modNum,env,samples=FALSE,...)
+nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
 {
-  cat(modNum,"\n")
+  logFunction(paste(modNum,"\n"))
   flush.console()
   X = joined.design(modNum,env=env)
   y = get("y",env=env)
@@ -120,7 +149,6 @@ nWayAOV2 = function(modNum,env,samples=FALSE,...)
   }else{
     gr.groups = NULL
   } 
-  #browser()
   bfs = nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=samples,...)
   if(!samples)
   { 

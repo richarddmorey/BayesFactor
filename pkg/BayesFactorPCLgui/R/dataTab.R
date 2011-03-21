@@ -198,16 +198,78 @@ as.integer(COLUMNS[name])
 	bfEnv$settings$iterations = as.numeric(theWidget("entrySettingsIterations")$getText())
 	bfEnv$settings$analysisType = analysisTypeCombo$getActiveText()
 	
-	bfEnv$nFixedFac #= nFac = 
-	bfEnv$y  
+	model <- gtkTreeViewGetModel(theWidget("treeviewDataIVs"))
+	dataset <- bfEnv$data
 	
+	# get the selected columns and types
+	bfEnv$selectedCols <- .treeModelGetNthCol(model,.columnsOfInterestTreeCols("columnname"))
+	bfEnv$selectedColsType <- .treeModelGetNthCol(model,.columnsOfInterestTreeCols("type"))	
+
+	bfEnv$selectedColsType[bfEnv$selectedColsType=="continuous"] <- "C"
+	bfEnv$selectedColsType[bfEnv$selectedColsType=="fixed"] <- "F"
+	bfEnv$selectedColsType[bfEnv$selectedColsType=="random"] <- "R"
+	
+	.shapeDataForAnalysis()
+	
+	bfEnv$nFixedFac = nFac = sum(bfEnv$selectedColsType=="F")
 	bfEnv$designMatrices = list()
-	bfEnv$designMatrices[[2^nFac]] = matrix(nrow=0,ncol=0)
-	bfEnv$dataRandom
-	bfEnv$dataFixed
-	
-	
+	bfEnv$designMatrices[[2^nFac]] = matrix(nrow=0,ncol=0)	
 	bfEnv$totalN = length(bfEnv$y)
+
+}
+
+.shapeDataForAnalysis <- function()
+{
+	data = bfEnv$data
+	cols = colnames(data)
+	selCols = bfEnv$selectedCols
+	selType = bfEnv$selectedColsType
+	
+	bfEnv$y = data[,cols==bfEnv$responseCol]
+	
+	dataRandom = data.frame(row.names=1:length(bfEnv$y))
+	dataFixed = data.frame(row.names=1:length(bfEnv$y))
+	dataContinuous = data.frame(row.names=1:length(bfEnv$y))
+
+	
+	for(i in 1:length(selCols))
+	{
+		name = selCols[i]
+		col = data[,cols==name]
+		
+		if(selType[i]=="F")
+		{
+			dataFixed = data.frame(dataFixed,as.factor(col)[drop=TRUE])
+		}
+		if(selType[i]=="R")
+		{
+			dataRandom = data.frame(dataRandom,as.factor(col)[drop=TRUE])
+		}
+		
+		if(selType[i]=="C")
+		{
+			dataContinuous = data.frame(dataContinuous,as.factor(col)[drop=TRUE])
+		}		
+	}
+	
+	if(any(selType=="R")){
+		colnames(dataRandom) = selCols[selType=="R"]
+		bfEnv$dataRandom = dataRandom
+	}else{
+		bfEnv$dataRandom = NULL
+	}
+	if(any(selType=="F")){
+		colnames(dataFixed) = selCols[selType=="F"]
+		bfEnv$dataFixed = dataFixed
+	}else{
+		bfEnv$dataFixed = NULL
+	}
+	if(any(selType=="C")){
+		colnames(dataContinuous) = selCols[selType=="C"]
+		bfEnv$dataContinuous = dataContinuous
+	}else{
+		bfEnv$dataContinuous = NULL
+	}
 }
 
 .doBayesFactorAnalysis <- function()
@@ -215,10 +277,10 @@ as.integer(COLUMNS[name])
 	analysisType = bfEnv$settings$analysisType
 	
 	if(analysisType=="All"){
-		bfEnv$bayesFactors = sort(
+		bfEnv$bayesFactors = 
 				c(null=0,
 				all.Nways(bfEnv,iterations=bfEnv$settings$iterations)
-			   ))*log10(exp(1))
+			   )*log10(exp(1))
 	}
 	
 	.setAnalysisResults()
@@ -347,9 +409,16 @@ as.integer(COLUMNS[name])
 	# Models
 	if(removeModels){
 		bfEnv$designMatrices=NULL
-		bfEnv$data = NULL
+		#bfEnv$data = NULL
 		bfEnv$dataRandom = NULL
 		bfEnv$dataFixed = NULL
+		bfEnv$selectedCols = NULL
+		bfEnv$selectedColsType = NULL
+		bfEnv$bayesFactors = NULL
+		bfEnv$y = NULL
+		bfEnv$totalN = NULL
+		bfEnv$nFixedFac = NULL
+		bfEnv$responseCol = NULL
 	}
 	
 	# Analysis

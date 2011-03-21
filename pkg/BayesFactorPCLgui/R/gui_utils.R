@@ -1,3 +1,6 @@
+bfPCL_extractEnv <- function()
+return(bfEnv)
+
 
 .notebookPages <- function(name)
 {
