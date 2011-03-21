@@ -1,7 +1,15 @@
 bfPCL_extractEnv <- function()
 return(bfEnv)
 
-
+.logbfTobfText <- function(logbf,base=10)
+{
+	if(logbf>0){
+		bf = .saneNum(base^logbf,2)
+	}else{
+		bf = paste("1/",.saneNum(base^-logbf,2),sep="")
+	}
+	bf
+}
 .charVectorToAlternatingCol <- function(v)
 {
 	cols = c("#FFFFFF","#AAAAAA")

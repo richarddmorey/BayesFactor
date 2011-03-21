@@ -424,7 +424,8 @@ as.integer(COLUMNS[name])
 	# Analysis
 	if(!is.null(theWidget("treeviewAnalysisBFs")$getModel()))
 		{
-			theWidget("treeviewAnalysisBFs")$getModel()$clear()
+			#theWidget("treeviewAnalysisBFs")$getModel()$clear()
+			StateEnv$analysisModel$clear()
 		}		
 	.activeAnalysisTab(FALSE)	
 	

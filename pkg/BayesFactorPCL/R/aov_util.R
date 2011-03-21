@@ -106,7 +106,7 @@ other.design = function(effNum,fixed=TRUE,env,type="g")
   if(type=="g"){
     return(df)
   }else if(type=="n"){
-    return(paste(my.names,collapse=" by "))
+    return(paste(my.names,collapse=":"))
   }
 }
 

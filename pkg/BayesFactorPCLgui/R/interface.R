@@ -35,7 +35,7 @@ BFgui <- function(project = NULL, projectFile= NULL,CSVfile = NULL, dataFrame = 
 	#.populateTextviews()
 	
 	.setInitialSensitivity()
-
+	.createAnalysisTreeStore()
 	.setupDataAnalysisTypeComboBox()
 	
 	# load files/dataframes
