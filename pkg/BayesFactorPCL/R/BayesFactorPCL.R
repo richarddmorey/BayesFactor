@@ -1,8 +1,18 @@
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
 
 	N = as.integer(dim(X)[1])
-	P = as.integer(dim(X)[2])-1
-	X = as.matrix(X[,-1],N,P)
+	if(all(X[,1]==1))
+	{
+		P = as.integer(dim(X)[2])-1
+		X = as.matrix(X[,-1],N,P)
+	}else{
+		P = as.integer(dim(X)[2])
+	}
+	
+	if(sum(struc) != P)
+	{
+		stop("Invalid struc argument. sum(struc) must be the the same as the number of parameters (excluding intercept).")
+	}
 	nGs = length(struc)
 	
 	nullLike = - ((N-1)/2)*log((N-1)*var(y))
