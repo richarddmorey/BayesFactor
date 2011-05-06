@@ -28,12 +28,21 @@ double newtonMethodEqVar2(double xt, double c1, double c2, double c3, int iterat
 double samplegEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N, double sdMetrop, double *acc);
 double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N);
 
+double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta);
+double sampThetaAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta , double sdmet);
+void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho);
+SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR, SEXP sdmet, SEXP progressR, SEXP pBar, SEXP rho);
+double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations);
+SEXP RMCTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR);
+
+
 SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho);
 double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho);
 double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, double *g);
 
-
-
+SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen);
+double logSumExpLogs(double *v, int len);
+double logMeanExpLogs(double *v, int len);
 double LogOnePlusExpX(double x);
 double LogOnePlusX(double x);
 double quadform(double *x, double *A, int N, int incx);
@@ -117,6 +126,286 @@ SEXP alloc3Darray(SEXPTYPE mode, int nrow, int ncol, int nface)
     UNPROTECT(2);
     return s;
 }
+
+SEXP RMCTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR)
+{
+	int iterations = INTEGER_VALUE(iterationsR);
+	int N = INTEGER_VALUE(NR);
+	double rscale = NUMERIC_VALUE(rscaleR);
+	double alphaTheta = NUMERIC_VALUE(alphaThetaR);
+	double betaTheta = NUMERIC_VALUE(betaThetaR);
+	double *y = REAL(yR);
+	double *t = REAL(tR);
+	
+	SEXP logBFR;
+	PROTECT(logBFR = allocVector(REALSXP, 1));
+	double *logBF = REAL(logBFR);
+
+	logBF[0] = MCTwoSampleAR(y, N, t, rscale, alphaTheta, betaTheta, iterations);
+	
+	UNPROTECT(1);
+	
+	return(logBFR);
+}
+
+double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations)
+{
+	int i=0, j=0, m=0, Nsqr = N*N, iOne=1;
+	double theta,g,rscsq=rscale*rscale,mLike;
+	double ones[N],dOne=1,dZero=0;
+	double invPsi[Nsqr],invPsi0[Nsqr],invPsi1[Nsqr];
+	double tempV[N];
+	double tOnePsiOne,ttPsi0t;
+	double tempS, devs, logmlike[iterations];
+	
+	AZERO(invPsi,Nsqr);
+	
+	
+	for(i=0;i<N;i++)
+	{
+		ones[i] = 1;
+	}
+
+	GetRNGstate();
+	
+	for(m=0;m<iterations;m++)
+	{
+		g = 1/rgamma(0.5,2/rscsq);
+		theta = rbeta(alphaTheta,betaTheta);
+		
+		for(i=0;i<N;i++)
+		{
+			invPsi[i + N*i] = 1/(1-theta*theta);		
+			for(j=0;j<i;j++)
+			{
+				invPsi[i + N*j] = invPsi[i + N*i] * pow(theta,abs(i-j));
+				invPsi[j + N*i] = invPsi[i + N*j];
+			}
+		}
+		
+		
+		InvMatrixUpper(invPsi, N);
+		internal_symmetrize(invPsi, N);
+
+		Memcpy(invPsi0,invPsi,Nsqr);
+		
+		tOnePsiOne = quadform(ones, invPsi, N, 1);
+		tempS = -1/tOnePsiOne;
+		
+		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, ones, &iOne, &dZero, tempV, &iOne);
+		F77_NAME(dsyr)("U", &N, &tempS, tempV, &iOne, invPsi0, &N);
+		
+		Memcpy(invPsi1,invPsi0,Nsqr);
+
+		ttPsi0t = quadform(t, invPsi0, N, 1) + 1/g;
+		tempS = -1/ttPsi0t;
+		
+		F77_NAME(dsymv)("U", &N, &dOne, invPsi0, &N, t, &iOne, &dZero, tempV, &iOne);
+		F77_NAME(dsyr)("U", &N, &tempS, tempV, &iOne, invPsi1, &N);
+		
+		devs = quadform(y,invPsi1,N,1);
+		
+		logmlike[m] = -0.5*(1.0*N-1)*log(devs) - 0.5*log(tOnePsiOne) - 0.5*log(ttPsi0t) +
+					0.5*matrixDet(invPsi, N, 1) - 0.5*log(g);
+		
+	}
+
+	PutRNGstate();
+	
+	return(logMeanExpLogs(logmlike,iterations));
+	
+}
+
+
+SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR, SEXP sdmetR, SEXP progressR, SEXP pBar, SEXP rho)
+{
+	int npars = 6,iterations = INTEGER_VALUE(iterationsR);
+	int N = INTEGER_VALUE(NR), progress = INTEGER_VALUE(progressR);
+	double rscale = NUMERIC_VALUE(rscaleR);
+	double alphaTheta = NUMERIC_VALUE(alphaThetaR);
+	double betaTheta = NUMERIC_VALUE(betaThetaR);
+	double sdmet = NUMERIC_VALUE(sdmetR);
+	double *y = REAL(yR);
+	double *t = REAL(tR);
+	
+	
+	SEXP chainsR;
+	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
+
+	gibbsTwoSampleAR(y, N, t, rscale, alphaTheta, betaTheta, iterations, sdmet, REAL(chainsR), progress, pBar, rho);
+	
+	UNPROTECT(1);
+	
+	return(chainsR);
+}
+
+
+void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho)
+{
+	int i=0, j=0, m=0,Nsqr=N*N,iOne=1;
+	double varMu, meanMu, varDelta, meanDelta, aSig2, bSig2, ag, bg, rscsq=rscale*rscale;
+	double mu = 0, sig2=0, delta = 0, theta = 0, g = 1, ldensDelta;
+	double tOnePsiOne,psiOne[N],dZero=0,dOne=1;
+	double ttPsit,psit[N],loglikeTheta;
+	
+	double tempV[N];
+	double ones[N];
+	double invPsi[Nsqr];
+	AZERO(invPsi,Nsqr);
+
+	for(i=0;i<N;i++)
+	{
+		ones[i]=1;
+		mu += y[i]/(N*1.0);
+		sig2 += y[i]*y[i];
+	}
+	sig2 = (sig2 - N*mu*mu)/(N*1.0-1);
+	
+
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+
+	GetRNGstate();
+
+	for(m=0;m<iterations;m++)
+	{
+
+		R_CheckUserInterrupt();
+	
+		//Check progress
+		if(progress && !((m+1)%progress)){
+			pSampCounter[0]=m+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+		for(i=0;i<N;i++)
+		{
+			invPsi[i + N*i] = 1/(1-theta*theta);		
+			for(j=0;j<i;j++)
+			{
+				invPsi[i + N*j] = invPsi[i + N*i] * pow(theta,abs(i-j));
+				invPsi[j + N*i] = invPsi[i + N*j];
+			}
+		}
+		
+		InvMatrixUpper(invPsi, N);
+		internal_symmetrize(invPsi, N);
+	
+
+		//mu
+		tOnePsiOne = quadform(ones, invPsi, N, 1);
+		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, ones, &iOne, &dZero, psiOne, &iOne);
+
+		meanMu = 0;
+		varMu = sig2/tOnePsiOne;
+		for(i=0;i<N;i++)
+		{
+			meanMu += (y[i] - delta*t[i])*psiOne[i];
+		}
+		meanMu = meanMu/tOnePsiOne;
+		mu = rnorm(meanMu,sqrt(varMu));
+		
+		//delta
+		ttPsit = quadform(t, invPsi, N, 1);
+		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, t, &iOne, &dZero, psit, &iOne);
+
+		meanDelta = 0;
+		varDelta = sig2/(ttPsit + 1/g);
+		for(i=0;i<N;i++)
+		{
+			meanDelta += (y[i] - mu)*psit[i];
+		}
+		meanDelta = meanDelta/(ttPsit + 1/g);
+		delta = rnorm(meanDelta, sqrt(varDelta));
+
+		//deltaDens
+		varDelta = 1/(ttPsit + 1/g);
+		meanDelta = meanDelta/sqrt(sig2);
+		ldensDelta = dnorm(0,meanDelta, sqrt(varDelta), 1);		
+		
+		//sig2
+		aSig2 = 0.5*(N+1);
+		for(i=0;i<N;i++)
+		{
+			tempV[i] = (y[i] - mu - delta*t[i]);
+		}
+		bSig2 = 0.5*(quadform(tempV,invPsi,N,1) + delta*delta/g);
+		sig2 = 1/rgamma(aSig2,1/bSig2);
+		
+		//g
+		ag = 1;
+		bg = 0.5*(pow(delta,2)/sig2 + rscsq);
+		g = 1/rgamma(ag,1/bg);
+		
+		//theta
+		theta = sampThetaAR(theta, mu, delta, sig2, g, y, N, t, alphaTheta, betaTheta, sdmet);
+	
+		// write chain
+		chains[0*iterations + m] = mu;
+		chains[1*iterations + m] = delta;
+		chains[2*iterations + m] = ldensDelta;
+		chains[3*iterations + m] = sig2;
+		chains[4*iterations + m] = g;
+		chains[5*iterations + m] = theta;
+	
+	}
+
+	UNPROTECT(2);
+	PutRNGstate();
+}
+
+
+double sampThetaAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta , double sdmet)
+{
+	// sample theta with Metropolis-Hastings
+	double cand, likeRat, b;
+	
+	cand = theta + rnorm(0,sdmet);
+	
+	if(cand<0 || cand>1)
+	{
+		return(theta);
+	}
+	b = log(runif(0,1));
+	likeRat = thetaLogLikeAR(cand, mu, delta, sig2, g, y, N, t, alphaTheta, betaTheta) - thetaLogLikeAR(theta, mu, delta, sig2, g, y, N, t, alphaTheta, betaTheta);
+	
+	if(b>likeRat){
+		return(theta);
+	}else{
+		return(cand);
+	}
+}
+
+double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta)
+{
+	int i,j;
+	double loglike=0,tempV[N],invPsi[N*N];
+	
+	for(i=0;i<N;i++)
+	{
+		invPsi[i + N*i] = 1/(1-pow(theta,2));		
+		tempV[i] = y[i] - mu - delta*t[i];
+		
+		for(j=0;j<i;j++)
+		{
+			invPsi[i + N*j] = invPsi[i + N*i] * pow(theta,abs(i-j));
+			invPsi[j + N*i] = invPsi[i + N*j];
+		}
+	}
+		
+	InvMatrixUpper(invPsi, N);
+	internal_symmetrize(invPsi, N);
+
+	loglike = 0.5 * matrixDet(invPsi, N, 1) - 0.5/sig2 * quadform(tempV,invPsi,N,1) + (alphaTheta-1)*log(theta) + (betaTheta-1)*log(1-theta);
+	
+	return(loglike);
+}
+
 
 
 
@@ -515,6 +804,44 @@ double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy
 	
 	return(avg-log(iters));
 	
+}
+
+SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen)
+{
+	double *v;
+	int len;
+	SEXP ret;
+	double *retp;
+	
+	len = INTEGER_VALUE(Rlen);
+	v = REAL(Rv);
+	PROTECT(ret = allocVector(REALSXP,1));
+	retp = REAL(ret);
+	
+	retp[0] = logMeanExpLogs(v,len);
+	
+	UNPROTECT(1);
+	return(ret);
+}
+
+double logSumExpLogs(double *v, int len)
+{
+	int i=0;
+	double sum=v[0];
+	
+	for(i=1;i<len;i++)
+	{
+		sum = LogOnePlusExpX(v[i]-sum)+sum;
+	}
+	
+	return(sum);
+}
+
+double logMeanExpLogs(double *v, int len)
+{	
+	double sum=0;
+	sum = logSumExpLogs(v,len);
+	return(sum - log(len));
 }
 
 SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho)

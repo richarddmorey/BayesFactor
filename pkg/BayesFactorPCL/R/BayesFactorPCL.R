@@ -1,3 +1,143 @@
+logMeanExpLogs = function(v)
+{
+	N = length(v)
+	.Call("RLogMeanExpLogs", v, N, package="BayesFactorPCL")
+}
+
+
+
+ttest.Gibbs.AR = function(before,after,iterations=1000,treat=NULL,r.scale=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
+{
+
+
+	y = c(before,after)
+	N = length(y)
+	
+	if(is.null(treat))
+	{
+		treat = c(rep(-0.5,length(before)),rep(0.5,length(after)))
+	}else{
+		if(length(treat)!=length(y))
+		{
+			stop("Invalid condition vector: treat.")
+		}
+	}
+	
+	iterations = as.integer(iterations)
+
+	if(progress){
+		progress = round(iterations/100)
+		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
+	}else{ 
+		pb=NULL 
+	}
+	
+    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
+
+	chains = .Call("RgibbsTwoSampleAR", y, N, treat, r.scale, alphaTheta, betaTheta, iterations, sdMet, progress, pbFun, new.env(), package="BayesFactorPCL")
+	
+	if(progress) close(pb)
+	
+	dim(chains) = c(iterations,6)
+	chains = data.frame(chains)
+	colnames(chains) = c("mu","delta","ldens","sig2","g","theta")
+	
+	logdens = logMeanExpLogs(chains$ldens)
+	nulllogdens = dcauchy(0,log=TRUE) - log(r.scale)
+	logbf = logdens - nulllogdens
+	
+	acc = mean(diff(chains$theta)!=0)
+	cat("\n","theta acceptance rate:",acc,"\n")
+	
+	if(return.chains)
+	{
+		return(list(logbf=logbf,chains=mcmc(chains),acc=acc))
+	}else{
+		return(c(logbf=logbf))
+	}
+}
+
+
+ttest.MCGQ.AR = function(before,after,iterations=1000,treat=NULL,method="MC",r.scale=1,alphaTheta=1,betaTheta=5)
+{
+
+	y = c(before,after)
+	N = length(y)
+	
+	distMat = abs(outer(1:N,1:N,'-')) 
+	oneVec = matrix(1,nrow=N)
+	Jn = matrix(1,N,N)
+	
+	if(is.null(treat))
+	{
+		treat = c(rep(-0.5,length(before)),rep(0.5,length(after)))
+	}else{
+		if(length(treat)!=length(y))
+		{
+			stop("Invalid condition vector: treat.")
+		}
+	}
+	
+	
+	iterations = as.integer(iterations)
+	
+	vmlike0 = Vectorize(mlike.null.AR,"theta")
+	mlike0.gq = log(integrate(vmlike0,lower=0,upper=1,y=y,N=N,tr=treat,oneVec=oneVec,Jn = Jn, alphaTheta=alphaTheta, betaTheta=betaTheta, distMat=distMat)[[1]])
+
+	
+	if(method=="MC")
+	{
+		logbf = .Call("RMCTwoSampleAR", y, N, treat, r.scale, alphaTheta, betaTheta, iterations, package="BayesFactorPCL") - mlike0.gq
+	}else if(method=="GQ")
+	{
+		vmlike.alt.gtheta.AR = Vectorize(mlike.alt.gtheta.AR,"theta")
+		vmlike.alt.g.AR = Vectorize(mlike.alt.g.AR,"g")
+		mlike1.gq = log(integrate(vmlike.alt.g.AR,lower=0,upper=Inf,y=y,N=N,tr=treat,oneVec=oneVec,Jn = Jn,alphaTheta=alphaTheta,betaTheta=betaTheta,fun1=vmlike.alt.gtheta.AR,distMat=distMat)[[1]])
+		logbf = mlike1.gq - mlike0.gq
+	}else{
+		stop(paste("Invalid method specified:",method))
+	}
+	
+	return(-logbf)		
+
+}
+
+
+mlike.null.AR = function(theta,y,tr,N=length(y),oneVec=matrix(y*0+1,ncol=1),Jn = oneVec%*%t(oneVec),alphaTheta=1,betaTheta=5,...)
+{
+	psifunc = function(theta,distMat) theta^distMat/(1-theta^2)
+
+	invpsi = solve(psifunc(theta,...))
+	invpsi0 = invpsi - invpsi %*% Jn %*% invpsi/as.vector(t(oneVec)%*%invpsi%*%oneVec)
+	ret = - 0.5 * log(t(oneVec)%*%invpsi%*%oneVec) +
+	-(N-1)/2 * log(t(y)%*%invpsi0%*%y) + 0.5 * determinant(invpsi,logarithm=TRUE)$modulus + dbeta(theta,alphaTheta,betaTheta,log=TRUE)
+	exp(ret)
+}
+
+mlike.alt.gtheta.AR = function(theta,g,y,tr,N=length(y),oneVec=matrix(y*0+1,ncol=1),Jn = oneVec%*%t(oneVec),alphaTheta=1,betaTheta=5,rscale=1,...)
+{
+  psifunc = function(theta,distMat) theta^distMat/(1-theta^2)
+  invpsi = solve(psifunc(theta,...))
+  opsio = as.vector(t(oneVec)%*%invpsi%*%oneVec)
+  invpsi0 = invpsi - invpsi%*%Jn%*%invpsi/opsio 
+  tpsi0t = as.vector(t(tr)%*%invpsi0%*%tr) + 1/g
+   invpsi1 = invpsi0 - invpsi0%*%tr%*%t(tr)%*%invpsi0/tpsi0t  
+   devs = t(y)%*%invpsi1%*%y
+    exp(
+      -((N-1)/2)*log(devs) + 
+    (-0.5)*log(opsio) + (-0.5)*log(tpsi0t) +
+    0.5*determinant(invpsi,logarithm=TRUE)$modulus +
+    -0.5*log(g) + dbeta(theta,alphaTheta,betaTheta,log=TRUE) + log(dinvgamma(g,0.5,rscale^2/2))
+  )
+}
+
+mlike.alt.g.AR = function(g,y,tr,N=length(y),psifunc,oneVec=matrix(y*0+1,ncol=1),Jn = oneVec%*%t(oneVec),alphaTheta=1,betaTheta=5,rscale=1,fun1,...)
+{
+  integrate(fun1,lower=0,upper=1,g=g,y=y,N=N,tr=treat,oneVec=oneVec,Jn = oneVec%*%t(oneVec),rscale=rscale,alphaTheta=alphaTheta,betaTheta=betaTheta,...)[[1]]
+}
+
+
+
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
 
 	N = as.integer(dim(X)[1])
