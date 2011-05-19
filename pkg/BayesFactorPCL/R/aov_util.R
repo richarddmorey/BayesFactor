@@ -157,8 +157,24 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   return(bfs)
 }
 
-all.Nways = function(env,...){
-	data = get("dataFixed",env)
+all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000)
+{
+  nFac = dim(dataFixed)[2]
+  bfEnv = new.env(parent = baseenv())
+  designs = list()
+  designs[[2^nFac]] = matrix(nrow=0,ncol=0)
+
+  bfEnv$designMatrices = designs
+  bfEnv$dataFixed = dataFixed
+  bfEnv$y = y
+  bfEnv$totalN = length(as.vector(y))
+  bfEnv$dataRandom = dataRandom
+  bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations)))*log10(exp(1))
+  return(bfs)
+}
+
+all.Nways.env = function(env,...){
+  data = get("dataFixed",env)
 	nFac = dim(data)[2]
 	modNums = 1:((2^(2^nFac-1))-1)
 	sapply(modNums,nWayAOV2,env=env,...)
