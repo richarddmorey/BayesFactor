@@ -15,7 +15,7 @@
 #include <R_ext/BLAS.h>
 
 
-void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho);
+void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP rho);
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
 void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm);
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
@@ -409,32 +409,34 @@ double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double
 
 
 
-SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP doIntervalR, SEXP intervalR, SEXP progressR, SEXP pBar, SEXP rho)
 {
 	
-	int npars = 5,iterations = INTEGER_VALUE(iterationsR);
+	int npars = 6,iterations = INTEGER_VALUE(iterationsR);
 	int N = INTEGER_VALUE(NR), progress = INTEGER_VALUE(progressR);
 	double rscale = NUMERIC_VALUE(rscaleR);
 	double *y = REAL(yR);
-	
+	double *interval = REAL(intervalR);
+	int doInterval = INTEGER_VALUE(doIntervalR);
 	
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsOneSample(y, N, rscale, iterations, REAL(chainsR), progress, pBar, rho);
+	gibbsOneSample(y, N, rscale, iterations, REAL(chainsR), doInterval, interval, progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0;
 	double yBar=0,sumy2=0,rscaleSq=pow(rscale,2),densDelta=0,meanDelta=0,varDelta=1;
 	double mu=0,sig2=1,g=1;
 	double meanMu=0, varMu=0, shapeSig2=(1.0*N)/2+0.5,scaleSig2=1,scaleg=1;
-	int npars = 5;
+	int npars = 6;
+	double deltaArea;
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -473,6 +475,13 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 		mu = rnorm(meanMu,sqrt(varMu));
 		densDelta = dnorm(0,meanDelta,sqrt(varDelta),0);
 		
+		if(doInterval)
+		{
+			deltaArea = pnorm(interval[1],meanDelta,sqrt(varDelta),1,0) - pnorm(interval[0],meanDelta,sqrt(varDelta),1,0);
+		}else{
+			deltaArea = 1;
+		}
+		
 		// sample sig2
 		scaleSig2 = 0.5*(sumy2 - 2.0 * N * yBar * mu + (N + 1/g)*pow(mu,2));
 		sig2 = 1/rgamma(shapeSig2,1/scaleSig2);
@@ -487,6 +496,7 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 		chains[npars*i + 2] = g;
 		chains[npars*i + 3] = mu/sqrt(sig2);
 		chains[npars*i + 4] = densDelta;
+		chains[npars*i + 5] = deltaArea;
 		
 	}
 

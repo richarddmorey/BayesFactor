@@ -206,7 +206,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}
 }
 
-ttest.Gibbs = function(y,iterations=10000,rscale=1,progress=TRUE){
+ttest.Gibbs = function(y,iterations=10000,rscale=1,null.interval=NULL,progress=TRUE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
@@ -215,18 +215,33 @@ ttest.Gibbs = function(y,iterations=10000,rscale=1,progress=TRUE){
 	}else{ 
 		pb=NULL 
 	}
-
+	
+	if(is.null(null.interval)){
+		do.interval=0
+		interval = c(-Inf,Inf)
+	}else{
+		if(length(null.interval)!=2){
+			stop("null.interval must be a vector of length 2.")
+		}
+		do.interval=1
+		interval=sort(as.numeric(null.interval))
+	}
+    
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	
-	chains = .Call("RgibbsOneSample", y, N, rscale, iterations,
+	chains = .Call("RgibbsOneSample", y, N, rscale, iterations, do.interval, interval,
 				progress, pbFun, new.env(), package="BayesFactorPCL")
 
 	if(progress) close(pb);
 	priorDens = 1/(pi*rscale)
 	postDens = mean(chains[5,])
 	BF = postDens/priorDens
-	rownames(chains) = c("mu","sig2","g","delta","CMDE")			
-	return(list(chains=mcmc(t(chains)),BF=BF))
+	priorArea = pcauchy(interval[2],scale=rscale) - pcauchy(interval[1],scale=rscale)
+	postArea = mean(chains[6,])
+	BFarea = postArea/priorArea
+	
+	rownames(chains) = c("mu","sig2","g","delta","CMDE","areaPost")			
+	return(list(chains=mcmc(t(chains)),BF=BF,BFarea=BFarea))
 }
 
 eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, newtonSteps=6, progress=TRUE, whichModel=2){
