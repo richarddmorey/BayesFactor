@@ -62,11 +62,11 @@ joined.design = function(modelNum, env, other=NULL)
 {
   N = get("totalN",env)
   if(modelNum==0){
-    if(g.groups){
-      return(NULL)
-    }else{
+    #if(g.groups){
+    #  return(NULL)
+    #}else{
       return(rep(1,N))
-    }
+    #}
   }else{
     effects = binary(modelNum)$dicotomy
     effNums = which(effects)
@@ -170,6 +170,14 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000)
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
   bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations)))*log10(exp(1))
+  
+  if(!is.null(dataRandom))
+  {
+  	nullMod = nWayAOV2(0,bfEnv,iterations=iterations)*log10(exp(1))
+  	bfs = bfs - nullMod
+	bfs[1] = 0
+  }
+  
   return(bfs)
 }
 

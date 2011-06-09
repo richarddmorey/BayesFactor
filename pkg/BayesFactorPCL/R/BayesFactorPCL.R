@@ -148,7 +148,6 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}else{
 		P = as.integer(dim(X)[2])
 	}
-	
 	if(sum(struc) != P)
 	{
 		stop("Invalid struc argument. sum(struc) must be the the same as the number of parameters (excluding intercept).")
