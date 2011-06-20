@@ -82,7 +82,7 @@ ttest.MCGQ.AR = function(before,after,iterations=1000,treat=NULL,method="MC",r.s
 	iterations = as.integer(iterations)
 	
 	vmlike0 = Vectorize(mlike.null.AR,"theta")
-	mlike0.gq = log(integrate(vmlike0,lower=0,upper=1,y=y,N=N,tr=treat,oneVec=oneVec,Jn = Jn, alphaTheta=alphaTheta, betaTheta=betaTheta, distMat=distMat)[[1]])
+	mlike0.gq = log(integrate(vmlike0,lower=0,upper=1,y=as.numeric(y),N=N,tr=treat,oneVec=oneVec,Jn = Jn, alphaTheta=alphaTheta, betaTheta=betaTheta, distMat=distMat)[[1]])
 
 	
 	if(method=="MC")
@@ -133,13 +133,16 @@ mlike.alt.gtheta.AR = function(theta,g,y,tr,N=length(y),oneVec=matrix(y*0+1,ncol
 
 mlike.alt.g.AR = function(g,y,tr,N=length(y),psifunc,oneVec=matrix(y*0+1,ncol=1),Jn = oneVec%*%t(oneVec),alphaTheta=1,betaTheta=5,rscale=1,fun1,...)
 {
-  integrate(fun1,lower=0,upper=1,g=g,y=y,N=N,tr=treat,oneVec=oneVec,Jn = oneVec%*%t(oneVec),rscale=rscale,alphaTheta=alphaTheta,betaTheta=betaTheta,...)[[1]]
+  integrate(fun1,lower=0,upper=1,g=g,y=y,N=N,tr=tr,oneVec=oneVec,Jn = oneVec%*%t(oneVec),rscale=rscale,alphaTheta=alphaTheta,betaTheta=betaTheta,...)[[1]]
 }
 
 
 
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
 
+	y = as.numeric(y)
+	X = as.numeric(X)
+	
 	N = as.integer(dim(X)[1])
 	if(all(X[,1]==1))
 	{

@@ -339,7 +339,7 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 		
 		//g
 		ag = 1;
-		bg = 0.5*(pow(delta,2)/sig2 + rscsq);
+		bg = 0.5*(delta*delta/sig2 + rscsq);
 		g = 1/rgamma(ag,1/bg);
 		
 		//theta
