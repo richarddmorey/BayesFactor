@@ -1,3 +1,0 @@
-#useDynLib(BayesFactors.gibi)
-
-exportPattern("^[^\\.]")
