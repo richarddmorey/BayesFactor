@@ -140,8 +140,11 @@ mlike.alt.g.AR = function(g,y,tr,N=length(y),psifunc,oneVec=matrix(y*0+1,ncol=1)
 
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
 
+	
 	y = as.numeric(y)
 	X = as.numeric(X)
+	
+	X = matrix(X,nrow=length(y))
 	
 	N = as.integer(dim(X)[1])
 	if(all(X[,1]==1))
