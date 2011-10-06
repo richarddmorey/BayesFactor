@@ -1,79 +1,6 @@
 
-#include <R.h>
-#include <Rmath.h>  
-#include <Rdefines.h>
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <R_ext/Utils.h>
-#include <Rversion.h>
-#include <Rconfig.h>
-#include <R_ext/Constants.h>
-#include <R_ext/Random.h>
-#include <R_ext/Lapack.h>
-#include <R_ext/Random.h>
-#include <R_ext/BLAS.h>
+#include "BFPCL.h"
 
-
-void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP rho);
-void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm);
-double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
-double logFullCondTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda);
-double logFullCondSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J);
-double sampleTauEqVar(double tau, double *mu, double sig2, double *yBar, double *SS, int *N, int J, double lambda, double sdMetrop, double *acc);
-void gibbsEqVarianceM2(double *y, int *N, int J, int I, double alpha, double beta, int iterations, double *chains, double *debug, double sdMetropg, double sdDecorr, int newtonSteps, int progress, SEXP pBar, SEXP rho);
-void decorrStepEqVarM2(double sumg, double sig2g, int J, double *g, double *sig2, double sdDecorr, double *acc);
-double newtonMethodEqVar2(double xt, double c1, double c2, double c3, int iterations, int max);
-double samplegEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N, double sdMetrop, double *acc);
-double fullCondgEqVarM2(double g, double sig2, double mu, double sig2g, double yBar, double sumy2, int N);
-
-double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta);
-double sampThetaAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta , double sdmet);
-void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho);
-SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR, SEXP sdmet, SEXP progressR, SEXP pBar, SEXP rho);
-double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations);
-SEXP RMCTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR);
-
-
-SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho);
-double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho);
-double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, double *g);
-
-SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen);
-double logSumExpLogs(double *v, int len);
-double logMeanExpLogs(double *v, int len);
-double LogOnePlusExpX(double x);
-double LogOnePlusX(double x);
-double quadform(double *x, double *A, int N, int incx);
-SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
-void rmvGaussianC(double *mu, double *Sigma, int p);
-int InvMatrixUpper(double *A, int p);
-double matrixDet(double *A, int N, int doLog);
-
-void debugPrintMatrix(double *X, int rows, int cols);
-void debugPrintVector(double *x, int len);
-
-#define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}
-
-/**
- * Symmetrize a matrix by copying the strict upper triangle into the
- * lower triangle.
- *
- * @param a pointer to a matrix in Fortran storage mode
- * @param nc number of columns (and rows and leading dimension) in the matrix
- *
- * @return a, symmetrized
- */
-static R_INLINE double*
-internal_symmetrize(double *a, int nc)
-{
-    int i,j;
-    for (i = 1; i < nc; i++)
-	for (j = 0; j < i; j++)
-	    a[i + j*nc] = a[j + i*nc];
-    return a;
-}
 
 void debugPrintMatrix(double *X, int rows, int cols)
 {
@@ -189,7 +116,7 @@ double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaThe
 
 		Memcpy(invPsi0,invPsi,Nsqr);
 		
-		tOnePsiOne = quadform(ones, invPsi, N, 1);
+		tOnePsiOne = quadform(ones, invPsi, N, 1, N);
 		tempS = -1/tOnePsiOne;
 		
 		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, ones, &iOne, &dZero, tempV, &iOne);
@@ -197,16 +124,16 @@ double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaThe
 		
 		Memcpy(invPsi1,invPsi0,Nsqr);
 
-		ttPsi0t = quadform(t, invPsi0, N, 1) + 1/g;
+		ttPsi0t = quadform(t, invPsi0, N, 1, N) + 1/g;
 		tempS = -1/ttPsi0t;
 		
 		F77_NAME(dsymv)("U", &N, &dOne, invPsi0, &N, t, &iOne, &dZero, tempV, &iOne);
 		F77_NAME(dsyr)("U", &N, &tempS, tempV, &iOne, invPsi1, &N);
 		
-		devs = quadform(y,invPsi1,N,1);
+		devs = quadform(y,invPsi1,N,1,N);
 		
 		logmlike[m] = -0.5*(1.0*N-1)*log(devs) - 0.5*log(tOnePsiOne) - 0.5*log(ttPsi0t) +
-					0.5*matrixDet(invPsi, N, 1) - 0.5*log(g);
+					0.5*matrixDet(invPsi, N, N, 1) - 0.5*log(g);
 		
 	}
 
@@ -298,7 +225,7 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 	
 
 		//mu
-		tOnePsiOne = quadform(ones, invPsi, N, 1);
+		tOnePsiOne = quadform(ones, invPsi, N, 1,N);
 		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, ones, &iOne, &dZero, psiOne, &iOne);
 
 		meanMu = 0;
@@ -311,7 +238,7 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 		mu = rnorm(meanMu,sqrt(varMu));
 		
 		//delta
-		ttPsit = quadform(t, invPsi, N, 1);
+		ttPsit = quadform(t, invPsi, N, 1,N);
 		F77_NAME(dsymv)("U", &N, &dOne, invPsi, &N, t, &iOne, &dZero, psit, &iOne);
 
 		meanDelta = 0;
@@ -334,7 +261,7 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 		{
 			tempV[i] = (y[i] - mu - delta*t[i]);
 		}
-		bSig2 = 0.5*(quadform(tempV,invPsi,N,1) + delta*delta/g);
+		bSig2 = 0.5*(quadform(tempV,invPsi,N,1,N) + delta*delta/g);
 		sig2 = 1/rgamma(aSig2,1/bSig2);
 		
 		//g
@@ -401,7 +328,7 @@ double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double
 	InvMatrixUpper(invPsi, N);
 	internal_symmetrize(invPsi, N);
 
-	loglike = 0.5 * matrixDet(invPsi, N, 1) - 0.5/sig2 * quadform(tempV,invPsi,N,1) + (alphaTheta-1)*log(theta) + (betaTheta-1)*log(1-theta);
+	loglike = 0.5 * matrixDet(invPsi, N, N, 1) - 0.5/sig2 * quadform(tempV,invPsi,N,1,N) + (alphaTheta-1)*log(theta) + (betaTheta-1)*log(1-theta);
 	
 	return(loglike);
 }
@@ -747,9 +674,9 @@ double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, d
 	}
 	InvMatrixUpper(W, P);
 	internal_symmetrize(W, P);
-	ldetW = matrixDet(W, P, 1);
+	ldetW = matrixDet(W, P, P, 1);
 	
-	q = quadform(XtCy, W, P, 1);
+	q = quadform(XtCy, W, P, 1, P);
 	
 	//top = lgamma((N-1)*0.5) + 0.5*ldetW;
 	top = 0.5*ldetW;
@@ -1038,8 +965,8 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		}
 		InvMatrixUpper(B2temp, J);
 		internal_symmetrize(B2temp,J);
-		logDet = matrixDet(B2temp,J,1);
-		densDelta += -0.5*quadform(muTemp, B2temp, J, 1);
+		logDet = matrixDet(B2temp,J,J,1);
+		densDelta += -0.5*quadform(muTemp, B2temp, J, 1, J);
 		densDelta += -0.5*logDet;
 		if(m==0){
 			logSumSingle = densDelta;
@@ -1186,13 +1113,16 @@ double LogOnePlusExpX(double x)
 
 
 // Compute determinant of an N by N matrix A
-double matrixDet(double *A, int N, int doLog)
+double matrixDet(double *A, int N, int LDA, int doLog)
 {
 //SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
 	int i=0, info=0;
 	double B[N*N], logDet=0;
 	
-	Memcpy(B,A,N*N);
+	//Memcpy(B,A,N*N);
+	for(i=0;i<N;i++){
+		Memcpy(&B[i*N],&A[i*LDA],N);
+	}
 	
 	F77_CALL(dpotrf)("U", &N, B, &N, &info);
 	if(info){
@@ -1211,10 +1141,10 @@ double matrixDet(double *A, int N, int doLog)
 	}
 }
 
-double quadform(double *x, double *A, int N, int incx)
+double quadform(double *x, double *A, int N, int incx, int LDA)
 {
   
-  int Nsqr = N*N,info,i=0;
+  int Nsqr = N*N,info,i=0,j=0;
   double *B = Calloc(Nsqr,double);
   //double one=1;
   //double zero=0;
@@ -1224,10 +1154,11 @@ double quadform(double *x, double *A, int N, int incx)
 
   for(i=0;i<N;i++){
     y[i] = x[i*incx];
-    //printf("%d %f\n",i,y[i]);
   }
-  Memcpy(B,A,Nsqr);
-  
+  for(i=0;i<N;i++){
+	Memcpy(&B[i*N],&A[i*LDA],N);
+  }
+
   F77_NAME(dpotrf)("U", &N, B, &N, &info);
   F77_NAME(dtrmv)("U","N","N", &N, B, &N, y, &iOne);
   
