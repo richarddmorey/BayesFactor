@@ -40,14 +40,15 @@ ttest.Gibbs.AR = function(before,after,iterations=1000,treat=NULL,r.scale=1,alph
 	
 	dim(chains) = c(iterations,6)
 	chains = data.frame(chains)
-	colnames(chains) = c("mu","delta","ldens","sig2","g","theta")
+	colnames(chains) = c("mu","beta","ldens","sig2","g","rho")
+	chains$delta = chains$beta/sqrt(chains$sig2)
 	
 	logdens = logMeanExpLogs(chains$ldens)
 	nulllogdens = dcauchy(0,log=TRUE) - log(r.scale)
 	logbf = logdens - nulllogdens
 	
-	acc = mean(diff(chains$theta)!=0)
-	cat("\n","theta acceptance rate:",acc,"\n")
+	acc = mean(diff(chains$rho)!=0)
+	cat("\n","rho acceptance rate:",acc,"\n")
 	
 	if(return.chains)
 	{
