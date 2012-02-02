@@ -10,7 +10,6 @@
 #include <R_ext/Constants.h>
 #include <R_ext/Random.h>
 #include <R_ext/Lapack.h>
-#include <R_ext/Random.h>
 #include <R_ext/BLAS.h>
 
 
@@ -18,7 +17,7 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 
 void gibbsEqVariance(double *y, int *N, int J, int I, double lambda, int iterations, double *chains, double sdMetropSig2, double sdMetropTau, int progress, SEXP pBar, SEXP rho);
 
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho, SEXP mvtnorm);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho);
 
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 

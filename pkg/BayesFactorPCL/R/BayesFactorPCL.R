@@ -304,30 +304,38 @@ eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metr
 	return(returnList)
 }
 
-oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE){
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
 	iterations = as.integer(iterations)
-	if(progress){
-		progress = round(iterations/100)
-		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
+	if(!is.null(gibi)) {
+		progress=TRUE;
+		if(!is.function(gibi))
+			stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
+	}
+	if(progress & is.null(gibi)){
+		pb = txtProgressBar(min = 0, max = 100, style = 3) 
 	}else{ 
 		pb=NULL 
 	}
 	
-	onemvrnorm=function(pars)
-	{
-		return(mvrnorm(1,pars[[1]],pars[[2]]))
-	}
 	
-
-    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
+    pbFun = function(samps){ 
+    	if(progress){
+    		percent = as.integer(round(samps / iterations * 100))
+    		if(is.null(gibi)){
+    			setTxtProgressBar(pb, percent)
+    		}else{
+    			gibi(percent)
+    		}
+    	}
+    }
 
 	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
-				progress, pbFun, new.env(), onemvrnorm, package="BayesFactorPCL")
+				progress, pbFun, new.env(), package="BayesFactorPCL")
 
-	if(progress) close(pb);
+	if(progress & is.null(gibi)) close(pb);
 	rownames(output[[1]]) = c("mu",paste("alpha",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
 	names(output[[2]])=c("logCMDESingle","logCMDEDouble","logCMDESingleKahan","logCMDEDoubleKahan")
 	

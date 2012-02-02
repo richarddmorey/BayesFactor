@@ -1,3 +1,5 @@
 useDynLib(BayesFactorPCL)
 
-exportPattern(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad,nWayAOV.MC,nWayAOV2,all.Nways,logMeanExpLogs,ttest.Gibbs.AR,ttest.MCGQ.AR,multilevel.Gibbs.AR,thetaLogLikeARmulti)
+import("GIBI")
+
+exportPattern(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad,nWayAOV.MC,nWayAOV2,all.Nways,logMeanExpLogs,ttest.Gibbs.AR,ttest.MCGQ.AR,multilevel.Gibbs.AR,thetaLogLikeARmulti,AOV1Gibi)
