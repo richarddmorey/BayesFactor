@@ -1,10 +1,14 @@
 logMeanExpLogs = function(v)
 {
 	N = length(v)
-	.Call("RLogMeanExpLogs", v, N, package="BayesFactorPCL")
+	.Call("RLogMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
 }
 
-
+logCumMeanExpLogs = function(v)
+{
+	N = length(v)
+	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
+}
 
 ttest.Gibbs.AR = function(before,after,iterations=1000,treat=NULL,r.scale=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
 {
@@ -139,9 +143,8 @@ mlike.alt.g.AR = function(g,y,tr,N=length(y),psifunc,oneVec=matrix(y*0+1,ncol=1)
 
 
 
-nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE){
+nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gibi=NULL){
 
-	
 	y = as.numeric(y)
 	X = as.numeric(X)
 	
@@ -165,14 +168,27 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	
 	iterations = as.integer(iterations)
 
-	if(progress){
-		progress = round(iterations/100)
-		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
+	if(!is.null(gibi)) {
+		progress=TRUE;
+		if(!is.function(gibi))
+			stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
+	}
+	if(progress & is.null(gibi)){
+		pb = txtProgressBar(min = 0, max = 100, style = 3) 
 	}else{ 
 		pb=NULL 
 	}
 	
-    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
+    pbFun = function(samps){ 
+    	if(progress){
+    		percent = as.integer(round(samps / iterations * 100))
+    		if(is.null(gibi)){
+    			setTxtProgressBar(pb, percent)
+    		}else{
+    			gibi(percent)
+    		}
+    	}
+    }
 	
 	C = diag(N) - matrix(1/N,N,N)
 	XtCX = t(X) %*% C %*% X
@@ -331,31 +347,34 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL
     		}
     	}
     }
-
+	
 	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
 				progress, pbFun, new.env(), package="BayesFactorPCL")
-
+	
 	if(progress & is.null(gibi)) close(pb);
 	rownames(output[[1]]) = c("mu",paste("alpha",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
 	names(output[[2]])=c("logCMDESingle","logCMDEDouble","logCMDESingleKahan","logCMDEDoubleKahan")
 	
-	priorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
+	logPriorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
 	
-	postDensDouble = mean(exp(output[[1]][1+J+2,]))
-	BFDouble = postDensDouble/exp(priorDensDouble)
-	BFDouble2log = output[[2]][2] - priorDensDouble
-	BFDouble3log = output[[2]][4] - priorDensDouble
-	BFDouble2 = exp(BFDouble2log)
+	#postDensDouble = mean(exp(output[[1]][1+J+2,]))
+	logPostDensDouble = logMeanExpLogs(output[[1]][1+J+2,])
+	logBFDouble = logPostDensDouble - logPriorDensDouble
+	BFDouble = exp(logBFDouble)
+
+	#BFDouble2log = output[[2]][2] - priorDensDouble
+	#BFDouble3log = output[[2]][4] - priorDensDouble
+	#BFDouble2 = exp(BFDouble2log)
 	
-	priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=TRUE)
-	postDensSingle = mean(exp(output[[1]][1+J+1,]))
-	BFSingle = postDensSingle/exp(priorDensSingle)
-	BFSingle2log = output[[2]][1] - priorDensSingle
-	BFSingle2 = exp(BFSingle2log)
-	BFSingle3log = output[[2]][3] - priorDensSingle
+	#priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=TRUE)
+	#postDensSingle = mean(exp(output[[1]][1+J+1,]))
+	#BFSingle = postDensSingle/exp(priorDensSingle)
+	#BFSingle2log = output[[2]][1] - priorDensSingle
+	#BFSingle2 = exp(BFSingle2log)
+	#BFSingle3log = output[[2]][3] - priorDensSingle
 	
 	return(list(chains=mcmc(t(output[[1]])),
-			BF=BFDouble))
+			BF=BFDouble,logBF=logBFDouble))
 			#bayesFactorRegular=c(single=BFSingle,double=BFDouble),
 			#bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
 			#logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),

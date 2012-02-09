@@ -58,6 +58,10 @@ double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, d
 
 SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen);
 
+SEXP RLogCumMeanExpLogs(SEXP Rv, SEXP Rlen);
+void logCumMeanExpLogs(double *v, int len, double *ret);
+
+
 double logSumExpLogs(double *v, int len);
 
 double logMeanExpLogs(double *v, int len);

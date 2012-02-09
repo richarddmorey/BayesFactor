@@ -636,6 +636,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 		for(i=0;i<N[j];i++){
 			whichJ[counter] = j;
 			yVec[counter]=y[j*I + i];
+			//Rprintf("i %d, j %d, y %f\n",i,j,yVec[counter]);
 			counter++;
 		}
 	}
@@ -648,7 +649,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	PROTECT(CMDER = allocVector(REALSXP,4));
 	PROTECT(debug = allocVector(VECSXP,2));
 	
-	gibbsOneWayAnova(y, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), debug, progress, pBar, rho);
+	gibbsOneWayAnova(yVec, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), debug, progress, pBar, rho);
 	
 	SET_VECTOR_ELT(returnListR, 0, chainsR);
     SET_VECTOR_ELT(returnListR, 1, CMDER);
@@ -761,6 +762,26 @@ SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen)
 	return(ret);
 }
 
+SEXP RLogCumMeanExpLogs(SEXP Rv, SEXP Rlen)
+{
+	double *v;
+	int len;
+	SEXP ret;
+	double *retp;
+	
+	len = INTEGER_VALUE(Rlen);
+	v = REAL(Rv);
+	PROTECT(ret = allocVector(REALSXP,len));
+	retp = REAL(ret);
+	
+	logCumMeanExpLogs(v, len, retp);
+	
+	UNPROTECT(1);
+	return(ret);
+}
+
+
+
 double logSumExpLogs(double *v, int len)
 {
 	int i=0;
@@ -779,6 +800,21 @@ double logMeanExpLogs(double *v, int len)
 	double sum=0;
 	sum = logSumExpLogs(v,len);
 	return(sum - log(len));
+}
+
+void logCumMeanExpLogs(double *v, int len, double *ret)
+{	
+	int i=0;
+	double sums[len];
+	
+	ret[0]=v[0];
+	sums[0]=v[0];
+	
+	for(i=1;i<len;i++)
+	{
+		sums[i] = LogOnePlusExpX(v[i]-sums[i-1])+sums[i-1];
+		ret[i] = sums[i] - log(i+1); 
+	}
 }
 
 SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho)
@@ -886,6 +922,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	{
 		j = whichJ[i];
 		ySum[j] += y[i];
+		//Rprintf("%d %d %f\n",j,whichJ[i],y[i]);
 		sumy2[j] += y[i]*y[i];
 		grandSum += y[i];
 		grandSumSq += y[i]*y[i];

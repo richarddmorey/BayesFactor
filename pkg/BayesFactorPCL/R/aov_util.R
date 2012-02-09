@@ -149,7 +149,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   }else{
     gr.groups = NULL
   } 
-  bfs = nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=samples,...)
+  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=samples,...),my.name)
   if(!samples)
   { 
     names(bfs)=my.name
@@ -157,7 +157,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   return(bfs)
 }
 
-all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000)
+all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE)
 {
   nFac = dim(dataFixed)[2]
   bfEnv = new.env(parent = baseenv())
@@ -169,22 +169,56 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000)
   bfEnv$y = y
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
-  bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations)))*log10(exp(1))
+  if(!samples){
+  	bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE)))*log10(exp(1))
   
-  if(!is.null(dataRandom))
-  {
-  	nullMod = nWayAOV2(0,bfEnv,iterations=iterations)*log10(exp(1))
-  	bfs = bfs - nullMod
-	bfs[1] = 0
+  	if(!is.null(dataRandom))
+  	{
+  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top)*log10(exp(1))
+  		bfs = bfs - nullMod
+		bfs[1] = 0
+  	}
+  	return(bfs)
+  }else{
+  	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=TRUE, only.top)
+  	bfs <- unlist(lapply(allResults,function(lst) lst[[1]] ))
+  	bfs = c(null=0,bfs)*log10(exp(1))
+  	if(!is.null(dataRandom))
+  	{
+  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=TRUE)*log10(exp(1))
+  		bfs = bfs - nullMod[[1]]
+		bfs[1] = 0
+		nullSamp = nullMod[[2]]
+  	}else{
+  		nullSamp = 0
+  	}
+ 	
+ 	my.names <- unlist(lapply(allResults,function(lst) lst[[3]] ))
+  	my.names = c("null",my.names)
+	names(bfs)=my.names
+
+	samples = c(null=nullSamp,lapply(allResults,function(lst) lst[[2]] )) 
+  	return(list(bfs,samples))
   }
-  
-  return(bfs)
+
 }
 
-all.Nways.env = function(env,...){
+all.Nways.env = function(env,samples, only.top=FALSE,...){
   data = get("dataFixed",env)
 	nFac = dim(data)[2]
-	modNums = 1:((2^(2^nFac-1))-1)
-	sapply(modNums,nWayAOV2,env=env,...)
+	topMod = ((2^(2^nFac-1))-1)
+	if(!only.top){
+		modNums = 1:topMod
+	}else{
+		nDig = 2^nFac-1
+		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
+		modNums <- as.list(mods)
+	}
+	if(!samples){
+		return(sapply(modNums,nWayAOV2,env=env,samples=FALSE,...))
+	}else{
+		return(lapply(modNums,nWayAOV2,env=env,samples=TRUE,...))
+		
+	}
 }
 
