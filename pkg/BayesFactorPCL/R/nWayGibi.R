@@ -131,7 +131,7 @@ AOVnWayGibi <- function() {
       }
       
       
- 	  results<-all.Nways(dv,dataFixed=fixed,dataRandom=subs,iterations = iterations,samples=TRUE,only.top=only.top)
+ 	  results<-all.Nways(dv,dataFixed=fixed,dataRandom=subs,iterations = iterations,samples=TRUE,only.top=only.top,rscale=delta.scale)
 	  progress.callback(model, 100)
 
       return(results)

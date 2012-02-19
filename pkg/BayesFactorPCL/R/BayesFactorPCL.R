@@ -144,11 +144,13 @@ mlike.alt.g.AR = function(g,y,tr,N=length(y),psifunc,oneVec=matrix(y*0+1,ncol=1)
 
 
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gibi=NULL){
-
+	
 	y = as.numeric(y)
 	X = as.numeric(X)
+	struc = unlist(struc)
 	
 	X = matrix(X,nrow=length(y))
+	
 	
 	N = as.integer(dim(X)[1])
 	if(all(X[,1]==1))
@@ -158,9 +160,10 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}else{
 		P = as.integer(dim(X)[2])
 	}
+	
 	if(sum(struc) != P)
 	{
-		stop("Invalid struc argument. sum(struc) must be the the same as the number of parameters (excluding intercept).")
+		stop(paste("Invalid struc argument. sum(struc) must be the the same as the number of parameters (excluding intercept):",sum(struc),"!=",P))
 	}
 	nGs = length(struc)
 	

@@ -61,11 +61,16 @@ do.row.mult = function(v,p1,p2)
 joined.design = function(modelNum, env, other=NULL)
 {
   N = get("totalN",env)
-  if(modelNum==0){
-    #if(g.groups){
-    #  return(NULL)
+  dataRandom = get("dataRandom",env)
+  if(modelNum==0 & is.null(dataRandom)){
+    #if(!is.null(other)){
+    #  if(other=="g"){
+    #  	return(NULL)
+    #  }else if(other=="n"){
+    #  	return("<null>")
+    #  }
     #}else{
-      return(rep(1,N))
+      return(matrix(1,nrow=N))
     #}
   }else{
     effects = binary(modelNum)$dicotomy
@@ -74,11 +79,16 @@ joined.design = function(modelNum, env, other=NULL)
         gn = sapply(effNums,other.design,fixed = TRUE,env = env,type=other)
         return(gn)
     }else{
-      X=unlist(sapply(effNums,my.design,fixed = TRUE,env = env))
-      X = matrix(X,nrow=N)
+      if(modelNum==0){
+      	X = NULL
+      }else{
+      	X=unlist(sapply(effNums,my.design,fixed = TRUE,env = env))
+      	X = matrix(X,nrow=N)
+      }
       dataRandom = get("dataRandom",env)
       if(!is.null(dataRandom)){
-        randomX = apply(dataRandom,2,design.mat.single,reduce=FALSE)
+      	
+        randomX = apply(data.frame(dataRandom),2,design.mat.single,reduce=FALSE)
         randomX = matrix(randomX,nrow=N)
       }else{
         randomX = NULL
@@ -145,7 +155,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   my.name = paste(joined.design(modNum,env=env,other="n"),collapse=" + ")
   dataRandom = get("dataRandom",envir=env)
   if(!is.null(dataRandom)){
-    gr.groups = unlist(lapply(dataRandom,nlevels))
+    gr.groups = unlist(lapply(data.frame(dataRandom),nlevels))
   }else{
     gr.groups = NULL
   } 
@@ -157,7 +167,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   return(bfs)
 }
 
-all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE)
+all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE,...)
 {
   nFac = dim(dataFixed)[2]
   bfEnv = new.env(parent = baseenv())
@@ -170,23 +180,23 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
   if(!samples){
-  	bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE)))*log10(exp(1))
+  	bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE,...)))*log10(exp(1))
   
   	if(!is.null(dataRandom))
   	{
-  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top)*log10(exp(1))
+  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top,...)*log10(exp(1))
   		bfs = bfs - nullMod
 		bfs[1] = 0
   	}
   	return(bfs)
   }else{
-  	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=TRUE, only.top)
+  	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=TRUE, only.top,...)
   	bfs <- unlist(lapply(allResults,function(lst) lst[[1]] ))
   	bfs = c(null=0,bfs)*log10(exp(1))
   	if(!is.null(dataRandom))
   	{
-  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=TRUE)*log10(exp(1))
-  		bfs = bfs - nullMod[[1]]
+  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=TRUE,...)
+  		bfs = (bfs - nullMod[[1]])*log10(exp(1))
 		bfs[1] = 0
 		nullSamp = nullMod[[2]]
   	}else{
@@ -197,7 +207,8 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples
   	my.names = c("null",my.names)
 	names(bfs)=my.names
 
-	samples = c(null=nullSamp,lapply(allResults,function(lst) lst[[2]] )) 
+	samples = c(null=list(nullSamp),lapply(allResults,function(lst) lst[[2]] )) 
+
   	return(list(bfs,samples))
   }
 
