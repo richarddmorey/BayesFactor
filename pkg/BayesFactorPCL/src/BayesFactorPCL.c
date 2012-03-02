@@ -210,18 +210,18 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 			eval(R_fcall, rho); //Update the progress bar
 		}
 
-		for(i=0;i<N;i++)
-		{
-			invPsi[i + N*i] = 1/(1-theta*theta);		
-			for(j=0;j<i;j++)
-			{
-				invPsi[i + N*j] = invPsi[i + N*i] * pow(theta,abs(i-j));
-				invPsi[j + N*i] = invPsi[i + N*j];
-			}
-		}
+		// Build invPsi matrix
+		invPsi[0] = 1;
+		invPsi[N*N-1] = 1;
+		invPsi[1] = -theta;
+		invPsi[N] = -theta;
 		
-		InvMatrixUpper(invPsi, N);
-		internal_symmetrize(invPsi, N);
+		for(i=1;i<(N-1);i++)
+		{
+			invPsi[i + N*i] = (1 + theta*theta);
+			invPsi[i + N*(i+1)] = -theta; 
+			invPsi[(i+1) + N*i] = -theta; 			
+		}
 	
 
 		//mu
@@ -310,25 +310,29 @@ double sampThetaAR(double theta, double mu, double delta, double sig2, double g,
 
 double thetaLogLikeAR(double theta, double mu, double delta, double sig2, double g, double *y, int N, double *t, double alphaTheta, double betaTheta)
 {
-	int i,j;
-	double loglike=0,tempV[N],invPsi[N*N];
+	int i;
+	double loglike=0,tempV[N],invPsi[N*N],det;
 	
+	AZERO(invPsi,N*N);
+	
+	// Build invPsi matrix	
+	invPsi[0] = 1;
+	invPsi[N*N-1] = 1;
+	invPsi[1] = -theta;
+	invPsi[N] = -theta;
 	for(i=0;i<N;i++)
 	{
-		invPsi[i + N*i] = 1/(1-pow(theta,2));		
 		tempV[i] = y[i] - mu - delta*t[i];
 		
-		for(j=0;j<i;j++)
-		{
-			invPsi[i + N*j] = invPsi[i + N*i] * pow(theta,abs(i-j));
-			invPsi[j + N*i] = invPsi[i + N*j];
+		if(i>0 && i<(N-1)){
+			invPsi[i + N*i] = (1 + theta*theta);
+			invPsi[i + N*(i+1)] = -theta; 
+			invPsi[(i+1) + N*i] = -theta; 			
 		}
 	}
-		
-	InvMatrixUpper(invPsi, N);
-	internal_symmetrize(invPsi, N);
+	det = log(1-theta*theta);
 
-	loglike = 0.5 * matrixDet(invPsi, N, N, 1) - 0.5/sig2 * quadform(tempV,invPsi,N,1,N) + (alphaTheta-1)*log(theta) + (betaTheta-1)*log(1-theta);
+	loglike = 0.5 * det - 0.5/sig2 * quadform(tempV,invPsi,N,1,N) + (alphaTheta-1)*log(theta) + (betaTheta-1)*log(1-theta);
 	
 	return(loglike);
 }
