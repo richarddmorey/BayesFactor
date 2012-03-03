@@ -25,13 +25,15 @@ trendtest.Gibbs.AR = function(before,after,iterations=1000,r.scaleInt=1,r.scaleS
 	
 	if(progress) close(pb)
 	
+	#dim(out[[2]]) = c(,iterations)
 	dim(chains) = c(ncol(X) + 7, iterations)
 	chains = data.frame(t(chains))
 	colnames(chains) = c(paste("beta",1:ncol(X),sep=""),"sig2","g1","g2","rho","densFullRes", "densSlpRes","densIntRes")
 	
 	ldens = apply(chains[,9:11],2,logMeanExpLogs)
 	nulllogdens = c(
-				dmvt(c(0,0), sigma=diag(c(r.scaleInt,r.scaleSlp)^2), df=1, log=TRUE),
+				dcauchy(0,log=TRUE) - log(r.scaleSlp) + 
+				dcauchy(0,log=TRUE) - log(r.scaleInt),
 				dcauchy(0,log=TRUE) - log(r.scaleSlp),
 				dcauchy(0,log=TRUE) - log(r.scaleInt)
 				)
@@ -42,7 +44,7 @@ trendtest.Gibbs.AR = function(before,after,iterations=1000,r.scaleInt=1,r.scaleS
 	
 	if(return.chains)
 	{
-		return(list(logbf=logbf,chains=mcmc(chains),acc=acc))
+		return(list(logbf=logbf,chains=mcmc(chains),acc=acc,debug=NULL))
 	}else{
 		return(c(logbf=logbf))
 	}

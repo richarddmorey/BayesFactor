@@ -19,7 +19,17 @@ SEXP RgibbsTwoSampleAR_trend(SEXP yR, SEXP NR, SEXP XR, SEXP pR, SEXP rscaleIntR
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
+	// debugging
+	//SEXP debugR;
+	//PROTECT(debugR = allocMatrix(REALSXP, 0, iterations));
+	//SEXP returnList;
+	//PROTECT(returnList = allocVector(VECSXP, 2));
+	
+
 	gibbsTwoSampleAR_trend(y, N, X, p, rscaleInt, rscaleSlp, alphaTheta, betaTheta, iterations, sdmet, REAL(chainsR), progress, pBar, rho);
+	
+	//SET_VECTOR_ELT(returnList, 0, chainsR);
+    //SET_VECTOR_ELT(returnList, 1, debugR);
 	
 	UNPROTECT(1);
 	
@@ -47,6 +57,7 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 	double Sigma[p*p];
 	double tempNby2[2*N];
 	double temp2by2[2*2];
+	double temp2by2_2[2*2];
 	double temp2by1[2];
 	double temp2by1_2[2];
 
@@ -173,24 +184,34 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		betag[0] = beta[0];
 		betag[1] = beta[2];
 		Memcpy(tempV,y,N);
-		F77_NAME(dgemv)("N", &N, &iTwo, &dNegOne, Xg, &N, betag, &iOne, &dOne, tempV, &iOne);
-		F77_NAME(dgemv)("N", &N, &N, &dOne, invPsi, &N, X2, &iTwo, &dZero, tempNby2, &iOne);
-		F77_NAME(dgemv)("T", &N, &iTwo, &dOne, tempNby2, &N, tempV, &iTwo, &dZero, temp2by1, &iOne);
 		
-		F77_NAME(dgemm)("N", "N", &N, &iTwo, &N, &dOne, invPsi, &N, X2, &N, &dZero, tempNby2, &N);
+		//(y - Xg%*%betag)
+		F77_NAME(dgemv)("N", &N, &iTwo, &dNegOne, Xg, &N, betag, &iOne, &dOne, tempV, &iOne);
 				
+		// invPsi%*%X2		
+		F77_NAME(dgemm)("N", "N", &N, &iTwo, &N, &dOne, invPsi, &N, X2, &N, &dZero, tempNby2, &N);	
+		//t(X2)%*%invPsi%*%(y - Xg%*%betag)
+		F77_NAME(dgemv)("T", &N, &iTwo, &dOne, tempNby2, &N, tempV, &iOne, &dZero, temp2by1, &iOne);
+		
+		// t(X2)%*%invPsi%*%X2		
 		F77_NAME(dgemm)("T", "N", &iTwo, &iTwo, &N, &dOne, X2, &N, tempNby2, &N, &dZero, temp2by2, &iTwo);
-
+		
 		temp2by2[0] += 1/g1;
-		temp2by2[2] += 1/g2;
+		temp2by2[3] += 1/g2;
+		
+		Memcpy(temp2by2_2,temp2by2,4);
 		
 		InvMatrixUpper(temp2by2, 2);
-		internal_symmetrize(temp2by2, 2);			
-
+		internal_symmetrize(temp2by2, 2);	
+		
 		dOneOverSig2 = 1/sqrt(sig2);
+		
+		//Sigma%*%t(X2)%*%invPsi%*%X2
 		F77_NAME(dgemv)("N", &iTwo, &iTwo, &dOneOverSig2, temp2by2, &iTwo, temp2by1, &iOne, &dZero, temp2by1_2, &iOne);
 		
-		ldensFullRestrict = -log(2 * M_PI) - 0.5*matrixDet(temp2by2,2,2,1) - 0.5*quadform(temp2by1_2,temp2by2,2,1,2);
+		ldensFullRestrict = -log(2 * M_PI) - 0.5*matrixDet(temp2by2,2,2,1) - 0.5*quadform(temp2by1_2,temp2by2_2,2,1,2);
+		
+		
 		
 		//sig2
 		Memcpy(tempV,y,N);
