@@ -10,7 +10,7 @@ logCumMeanExpLogs = function(v)
 	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
 }
 
-ttest.Gibbs.AR = function(before,after,iterations=1000,treat=NULL,r.scale=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
+ttest.Gibbs.AR = function(before,after,iterations=1000,areaNull=c(-.2,.2),treat=NULL,r.scale=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
 {
 
 
@@ -38,25 +38,27 @@ ttest.Gibbs.AR = function(before,after,iterations=1000,treat=NULL,r.scale=1,alph
 	
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 
-	chains = .Call("RgibbsTwoSampleAR", y, N, treat, r.scale, alphaTheta, betaTheta, iterations, sdMet, progress, pbFun, new.env(), package="BayesFactorPCL")
+	chains = .Call("RgibbsTwoSampleAR", y, N, treat, r.scale, alphaTheta, betaTheta, areaNull[1], areaNull[2], iterations, sdMet, progress, pbFun, new.env(), package="BayesFactorPCL")
 	
 	if(progress) close(pb)
 	
-	dim(chains) = c(iterations,6)
+	dim(chains) = c(iterations,7)
 	chains = data.frame(chains)
-	colnames(chains) = c("mu","beta","ldens","sig2","g","rho")
+	colnames(chains) = c("mu","beta","ldens","sig2","g","rho","nullArea")
 	chains$delta = chains$beta/sqrt(chains$sig2)
 	
 	logdens = logMeanExpLogs(chains$ldens)
 	nulllogdens = dcauchy(0,log=TRUE) - log(r.scale)
 	logbf = logdens - nulllogdens
 	
+	logbfArea = log(mean(chains$nullArea)) - log(diff(pcauchy(areaNull,scale=r.scale)))
+	
 	acc = mean(diff(chains$rho)!=0)
 	cat("\n","rho acceptance rate:",acc,"\n")
 	
 	if(return.chains)
 	{
-		return(list(logbf=logbf,chains=mcmc(chains),acc=acc))
+		return(list(logbf=logbf,chains=mcmc(chains),logbfArea=logbfArea,acc=acc))
 	}else{
 		return(c(logbf=logbf))
 	}

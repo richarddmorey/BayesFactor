@@ -144,9 +144,9 @@ double MCTwoSampleAR(double *y, int N, double *t, double rscale, double alphaThe
 }
 
 
-SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP iterationsR, SEXP sdmetR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, SEXP betaThetaR, SEXP loAreaR, SEXP upAreaR, SEXP iterationsR, SEXP sdmetR, SEXP progressR, SEXP pBar, SEXP rho)
 {
-	int npars = 6,iterations = INTEGER_VALUE(iterationsR);
+	int npars = 7,iterations = INTEGER_VALUE(iterationsR);
 	int N = INTEGER_VALUE(NR), progress = INTEGER_VALUE(progressR);
 	double rscale = NUMERIC_VALUE(rscaleR);
 	double alphaTheta = NUMERIC_VALUE(alphaThetaR);
@@ -154,12 +154,13 @@ SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR
 	double sdmet = NUMERIC_VALUE(sdmetR);
 	double *y = REAL(yR);
 	double *t = REAL(tR);
-	
+	double loArea = REAL(loAreaR)[0];
+	double upArea = REAL(upAreaR)[0];
 	
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsTwoSampleAR(y, N, t, rscale, alphaTheta, betaTheta, iterations, sdmet, REAL(chainsR), progress, pBar, rho);
+	gibbsTwoSampleAR(y, N, t, rscale, alphaTheta, betaTheta, loArea, upArea, iterations, sdmet, REAL(chainsR), progress, pBar, rho);
 	
 	UNPROTECT(1);
 	
@@ -167,13 +168,14 @@ SEXP RgibbsTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR
 }
 
 
-void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTheta, double betaTheta, double loArea, double upArea, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0, j=0, m=0,Nsqr=N*N,iOne=1;
 	double varMu, meanMu, varDelta, meanDelta, aSig2, bSig2, ag, bg, rscsq=rscale*rscale;
 	double mu = 0, sig2=0, delta = 0, theta = 0, g = 1, ldensDelta;
 	double tOnePsiOne,psiOne[N],dZero=0,dOne=1;
 	double ttPsit,psit[N],loglikeTheta;
+	double nullArea;
 	
 	double tempV[N];
 	double ones[N];
@@ -255,6 +257,10 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 		meanDelta = meanDelta/sqrt(sig2);
 		ldensDelta = dnorm(0,meanDelta, sqrt(varDelta), 1);		
 		
+		//area
+		nullArea = pnorm(upArea,meanDelta, sqrt(varDelta), 1, 0) -
+		pnorm(loArea,meanDelta, sqrt(varDelta), 1, 0);	
+		
 		//sig2
 		aSig2 = 0.5*(N+1);
 		for(i=0;i<N;i++)
@@ -279,6 +285,8 @@ void gibbsTwoSampleAR(double *y, int N, double *t, double rscale, double alphaTh
 		chains[3*iterations + m] = sig2;
 		chains[4*iterations + m] = g;
 		chains[5*iterations + m] = theta;
+		chains[6*iterations + m] = nullArea;
+		
 	
 	}
 

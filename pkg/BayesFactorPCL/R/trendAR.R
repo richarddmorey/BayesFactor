@@ -1,4 +1,4 @@
-trendtest.Gibbs.AR = function(before,after,iterations=1000,r.scaleInt=1,r.scaleSlp=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
+trendtest.Gibbs.AR = function(before, after, iterations=1000, intArea=c(-.2,.2), slpArea=c(-.2,.2), r.scaleInt=1, r.scaleSlp=1,alphaTheta=1,betaTheta=5,sdMet=.3, progress=TRUE,return.chains=FALSE)
 {
 
 
@@ -21,14 +21,14 @@ trendtest.Gibbs.AR = function(before,after,iterations=1000,r.scaleInt=1,r.scaleS
 	X = cbind(1,treat)
 	X = cbind(X,X*timePoint)
 	
-	chains = .Call("RgibbsTwoSampleAR_trend", y, N, X, ncol(X), r.scaleInt, r.scaleSlp, alphaTheta, betaTheta, iterations, sdMet, progress, pbFun, new.env(), package="BayesFactorPCL")
+	chains = .Call("RgibbsTwoSampleAR_trend", y, N, X, ncol(X), r.scaleInt, r.scaleSlp, alphaTheta, betaTheta, intArea[1], intArea[2], slpArea[1], slpArea[2], iterations, sdMet, progress, pbFun, new.env(), package="BayesFactorPCL")
 	
 	if(progress) close(pb)
 	
 	#dim(out[[2]]) = c(,iterations)
-	dim(chains) = c(ncol(X) + 7, iterations)
+	dim(chains) = c(ncol(X) + 9, iterations)
 	chains = data.frame(t(chains))
-	colnames(chains) = c(paste("beta",1:ncol(X),sep=""),"sig2","g1","g2","rho","densFullRes", "densSlpRes","densIntRes")
+	colnames(chains) = c(paste("beta",1:ncol(X),sep=""),"sig2","g1","g2","rho","densFullRes", "densSlpRes","densIntRes","areaInt","areaSlp")
 	
 	ldens = apply(chains[,9:11],2,logMeanExpLogs)
 	nulllogdens = c(
@@ -39,12 +39,17 @@ trendtest.Gibbs.AR = function(before,after,iterations=1000,r.scaleInt=1,r.scaleS
 				)
 	logbf = ldens - nulllogdens
 	
+	areas = log(colMeans(chains[,12:13]))
+	nullAreas = log(c(
+				diff(pcauchy(intArea,scale=r.scaleInt)),
+				diff(pcauchy(slpArea,scale=r.scaleSlp))
+				))
 	acc = mean(diff(chains$rho)!=0)
 	cat("\n","rho acceptance rate:",acc,"\n")
 	
 	if(return.chains)
 	{
-		return(list(logbf=logbf,chains=mcmc(chains),acc=acc,debug=NULL))
+		return(list(logbf=logbf, chains=mcmc(chains), acc=acc, logbfArea=areas - nullAreas,debug=NULL))
 	}else{
 		return(c(logbf=logbf))
 	}
