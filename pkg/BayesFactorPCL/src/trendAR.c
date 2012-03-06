@@ -14,7 +14,7 @@ SEXP RgibbsTwoSampleAR_trend(SEXP yR, SEXP NR, SEXP XR, SEXP pR, SEXP rscaleIntR
 	double *y = REAL(yR);
 	double *X = REAL(XR);
 	int p = INTEGER_VALUE(pR);
-	int npars = p + 9;
+	int npars = p + 4;
 	
 	double loInt = REAL(loIntR)[0];
 	double upInt = REAL(upIntR)[0];
@@ -25,25 +25,25 @@ SEXP RgibbsTwoSampleAR_trend(SEXP yR, SEXP NR, SEXP XR, SEXP pR, SEXP rscaleIntR
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	// debugging
-	//SEXP debugR;
-	//PROTECT(debugR = allocMatrix(REALSXP, 0, iterations));
-	//SEXP returnList;
-	//PROTECT(returnList = allocVector(VECSXP, 2));
+	// means
+	SEXP postdensR;
+	PROTECT(postdensR = allocMatrix(REALSXP, 1, 5));
+	SEXP returnList;
+	PROTECT(returnList = allocVector(VECSXP, 2));
 	
 
-	gibbsTwoSampleAR_trend(y, N, X, p, rscaleInt, rscaleSlp, alphaTheta, betaTheta, loInt, upInt, loSlp, upSlp, iterations, sdmet, REAL(chainsR), progress, pBar, rho);
+	gibbsTwoSampleAR_trend(y, N, X, p, rscaleInt, rscaleSlp, alphaTheta, betaTheta, loInt, upInt, loSlp, upSlp, iterations, sdmet, REAL(chainsR), REAL(postdensR), progress, pBar, rho);
 	
-	//SET_VECTOR_ELT(returnList, 0, chainsR);
-    //SET_VECTOR_ELT(returnList, 1, debugR);
+	SET_VECTOR_ELT(returnList, 0, chainsR);
+    SET_VECTOR_ELT(returnList, 1, postdensR);
 	
-	UNPROTECT(1);
+	UNPROTECT(3);
 	
-	return(chainsR);
+	return(returnList);
 }
 
 
-void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt, double rscaleSlp, double alphaTheta, double betaTheta, double loInt, double upInt, double loSlp, double upSlp, int iterations, double sdmet, double *chains, int progress, SEXP pBar, SEXP rho)
+void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt, double rscaleSlp, double alphaTheta, double betaTheta, double loInt, double upInt, double loSlp, double upSlp, int iterations, double sdmet, double *chains, double *postdens, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0, j=0, m=0,Nsqr=N*N,iOne=1,iTwo=2,iThree=3;
 	double aSig2, bSig2, ag, bg, rscIntsq=rscaleInt*rscaleInt, rscSlpsq=rscaleSlp*rscaleSlp;
@@ -78,7 +78,7 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 	Memcpy(X2, X + N, N);
 	Memcpy(X2 + N, X + 3*N, N);
 	
-	int npars = p + 9;
+	int npars = p + 4;
 	
 	for(i=0;i<N;i++)
 	{
@@ -138,10 +138,7 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		
 		rmvGaussianC(tempV2, Sigma, p);
 		Memcpy(beta, tempV2, p);
-
-		
-		//All wrong : check sig2 in densities
-		
+	
 		//densities
 		
 		//slope restricted
@@ -167,6 +164,17 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		ldensSlpRestrict = dnorm(0,betaMean/sqrt(sig2),sqrt(betaVar),1);		
 		lAreaSlp = pnorm(upSlp,betaMean/sqrt(sig2),sqrt(betaVar),1,0) - pnorm(loSlp,betaMean/sqrt(sig2),sqrt(betaVar),1,0);
 		
+		if(m==0)
+		{
+			postdens[1] = ldensSlpRestrict;
+			postdens[4] = lAreaSlp;
+		}else{
+			postdens[1] = LogOnePlusExpX(ldensSlpRestrict-postdens[1])+postdens[1];
+			postdens[4] += lAreaSlp;
+		}
+		
+		
+		
 		//intercept restricted
 		Memcpy(X1, X + N, N);
 		Memcpy(X3 + 2*N, X + 3*N, N);
@@ -187,6 +195,16 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		betaMean = betaVar * betaMean;
 		ldensIntRestrict = dnorm(0,betaMean/sqrt(sig2),sqrt(betaVar),1);	
 		lAreaInt = pnorm(upInt,betaMean/sqrt(sig2),sqrt(betaVar),1,0) - pnorm(loInt,betaMean/sqrt(sig2),sqrt(betaVar),1,0);
+		
+		if(m==0)
+		{
+			postdens[2] = ldensIntRestrict;
+			postdens[3] = lAreaInt;
+		}else{
+			postdens[2] = LogOnePlusExpX(ldensIntRestrict-postdens[2])+postdens[2];
+			postdens[3] += lAreaInt;
+		}
+		
 		
 		//Both restricted
 		betag[0] = beta[0];
@@ -219,7 +237,12 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		
 		ldensFullRestrict = -log(2 * M_PI) - 0.5*matrixDet(temp2by2,2,2,1) - 0.5*quadform(temp2by1_2,temp2by2_2,2,1,2);
 		
-		
+		if(m==0)
+		{
+			postdens[0] = ldensFullRestrict;
+		}else{
+			postdens[0] = LogOnePlusExpX(ldensFullRestrict-postdens[0])+postdens[0];
+		}
 		
 		//sig2
 		Memcpy(tempV,y,N);
@@ -248,11 +271,11 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		chains[1 + p + m*npars] = g1;
 		chains[2 + p + m*npars] = g2;
 		chains[3 + p + m*npars] = theta;
-		chains[4 + p + m*npars] = ldensFullRestrict;
-		chains[5 + p + m*npars] = ldensSlpRestrict;
-		chains[6 + p + m*npars] = ldensIntRestrict;
-		chains[7 + p + m*npars] = lAreaInt;
-		chains[8 + p + m*npars] = lAreaSlp;
+		//chains[4 + p + m*npars] = ldensFullRestrict;
+		//chains[5 + p + m*npars] = ldensSlpRestrict;
+		//chains[6 + p + m*npars] = ldensIntRestrict;
+		//chains[7 + p + m*npars] = lAreaInt;
+		//chains[8 + p + m*npars] = lAreaSlp;
 	
 	}
 
