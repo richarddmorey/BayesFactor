@@ -224,7 +224,7 @@ void gibbsTwoSampleAR_trend(double *y, int N, double *X, int p, double rscaleInt
 		//sig2
 		Memcpy(tempV,y,N);
 		F77_NAME(dgemv)("N", &N, &p, &dNegOne, X, &N, beta, &iOne, &dOne, tempV, &iOne);
-		aSig2 = 0.5*(N+4);
+		aSig2 = 0.5*(N+2);
 		bSig2 = 0.5*(quadform(tempV,invPsi,N,1,N) + beta[1]*beta[1]/g1 + beta[3]*beta[3]/g2);
 
 		sig2 = 1/rgamma(aSig2,1/bSig2);
