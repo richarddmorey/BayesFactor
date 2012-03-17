@@ -1220,6 +1220,28 @@ double quadform(double *x, double *A, int N, int incx, int LDA)
   return(sumSq);
 }
 
+//version without cholesky decomp for non positive definite matrix A
+double quadform2(double *x, double *A, int N, int incx, int LDA)
+{
+  
+  int i=0;
+  double dOne=1;
+  double dZero=0;
+  double sumSq=0;
+  double y[N];
+  int iOne=1;
+  
+  F77_NAME(dgemv)("N", &N, &N, &dOne, A, &LDA, x, &incx, &dZero, y, &iOne);
+ 
+  for(i=0;i<N;i++){
+    sumSq += y[i]*x[i];
+  }
+    
+  return(sumSq);
+}
+
+
+
 int InvMatrixUpper(double *A, int p)
 {
       int info1, info2;

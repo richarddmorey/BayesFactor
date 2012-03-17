@@ -335,3 +335,296 @@ double thetaLogLikeAR_trend(double theta, double *beta, double *X, double sig2, 
 	
 	return(loglike);
 }
+
+SEXP MCAR_trend(SEXP yR, SEXP NR, SEXP alphaThetaR, SEXP betaThetaR, SEXP rsqIntR, SEXP rsqSlpR, SEXP X0R, SEXP X1R, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho){
+	
+	int m,i, iterations = INTEGER_VALUE(iterationsR), N = INTEGER_VALUE(NR);
+	int progress = INTEGER_VALUE(progressR);
+	double loglike[3], logsum[3], g1, g2, theta;
+	double alphaTheta = REAL(alphaThetaR)[0];
+	double betaTheta = REAL(betaThetaR)[0];
+	double rsqInt = REAL(rsqIntR)[0];	
+	double rsqSlp = REAL(rsqSlpR)[0];
+	
+	SEXP returnR;
+	PROTECT(returnR = allocVector(VECSXP, 2));
+	
+	SEXP chainsR;
+	PROTECT(chainsR = allocMatrix(REALSXP, 3, iterations));
+
+	SEXP logmeanR;
+	PROTECT(logmeanR = allocVector(REALSXP, 3));
+	
+	// progress stuff
+	SEXP sampCounter, R_fcall;
+	int *pSampCounter;
+    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+	PROTECT(sampCounter = NEW_INTEGER(1));
+	pSampCounter = INTEGER_POINTER(sampCounter);
+
+	GetRNGstate();
+	
+	for(m=0;m<iterations;m++){
+	
+		R_CheckUserInterrupt();
+	
+		//Check progress
+		if(progress && !((m+1)%progress)){
+			pSampCounter[0]=m+1;
+			SETCADR(R_fcall, sampCounter);
+			eval(R_fcall, rho); //Update the progress bar
+		}
+
+		// sample
+		g1 = 1/rgamma(0.5,2/rsqInt);
+		g2 = 1/rgamma(0.5,2/rsqSlp);
+		theta = rbeta(alphaTheta,betaTheta);
+
+		MCmargLogLikeAR_trend(theta, g1, g2, REAL(yR), N, alphaTheta, betaTheta, rsqInt, rsqSlp, REAL(X0R), REAL(X1R), loglike);
+	
+		if(m==0)
+		{
+			Memcpy(logsum,loglike,3);
+		}else{
+			for(i=0;i<3;i++)
+				logsum[i] = LogOnePlusExpX(loglike[i]-logsum[i])+logsum[i];
+		}
+		Memcpy(REAL(chainsR) + m*3, loglike,3);
+	
+	}
+	
+	for(i=0;i<3;i++)
+		REAL(logmeanR)[i] = logsum[i] - log(iterations);
+
+	SET_VECTOR_ELT(returnR, 0, logmeanR);
+    SET_VECTOR_ELT(returnR, 1, chainsR);
+	
+	
+	PutRNGstate();
+	UNPROTECT(5);
+
+	return(returnR);
+
+}
+
+SEXP MCmargLogLikeAR_trendR(SEXP thetaR, SEXP g1R, SEXP g2R, SEXP yR, SEXP NR, SEXP alphaThetaR, SEXP betaThetaR, SEXP rsqIntR, SEXP rsqSlpR, SEXP X0R, SEXP X1R){
+	double theta = REAL(thetaR)[0], g1 = REAL(g1R)[0], g2 = REAL(g2R)[0];
+	double alphaTheta = REAL(alphaThetaR)[0], betaTheta = REAL(betaThetaR)[0];
+	int N = INTEGER_VALUE(NR);
+	double rsqInt = REAL(rsqIntR)[0],rsqSlp = REAL(rsqSlpR)[0];
+	
+	SEXP loglikeR;
+	PROTECT(loglikeR = allocVector(REALSXP, 3));
+
+	MCmargLogLikeAR_trend(theta, g1, g2, REAL(yR), N, alphaTheta, betaTheta, rsqInt, rsqSlp, REAL(X0R), REAL(X1R), REAL(loglikeR));
+
+	UNPROTECT(1);
+	return(loglikeR);
+}
+
+void MCmargLogLikeAR_trend(double theta, double g1, double g2, double *y, int N, double alphaTheta, double betaTheta, double rsqInt, double rsqSlp, double *X0, double *X1, double *like){
+
+	int i,j,iOne=1,iTwo=2;
+	double invPsi[N*N],detInvPsi,dOne=1, det1, det2, dZero=0, quad;
+
+	double tempM1[2*2];
+	double tempM2[2*N];
+	double tempS1, tempS2;
+	double tempV1[N];
+	double tempV2[N];
+	double Z1[N*N];
+	double Z2[N*N];
+	
+	AZERO(invPsi,N*N);
+	
+	
+	// Build invPsi matrix	
+	invPsi[0] = 1;
+	invPsi[N*N-1] = 1;
+	invPsi[1] = -theta;
+	invPsi[N] = -theta;
+	for(i=0;i<N;i++)
+	{
+		
+		if(i>0 && i<(N-1)){
+			invPsi[i + N*i] = (1 + theta*theta);
+			invPsi[i + N*(i+1)] = -theta; 
+			invPsi[(i+1) + N*i] = -theta; 			
+		}
+	}
+	
+	detInvPsi = log(1-theta*theta);
+	
+	
+	// Integral of beta0
+	quadformMatrix(X0,invPsi,N,2,tempM1,1,1);
+	//det1 = matrixDet(tempM1,2,2,1);
+	det1 = log(tempM1[0]*tempM1[3] - tempM1[1]*tempM1[2]);
+	
+	
+	F77_NAME(dgemm)("T", "N", &iTwo, &N, &N, &dOne, X0, &N, invPsi, &N, &dZero, tempM2, &iTwo);
+	quadformMatrix(tempM2,tempM1,2,N,Z1,-1,0);
+	for(i=0;i<(N*N);i++){
+		Z1[i] += invPsi[i];
+	}
+	
+	
+	//Integral of beta1, slope restricted model
+	tempS1 = quadform2(X1,Z1,N,1,N);
+	tempS1 += 1/g1;
+	tempS1 = 1/tempS1;
+	
+	det2 = log(tempS1);
+	
+	F77_NAME(dgemv)("T", &N, &N, &dOne, Z1, &N, X1, &iOne, &dZero, tempV1, &iOne);
+		
+	//outer product of tempV
+	for(j=0;j<N;j++){
+		Z2[j + j*N] = Z1[j + j*N] - tempV1[j]*tempV1[j]*tempS1;			
+		for(i=0;i<j;i++){
+			Z2[i + j*N] = Z1[i + j*N] - tempV1[i]*tempV1[j]*tempS1;
+			Z2[j + i*N] = Z2[i + j*N];
+		}
+	}
+	quad = quadform2(y,Z2,N,1,N);
+
+	
+	like[1] = lgamma( (N-2) * 0.5) + 0.5 * detInvPsi +
+	 -( (N-2) * 0.5) * log( quad ) + 
+	 0.5 * det1 + 0.5 * det2 + -0.5*log(g1);
+	 
+	//Integral of beta1, intercept restricted model
+	tempS1 = quadform2(X1 + N,Z1,N,1,N);
+	tempS1 += 1/g2;
+	tempS1 = 1/tempS1;
+	
+	det2 = log(tempS1);
+	
+	F77_NAME(dgemv)("T", &N, &N, &dOne, Z1, &N, X1+N, &iOne, &dZero, tempV1, &iOne);
+
+	//outer product of tempV
+	for(j=0;j<N;j++){
+		Z2[j + j*N] = Z1[j + j*N] - tempV1[j]*tempV1[j]*tempS1;			
+		for(i=0;i<j;i++){
+			Z2[i + j*N] = Z1[i + j*N] - tempV1[i]*tempV1[j]*tempS1;
+			Z2[j + i*N] = Z2[i + j*N];
+		}
+	}
+				
+	quad = quadform2(y,Z2,N,1,N);
+
+	like[2] = lgamma( (N-2) * 0.5) + 0.5 * detInvPsi +
+	 -( (N-2) * 0.5) * log( quad ) + 
+	 0.5 * det1 + 0.5 * det2 + -0.5*log(g2);
+	 
+	
+	//Integral of beta1, general model
+	quadformMatrix(X1,Z1,N,2,tempM1,1,0);
+	tempM1[0] += 1/g1;
+	tempM1[3] += 1/g2;
+	
+	InvMatrixUpper(tempM1, 2);
+	internal_symmetrize(tempM1, 2);
+	
+	//det2 = matrixDet(tempM1,2,2,1);
+	det2 = log(tempM1[0]*tempM1[3] - tempM1[1]*tempM1[2]);
+			
+	F77_NAME(dgemm)("T", "N", &iTwo, &N, &N, &dOne, X1, &N, Z1, &N, &dZero, tempM2, &iTwo);
+	quadformMatrix(tempM2,tempM1,2,N,Z2,-1,0);
+	for(i=0;i<(N*N);i++){
+		Z2[i] += Z1[i];
+	}
+	
+	/*int j;
+	for(j=0;j<N;j++){
+		for(i=0;i<N;i++)
+			Rprintf("%f ",Z2[j*N+i]);
+		Rprintf("\n");
+	}*/
+	
+	quad = quadform2(y,Z2,N,1,N);
+	
+	like[0] = lgamma( (N-2) * 0.5) + 0.5 * detInvPsi +
+	 -( (N-2) * 0.5) * log( quad ) + 
+	 0.5 * det1 + 0.5 * det2 + -0.5*log(g1) + -0.5*log(g2);
+	 
+	
+}
+
+SEXP MCnullMargLogLikeAR_trend(SEXP thetaR, SEXP yR, SEXP NR, SEXP alphaThetaR, SEXP betaThetaR, SEXP X0R){
+	
+	double theta = REAL(thetaR)[0], *y = REAL(yR);
+	int N = INTEGER_VALUE(NR);
+	double alphaTheta = REAL(alphaThetaR)[0];
+	double betaTheta = REAL(betaThetaR)[0];
+	double *X0 = REAL(X0R);
+	
+	int i,iOne=1,iTwo=2;
+	double invPsi[N*N],detInvPsi,dOne=1, det1, dZero=0;
+
+	double tempM1[2*2];
+	double tempM2[2*N];
+	double Z1[N*N];
+
+	SEXP returnR;
+	PROTECT(returnR = allocVector(REALSXP, 1));
+
+	AZERO(invPsi,N*N);
+	
+	
+	// Build invPsi matrix	
+	invPsi[0] = 1;
+	invPsi[N*N-1] = 1;
+	invPsi[1] = -theta;
+	invPsi[N] = -theta;
+	for(i=0;i<N;i++)
+	{
+		
+		if(i>0 && i<(N-1)){
+			invPsi[i + N*i] = (1 + theta*theta);
+			invPsi[i + N*(i+1)] = -theta; 
+			invPsi[(i+1) + N*i] = -theta; 			
+		}
+	}
+	
+	detInvPsi = log(1-theta*theta);
+	
+	
+	// Integral of beta0
+	quadformMatrix(X0,invPsi,N,2,tempM1,1,1);
+	//det1 = matrixDet(tempM1,2,2,1);
+	det1 = log(tempM1[0]*tempM1[3] - tempM1[1]*tempM1[2]);
+		
+	F77_NAME(dgemm)("T", "N", &iTwo, &N, &N, &dOne, X0, &N, invPsi, &N, &dZero, tempM2, &iTwo);
+		
+	quadformMatrix(tempM2,tempM1,2,N,Z1,-1,0);
+	
+	for(i=0;i<(N*N);i++){
+		Z1[i] += invPsi[i];
+	}
+	
+	REAL(returnR)[0] = lgamma((N-2) * 0.5) + 0.5 * detInvPsi +
+	 -((N-2) * 0.5) * log( quadform2(y,Z1,N,1,N) ) + 
+	 0.5 * det1 + dbeta(theta,alphaTheta,betaTheta,1);
+		
+	UNPROTECT(1);
+	return(returnR);
+
+}
+
+
+void quadformMatrix(double *X, double *S, int N, int p, double *Ans, double coeff, int invert){
+
+	double tempM[N*p],dOne=1,dZero=0;
+	
+	F77_NAME(dgemm)("T", "N", &p, &N, &N, &dOne, X, &N, S, &N, &dZero, tempM, &p);
+	F77_NAME(dgemm)("N", "N", &p, &p, &N, &coeff, tempM, &p, X, &N, &dZero, Ans, &p);
+	
+	if(invert)
+	{
+		InvMatrixUpper(Ans, p);
+		internal_symmetrize(Ans, p);
+	}
+
+}
+

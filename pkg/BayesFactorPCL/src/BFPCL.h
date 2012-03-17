@@ -72,6 +72,8 @@ double LogOnePlusX(double x);
 
 double quadform(double *x, double *A, int N, int incx, int LDA);
 
+double quadform2(double *x, double *A, int N, int incx, int LDA);
+
 SEXP rmvGaussianR(SEXP mu, SEXP Sigma);
 
 void rmvGaussianC(double *mu, double *Sigma, int p);
