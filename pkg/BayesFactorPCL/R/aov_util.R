@@ -147,7 +147,7 @@ my.design = function(effNum,fixed=TRUE,env)
 
 nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
 {
-  logFunction(paste(modNum,"\n"))
+  #logFunction(paste(modNum,"\n"))
   flush.console()
   X = joined.design(modNum,env=env)
   y = get("y",env=env)
@@ -180,11 +180,14 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
   if(!samples){
-  	bfs = sort(c(null=0,all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE,...)))*log10(exp(1))
-  
+  	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE, only.top,...)
+	bfs = as.numeric(allResults[1,])
+	names(bfs) = allResults[2,]
+  	bfs = sort(c(null=0,bfs))*log10(exp(1))
+  	
   	if(!is.null(dataRandom))
   	{
-  		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top,...)*log10(exp(1))
+  		nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top,...)[1])*log10(exp(1))
   		bfs = bfs - nullMod
 		bfs[1] = 0
   	}
