@@ -170,6 +170,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
 all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE,...)
 {
   nFac = dim(dataFixed)[2]
+  if(nFac==1) only.top=FALSE
   bfEnv = new.env(parent = baseenv())
   designs = list()
   designs[[2^nFac]] = matrix(nrow=0,ncol=0)
