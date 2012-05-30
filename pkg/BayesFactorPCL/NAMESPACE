@@ -1,3 +1,3 @@
 useDynLib(BayesFactorPCL)
 
-export(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad,nWayAOV.MC,nWayAOV2,all.Nways,logMeanExpLogs,AOV1Gibi,AOVnWayGibi,logCumMeanExpLogs)
+export(ttest.Gibbs,eqVariance.Gibbs,oneWayAOV.Gibbs,ttest.Quad,oneWayAOV.Quad,linearReg.Quad,nWayAOV.MC,nWayAOV2,all.Nways,logMeanExpLogs,AOV1Gibi,AOVnWayGibi,logCumMeanExpLogs,testNwaymLike)

@@ -10,7 +10,25 @@ logCumMeanExpLogs = function(v)
 	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
 }
 
-nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gibi=NULL){
+testNwaymLike = function(g,y,Xm)
+{
+	P = dim(Xm)[2]
+	N = dim(Xm)[1]
+	
+	y = matrix(y,N)
+	Xc = t(t(Xm) - colMeans(Xm))
+	
+	m0 = -0.5*(N - 1) * log(var(y)*(N-1))
+	
+	.Call("RjeffmlikeNWayAov",
+		t(Xc)%*%Xc,
+		t(Xc)%*%y,
+		var(y)*(N-1),
+		N, P, g, 
+		package="BayesFactorPCL") - m0
+}
+
+nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL){
 	
 	y = as.numeric(y)
 	X = as.numeric(X)
@@ -88,8 +106,12 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	#bf = log(sum(exp(returnList[[2]]-log(iterations)-nullLike)))
 	bf = returnList[[1]] - nullLike
 	
-	if(samples)
+	if(samples & gsamples)
 	{
+		return(list(bf,returnList[[2]],returnList[[3]]))
+	}else if(!samples & gsamples){
+		return(list(bf,returnList[[3]]))
+	}else if(samples & !gsamples){
 		#return(list(returnList[[1]] - nullLike,returnList[[2]]))
 		return(list(bf,returnList[[2]]))
 	}else{

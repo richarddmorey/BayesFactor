@@ -52,9 +52,10 @@ SEXP RMCTwoSampleAR(SEXP yR, SEXP NR, SEXP tR, SEXP rscaleR, SEXP alphaThetaR, S
 
 SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP progressR, SEXP pBar, SEXP rho);
 
-double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho);
+double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho);
 
 double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, double *g);
+SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP XtCyR, SEXP ytCyR, SEXP NR, SEXP PR, SEXP gR);
 
 SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen);
 

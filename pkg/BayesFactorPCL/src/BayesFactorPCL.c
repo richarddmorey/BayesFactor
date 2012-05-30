@@ -410,10 +410,28 @@ double jeffmlikeNWayAov(double *XtCX, double *XtCy, double ytCy, int N, int P, d
 	return(top-bottom1-bottom2);	
 }
 
-double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho)
+SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP XtCyR, SEXP ytCyR, SEXP NR, SEXP PR, SEXP gR)
+{
+	int N = INTEGER_VALUE(NR);
+	int P = INTEGER_VALUE(PR);
+	double *XtCX = REAL(XtCXR);
+	double *XtCy = REAL(XtCyR);
+	double ytCy = REAL(ytCyR)[0];
+	double *g = REAL(gR);
+	
+	SEXP ans;
+	PROTECT(ans = allocVector(REALSXP,1));
+	
+	REAL(ans)[0] = jeffmlikeNWayAov(XtCX, XtCy, ytCy, N, P, g);
+	
+	UNPROTECT(1);
+	return(ans);
+}
+
+double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0;
-	double avg = 0, g1[nGs],g2[P];
+	double avg = 0, *g1, g2[P];
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -435,11 +453,11 @@ double jeffSamplerNwayAov(double *samples, int iters, double *XtCX, double *XtCy
 			eval(R_fcall, rho); //Update the progress bar
 		}
 
-
+		g1 = gsamples + i*nGs;
 	
 		for(j=0;j<nGs;j++)
 		{
-			g1[j] = 1/rgamma(a[j],1/b[j]);
+			g1[j]  = 1/rgamma(a[j],1/b[j]);
 		}
 	
 	
@@ -542,7 +560,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP R
 	double *a,*b,*XtCy,*XtCX,ytCy,*samples,*avg;
 	int iters,nGs,*gMap,N,P,progress;
 
-	SEXP Rsamples,Ravg,returnList;
+	SEXP Rsamples,Rgsamples,Ravg,returnList;
 	
 	iters = INTEGER_VALUE(Riters);
 	XtCX = REAL(RXtCX);
@@ -558,19 +576,21 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP R
 	
 	PROTECT(Rsamples = allocVector(REALSXP,iters));
 	PROTECT(Ravg = allocVector(REALSXP,1));
-	PROTECT(returnList = allocVector(VECSXP,2));
-	
+	PROTECT(returnList = allocVector(VECSXP,3));
+	PROTECT(Rgsamples = allocMatrix(REALSXP,nGs,iters));	
+
 	samples = REAL(Rsamples);
 	avg = REAL(Ravg);
 	
 	GetRNGstate();
-	avg[0] = jeffSamplerNwayAov(samples, iters, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b, progress, pBar, rho);
+	avg[0] = jeffSamplerNwayAov(samples, REAL(Rgsamples), iters, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b, progress, pBar, rho);
 	PutRNGstate();
 	
 	SET_VECTOR_ELT(returnList, 0, Ravg);
     SET_VECTOR_ELT(returnList, 1, Rsamples);
+    SET_VECTOR_ELT(returnList, 2, Rgsamples);
 	
-	UNPROTECT(3);
+	UNPROTECT(4);
 	
 	return(returnList);
 }
