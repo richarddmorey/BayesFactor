@@ -40,8 +40,7 @@ distribution, with \code{rscale=1} yielding a standard multivariate t(1). See th
 A scalar giving the Bayes factor in favor of the null hypothesis that the standardized effect size is 0.
 }
 \references{
-Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
-Estimation to Improve Bayes Factor Computation.
+Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors.
 
 Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
@@ -49,27 +48,17 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 Richard D. Morey
 }
 \note{
-For unbalanced designs, and samples from the posterior distributions of the parameters, see \code{\link{oneWayAOV.Gibbs}}.
+For unbalanced designs, and samples from the posterior distributions of the parameters, see \code{\link{oneWayAOV.Gibbs}} or for general ANOVA designs \code{\link{all.Nways}}.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{aov}}, \code{\link{ttest.Gibbs}}, \code{\link{oneWayAOV.Gibbs}}
+\code{\link{aov}}, \code{\link{ttest.Gibbs}}, \code{\link{oneWayAOV.Gibbs}}, \code{\link{all.Nways}}
 }
 \examples{
-## Classical example (from t.test help):
-## Student's sleep data
-data(sleep)
-plot(extra ~ group, data = sleep)
 
-## Standard ANOVA analysis
-## yields an F of about 3.46 
-## and p value of about 0.08
-summary(aov(extra ~ group, data = sleep))
 
-## Yields a Bayes factor of about 1.02
-oneWayAOV.Quad(3.46,10,2)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

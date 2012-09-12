@@ -1,8 +1,8 @@
 useDynLib(BayesFactorPCL)
 
 export( ttest.Gibbs,
-		oneWayAOV.Gibbs, 
-		ttest.Quad, 
+		ttest.Quad,
+		oneWayAOV.Gibbs,  
 		oneWayAOV.Quad, 
 		linearReg.Quad, 
 		nWayAOV.MC, 
