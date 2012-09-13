@@ -97,7 +97,9 @@ double thetaLogLikeARmulti(double theta, double *mu0, double *beta, double *sig2
 
 SEXP RthetaLogLikeARmulti(SEXP thetaR, SEXP mu0R, SEXP betaR, SEXP sig2R, SEXP gR, SEXP yR, SEXP NR, SEXP tR, SEXP NobsR, SEXP cumobsR, SEXP maxobsR, SEXP betaThetaR);
 
+void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int progress, SEXP pBar, SEXP rho);
 
+SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP progressR, SEXP pBar, SEXP rho);
 
 
 
