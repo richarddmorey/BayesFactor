@@ -28,7 +28,7 @@ testNwaymLike = function(g,y,Xm)
 		package="BayesFactorPCL") - m0
 }
 
-nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL){
+nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL, logbf=FALSE){
 	
 	y = as.numeric(y)
 	X = as.numeric(X)
@@ -99,12 +99,11 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 
 	if(progress) close(pb);
 	
-	#if((returnList[[1]] - nullLike)==Inf){
-	#	browser()
-	#}
-	
-	#bf = log(sum(exp(returnList[[2]]-log(iterations)-nullLike)))
 	bf = returnList[[1]] - nullLike
+	if(!logbf)
+	{
+		bf = exp(bf)
+	}
 	
 	if(samples & gsamples)
 	{
@@ -112,15 +111,13 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}else if(!samples & gsamples){
 		return(list(bf,returnList[[3]]))
 	}else if(samples & !gsamples){
-		#return(list(returnList[[1]] - nullLike,returnList[[2]]))
 		return(list(bf,returnList[[2]]))
 	}else{
-		#return(returnList[[1]] - nullLike)
 		return(bf)
 	}
 }
 
-ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE)
+ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE,logbf=FALSE)
 {
 	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
@@ -129,10 +126,15 @@ ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE)
 	marg.like.1=ifelse(prior.cauchy,
 	integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)$value,
 		(1+n*r2)^(-.5)*(1+t^2/((1+n*r2)*(nu)))^(-(nu+1)/2))
-	return(marg.like.0/marg.like.1)
+	lbf = log(marg.like.0) - log(marg.like.1)
+	if(logbf){
+		return(-lbf)
+	}else{
+		return(exp(-lbf))
+	}
 }
 
-ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE){
+ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE,logbf=FALSE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
@@ -161,70 +163,21 @@ ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,prog
 	if(progress) close(pb);
 	priorDens = 1/(pi*rscale)
 	postDens = mean(chains[5,])
-	BF = postDens/priorDens
+	lbf = log(postDens) - log(priorDens)
 	priorArea = pcauchy(interval[2],scale=rscale) - pcauchy(interval[1],scale=rscale)
 	postArea = mean(chains[6,])
-	BFarea = postArea/priorArea
+	lbfarea = log(postArea) - log(priorArea)
 	
 	rownames(chains) = c("mu","sig2","g","delta","CMDE","areaPost")			
-	return(list(chains=mcmc(t(chains)),BF=BF,BFarea=BFarea))
+	if(logbf){
+		return(list(chains=mcmc(t(chains)),BF=-lbf,BFarea=-lbfarea))
+	}else{
+		return(list(chains=mcmc(t(chains)),BF=exp(-lbf),BFarea=exp(-lbfarea)))
+	}
 }
 
-eqVariance.Gibbs = function(y,iterations=1000,lambda=0.1, M2scale=0.2, sig2.metrop.sd=1 ,tau.metrop.sd=1, M2.metrop.scale=1, newtonSteps=6, progress=TRUE, whichModel=2){
-	if(!(whichModel%in%c(1,2))) stop("Argument whichModel model must be either 1 or 2.")
-	alpha=0.5
-	beta=M2scale^2/2
-	N = as.integer(colSums(!is.na(y)))
-	J=as.integer(dim(y)[2])
-	I=as.integer(dim(y)[1])
-	iterations = as.integer(iterations)
-	if(progress){
-		progress = round(iterations/100)
-		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
-	}else{ 
-		pb=NULL 
-	}
 
-    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
-	if(whichModel==1){
-		chains = .Call("RgibbsEqVariance", y, N, J, I, lambda, iterations, sig2.metrop.sd, tau.metrop.sd,
-				progress, pbFun, new.env(), package="BayesFactorPCL")
-		if(progress) close(pb);
-		rownames(chains) = c(paste("mu",1:J,sep=""),"CMDE","sig2","sig2.acc","tau","tau.acc")			
-		tau.acc = mean(chains[J+5,])
-		sig2.acc = mean(chains[J+3,])
-		cat("Acceptance rates:\n sig2:",sig2.acc,", tau:",tau.acc,"\n")
-
-		priorDens = integrate(dtau.eqVar,lower=0,upper=Inf,g=rep(1,J),log=FALSE,lambda=lambda)[[1]]
-		postDens = mean(chains[J+1,])
-		BF = postDens/priorDens
-	
-		returnList = list(chains=mcmc(t(chains)),BF=BF,acc.rates=c(sig2=sig2.acc,tau=tau.acc))
-	}
-	if(whichModel==2){
-		CI= var(y[,1])*(N[1]-1)/qchisq(c(0.025,0.975),N[1]-1)
-		g.metrop.sd = -diff(log(CI))/3 * M2.metrop.scale
-		decorr.metrop.sd = g.metrop.sd
-		output = .Call("RgibbsEqVarianceM2", y, N, J, I, alpha, beta, iterations, g.metrop.sd, decorr.metrop.sd, as.integer(newtonSteps),
-				progress, pbFun, new.env(), package="BayesFactorPCL")
-		if(progress) close(pb);
-		chains = output[[1]]
-		rownames(chains) = c(paste("mu",1:J,sep=""),paste("g",1:J,sep=""),"IWMDE","sig2","sig2g","decorr.acc",paste("g.acc",1:J,sep=""));			
-		decorr.acc = mean(chains[2*J+4,])
-		g.acc = rowMeans(chains[2*J+ 4 + 1:J,])
-		cat("Acceptance rates:\n decorr:",decorr.acc,", g:",g.acc,"\n")
-
-		priorDens = (2*pi)^(-J/2)/gamma(alpha) * gamma(J/2+alpha) * beta^(-J/2)
-		postDens = mean(exp(chains[2*J+1,]))
-		BF = postDens/priorDens
-		returnList = list(chains=mcmc(t(chains)),BF=BF,acc.rates=c(decorr=decorr.acc,g=g.acc))
-	}
-	
-	
-	return(returnList)
-}
-
-oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL){
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL, logbf=FALSE){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
@@ -261,31 +214,26 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL
 	
 	logPriorDensDouble = dmvnorm(rep(0,J),rep(0,J),diag(J),log=TRUE)  
 	
-	#postDensDouble = mean(exp(output[[1]][1+J+2,]))
 	logPostDensDouble = logMeanExpLogs(output[[1]][1+J+2,])
-	logBFDouble = logPostDensDouble - logPriorDensDouble
-	BFDouble = exp(logBFDouble)
+	lbf = logPostDensDouble - logPriorDensDouble
 
-	#BFDouble2log = output[[2]][2] - priorDensDouble
-	#BFDouble3log = output[[2]][4] - priorDensDouble
-	#BFDouble2 = exp(BFDouble2log)
+	if(logbf){
+		return(list(chains=mcmc(t(output[[1]])), BF=-lbf))
+	}else{
+		return(list(chains=mcmc(t(output[[1]])), BF=exp(-lbf)))
+	}
 	
-	#priorDensSingle = dmvt(rep(0,J),rep(0,J),rscale^2*diag(J),df=1,log=TRUE)
-	#postDensSingle = mean(exp(output[[1]][1+J+1,]))
-	#BFSingle = postDensSingle/exp(priorDensSingle)
-	#BFSingle2log = output[[2]][1] - priorDensSingle
-	#BFSingle2 = exp(BFSingle2log)
-	#BFSingle3log = output[[2]][3] - priorDensSingle
-	
-	return(list(chains=mcmc(t(output[[1]])),
-			BF=BFDouble,logBF=logBFDouble))
-			#bayesFactorRegular=c(single=BFSingle,double=BFDouble),
-			#bayesFactorAddLog=c(single=BFSingle2,double=BFDouble2),
-			#logBFAddLog=c(single=BFSingle2log,double=BFDouble2log),
-			#logBFKahan=c(kahanSingleLogBF=BFSingle3log,kahanDoubleLogBF=BFDouble3log),
-			#logCMDE=output[[2]],
-			#debug=output[[3]]
-			#))
+
+}
+
+oneWayAOV.Quad = function(F,N,J,rscale=1,logbf=FALSE)
+{
+	lbf = -log(integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]])
+	if(logbf){
+		return(-lbf)
+	}else{
+		return(exp(-lbf))
+	}
 }
 
 
@@ -295,11 +243,6 @@ marginal.g.oneWay = function(g,F,N,J,rscale)
 	omega = (1+(N*g/(dfs*F+1)))/(N*g+1)
 	m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+1) - (N*J-1)/2*log(omega)
 	exp(m)
-}
-
-oneWayAOV.Quad = function(F,N,J,rscale=1)
-{
-	1/integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]]
 }
 
 
@@ -322,26 +265,17 @@ t.joint=function(g,t,n,nu,r2)
 	return(dinvgamma(g,.5,.5)*exp(t1+t2))
 }
 
-
-
-dtau.eqVar.1 = function(x, g, lambda=1, log=FALSE)
-{
-	if(x<0) return(ifelse(log,-Inf,0))
-	J = length(g)
-	logd = -J*lgamma(x) - x * (-J*log(x) + sum(g - log(g)) + lambda) + log(lambda)
-	#logd = dgamma(g,x,rate=x,log=TRUE) + dexp(x,rate=lambda)
-	ifelse(log, logd, exp(logd))
-}
-
-dtau.eqVar=Vectorize(dtau.eqVar.1,"x")
-
 integrand.regression=function(g,N,p,R2)
 {
        a=.5*((N-p-1)*log(1+g)-(N-1)*log(1+g*(1-R2)))
        exp(a)*dinvgamma(g,shape=.5,scale=N/2)
 }
 
-linearReg.Quad=function(N,p,R2) {
+linearReg.Quad=function(N,p,R2,logbf=FALSE) {
 	h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2)
-	return(h$value)
+	if(logbf){
+		return(log(h$value))
+	}else{
+		return(h$value)
+	}
 }

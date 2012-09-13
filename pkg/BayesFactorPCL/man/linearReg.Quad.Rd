@@ -8,7 +8,7 @@ A function to compute the Bayes factors regression designs
 This function computes the Bayes factor for multiple linear regression, testing whether slopes are zero or not.
 }
 \usage{
-linearReg.Quad(N,p,R2)
+linearReg.Quad(N,p,R2, logbf=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,7 +21,9 @@ linearReg.Quad(N,p,R2)
   \item{R2}{
 The coefficient of detemination for the full regression model containing all \code{p} predictors
 }
-
+\item{logbf}{
+If \code{TRUE}, return the natural logarithm of the Bayes factor
+}
 }
 \details{
 This Bayes factor tests the hypothesis that all slopes are 0. 
@@ -40,9 +42,6 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 }
 \author{
 Jeffrey N. Rouder
-}
-\note{
-
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

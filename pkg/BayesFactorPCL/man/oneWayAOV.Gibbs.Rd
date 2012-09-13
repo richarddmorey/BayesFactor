@@ -10,9 +10,9 @@ Functions for Bayesian analysis of one-way designs
 one-way designs, using Gibbs sampling; \code{oneWayAOV.Quad} computes Bayes factors for balanced designs.
 }
 \usage{
-oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL)
+oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL, logbf = FALSE)
 
-oneWayAOV.Quad(F, N, J, rscale = 1)
+oneWayAOV.Quad(F, N, J, rscale = 1, logbf = FALSE)
 }
 \arguments{
   \item{y}{
@@ -41,6 +41,9 @@ Interface for a future graphical user interface (not intended for use by end use
   \item{J}{
 	The number of groups
 }
+\item{logbf}{
+If \code{TRUE}, return the natural logarithm of the Bayes factor
+}
 }
 \details{
 This Bayes factor tests the null hypothesis that the mean of a multivariate normal population is 0. 
@@ -56,9 +59,9 @@ distribution, with \code{rscale=1} yielding a standard multivariate t(1). See th
 \value{
 \code{oneWayAOV.Gibbs} returns a list containing two elements:
 \item{chains}{A object of type MCMC containing the chains for each parameter}
-\item{BF}{An MCMC estimate of the Bayes factor, computed using the Savage-Dickey method (Morey, Rouder, Pratte, and Speckman, 2011)}
+\item{BF}{An MCMC estimate of the Bayes factor in favor of the alternative, computed using the Savage-Dickey method (Morey, Rouder, Pratte, and Speckman, 2011)}
 
-\code{oneWayAOV.Quad} returns a scalar Bayes factor in favor of the null hypothesis.
+\code{oneWayAOV.Quad} returns a scalar Bayes factor in favor of the alternative hypothesis.
 }
 
 \references{

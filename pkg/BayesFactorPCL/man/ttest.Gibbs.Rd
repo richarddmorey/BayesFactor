@@ -10,9 +10,9 @@ Function to for Bayesian analysis of one- and two sample designs
 one-sample designs, using Gibbs sampling; \code{ttest.Quad} computes Bayes factors for one- or two-sample designs.
 }
 \usage{
-ttest.Gibbs(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE)
+ttest.Gibbs(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE, logbf = FALSE)
 
-ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2), prior.cauchy = TRUE)
+ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2), prior.cauchy = TRUE, logbf=FALSE)
 
 }
 \arguments{
@@ -44,7 +44,9 @@ Sample size for second group. If a one-sample test is desired, \code{n2} should 
   \item{prior.cauchy}{
 Use a Cauchy prior for the prior on effect size? If false, the prior on effect size is Normal (see Details below) 
 }
-
+\item{logbf}{
+If \code{TRUE}, return the natural logarithm of the Bayes factor
+}
 }
 \details{
 The Bayes factor provided by \code{ttest.Quad} tests the null hypothesis that the mean of a normal population is 0. 
@@ -61,12 +63,12 @@ instead of a Cauchy prior. See the references below for more details.
 one-sample designs. For two (or more) sample designs, see \link{oneWayAOV.Gibbs} or \link{nWayAOV.Gibbs}.
 }
 \value{
-\code{ttest.Quad} returns a scalar giving the Bayes factor in favor of the null hypothesis that the effect size is 0.
+\code{ttest.Quad} returns a scalar giving the Bayes factor in favor of the alternative hypothesis that the effect size is not 0.
 
 \code{ttest.Gibbs} returns a list containing the following:
 \item{chains}{A object of type MCMC containing the chains for each parameter}
 \item{BF}{An MCMC estimate of the Bayes factor, computed using the Savage-Dickey method (Morey, Rouder, Pratte, and Speckman, 2011)}
-\item{BFarea}{If an \code{interval.null} was provided, an MCMC estimate of Bayes factor in favor of the the interval null hypothesis.}
+\item{BFarea}{If an \code{interval.null} was provided, an MCMC estimate of Bayes factor in favor of the \emph{complement} of the interval null hypothesis.}
 }
 \references{
 Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, 368-378
@@ -97,13 +99,10 @@ plot(extra ~ group, data = sleep)
 ## t.test() gives a t value of -4.0621
 t.test(extra ~ group, data = sleep, paired=TRUE)
 
-## Gives a Bayes factor of about 0.06
-## in favor of the null hypothesis
+## Gives a Bayes factor of about 17
+## in favor of the alternative hypothesis
 bf <- ttest.Quad(t = -4.0621, n1 = 10)
 
-## Recode bf as measuring evidence for alternative
-## Is about 17 in favor of alternative
-1/bf
 
 ## Compute difference scores for one-sample test
 diffScores = sleep$extra[11:20] - sleep$extra[1:10]

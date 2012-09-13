@@ -10,11 +10,10 @@ Functions to compute the Bayes factors for general ANOVA designs
 These functions computes Bayes factors which enable testing main effects and interactions in general ANOVA designs. \code{allNways} will compute Bayes factors for testing all fixed effects in mixed ANOVA models against the null hypothesis that all fixed effects are 0, and \code{nWayAOV.MC} computes the Bayes factor for an arbitrary design matrix.
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, 
-    samples = FALSE, only.top = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, only.top = FALSE, logbf = FALSE, ...) 
     
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
-    samples = FALSE, gsamples = FALSE, gibi = NULL)
+    samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
     
 nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
 }
@@ -57,6 +56,9 @@ If \code{TRUE}, return all the Monte Carlo samples of the \code{g} parameter dra
 \item{gibi}{
 Interface for a future graphical user interface (not intended for use by end users)
 }
+\item{logbf}{
+If \code{TRUE}, return the natural logarithm of the Bayes factor
+}
 \item{...}{
 Additional arguments to pass to \code{nWayAOV.MC}
 }
@@ -65,7 +67,7 @@ Additional arguments to pass to \code{nWayAOV.MC}
 
 }
 \value{
-If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of log Bayes factor or a single log10 Bayes factors, respectively. 
+If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of Bayes factor or a single Bayes factors, respectively. These Bayes factors measure the support for the alternative against the null.
 
 If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{allNways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
 }
@@ -101,14 +103,14 @@ plot(extra ~ group, data = sleep)
 ## traditional ANOVA gives a p value of 0.00283
 summary(aov(extra ~ group + Error(ID), data = sleep))
 
-logbf <- allNways(y = sleep$extra,
-          dataFixed = data.frame(sleep$group), 	   
-          dataRandom = data.frame(sleep$ID), 
-          iterations=10000)
-
 ## Gives a Bayes factor of about 14
 ## in favor of the alternative hypothesis
-exp(logbf)
+allNways(y = sleep$extra,
+      dataFixed = data.frame(sleep$group), 	   
+      dataRandom = data.frame(sleep$ID), 
+      iterations=10000)
+
+
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
