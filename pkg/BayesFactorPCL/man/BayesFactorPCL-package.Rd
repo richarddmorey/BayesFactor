@@ -30,7 +30,7 @@ Richard D. Morey and Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 }
 \references{
-Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. (2009). Bayesian t–tests
+Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. (2009). Bayesian t-tests
 for accepting and rejecting the null hypothesis. Psychonomic Bulletin & Review, 16, 752-760
 
 Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L. (submitted). Conditional Marginal Density 
@@ -40,8 +40,7 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 }
 \keyword{htest}
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+\code{\link[BAS:BAS-package]{BAS}} ~~
 }
 \examples{
 ## See specific functions for examples

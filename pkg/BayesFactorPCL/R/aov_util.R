@@ -150,11 +150,11 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   #logFunction(paste(modNum,"\n"))
   flush.console()
   X = joined.design(modNum,env=env)
-  y = get("y",env=env)
+  y = env$y
   g.groups = joined.design(modNum,env=env,other="g")
   my.name = paste(joined.design(modNum,env=env,other="n"),collapse=" + ")
-  dataRandom = get("dataRandom",envir=env)
-  if(!is.null(dataRandom)){
+  dataRandom = env$dataRandom
+    if(!is.null(dataRandom)){
     gr.groups = unlist(lapply(data.frame(dataRandom),nlevels))
   }else{
     gr.groups = NULL
@@ -167,7 +167,7 @@ nWayAOV2 = function(modNum,env,samples=FALSE, logFunction = cat,...)
   return(bfs)
 }
 
-all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE,...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=FALSE, only.top=FALSE,...)
 {
   nFac = dim(dataFixed)[2]
   if(nFac==1) only.top=FALSE
@@ -219,7 +219,7 @@ all.Nways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples
 }
 
 all.Nways.env = function(env,samples, only.top=FALSE,...){
-  data = get("dataFixed",env)
+  data = env$dataFixed
 	nFac = dim(data)[2]
 	topMod = ((2^(2^nFac-1))-1)
 	if(!only.top){

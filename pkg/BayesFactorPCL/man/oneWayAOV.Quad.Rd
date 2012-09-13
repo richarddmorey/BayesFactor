@@ -48,13 +48,13 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 Richard D. Morey
 }
 \note{
-For unbalanced designs, and samples from the posterior distributions of the parameters, see \code{\link{oneWayAOV.Gibbs}} or for general ANOVA designs \code{\link{all.Nways}}.
+For unbalanced designs, and samples from the posterior distributions of the parameters, see \code{\link{oneWayAOV.Gibbs}} or for general ANOVA designs \code{\link{allNways}}.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{aov}}, \code{\link{ttest.Gibbs}}, \code{\link{oneWayAOV.Gibbs}}, \code{\link{all.Nways}}
+\code{\link{aov}}, \code{\link{ttest.Gibbs}}, \code{\link{oneWayAOV.Gibbs}}, \code{\link{allNways}}
 }
 \examples{
 

@@ -1,5 +1,5 @@
-\name{all.Nways}
-\alias{all.Nways}
+\name{allNways}
+\alias{allNways}
 \alias{nWayAOV.MC}
 \alias{nWayAOV.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -7,16 +7,16 @@
 Functions to compute the Bayes factors for general ANOVA designs
 }
 \description{
-These functions computes Bayes factors which enable testing main effects and interactions in general ANOVA designs. \code{all.Nways} will compute Bayes factors for testing all fixed effects in mixed ANOVA models against the null hypothesis that all fixed effects are 0, and \code{nWayAOV.MC} computes the Bayes factor for an arbitrary design matrix.
+These functions computes Bayes factors which enable testing main effects and interactions in general ANOVA designs. \code{allNways} will compute Bayes factors for testing all fixed effects in mixed ANOVA models against the null hypothesis that all fixed effects are 0, and \code{nWayAOV.MC} computes the Bayes factor for an arbitrary design matrix.
 }
 \usage{
-all.Nways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, 
     samples = FALSE, only.top = FALSE, ...) 
     
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
     samples = FALSE, gsamples = FALSE, gibi = NULL)
     
-nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE)
+nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -57,14 +57,17 @@ If \code{TRUE}, return all the Monte Carlo samples of the \code{g} parameter dra
 \item{gibi}{
 Interface for a future graphical user interface (not intended for use by end users)
 }
+\item{...}{
+Additional arguments to pass to \code{nWayAOV.MC}
+}
 }
 \details{
 
 }
 \value{
-If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{all.Nways} and \code{nWayAOV.MC} return a vector of log10 Bayes factor or a single log10 Bayes factors, respectively. 
+If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of log10 Bayes factor or a single log10 Bayes factors, respectively. 
 
-If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{all.Nways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
+If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{allNways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
 }
 
 \references{
@@ -81,7 +84,7 @@ Richard D. Morey
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \section{Warning }{
-The function \code{all.Nways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
+The function \code{allNways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
 
 It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{only.top} argument. This reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. If other tests are required besides those provided by \code{only.top}, they can be obtained via the function \code{nWayAOV.MC}.
 
@@ -98,7 +101,7 @@ plot(extra ~ group, data = sleep)
 ## traditional ANOVA gives a p value of 0.00283
 summary(aov(extra ~ group + Error(ID), data = sleep))
 
-log10bf <- all.Nways(y = sleep$extra,
+log10bf <- allNways(y = sleep$extra,
           dataFixed = data.frame(sleep$group), 	   
           dataRandom = data.frame(sleep$ID), 
           iterations=10000)

@@ -41,6 +41,8 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
     stop("Error: invalid scale vector r.")
   }
   
+  ZtZ = t(Z)%*%Z
+  Zty = t(Z)%*%matrix(y,ncol=1)
   gMap = inverse.rle(list(values=1:length(struc),lengths=struc))-1
 
 

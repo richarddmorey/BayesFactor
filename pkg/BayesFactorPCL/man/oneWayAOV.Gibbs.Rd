@@ -9,7 +9,7 @@ This function samples from the posterior distributions of parameters for
 one-way designs, using Gibbs sampling.  See details about priors in the details.
 }
 \usage{
-oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE)
+oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL)
 }
 \arguments{
   \item{y}{
@@ -25,6 +25,9 @@ Number of MCMC iterations to perform
 }
   \item{progress}{
 Report progress with a text progress bar?
+}
+\item{gibi}{
+Interface for a future graphical user interface (not intended for use by end users)
 }
 }
 \details{

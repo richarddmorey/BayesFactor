@@ -7,6 +7,6 @@ export( ttest.Gibbs,
 		linearReg.Quad, 
 		nWayAOV.MC,
 		nWayAOV.Gibbs, 
-		all.Nways, 
+		allNways, 
 		logMeanExpLogs, 
 		logCumMeanExpLogs)
