@@ -81,7 +81,7 @@ Richard D. Morey
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \section{Warning }{
-The function \code{all.Nways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that {\em all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
+The function \code{all.Nways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
 
 It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{only.top} argument. This reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. If other tests are required besides those provided by \code{only.top}, they can be obtained via the function \code{nWayAOV.MC}.
 
