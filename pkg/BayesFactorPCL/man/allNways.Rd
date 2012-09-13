@@ -65,7 +65,7 @@ Additional arguments to pass to \code{nWayAOV.MC}
 
 }
 \value{
-If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of log10 Bayes factor or a single log10 Bayes factors, respectively. 
+If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of log Bayes factor or a single log10 Bayes factors, respectively. 
 
 If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{allNways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
 }
@@ -101,14 +101,14 @@ plot(extra ~ group, data = sleep)
 ## traditional ANOVA gives a p value of 0.00283
 summary(aov(extra ~ group + Error(ID), data = sleep))
 
-log10bf <- allNways(y = sleep$extra,
+logbf <- allNways(y = sleep$extra,
           dataFixed = data.frame(sleep$group), 	   
           dataRandom = data.frame(sleep$ID), 
           iterations=10000)
 
 ## Gives a Bayes factor of about 14
 ## in favor of the alternative hypothesis
-10^log10bf
+exp(logbf)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

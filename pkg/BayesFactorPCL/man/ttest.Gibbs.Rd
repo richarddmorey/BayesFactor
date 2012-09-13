@@ -10,9 +10,9 @@ Function to for Bayesian analysis of one- and two sample designs
 one-sample designs, using Gibbs sampling; \code{ttest.Quad} computes Bayes factors for one- or two-sample designs.
 }
 \usage{
-ttest.Gibbs(y,iterations=10000,rscale=1/sqrt(2),null.interval=NULL,progress=TRUE)
+ttest.Gibbs(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE)
 
-ttest.Quad(t, n1, n2 = 0, rscale = 1/sqrt(2), prior.cauchy = TRUE)
+ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2), prior.cauchy = TRUE)
 
 }
 \arguments{
@@ -83,7 +83,7 @@ Richard D. Morey
 }
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \section{Warning}{
-The default prior scale has changed from 1 to \eqn{1/\sqrt{2}}, to be consistent with Morey et al. (2011) and Rouder et al. (in press). To obtain the same Bayes factors as Rouder et al. (2009), change the prior scale to 1.
+The default prior scale has changed from 1 to \eqn{\sqrt{2}}, to be consistent with Morey et al. (2011) and Rouder et al. (in press). To obtain the same Bayes factors as Rouder et al. (2009), change the prior scale to 1.
 }
 
 \seealso{

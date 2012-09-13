@@ -184,11 +184,11 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=
   	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=FALSE, only.top,...)
 	bfs = as.numeric(allResults[1,])
 	names(bfs) = allResults[2,]
-  	bfs = c(null=0,bfs)*log10(exp(1))
+  	bfs = c(null=0,bfs)
   	
   	if(!is.null(dataRandom))
   	{
-  		nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top,...)[1])*log10(exp(1))
+  		nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, samples=FALSE, only.top,...)[1])
   		bfs = bfs - nullMod
 		bfs[1] = 0
   	}
@@ -196,11 +196,11 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, samples=
   }else{
   	allResults <- all.Nways.env(env=bfEnv,iterations=iterations, samples=TRUE, only.top,...)
   	bfs <- unlist(lapply(allResults,function(lst) lst[[1]] ))
-  	bfs = c(null=0,bfs)*log10(exp(1))
+  	bfs = c(null=0,bfs)
   	if(!is.null(dataRandom))
   	{
   		nullMod = nWayAOV2(0,bfEnv,iterations=iterations, samples=TRUE,...)
-  		bfs = (bfs - nullMod[[1]])*log10(exp(1))
+  		bfs = (bfs - nullMod[[1]])
 		bfs[1] = 0
 		nullSamp = nullMod[[2]]
   	}else{

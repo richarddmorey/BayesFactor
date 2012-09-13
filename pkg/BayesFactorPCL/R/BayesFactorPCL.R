@@ -120,7 +120,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}
 }
 
-ttest.Quad=function(t,n1,n2=0,rscale=1/sqrt(2),prior.cauchy=TRUE)
+ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE)
 {
 	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
@@ -132,7 +132,7 @@ ttest.Quad=function(t,n1,n2=0,rscale=1/sqrt(2),prior.cauchy=TRUE)
 	return(marg.like.0/marg.like.1)
 }
 
-ttest.Gibbs = function(y,iterations=10000,rscale=1/sqrt(2),null.interval=NULL,progress=TRUE){
+ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
