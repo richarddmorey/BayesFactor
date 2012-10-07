@@ -145,7 +145,7 @@ my.design = function(effNum,fixed=TRUE,env)
   }
 }
 
-nWayAOV2 = function(modNum,env, logFunction = cat,...)
+nWayAOV2 = function(modNum,env, logFunction = cat, progress, rscaleFixed, rscaleRandom, ...)
 {
   #logFunction(paste(modNum,"\n"))
   flush.console()
@@ -159,13 +159,15 @@ nWayAOV2 = function(modNum,env, logFunction = cat,...)
   }else{
     gr.groups = NULL
   } 
-  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=FALSE,logbf=TRUE,...),my.name)
+  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=FALSE,logbf=TRUE, progress=progress, 
+  						rscale = c(rscaleFixed + g.groups*0, rscaleRandom=rscaleRandom + gr.groups*0),...), 
+  						my.name)
   names(bfs)=my.name
   
   return(bfs)
 }
 
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, only.top=FALSE, logbf=FALSE,...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=FALSE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, ...)
 {
   nFac = dim(dataFixed)[2]
   if(nFac==1) only.top=FALSE
@@ -179,14 +181,14 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, only.top
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
 
-  allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top,...)
+  allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   bfs = as.numeric(allResults[1,])
   names(bfs) = allResults[2,]
   bfs = c(null=0,bfs)
   	
   if(!is.null(dataRandom))
   {
-  	nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, only.top,...)[1])
+  	nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)[1])
   	bfs = bfs - nullMod
 	bfs[1] = 0
   }
@@ -197,7 +199,7 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 1000, only.top
   }
 }
 
-all.Nways.env = function(env, only.top=FALSE,...){
+all.Nways.env = function(env, only.top=FALSE,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
   data = env$dataFixed
 	nFac = dim(data)[2]
 	topMod = ((2^(2^nFac-1))-1)
@@ -208,6 +210,6 @@ all.Nways.env = function(env, only.top=FALSE,...){
 		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
 		modNums <- as.list(mods)
 	}
-	return(sapply(modNums,nWayAOV2,env=env,...))
+	return(sapply(modNums,nWayAOV2,env=env,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...))
 }
 
