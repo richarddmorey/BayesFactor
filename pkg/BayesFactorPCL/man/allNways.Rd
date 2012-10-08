@@ -1,21 +1,16 @@
 \name{allNways}
 \alias{allNways}
-\alias{nWayAOV.MC}
-\alias{nWayAOV.Gibbs}
+
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Functions to compute the Bayes factors for general ANOVA designs
+Function to compute the Bayes factors in ANOVA designs
 }
 \description{
-These functions computes Bayes factors which enable testing main effects and interactions in general ANOVA designs. \code{allNways} will compute Bayes factors for testing all fixed effects in mixed ANOVA models against the null hypothesis that all fixed effects are 0, and \code{nWayAOV.MC} computes the Bayes factor for an arbitrary design matrix.
+This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, only.top = FALSE, logbf = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, ...) 
     
-nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
-    samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
-    
-nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -27,35 +22,24 @@ nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
 A data frame containing the fixed factors, one column per factor. Columns must be factors
 }
   \item{dataRandom}{
-A data frame containing the fixed factors, one column per factor. Columns must be factors
+A data frame containing the random factors, one column per factor. Columns must be factors
 }
   \item{iterations}{
-Number of Monte Carlo samples to perform (see details)
-}
-  \item{samples}{
-If \code{TRUE}, return the Monte Carlo samples used in estimating the integral (default is \code{FALSE})
+Number of Monte Carlo samples to perform (see details).  
 }
   \item{only.top}{
-If \code{TRUE}, only the most complex models will be tested, cutting down the computation time (see details)
+If \code{FALSE}, then all nested submodels will be compared.  If \code{TRUE}, then only the first level of a top-down strategy of comparing submodels missing a single covariate is implemented.  \code{TRUE} is the default because the comparisons are analogous to classical ANOVA, and this option dramatically cuts down the computation time (see details).
 }
-\item{X}{
-A design matrix whose number of rows match \code{length(y)}
+\item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed.
 }
-\item{struc}{
-Vector grouping the columns of \code{X} (see details)
-}
-\item{rscale}{
-Either a scalar or a vector of the same length as \code{struc}, of prior scales (see details)
-}
+\item{rscaleRandom}{
+The prior scale of effect size for factors that are treated as random.}
+
+
 \item{progress}{
 If \code{TRUE}, text progress bar is displayed
 }
-\item{gsamples}{
-If \code{TRUE}, return all the Monte Carlo samples of the \code{g} parameter drawn (default is \code{FALSE}; see details)
-}
-\item{gibi}{
-Interface for a future graphical user interface (not intended for use by end users)
-}
+
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
@@ -63,13 +47,25 @@ If \code{TRUE}, return the natural logarithm of the Bayes factor
 Additional arguments to pass to \code{nWayAOV.MC}
 }
 }
+
 \details{
+The models, priors, and methods of computation are provided in Rouder et al. (2012).  	
+The ANOVA model for a vector of observations \eqn{y_1,\ldots,y_N} is
+\deqn{ y = \mu + X_1 \theta_1 + \ldots + X_p\theta_p +\epsilon,}
+where \eqn{\theta_1,\ldots,\theta_p} are vectors of main-effect and interaction effects, \eqn{X_1,\ldots,X_p} are corresponding design matrices, and \eqn{\epsilon} is a vector of \eqn{N} zero-centered noise terms with variance \eqn{\sigma^2}.  Zellner and Siow (1980) g-priors are placed on effects with a separate g-prior parameter for each covariate:
+\deqn{\theta_1~N(0,g_1\sigma^2), \ldots,  \theta_p~N(0,g_p \sigma^2).}
+A Jeffries prior is placed on \eqn{\mu} and \eqn{sigma^2}.  Independent inverse-$\chi^2$ priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_p}.
 
+When a factor is treated as random, there are as many main effect terms in the vector \eqn{\theta} as levels.  When a factor is treated as fixed, the sums-to-zero linear constraint is enforced by centering the corresponding design matrix, and there is one fewer main effect terms as levels.  The Cornfield-Tukey model of interactions is assumed.  Details are provided in Rouder et al. (2012)
+
+The integration of all parameters except \eqn{g_1,\ldots,g_p} may be expressed in closed-form; the integration of \eqn{g_1,\ldots,g_p} is performed through Monte Carlo sampling, and \code{interations} is the number of iterations used to estimate the Bayes factor.  
 }
-\value{
-If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of Bayes factor or a single Bayes factors, respectively. These Bayes factors measure the support for the alternative against the null.
 
-If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{allNways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
+
+\value{
+A vector of Bayes factors, the measure the support for a model relative to the null model.
+
+
 }
 
 \references{
@@ -80,9 +76,8 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 \author{
 Richard D. Morey
 }
-\note{
 
-}
+
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \section{Warning }{
