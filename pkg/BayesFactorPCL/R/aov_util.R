@@ -191,6 +191,12 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   	bfs = bfs - nullMod
 	bfs[1] = 0
   }
+  if(only.top){
+  	topModel = ((2^(2^nFac-1))-1)
+  	topModelName= paste(joined.design(topModel,env=bfEnv,other="n"),collapse=" + ")
+  	topModelIndex = which(names(bfs)==topModelName)
+  	bfs = bfs - bfs[topModelIndex]
+  }
   if(logbf){
   	return(sort(bfs))
   }else{
