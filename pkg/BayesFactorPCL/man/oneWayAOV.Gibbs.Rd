@@ -10,9 +10,9 @@ Functions for Bayesian analysis of one-way designs
 one-way designs, using Gibbs sampling; \code{oneWayAOV.Quad} computes Bayes factors for balanced designs.
 }
 \usage{
-oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL, logbf = FALSE)
+oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1/2, progress = TRUE, gibi=NULL, logbf = FALSE)
 
-oneWayAOV.Quad(F, N, J, rscale = 1, logbf = FALSE)
+oneWayAOV.Quad(F, N, J, rscale = 1/2, logbf = FALSE)
 }
 \arguments{
   \item{y}{

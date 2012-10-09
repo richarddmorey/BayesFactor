@@ -117,7 +117,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	}
 }
 
-ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE,logbf=FALSE)
+ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2)/2,prior.cauchy=TRUE,logbf=FALSE)
 {
 	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
@@ -134,7 +134,7 @@ ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2),prior.cauchy=TRUE,logbf=FALSE)
 	}
 }
 
-ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,progress=TRUE,logbf=FALSE){
+ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2)/2,null.interval=NULL,progress=TRUE,logbf=FALSE){
 	N = as.integer(length(y))
 	iterations = as.integer(iterations)
 	if(progress){
@@ -177,7 +177,7 @@ ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,prog
 }
 
 
-oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL, logbf=FALSE){
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1/2, progress=TRUE, gibi=NULL, logbf=FALSE){
 	N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
@@ -226,7 +226,7 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL
 
 }
 
-oneWayAOV.Quad = function(F,N,J,rscale=1,logbf=FALSE)
+oneWayAOV.Quad = function(F,N,J,rscale=1/2,logbf=FALSE)
 {
 	lbf = -log(integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]])
 	if(logbf){
