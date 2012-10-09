@@ -3,7 +3,7 @@
 
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Function to compute the Bayes factors in ANOVA designs
+Function to compute the Bayes factors in an ANOVA design
 }
 \description{
 This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
@@ -50,15 +50,16 @@ Additional arguments to pass to \code{nWayAOV.MC}
 
 \details{
 The models, priors, and methods of computation are provided in Rouder et al. (2012).  	
-The ANOVA model for a vector of observations \eqn{y_1,\ldots,y_N} is
+The ANOVA model for a vector of observations \eqn{y} is
 \deqn{ y = \mu + X_1 \theta_1 + \ldots + X_p\theta_p +\epsilon,}
-where \eqn{\theta_1,\ldots,\theta_p} are vectors of main-effect and interaction effects, \eqn{X_1,\ldots,X_p} are corresponding design matrices, and \eqn{\epsilon} is a vector of \eqn{N} zero-centered noise terms with variance \eqn{\sigma^2}.  Zellner and Siow (1980) g-priors are placed on effects with a separate g-prior parameter for each covariate:
-\deqn{\theta_1~N(0,g_1\sigma^2), \ldots,  \theta_p~N(0,g_p \sigma^2).}
-A Jeffries prior is placed on \eqn{\mu} and \eqn{sigma^2}.  Independent inverse-$\chi^2$ priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_p}.
+where \eqn{\theta_1,\ldots,\theta_p} are vectors of main-effect and interaction effects, \eqn{X_1,\ldots,X_p} are corresponding design matrices, and \eqn{\epsilon} is a vector of zero-centered noise terms with variance \eqn{\sigma^2}.  Zellner and Siow (1980) inspired g-priors are placed on effects, but with a separate g-prior parameter for each covariate:
+\deqn{\theta_1~N(0,g_1\sigma^2), \ldots,  \theta_p~N(0,g_p \sigma^2).}  A Jeffries prior is placed on \eqn{\mu} and \eqn{\sigma^2}.  Independent scaled inverse-chi-square priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_p}.  The square-root of the scale for g's corresponding to fixed and random effects is given by \code{rscaleFixed} and \code{rscaleRandom}, respectively.
 
 When a factor is treated as random, there are as many main effect terms in the vector \eqn{\theta} as levels.  When a factor is treated as fixed, the sums-to-zero linear constraint is enforced by centering the corresponding design matrix, and there is one fewer main effect terms as levels.  The Cornfield-Tukey model of interactions is assumed.  Details are provided in Rouder et al. (2012)
 
-The integration of all parameters except \eqn{g_1,\ldots,g_p} may be expressed in closed-form; the integration of \eqn{g_1,\ldots,g_p} is performed through Monte Carlo sampling, and \code{interations} is the number of iterations used to estimate the Bayes factor.  
+Bayes factors are computed by integrating the likelihood with respect to the priors on parameters.  The integration of all parameters except \eqn{g_1,\ldots,g_p} may be expressed in closed-form; the integration of \eqn{g_1,\ldots,g_p} is performed through Monte Carlo sampling, and \code{interations} is the number of iterations used to estimate the Bayes factor.  
+
+\code{allNways} computes Bayes factors for either all submodels or select submodels missing a single main effect or covariate.  Bayes factors for specific models are computed by \code{nWayAOV}, an options to this back-end function may be passed.  See \code{nWayAOV} for more details.
 }
 
 
@@ -69,12 +70,13 @@ A vector of Bayes factors, the measure the support for a model relative to the n
 }
 
 \references{
-Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (in press) Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology
+Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology.  56.  p. 356-374.
 
-Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
+Zellner, A. and Siow, A., (1980) Posterior Odds Ratios for Selected Regression Hypotheses.  In Bayesian Statistics: Proceedings of the First Interanational Meeting held in Valencia (Spain).  Bernardo, J. M., Lindley, D. V., and Smith A. F. M. (eds), pp. 585-603.  University of Valencia.
+
 }
 \author{
-Richard D. Morey
+Richard D. Morey, Jeffrey N. Rouder
 }
 
 
@@ -87,7 +89,7 @@ It is possible to reduce the number of models tested by only testing the most co
 
 }
 \seealso{
-\code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}
+\code{\link{nWayAOV.MC}}, \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}
 }
 \examples{
 ## Classical example, taken from t.test() example

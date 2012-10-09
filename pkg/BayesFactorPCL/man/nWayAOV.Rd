@@ -1,16 +1,13 @@
-\name{allNways}
-\alias{allNways}
+\name{nWayAOV.MC}
 \alias{nWayAOV.MC}
 \alias{nWayAOV.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Functions to compute the Bayes factors for general ANOVA designs
+Backend functions to compute a Bayes factors for a specified ANOVA model defined by a design matrix.
 }
 \description{
-These functions computes Bayes factors which enable testing main effects and interactions in general ANOVA designs. \code{allNways} will compute Bayes factors for testing all fixed effects in mixed ANOVA models against the null hypothesis that all fixed effects are 0, and \code{nWayAOV.MC} computes the Bayes factor for an arbitrary design matrix.
-}
+This function computes a single Bayes factor for a specified ANOVA model to a null ANOVA model defined by the addition of a grand mean and error terms.}
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 1000, only.top = FALSE, logbf = FALSE, ...) 
     
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
     samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
@@ -23,30 +20,31 @@ nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
   \item{y}{
 	A vector of observations	
 }
-  \item{dataFixed}{
-A data frame containing the fixed factors, one column per factor. Columns must be factors
+\item{X}{
+A design matrix whose number of rows match \code{length(y)}.
 }
-  \item{dataRandom}{
-A data frame containing the fixed factors, one column per factor. Columns must be factors
+
+\item{struc}{
+Vector grouping the columns of \code{X} (see details).
 }
-  \item{iterations}{
-Number of Monte Carlo samples to perform (see details)
+
+\item{iterations}{
+Number of Monte Carlo samples used to estimate Bayes factor.
 }
+
+\item{rscale}{
+A scalar or a vector (same length as \code{struc}) of prior scale(s) (see details).
+}
+
+\item{progress}{
+If \code{TRUE}, text progress bar is displayed
+}
+
   \item{samples}{
 If \code{TRUE}, return the Monte Carlo samples used in estimating the integral (default is \code{FALSE})
 }
-  \item{only.top}{
-If \code{TRUE}, only the most complex models will be tested, cutting down the computation time (see details)
-}
-\item{X}{
-A design matrix whose number of rows match \code{length(y)}
-}
-\item{struc}{
-Vector grouping the columns of \code{X} (see details)
-}
-\item{rscale}{
-Either a scalar or a vector of the same length as \code{struc}, of prior scales (see details)
-}
+ 
+
 \item{progress}{
 If \code{TRUE}, text progress bar is displayed
 }
@@ -59,39 +57,44 @@ Interface for a future graphical user interface (not intended for use by end use
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
-\item{...}{
-Additional arguments to pass to \code{nWayAOV.MC}
-}
 }
 \details{
+The models, priors, and methods of computation are provided in Rouder et al. (2012).  	
+The linear model for a vector of \eqn{N} observations, denoted by \eqn{y}, is 
+\deqn{ y = \mu + X \theta +\epsilon,}
+where \eqn{\theta} is a vector of \eqn{p} effects, \eqn{X} is an \eqn{N}-by-\eqn{p} design matrix, and \eqn{\epsilon} is a vector of \eqn{N} zero-centered noise terms with variance \eqn{\sigma^2}.    Zellner and Siow (1980) inspired g-priors are placed on effects, but with a possibly separate g-prior parameter for each effect:
+\deqn{\theta~N(0,\sigma^2G),} 
+where \eqn{G} is a \eqn{p}-by-\eqn{p} diagonal matrix.  
 
+Following Gelman (2005), effects may grouped into blocks where effects within a single block are exchangable and those across blocks are not.  These blocks correspond to the main effect of a factor or the interaction between factors.  Blocking is implemented by placing constraints on diag(G) as follows.  Consider a design with two factors each with two levels.  There are eight effects (2 main effects for the two levels and 4 interaction effects) which should be grouped into three blocks (one for each main effect, and one for the interaction).  Exchangability within blocks but not accross it is given by diag(G)=(g_1,g_1,g_2,g_2,g_3,g_3,g_3,g_3,g_3) where the first two elements are for one main effect, the next two are for the other, and the last four are for the interaction (assuming this order is coded in the design matrix X).  \code{struct} codes how the diagonal of G should be grouped, with each entry indicating how many levels are in a block. Note \code{sum(struct)} must equal the columns of \code{X}. RICHARD TRUE?  
+
+A Jeffries prior is placed on \eqn{\mu} and \eqn{\sigma^2}.  Independent scaled inverse-chi-square priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_r}, where \eqn{r} is the number of blocks.  The square-root of the scale for g's is given in \code{rscale}.
+
+The null model is given by \eqn{y= \mu + X \theta +\epsilon}.
+
+\code{nWayAOV.Gibbs} returns posterior samples of the parameters, which are computed using Markov-chain Monte Carlo sampling.  
 }
-\value{
-If \code{samples} and \code{gsamples} are both \code{FALSE}, then \code{allNways} and \code{nWayAOV.MC} return a vector of Bayes factor or a single Bayes factors, respectively. These Bayes factors measure the support for the alternative against the null.
 
-If either \code{samples} or \code{gsamples} are \code{TRUE}, the \code{nWayAOV.MC} will return lists whose first element is as above, and the subsequent elements contains a vector with the samples. \code{allNways} will return a list whose first element is a vector as above, and whose second element is a list containing the samples from the respective models.
+\value{
+With default settings, the Bayes factor for the model relative to the null is returned.  If either \code{samples} or \code{gsamples} are \code{TRUE}, then a list whose first element is as above, and the subsequent elements contains a vector with the samples will be returned.
 }
 
 \references{
-Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (in press) Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology
+Gelman, A. (2005) Analysis of Variance---why it is more important than ever.  Annals of Statistics, 33, pp. 1-53. 	
+	
+Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology.  56.  p. 356-374.
 
-Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
+Zellner, A. and Siow, A., (1980) Posterior Odds Ratios for Selected Regression Hypotheses.  In Bayesian Statistics: Proceedings of the First Interanational Meeting held in Valencia (Spain).  Bernardo, J. M., Lindley, D. V., and Smith A. F. M. (eds), pp. 585-603.  University of Valencia.
 }
 \author{
-Richard D. Morey
+Richard D. Morey, Jeffrey N. Rouder
 }
-\note{
-
-}
+\note{\code{allNways} is a front-end function for computing multiple Bayes factors in ANOVA designs.  For each submodel, \code{allNways} constructs objects \code{X}, \code{struct}, and \code{rscale} and calls \code{nWayAOV.MC}.}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
-\section{Warning }{
-The function \code{allNways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
 
-It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{only.top} argument. This reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. If other tests are required besides those provided by \code{only.top}, they can be obtained via the function \code{nWayAOV.MC}.
-
-}
 \seealso{
+\code{\link{allNways}}, 	
 \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}
 }
 \examples{
