@@ -101,7 +101,7 @@ data(sleep)
 plot(extra ~ group, data = sleep)
 
 ## traditional ANOVA gives a p value of 0.00283
-summary(aov(extra ~ group + Error(ID), data = sleep))
+summary(aov(extra ~ group + Error(ID/group), data = sleep))
 
 ## Build design matrix
 group.column <- rep(1/c(-sqrt(2),sqrt(2)),each=10)

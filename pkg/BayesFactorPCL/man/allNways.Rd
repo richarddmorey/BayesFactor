@@ -102,7 +102,7 @@ data(sleep)
 plot(extra ~ group, data = sleep)
 
 ## traditional ANOVA gives a p value of 0.00283
-summary(aov(extra ~ group + Error(ID), data = sleep))
+summary(aov(extra ~ group + Error(ID/group), data = sleep))
 
 ## Gives a Bayes factor of about 11.6
 ## in favor of the alternative hypothesis
