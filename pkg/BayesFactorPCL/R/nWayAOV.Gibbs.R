@@ -6,7 +6,7 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
     const = which(nLevels==1)
     if(length(const)==1){
       Z = cbind(1,X[,-const])
-      warning("Constant column in design matrix stripped.")
+      #warning("Constant column in design matrix stripped.")
     }else{
       stop("Error: More than one constant column found in design matrix!")
     }
@@ -35,10 +35,10 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
     	}
     }
   
-  if(length(r)==1){
-    r = struc*0+r
-  }else if(length(r)!=length(struc)){
-    stop("Error: invalid scale vector r.")
+  if(length(rscale)==1){
+    rscale = struc*0+rscale
+  }else if(length(rscale)!=length(struc)){
+    stop("Error: invalid scale vector rscale.")
   }
   
   ZtZ = t(Z)%*%Z
@@ -47,9 +47,9 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
 
 
   chains = .Call("RGibbsNwayAov", as.integer(iterations), y, Z, ZtZ, Zty, as.integer(N), 
-  								  as.integer(p), length(struc), as.integer(gMap), r,
+  								  as.integer(p), length(struc), as.integer(gMap), rscale,
 								  as.integer(progress), pbFun, new.env(), 
-								  package="BayesFactorPCL")
+								  package="BayesFactor")
 
   if(progress) close(pb);
 	dim(chains) <- c(2 + p + length(struc), iterations)

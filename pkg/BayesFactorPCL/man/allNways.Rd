@@ -9,7 +9,7 @@ Function to compute the Bayes factors in an ANOVA design
 This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = FALSE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, ...) 
     
 }
 
@@ -30,21 +30,22 @@ Number of Monte Carlo samples to perform (see details).
   \item{only.top}{
 If \code{FALSE}, then all nested submodels will be compared.  If \code{TRUE}, then only the first level of a top-down strategy of comparing submodels missing a single covariate is implemented.  \code{TRUE} is the default because the comparisons are analogous to classical ANOVA, and this option dramatically cuts down the computation time (see details).
 }
+\item{progress}{
+If \code{TRUE}, a text progress bar is displayed for each model analyzed. 
+}
 \item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed.
 }
 \item{rscaleRandom}{
 The prior scale of effect size for factors that are treated as random.}
 
 
-\item{progress}{
-If \code{TRUE}, text progress bar is displayed
-}
+
 
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
 \item{...}{
-Additional arguments to pass to \code{nWayAOV.MC}
+Additional arguments to pass to \code{\link{nWayAOV.MC}}
 }
 }
 
@@ -57,9 +58,12 @@ where \eqn{\theta_1,\ldots,\theta_p} are vectors of main-effect and interaction 
 
 When a factor is treated as random, there are as many main effect terms in the vector \eqn{\theta} as levels.  When a factor is treated as fixed, the sums-to-zero linear constraint is enforced by centering the corresponding design matrix, and there is one fewer main effect terms as levels.  The Cornfield-Tukey model of interactions is assumed.  Details are provided in Rouder et al. (2012)
 
-Bayes factors are computed by integrating the likelihood with respect to the priors on parameters.  The integration of all parameters except \eqn{g_1,\ldots,g_p} may be expressed in closed-form; the integration of \eqn{g_1,\ldots,g_p} is performed through Monte Carlo sampling, and \code{interations} is the number of iterations used to estimate the Bayes factor.  
+Bayes factors are computed by integrating the likelihood with respect to the priors on parameters.  The integration of all parameters except \eqn{g_1,\ldots,g_p} may be expressed in closed-form; the integration of \eqn{g_1,\ldots,g_p} is performed through Monte Carlo sampling, and \code{iterations} is the number of iterations used to estimate the Bayes factor.  
 
-\code{allNways} computes Bayes factors for either all submodels or select submodels missing a single main effect or covariate.  Bayes factors for specific models are computed by \code{nWayAOV}, an options to this back-end function may be passed.  See \code{nWayAOV} for more details.
+\code{allNways} computes Bayes factors for either all submodels or select submodels missing a single main effect or covariate, depending on the argument \code{only.top}.  Bayes factors for specific models are computed by \code{\link{nWayAOV.MC}}, an options to this back-end function may be passed.  See \code{\link{nWayAOV.MC}} for more details.
+
+If no random factors are specified, the null model assumed by \code{allNways} is the grand-mean only model. If random factors are specified, the null model is the model with all random factors plus a grand mean. Thus, \code{allNways} cannot currently be used to test random factors. Testing random factors is possible with \code{\link{nWayAOV.MC}}.
+
 }
 
 
@@ -100,13 +104,11 @@ plot(extra ~ group, data = sleep)
 ## traditional ANOVA gives a p value of 0.00283
 summary(aov(extra ~ group + Error(ID), data = sleep))
 
-## Gives a Bayes factor of about 14
+## Gives a Bayes factor of about 11.6
 ## in favor of the alternative hypothesis
 allNways(y = sleep$extra,
       dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID), 
-      iterations=10000)
-
+      dataRandom = data.frame(sleep$ID))
 
 
 }

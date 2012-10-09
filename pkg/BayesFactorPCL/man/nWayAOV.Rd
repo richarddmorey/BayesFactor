@@ -45,9 +45,6 @@ If \code{TRUE}, return the Monte Carlo samples used in estimating the integral (
 }
  
 
-\item{progress}{
-If \code{TRUE}, text progress bar is displayed
-}
 \item{gsamples}{
 If \code{TRUE}, return all the Monte Carlo samples of the \code{g} parameter drawn (default is \code{FALSE}; see details)
 }
@@ -66,17 +63,17 @@ where \eqn{\theta} is a vector of \eqn{p} effects, \eqn{X} is an \eqn{N}-by-\eqn
 \deqn{\theta~N(0,\sigma^2G),} 
 where \eqn{G} is a \eqn{p}-by-\eqn{p} diagonal matrix.  
 
-Following Gelman (2005), effects may grouped into blocks where effects within a single block are exchangable and those across blocks are not.  These blocks correspond to the main effect of a factor or the interaction between factors.  Blocking is implemented by placing constraints on diag(G) as follows.  Consider a design with two factors each with two levels.  There are eight effects (2 main effects for the two levels and 4 interaction effects) which should be grouped into three blocks (one for each main effect, and one for the interaction).  Exchangability within blocks but not accross it is given by diag(G)=(g_1,g_1,g_2,g_2,g_3,g_3,g_3,g_3,g_3) where the first two elements are for one main effect, the next two are for the other, and the last four are for the interaction (assuming this order is coded in the design matrix X).  \code{struct} codes how the diagonal of G should be grouped, with each entry indicating how many levels are in a block. Note \code{sum(struct)} must equal the columns of \code{X}. RICHARD TRUE?  
+Following Gelman (2005), effects may grouped into blocks where effects within a single block are exchangable and those across blocks are not.  These blocks correspond to the main effect of a factor or the interaction between factors.  Blocking is implemented by placing constraints on diag(G) as follows.  Consider a design with two factors each with two levels.  There are eight effects (2 main effects for the two levels and 4 interaction effects) which should be grouped into three blocks (one for each main effect, and one for the interaction).  Exchangability within blocks but not across it is given by \eqn{diag(G)=(g_1, g_1, g_2, g_2, g_3, g_3, g_3, g_3, g_3)} where the first two elements are for one main effect, the next two are for the other, and the last four are for the interaction (assuming this order is coded in the design matrix \eqn{X}).  \code{struct} codes how the diagonal of \eqn{G} should be grouped, with each entry indicating how many levels are in a block. Note \code{sum(struct)} must equal the number of non-constant columns of \code{X}.  
 
-A Jeffries prior is placed on \eqn{\mu} and \eqn{\sigma^2}.  Independent scaled inverse-chi-square priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_r}, where \eqn{r} is the number of blocks.  The square-root of the scale for g's is given in \code{rscale}.
+A Jeffreys prior is placed on \eqn{\mu} and \eqn{\sigma^2}.  Independent scaled inverse-chi-square priors with one degree of freedom are placed on \eqn{g_1,\ldots,g_r}, where \eqn{r} is the number of blocks.  The square-root of the scale for \eqn{g}'s is given in \code{rscale}.
 
-The null model is given by \eqn{y= \mu + X \theta +\epsilon}.
+The null model is given by \deqn{y_i = \mu + \epsilon_i} for \eqn{i=1,...,N}.
 
 \code{nWayAOV.Gibbs} returns posterior samples of the parameters, which are computed using Markov-chain Monte Carlo sampling.  
 }
 
 \value{
-With default settings, the Bayes factor for the model relative to the null is returned.  If either \code{samples} or \code{gsamples} are \code{TRUE}, then a list whose first element is as above, and the subsequent elements contains a vector with the samples will be returned.
+With default settings, the Bayes factor for the model relative to the null is returned.  If either \code{samples} or \code{gsamples} are \code{TRUE}, then a list whose first element is as above, and the subsequent elements contain a vector containing the samples.
 }
 
 \references{
@@ -106,14 +103,37 @@ plot(extra ~ group, data = sleep)
 ## traditional ANOVA gives a p value of 0.00283
 summary(aov(extra ~ group + Error(ID), data = sleep))
 
-## Gives a Bayes factor of about 14
-## in favor of the alternative hypothesis
+## Build design matrix
+group.column <- rep(1/c(-sqrt(2),sqrt(2)),each=10)
+subject.matrix <- model.matrix(~sleep$ID - 1,data=sleep$ID)
+X <- cbind(1, group.column, subject.matrix)
+
+## Bayes factor of full model against grand-mean only model
+bf.full <- nWayAOV.MC(y = sleep$extra, X = X, struc = c(1,10), rscale=c(.5,1))
+
+## Build new design matrix so that we can interpret 
+## first beta as difference between means
+group.column <- rep(1/c(-2,2),each=10)
+subject.matrix <- model.matrix(~sleep$ID - 1,data=sleep$ID)
+X <- cbind(1, group.column, subject.matrix)
+
+## Sample from posterior distribution of full model
+## And plot estimated effect of drug
+samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), rscale = c(.5,1), progress = FALSE)
+plot(samples.full[,2])
+
+## Remove subject effect
+X <- cbind(1, subject.matrix)
+## Bayes factor of subject-only model against grand-mean only model
+bf.reduced <- nWayAOV.MC(y = sleep$extra, X = X, struc = 10, rscale=1)
+
+## Bayes factor test of drug effect
+bf.full / bf.reduced
+
+## Compare with allNways result (should be about the same)
 allNways(y = sleep$extra,
       dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID), 
-      iterations=10000)
-
-
+      dataRandom = data.frame(sleep$ID))
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

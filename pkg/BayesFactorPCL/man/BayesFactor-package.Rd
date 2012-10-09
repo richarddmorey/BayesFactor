@@ -1,28 +1,33 @@
-\name{BayesFactorPCL-package}
-\alias{BayesFactorPCL-package}
-\alias{BayesFactorPCL}
+\name{BayesFactor-package}
+\alias{BayesFactor-package}
+\alias{BayesFactor}
 \docType{package}
 \title{
 Functions to compute Bayes factor hypothesis tests for common research designs and hypotheses.
 }
 \description{
 This package contains function to compute Bayes factors for a number of research designs and hypotheses, including
-$t$ tests, ANOVA, and linear regression. 
+t tests, ANOVA, and linear regression. 
 }
 \details{
 \tabular{ll}{
-Package: \tab BayesFactorPCL\cr
+Package: \tab BayesFactor\cr
 Type: \tab Package\cr
-Version: \tab 0.6\cr
-Date: \tab 2010-11-03\cr
+Version: \tab 0.8.1\cr
+Date: \tab 2012-10-03\cr
 License: \tab GPL 2.0\cr
 LazyLoad: \tab yes\cr
 }
-The following functions are currently implemented, with more to follow:
+The following methods are currently implemented, with more to follow:
 
-ttest.Quad(): Computes a Bayes factor for one- and two-sample designs
+Linear regression: \code{\link{linearReg.Quad}}
 
-oneWayAOV.Quad(): Computes a Bayes factor for one-way ANOVA-type designs
+t test: \code{\link{ttest.Quad}}, \code{\link{ttest.Gibbs}}
+
+One-way ANOVA: \code{\link{oneWayAOV.Quad}}, \code{\link{oneWayAOV.Gibbs}}
+
+General ANOVA: \code{\link{nWayAOV.MC}}, \code{\link{nWayAOV.Gibbs}}, \code{\link{allNways}}
+
 }
 \author{
 Richard D. Morey and Jeffrey N. Rouder
@@ -40,7 +45,7 @@ Perception and Cognition Lab (University of Missouri): Bayes factor calculators.
 }
 \keyword{htest}
 \seealso{
-\code{\link[BAS:BAS-package]{BAS}} ~~
+\code{\link[BAS:BAS-package]{BAS}} 
 }
 \examples{
 ## See specific functions for examples

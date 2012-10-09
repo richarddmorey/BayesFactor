@@ -1,13 +1,13 @@
 logMeanExpLogs = function(v)
 {
 	N = length(v)
-	.Call("RLogMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
+	.Call("RLogMeanExpLogs", as.numeric(v), N, package="BayesFactor")
 }
 
 logCumMeanExpLogs = function(v)
 {
 	N = length(v)
-	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactorPCL")
+	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactor")
 }
 
 testNwaymLike = function(g,y,Xm)
@@ -25,7 +25,7 @@ testNwaymLike = function(g,y,Xm)
 		t(Xc)%*%y,
 		var(y)*(N-1),
 		N, P, g, 
-		package="BayesFactorPCL") - m0
+		package="BayesFactor") - m0
 }
 
 nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL, logbf=FALSE){
@@ -95,7 +95,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	gMap = as.integer(inverse.rle(list(values = (1:nGs)-1, lengths = struc)))
 	
 	returnList = .Call("RjeffSamplerNwayAov", iterations, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b,
-				as.integer(progress), pbFun, new.env(), package="BayesFactorPCL")
+				as.integer(progress), pbFun, new.env(), package="BayesFactor")
 
 	if(progress) close(pb);
 	
@@ -158,7 +158,7 @@ ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2),null.interval=NULL,prog
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	
 	chains = .Call("RgibbsOneSample", y, N, rscale, iterations, do.interval, interval,
-				progress, pbFun, new.env(), package="BayesFactorPCL")
+				progress, pbFun, new.env(), package="BayesFactor")
 
 	if(progress) close(pb);
 	priorDens = 1/(pi*rscale)
@@ -206,7 +206,7 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1, progress=TRUE, gibi=NULL
     }
 	
 	output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
-				progress, pbFun, new.env(), package="BayesFactorPCL")
+				progress, pbFun, new.env(), package="BayesFactor")
 	
 	if(progress & is.null(gibi)) close(pb);
 	rownames(output[[1]]) = c("mu",paste("alpha",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			

@@ -1,5 +1,4 @@
 # Taken from the WLE package source by Claudio Agostinelli <claudio at unive.it>
-
 binary <- function(x, dim) {
 
    if (x==0) {
@@ -151,7 +150,7 @@ nWayAOV2 = function(modNum,env, logFunction = cat, progress, rscaleFixed, rscale
   flush.console()
   X = joined.design(modNum,env=env)
   y = env$y
-  g.groups = joined.design(modNum,env=env,other="g")
+  g.groups = unlist(joined.design(modNum,env=env,other="g"))
   my.name = paste(joined.design(modNum,env=env,other="n"),collapse=" + ")
   dataRandom = env$dataRandom
     if(!is.null(dataRandom)){
