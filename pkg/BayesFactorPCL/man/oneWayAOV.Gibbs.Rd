@@ -1,4 +1,5 @@
 \name{oneWayAOV.Gibbs}
+\alias{oneWayAOV}
 \alias{oneWayAOV.Gibbs}
 \alias{oneWayAOV.Quad}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -10,9 +11,9 @@ Functions for Bayesian analysis of one-way designs
 one-way designs, using Gibbs sampling; \code{oneWayAOV.Quad} computes Bayes factors for balanced designs.
 }
 \usage{
-oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1/2, progress = TRUE, gibi=NULL, logbf = FALSE)
-
 oneWayAOV.Quad(F, N, J, rscale = 1/2, logbf = FALSE)
+
+oneWayAOV.Gibbs(y, iterations = 10000, rscale = 1/2, progress = TRUE, gibi=NULL, logbf = FALSE)
 }
 \arguments{
   \item{y}{
@@ -83,6 +84,37 @@ Richard D. Morey
 }
 
 \examples{
+## Example data "InsectSprays" - see ?InsectSprays
+require(stats); require(graphics)
+boxplot(count ~ spray, data = InsectSprays,
+        xlab = "Type of spray", ylab = "Insect count",
+        main = "InsectSprays data", varwidth = TRUE, col = "lightgray")
+
+## Classical analysis (with transformation)
+classical <- aov(sqrt(count) ~ spray, data = InsectSprays)
+plot(classical)
+summary(classical)
+
+## Bayes factor (a very large number)
+Fvalue <- anova(classical)$"F value"[1]
+oneWayAOV.Quad(Fvalue, N=12, J=6)
+
+#### Sampling from posterior
+## First, create data matrix
+y <- matrix(sqrt(InsectSprays[,1]), 12, 6)
+
+## Sample, and plot estimates
+samples <- oneWayAOV.Gibbs(y, progress = FALSE)[[1]]
+postMeans <- colMeans(samples)
+postSD <- apply(samples,2,sd)[2:7]
+
+# Plot
+cellMeans <- postMeans[1] + postMeans[2:7]
+plot(cellMeans, pch=19, ylim = c(0,5.5),xlim=c(0,7), axes=FALSE, ylab="Insect Count", xlab="Spray", main="Bayesian analysis\nPosterior means (with SDs)")
+arrows(1:6, cellMeans - postSD,1:6, cellMeans + postSD, code=3, angle=90)
+axis(2, at=sqrt(0:6*5), lab=0:6*5)
+axis(1, at=1:6, lab=LETTERS[1:6])
+box()
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

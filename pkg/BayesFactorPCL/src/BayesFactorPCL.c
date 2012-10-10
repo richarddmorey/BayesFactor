@@ -619,25 +619,8 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	
 	int iOne=1;
 	double dZero=0;
-	
-	/* debug stuff 
-	SEXP debugSigmas, debugMus;
-	PROTECT(debugMus = allocMatrix(REALSXP, J+1, iterations));
-	PROTECT(debugSigmas = alloc3Darray(REALSXP,J+1,J+1,iterations));
-	double *cDebugSigmas = REAL(debugSigmas);
-	double *cDebugMus = REAL(debugMus);
-	
-	
-	SEXP R_mvtnormCall,SigmaR,MuR,mvtArgs,mvtnormSamp;
-	PROTECT(R_mvtnormCall = lang2(mvtnorm, R_NilValue));
-	PROTECT(SigmaR = allocMatrix(REALSXP, J+1, J+1));
-	PROTECT(MuR = allocMatrix(REALSXP, J+1, 1));
-	PROTECT(mvtArgs = allocVector(VECSXP, 2));
-	PROTECT(mvtnormSamp = allocVector(VECSXP,1));
-	 end debug stuff */
-	
-	
-	
+		
+
 	// progress stuff
 	SEXP sampCounter, R_fcall;
 	int *pSampCounter;
@@ -661,7 +644,6 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	{
 		j = whichJ[i];
 		ySum[j] += y[i];
-		//Rprintf("%d %d %f\n",j,whichJ[i],y[i]);
 		sumy2[j] += y[i]*y[i];
 		grandSum += y[i];
 		grandSumSq += y[i]*y[i];
@@ -710,22 +692,6 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		oneOverSig2temp = 1/sig2;
 		F77_CALL(dsymv)("U", &Jp1, &oneOverSig2temp, Btemp, &Jp1, Xty, &iOne, &dZero, beta, &iOne);
 		
-		//AZERO(beta,Jp1);
-		/* for debugging 
-		Memcpy(cDebugMus + m*Jp1,beta,Jp1);
-		Memcpy(cDebugSigmas + m*Jp1sq,Btemp,Jp1sq);
-		
-	
-		Memcpy(REAL(SigmaR),Btemp,Jp1sq);
-		Memcpy(REAL(MuR),beta,Jp1);
-		
-		SET_VECTOR_ELT(mvtArgs, 0, MuR);
-		SET_VECTOR_ELT(mvtArgs, 1, SigmaR);
-
-		SETCADR(R_mvtnormCall, mvtArgs);
-		SET_VECTOR_ELT(mvtnormSamp, 0, eval(R_mvtnormCall, rho)); // Get sample
-		Memcpy(beta,REAL(VECTOR_ELT(mvtnormSamp,0)),Jp1);
-		 end debugging */
 		rmvGaussianC(beta, Btemp, J+1);
 		Memcpy(&chains[npars*m],beta,J+1);	
 		
@@ -796,11 +762,6 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	CMDE[1] = logSumDouble - log(iterations);
 	CMDE[2] = log(kahanSumSingle) - log(iterations);
 	CMDE[3] = log(kahanSumDouble) - log(iterations);
-	
-	/* for debugging 
-	SET_VECTOR_ELT(debug, 0, debugMus);
-    SET_VECTOR_ELT(debug, 1, debugSigmas);
-	 end debugging */
 	
 	UNPROTECT(2);
 	PutRNGstate();

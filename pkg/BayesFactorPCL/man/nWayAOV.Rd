@@ -1,5 +1,6 @@
 \name{nWayAOV.MC}
 \alias{nWayAOV.MC}
+\alias{nWayAOV}
 \alias{nWayAOV.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
