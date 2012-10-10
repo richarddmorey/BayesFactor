@@ -1,4 +1,4 @@
-useDynLib(BayesFactorPCL)
+useDynLib(BayesFactor)
 
 export( ttest.Gibbs,
 		ttest.Quad,
