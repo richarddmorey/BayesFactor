@@ -146,7 +146,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP R
 
 SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP progressR, SEXP pBar, SEXP rho)
 {
-	double *a,*b,*Xty,*XtX,*samples,*X, *y, *r;
+	double *Xty,*XtX,*samples,*X, *y, *r;
 	int iters,nGs,*gMap,N,P,progress;
 
 	SEXP Rsamples;
@@ -180,10 +180,10 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN,
 void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,k=0, nPars=3+P+nGs, P1Sq=(P+1)*(P+1), P1=P+1, iOne=1;
-	double *g1, Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
+	double Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
 	
 	double g[nGs], beta[P+1], sig2, yTemp[N], SSqG[nGs],bTemp,nParG[nGs];
-	double betaSub[P], SigSub[P*P], logCMDE;
+	//double betaSub[P], SigSub[P*P], logCMDE;
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -281,7 +281,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		Memcpy(chains + nPars*i,beta,P+1);	
 		chains[nPars*i+P+1] = sig2;	
 		Memcpy(chains + nPars*i + P + 2,g,nGs);	
-	    chains[nPars*i + P + nGs + 3] = logCMDE;
+	  //chains[nPars*i + P + nGs + 3] = logCMDE;
 		
 	}
 	
