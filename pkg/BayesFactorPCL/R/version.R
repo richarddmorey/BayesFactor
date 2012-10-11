@@ -11,4 +11,4 @@ BFInfo <- function()
   print(myRev)
 	print(myDate)
   invisible()
-}
+} 
