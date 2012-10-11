@@ -146,7 +146,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RXtCy, SEXP RytCy, SEXP R
 
 SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP progressR, SEXP pBar, SEXP rho)
 {
-	double *Xty,*XtX,*samples,*X, *y, *r;
+	double *a,*b,*Xty,*XtX,*samples,*X, *y, *r;
 	int iters,nGs,*gMap,N,P,progress;
 
 	SEXP Rsamples;
@@ -163,7 +163,7 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN,
 	P = INTEGER_VALUE(RP);
 	progress = INTEGER_VALUE(progressR);
 	
-	PROTECT(Rsamples = allocMatrix(REALSXP,iters, 3 + P + nGs));
+	PROTECT(Rsamples = allocMatrix(REALSXP,iters, 2 + P + nGs));
 
 	samples = REAL(Rsamples);
 	
@@ -179,11 +179,10 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RXty, SEXP RN,
 
 void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int progress, SEXP pBar, SEXP rho)
 {
-	int i=0,j=0,k=0, nPars=3+P+nGs, P1Sq=(P+1)*(P+1), P1=P+1, iOne=1;
-	double Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
+	int i=0,j=0,k=0, nPars=2+P+nGs, P1Sq=(P+1)*(P+1), P1=P+1, iOne=1;
+	double *g1, Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
 	
 	double g[nGs], beta[P+1], sig2, yTemp[N], SSqG[nGs],bTemp,nParG[nGs];
-	//double betaSub[P], SigSub[P*P], logCMDE;
 	
 	// progress stuff
 	SEXP sampCounter, R_fcall;
@@ -231,24 +230,9 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		InvMatrixUpper(Sigma,P+1);
 		internal_symmetrize(Sigma,P+1);
 		oneOverSig2 = 1/sig2;
-		F77_CALL(dsymv)("U", &P1, &oneOverSig2, Sigma, &P1, Xty, &iOne, &dZero, beta, &iOne);			
+		F77_CALL(dsymv)("U", &P1, &oneOverSig2, Sigma, &P1, Xty, &iOne, &dZero, beta, &iOne);	
 		rmvGaussianC(beta, Sigma, P+1);
-		
-		//CMDE density
-		// Removed for now...
-    /*
-    for(j=0;j<P;j++){
-			betaSub[j] = beta[j+1];
-			SigSub[j*P+j] = Sigma[(j+1)*(P+1) + (j+1)] - Sigma[j+1] * Sigma[j+1] / Sigma[0];
-			for(k=0;k<j;k++){
-				SigSub[j*P+k] = Sigma[(j+1)*(P+1) + (k+1)] - Sigma[j+1] * Sigma[k+1] / Sigma[0];
-				SigSub[k*P+j] = SigSub[j*P+k];
-			}
-		}
-		logCMDE = -P/2 * log(2 * M_PI) - 0.5 * matrixDet(SigSub, P, P, 1) - 0.5 * quadform(betaSub,SigSub,P,1,P);
-		*/
-    
-    
+				
 		// Sample Sig2
 		SSq = 0;
 		Memcpy(yTemp,y,N);
@@ -281,7 +265,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		Memcpy(chains + nPars*i,beta,P+1);	
 		chains[nPars*i+P+1] = sig2;	
 		Memcpy(chains + nPars*i + P + 2,g,nGs);	
-	  //chains[nPars*i + P + nGs + 3] = logCMDE;
+	
 		
 	}
 	
