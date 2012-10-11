@@ -19,10 +19,10 @@ allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = 
 	A vector of observations	
 }
   \item{dataFixed}{
-A data frame containing the fixed factors, one column per factor. Columns must be factors
+A data frame containing the fixed factors, one column per factor. Columns will be converted to factors if they are not factors already.
 }
   \item{dataRandom}{
-A data frame containing the random factors, one column per factor. Columns must be factors
+A data frame containing the random factors, one column per factor. Columns will be converted to factors if they are not factors already.
 }
   \item{iterations}{
 Number of Monte Carlo samples to perform (see details).  

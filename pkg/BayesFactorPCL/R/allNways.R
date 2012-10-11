@@ -1,5 +1,17 @@
 allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
 {
+  # Convert to factors if needed.
+  dataFixed = data.frame(dataFixed)
+  if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
+    dataFixed <- data.frame(lapply(dataFixed, as.factor))
+    warning("Converted columns of dataFixed to factors.")
+  } 
+  dataRandom = data.frame(dataRandom)
+  if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
+    dataRandom <- data.frame(lapply(dataRandom, as.factor))
+    warning("Converted columns of dataRandom to factors.")
+  } 
+  
   nFac = dim(dataFixed)[2]
   if(nFac==1) only.top=FALSE
   bfEnv = new.env(parent = baseenv())

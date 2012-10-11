@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -e .svn ]; then
-  svnversion -n > inst/SVN_VERSION
-  echo "Wrote version number to SVN_VERSION"
+if [ -e ../../.svn ]; then
+  svnversion -n ../../ > inst/SVN_VERSION
+  echo "Wrote version number to SVN_VERSION."
 fi
