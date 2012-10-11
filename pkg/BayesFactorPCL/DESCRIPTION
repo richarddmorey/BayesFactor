@@ -1,7 +1,7 @@
 Package: BayesFactor
 Type: Package
 Title: Computation of Bayes factors for simple psychological designs
-Version: 0.8.2
+Version: 0.8.3
 Date: 2012-10-11
 Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
