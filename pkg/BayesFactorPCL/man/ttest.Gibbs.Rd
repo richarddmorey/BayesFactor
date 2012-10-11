@@ -101,7 +101,7 @@ t.test(extra ~ group, data = sleep, paired=TRUE)
 
 ## Gives a Bayes factor of about 17
 ## in favor of the alternative hypothesis
-bf <- ttest.Quad(t = -4.0621, n1 = 10)
+ttest.Quad(t = -4.0621, n1 = 10)
 
 
 ## Compute difference scores for one-sample test
