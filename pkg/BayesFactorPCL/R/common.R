@@ -1,3 +1,5 @@
+mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
+
 dinvgamma = function (x, shape, scale = 1) 
 {
     if (shape <= 0 | scale <= 0) {

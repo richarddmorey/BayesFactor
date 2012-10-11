@@ -9,7 +9,7 @@ Function to compute the Bayes factors in an ANOVA design
 This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = FALSE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = FALSE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
     
 }
 
@@ -38,12 +38,14 @@ If \code{TRUE}, a text progress bar is displayed for each model analyzed.
 \item{rscaleRandom}{
 The prior scale of effect size for factors that are treated as random.}
 
-
-
-
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
+\item{multicore}{
+If \code{TRUE}, and the \code{\link[doMC:doMC-package]{doMC}} 
+ package is installed, the function will attempt to use multiple cores. Number of cores is set by options(cores).
+}
+
 \item{...}{
 Additional arguments to pass to \code{\link{nWayAOV.MC}}
 }
@@ -93,7 +95,7 @@ It is possible to reduce the number of models tested by only testing the most co
 
 }
 \seealso{
-\code{\link{nWayAOV.MC}}, \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}
+\code{\link{nWayAOV.MC}}, \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}, \code{\link[doMC:doMC-package]{doMC}}, \code{\link{options}}
 }
 \examples{
 ## Classical example, taken from t.test() example

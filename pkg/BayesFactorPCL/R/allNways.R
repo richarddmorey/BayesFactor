@@ -1,4 +1,4 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=FALSE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, ...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=FALSE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
 {
   nFac = dim(dataFixed)[2]
   if(nFac==1) only.top=FALSE
@@ -12,7 +12,12 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
 
-  allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+  
+  if(multicore){
+    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+  }else{
+    allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+  }
   bfs = as.numeric(allResults[1,])
   names(bfs) = allResults[2,]
   bfs = c(null=0,bfs)
@@ -49,6 +54,36 @@ all.Nways.env = function(env, only.top=FALSE,progress=progress, rscaleFixed=rsca
 	}
 	return(sapply(modNums,nWayAOV2,env=env,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...))
 }
+
+
+#### Multi core version
+all.Nways.env.mc = function(env, only.top=FALSE,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+  if(!require(doMC)){
+    warning("Required package (doMC) missing for multicore functionality. Falling back to single core functionality.")
+    allResults <- all.Nways.env(env=env, only.top=only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    return(allResults)
+  }  
+  
+  registerDoMC()
+  if(getDoParWorkers()==1){
+    warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
+  }
+  
+  data = env$dataFixed
+  nFac = dim(data)[2]
+  topMod = ((2^(2^nFac-1))-1)
+  if(!only.top){
+    modNums = 1:topMod
+  }else{
+    nDig = 2^nFac-1
+    mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
+    modNums <- as.list(mods)
+  }
+  bfs = foreach(i=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(i,env=env,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...) 
+  
+  return(bfs)
+}
+
 
 
 nWayAOV2 = function(modNum,env, logFunction = cat, progress, rscaleFixed, rscaleRandom, ...)
