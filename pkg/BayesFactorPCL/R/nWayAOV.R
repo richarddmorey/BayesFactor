@@ -141,10 +141,22 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
 								  package="BayesFactor")
 
   if(progress) close(pb);
-	dim(chains) <- c(2 + p + length(struc), iterations)
+	dim(chains) <- c(3 + p + length(struc), iterations)
 	chains = mcmc(t(chains))  
-	labels = c("mu",paste("beta",1:p,sep="_"),"sig2",paste("g",1:length(struc),sep="_"))
+	labels = c("mu",paste("beta",1:p,sep="_"),"sig2",paste("g",1:length(struc),sep="_"),"CMDE")
 	colnames(chains) = labels
-	return(chains)
+	
+  # Bayes Factor
+  #altDens <- logMeanExpLogs(chains[,length(labels)])
+  #if(length(rscale)>1){
+  #  rscaleMat <- diag(rep(rscale^2,times=struc))
+  #}else{
+  #  rscaleMat <- rscale^2 * diag(p)
+  #}
+  #nullDens <- dmvt(rep(0,p),rep(0,p),rscaleMat,log=TRUE)
+  #cat("\nBayes factor: ",exp(altDens - nullDens),"\n")
+  chains[,length(labels)] = NA
+  
+  return(chains)
 }
 

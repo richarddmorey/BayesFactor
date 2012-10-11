@@ -120,7 +120,7 @@ X <- cbind(1, group.column, subject.matrix)
 
 ## Sample from posterior distribution of full model
 ## And plot estimated effect of drug
-samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), rscale = c(.5,1), progress = FALSE)
+samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), rscale = c(0.5,1), progress = FALSE)
 plot(samples.full[,2])
 
 ## Remove subject effect
