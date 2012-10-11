@@ -134,7 +134,7 @@ bf.full / bf.reduced
 ## Compare with allNways result (should be about the same)
 allNways(y = sleep$extra,
       dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID))
+      dataRandom = data.frame(sleep$ID), progress=FALSE)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -9,7 +9,7 @@ Function to compute the Bayes factors in an ANOVA design
 This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = FALSE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = TRUE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
     
 }
 
@@ -31,7 +31,7 @@ Number of Monte Carlo samples to perform (see details).
 If \code{FALSE}, then all nested submodels will be compared.  If \code{TRUE}, then only the first level of a top-down strategy of comparing submodels missing a single covariate is implemented.  \code{TRUE} is the default because the comparisons are analogous to classical ANOVA, and this option dramatically cuts down the computation time (see details).
 }
 \item{progress}{
-If \code{TRUE}, a text progress bar is displayed for each model analyzed. 
+If \code{TRUE}, a text progress bar is displayed. Currently unavailable if \code{multicore=TRUE}.
 }
 \item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed.
 }
@@ -110,7 +110,7 @@ summary(aov(extra ~ group + Error(ID/group), data = sleep))
 ## in favor of the alternative hypothesis
 allNways(y = sleep$extra,
       dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID))
+      dataRandom = data.frame(sleep$ID), progress=FALSE)
 
 
 }

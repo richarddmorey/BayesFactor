@@ -1,4 +1,4 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=FALSE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
 {
   nFac = dim(dataFixed)[2]
   if(nFac==1) only.top=FALSE
@@ -24,7 +24,10 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   	
   if(!is.null(dataRandom))
   {
-  	nullMod = as.numeric(nWayAOV2(0,bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)[1])
+  	nullMod = as.numeric(
+                nWayAOV2(0,bfEnv,iterations=iterations, only.top, 
+                      rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)[1]
+                )
   	bfs = bfs - nullMod
 	bfs[1] = 0
   }
@@ -41,7 +44,7 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   }
 }
 
-all.Nways.env = function(env, only.top=FALSE,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+all.Nways.env = function(env, only.top=FALSE, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
   data = env$dataFixed
 	nFac = dim(data)[2]
 	topMod = ((2^(2^nFac-1))-1)
@@ -52,7 +55,12 @@ all.Nways.env = function(env, only.top=FALSE,progress=progress, rscaleFixed=rsca
 		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
 		modNums <- as.list(mods)
 	}
-	return(sapply(modNums,nWayAOV2,env=env,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...))
+  if(progress){
+    results <- pbsapply(modNums,nWayAOV2,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...)     
+  }else{
+    results <- sapply(modNums,nWayAOV2,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...)
+  }
+	return(results)
 }
 
 
@@ -79,17 +87,44 @@ all.Nways.env.mc = function(env, only.top=FALSE,progress=progress, rscaleFixed=r
     mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
     modNums <- as.list(mods)
   }
-  bfs = foreach(i=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(i,env=env,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...) 
   
+  # Taken from http://stackoverflow.com/questions/10984556/is-there-way-to-track-progress-on-a-mclapply
+  # Multicore progress bar: does not work!
+  if(progress){
+    bfs <- local({
+      f <- fifo(tempfile(), open="w+b", blocking=TRUE)
+      if (inherits(fork(), "masterProcess")) {
+        # Child
+        progressSoFar <- 0.0
+        cat(progressSoFar,"\n")
+        while (progressSoFar < 1 & !isIncomplete(f)) {
+          msg <- readBin(f, "double")
+          progressSoFar <- progressSoFar + as.numeric(msg)
+          cat(sprintf("Progress: %.2f%%\n", progressSoFar * 100))
+        } 
+        exit()
+      }
+      numJobs <- length(modNums)
+      progressCallback = function(){
+        writeBin(1/numJobs, f)
+      }
+    
+      bfs <- foreach(i=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(i,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, progressCallback = progressCallback,...) 
+    
+      close(f)
+      bfs
+    })
+  }else{
+    # No progress bar
+    bfs <- foreach(i=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(i,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...) 
+  }  
   return(bfs)
 }
 
 
 
-nWayAOV2 = function(modNum,env, logFunction = cat, progress, rscaleFixed, rscaleRandom, ...)
+nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL, ...)
 {
-  #logFunction(paste(modNum,"\n"))
-  flush.console()
   X = joined.design(modNum,env=env)
   y = env$y
   g.groups = unlist(joined.design(modNum,env=env,other="g"))
@@ -100,10 +135,14 @@ nWayAOV2 = function(modNum,env, logFunction = cat, progress, rscaleFixed, rscale
   }else{
     gr.groups = NULL
   } 
-  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=FALSE,logbf=TRUE, progress=progress, 
+  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=FALSE,logbf=TRUE, progress=FALSE, 
   						rscale = c(rscaleFixed + g.groups*0, rscaleRandom=rscaleRandom + gr.groups*0),...), 
   						my.name)
   names(bfs)=my.name
+  
+  if(is.function(progressCallback)){
+    progressCallback()
+  }
   
   return(bfs)
 }
