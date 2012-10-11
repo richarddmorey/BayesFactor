@@ -1,8 +1,8 @@
 Package: BayesFactor
 Type: Package
 Title: Computation of Bayes factors for simple psychological designs
-Version: 0.8.2.$Rev$
-Date: $Date$
+Version: 0.8.2
+Date: 2012-10-11
 Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactor package is a suite of functions for computing various Bayes factors for simple psychological designs, including the one- and two-sample designs, one-way designs, general ANOVA designs, and linear regression.
