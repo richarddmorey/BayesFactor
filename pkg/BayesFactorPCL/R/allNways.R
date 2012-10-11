@@ -14,7 +14,7 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
 
   
   if(multicore){
-    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, only.top, progress=FALSE, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }else{
     allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }
