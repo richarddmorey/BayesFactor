@@ -9,4 +9,5 @@ export( ttest.Gibbs,
 		nWayAOV.Gibbs, 
 		allNways, 
 		logMeanExpLogs, 
-		logCumMeanExpLogs)
+		logCumMeanExpLogs,
+    BFInfo)
