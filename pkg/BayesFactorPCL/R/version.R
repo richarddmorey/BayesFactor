@@ -10,4 +10,5 @@ BFInfo <- function()
   myDate <- substr(myDate,2,nDate-1)
   print(myRev)
 	print(myDate)
+  invisible()
 }
