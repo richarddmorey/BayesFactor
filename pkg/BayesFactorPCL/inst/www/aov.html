@@ -1,0 +1,48 @@
+<html>
+	<head>
+		<title>Test</title>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script type="text/javascript" src="js/functions.js"></script>
+		<script type="text/javascript" src="js/values.js"></script>
+	</head>
+	<body>
+		<div id="effectsTableContainer">
+			<table id="effectsTable">
+				<thead>
+					<tr>
+						<th>&nbsp; </th>
+						<th>Select</th>
+						<th>Name</th>
+					</tr>
+				<thead>
+				<tbody id="effectsTableBody">
+				</tbody>
+			</table>
+		</div>
+		<div id="bfTableContainer">
+			<table id="bfTable">
+				<thead>
+					<tr>
+						<th>&nbsp; </th>
+						<th>Base model</th>
+						<th>Model</th>
+						<th>Bayes factor</th>
+						<th id="logTH"> Bayes factor</th>
+						<th>Iterations</th>
+					</tr>
+				<thead>
+				<tbody id="bfTableBody">
+				</tbody>
+			</table>
+		</div>
+		<div id="bfImageContainer">
+		</div>
+		<script>
+			$(document).ready(function() {
+  				setup();
+  				listEffects();
+  				listBayesFactors(bayesFactors);
+			});
+		</script>
+	</body>
+</html>

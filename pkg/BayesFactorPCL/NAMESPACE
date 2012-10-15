@@ -10,4 +10,5 @@ export( ttest.Gibbs,
 		allNways, 
 		logMeanExpLogs, 
 		logCumMeanExpLogs,
-    BFInfo)
+    BFInfo,
+    aovGUI)

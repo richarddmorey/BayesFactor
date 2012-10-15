@@ -247,6 +247,7 @@ other.design = function(effNum,fixed=TRUE,env,type="g")
   if(type=="g"){
     return(df)
   }else if(type=="n"){
+    my.names <- gsub(":", "-", my.names, fixed=TRUE)
     return(paste(my.names,collapse=":"))
   }
 }
