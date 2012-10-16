@@ -2,7 +2,7 @@ rookEnv <- new.env(parent=emptyenv())
   
 aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   # clean up old GUI
-  if(exists("aov",envir=rookEnv)){
+  if(exists("aov$s",envir=rookEnv)){
     stopAovGUI()
   }
   
@@ -21,8 +21,10 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   } 
   
   rookEnv$aov$bfEnv = new.env(parent = rookEnv$aov)
+  rookEnv$aov$bfEnv$doneBFs = c(null=0)
   rookEnv$aov$bfEnv$nFac = dim(dataFixed)[2]
   rookEnv$aov$bfEnv$designMatrices = list()
+  rookEnv$aov$bfEnv$designMatrices[[ 2 ^ rookEnv$aov$bfEnv$nFac ]] = matrix(nrow=0,ncol=0)
   rookEnv$aov$bfEnv$dataFixed = dataFixed
   rookEnv$aov$bfEnv$y = y
   rookEnv$aov$bfEnv$totalN = length(as.vector(y))
@@ -44,6 +46,72 @@ stopAovGUI <- function(){
   rm(aov, envir=rookEnv)
 }
 
+setJSONdata <- function(req, res){
+  if(req$GET()$what=="fixed"){
+    res$write(toJSON(
+      rookEnv$aov$bfEnv$allEffects
+    ))  
+  }
+  if(req$GET()$what=="random"){
+    res$write(toJSON(
+      names(rookEnv$aov$bfEnv$dataRandom)
+    ))  
+  }
+  if(req$GET()$what=="nFac"){
+    res$write(toJSON(
+      rookEnv$aov$bfEnv$nFac
+    ))  
+  }
+  if(req$GET()$what=="analysis"){
+    if(is.null(req$GET()$model)){
+      res$write(toJSON("Error"))  
+      res$finish()
+      return()
+    }else{
+      modNum <- as.integer(req$GET()$model)
+    }   
+    
+       if( modNum==0 & is.null(rookEnv$aov$bfEnv$dataRandom)){
+           returnList <- list(
+             model = 0,
+             name = "null",
+             bf = 1,
+             isBase = FALSE,
+             iterations = "",
+             rscaleFixed = "",
+             rscaleRandom = ""             
+           )
+         res$write(toJSON(
+           returnList
+         ))  
+       }
+       
+       rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
+       rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
+       iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
+       bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
+             rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
+             iterations = iterations)[1]
+       modelName = ifelse(modNum==0, "null", names(bf))
+       
+       rookEnv$aov$bfEnv$doneBFs[[modelName]] = as.numeric(bf)
+       
+       returnList <- list(
+            model = modNum,
+            name = modelName,
+            bf = as.numeric(bf),
+            isBase = FALSE,
+            iterations = iterations,
+            rscaleFixed = rscaleFixed,
+            rscaleRandom = rscaleRandom
+         )
+        res$write(toJSON(
+            returnList
+       ))  
+  }
+  res$finish()
+}
+
 aovApp <- Builder$new(
   Static$new(
     urls = '/www',
@@ -56,39 +124,37 @@ aovApp <- Builder$new(
       if (is.null(req$GET()$what)){
         res$finish()
         return()
+      }else{
+        setJSONdata(req, res)
       }
-      if(req$GET()$what=="fixed"){
-        res$write(toJSON(
-          rookEnv$aov$bfEnv$allEffects
-            ))  
-      }
-      if(req$GET()$what=="random"){
-        res$write(toJSON(
-          names(rookEnv$aov$bfEnv$dataRandom)
-        ))  
-      }
-      if(req$GET()$what=="nFac"){
-        res$write(toJSON(
-          rookEnv$aov$bfEnv$nFac
-        ))  
-      }
-      res$finish()
     },
     '^/.*\\.png$' = function(env){
       req <- Request$new(env)
       res <- Response$new()
       res$header('Content-type','image/png')
-      if (is.null(req$GET()$n)){
-        n <- 100
-      } else {
-        n <- as.integer(req$GET()$n)
-      }
+      if (length(rookEnv$aov$bfEnv$doneBFs) == 0){
+        res$finish()
+        return()
+      } 
+      baseBF <- ifelse(is.null(req$GET()$baseBF), 0, as.numeric(req$GET()$baseBF))
+      bfs <- unlist(rookEnv$aov$bfEnv$doneBFs) - baseBF
+      
       t <- tempfile()
       png(file=t)
-      png(t,width=200,height=200)
-      par(mar=rep(0,4))
-      plot(rnorm(n),col=rainbow(n,alpha=runif(n,0,1)),pch='.',cex=c(2,3,4,5,10,50))
+      png(t,width=800,height=300)
+      
+      rng <- range(bfs/log(10))
+      yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
+      ygrids <- seq(yaxes[1], yaxes[length(yaxes)], .1)
+      
+      par(mar=c(4,20,1,1),las=1)
+      barplot(sort(bfs/log(10)),horiz=TRUE, axes=FALSE, xlim=range(yaxes))
+      axis(1, at = yaxes, lab=10^yaxes)
+      abline(v=0)
+      abline(v=ygrids,col="gray",lty=2)
       dev.off()
+      
+      
       res$body <- t
       names(res$body) <- 'file'
       res$finish()
