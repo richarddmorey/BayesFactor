@@ -79,7 +79,9 @@ setJSONdata <- function(req, res){
              isBase = FALSE,
              iterations = "",
              rscaleFixed = "",
-             rscaleRandom = ""             
+             rscaleRandom = "",
+             duration = "",
+             time = format(Sys.time(), "%H:%M:%S")
            )
          res$write(toJSON(
            returnList
@@ -89,9 +91,11 @@ setJSONdata <- function(req, res){
        rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
        rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
        iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
-       bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
-             rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
-             iterations = iterations)[1]
+       duration <- system.time({
+          bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
+               rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
+               iterations = iterations)[1]
+       })[[3]]
        modelName = ifelse(modNum==0, "null", names(bf))
        
        rookEnv$aov$bfEnv$doneBFs[[modelName]] = as.numeric(bf)
@@ -103,7 +107,9 @@ setJSONdata <- function(req, res){
             isBase = FALSE,
             iterations = iterations,
             rscaleFixed = rscaleFixed,
-            rscaleRandom = rscaleRandom
+            rscaleRandom = rscaleRandom,
+            duration = duration,
+            time = format(Sys.time(), "%H:%M:%S")
          )
         res$write(toJSON(
             returnList

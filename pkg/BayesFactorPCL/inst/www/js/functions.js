@@ -34,6 +34,9 @@ function listBayesFactors(){
 										  '<td>' + bayesFactors[i].iterations + '</td>' +
 										  '<td>' + bayesFactors[i].rscaleFixed + '</td>' +
 										  '<td>' + bayesFactors[i].rscaleRandom + '</td>' +
+										  '<td>' + bayesFactors[i].time + '</td>' +
+										  '<td>' + bayesFactors[i].duration + '</td>' +
+
 										  '</tr>'
 										  );
 	}
