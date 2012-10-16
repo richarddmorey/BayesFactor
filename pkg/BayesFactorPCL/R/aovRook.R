@@ -81,7 +81,8 @@ setJSONdata <- function(req, res){
              rscaleFixed = "",
              rscaleRandom = "",
              duration = "",
-             time = format(Sys.time(), "%H:%M:%S")
+             time = format(Sys.time(), "%H:%M:%S"),
+             timestamp = as.integer(Sys.time())
            )
          res$write(toJSON(
            returnList
@@ -109,7 +110,8 @@ setJSONdata <- function(req, res){
             rscaleFixed = rscaleFixed,
             rscaleRandom = rscaleRandom,
             duration = duration,
-            time = format(Sys.time(), "%H:%M:%S")
+            time = format(Sys.time(), "%H:%M:%S"),
+            timestamp = as.integer(Sys.time())
          )
         res$write(toJSON(
             returnList

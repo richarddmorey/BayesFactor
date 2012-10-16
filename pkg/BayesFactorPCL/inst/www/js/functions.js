@@ -7,12 +7,15 @@ function setup(){
 	});
 }
 
-function listBayesFactors(){
+function listBayesFactors( sortby ){
 	var i;
 	var n = bayesFactors.length;
 	var checked;
 	$('#bfTableBody').html('');
 	var baseBF = baseBayesFactor();
+	
+	sortby = (typeof sortby === "undefined") ? "bf" : sortby;
+	bayesFactors.sort(dynSort(sortby));
 	
 	for(i = 0; i < n; i++){
 		if(bayesFactors[i].isBase){
@@ -36,11 +39,22 @@ function listBayesFactors(){
 										  '<td>' + bayesFactors[i].rscaleRandom + '</td>' +
 										  '<td>' + bayesFactors[i].time + '</td>' +
 										  '<td>' + bayesFactors[i].duration + '</td>' +
-
+										  '<td id="delete-' + i + '">DELETE</td>' +
 										  '</tr>'
 										  );
+		$('#delete-' + i ).click( deleteRow );		
 	}
 	$("input[name=baseM]").change( changeBase );
+}
+
+function deleteRow() {
+	i = this.id.split("-")[1];
+	if(!bayesFactors[i].isBase){
+		bayesFactors.splice(i,1);
+		listBayesFactors();
+	}else{
+		alert("Can't delete the base model. Choose another base first.");
+	}
 }
 
 function changeBase(){
@@ -151,8 +165,37 @@ function baseBayesFactor(){
 	return(bayesFactors[whichBase].bf);
 }
 
+function extractBayesFactors(){
+	allBFs = [];
+	var i;
+	var baseBF = baseBayesFactor();
+	for(i=0;i<bayesFactors.length;i++){
+			allBFs.push( 
+				[ Math.exp( (bayesFactors[i].bf - baseBF) ), i ]
+			);
+	}
+	return(allBFs);
+}
+
+function extractNames(){
+	allNames = [];
+	var i;
+	var baseBF = baseBayesFactor();
+	for(i=0;i<bayesFactors.length;i++){
+			allNames.push( bayesFactors[i].name );
+	}
+	return(allNames);
+}
+
 function makePlot()
 {
 	var baseBF = baseBayesFactor();
 	$("#bfImageContainer").html("<img src='/custom/aov/bf.png?baseBF=" + baseBF + "'/>");
 }
+
+function dynSort(property) {
+    return function (a,b) {
+        return (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    }
+}
+
