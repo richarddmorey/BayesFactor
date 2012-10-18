@@ -1,12 +1,9 @@
 rookEnv <- new.env(parent=emptyenv())
   
 aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
-  # clean up old GUI
-  if(exists("aov$s",envir=rookEnv)){
-    stopAovGUI()
+  if(!exists("aov",envir=rookEnv)){
+    rookEnv$aov <- new.env(parent = rookEnv)
   }
-  
-  rookEnv$aov <- new.env(parent = rookEnv)
   
   # Convert to factors if needed.
   dataFixed = data.frame(dataFixed)
@@ -21,7 +18,6 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   } 
   
   rookEnv$aov$bfEnv = new.env(parent = rookEnv$aov)
-  rookEnv$aov$bfEnv$doneBFs = c(null=0)
   rookEnv$aov$bfEnv$nFac = dim(dataFixed)[2]
   rookEnv$aov$bfEnv$designMatrices = list()
   rookEnv$aov$bfEnv$designMatrices[[ 2 ^ rookEnv$aov$bfEnv$nFac ]] = matrix(nrow=0,ncol=0)
@@ -33,11 +29,12 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   rookEnv$aov$bfEnv$allEffects = sapply(1:(2^rookEnv$aov$bfEnv$nFac-1),
                                         other.design,env=rookEnv$aov$bfEnv,type='n')
   
-  rookEnv$aov$s <- Rhttpd$new()
-  ## Not run: 
-  rookEnv$aov$s$start(quiet=TRUE)
-  rookEnv$aov$s$add(name="aov",
-        app=aovApp)
+  if(!exists("s",envir=rookEnv$aov)){
+    rookEnv$aov$s <- Rhttpd$new()
+    rookEnv$aov$s$start(quiet=TRUE)
+    rookEnv$aov$s$add(name="aov",
+          app=aovApp)
+  }
   rookEnv$aov$s$browse("aov")
 }
 
@@ -49,7 +46,9 @@ stopAovGUI <- function(){
 setJSONdata <- function(req, res){
   if(req$GET()$what=="fixed"){
     res$write(toJSON(
-      rookEnv$aov$bfEnv$allEffects
+      list(effects=rookEnv$aov$bfEnv$allEffects,
+           nFac=rookEnv$aov$bfEnv$nFac
+      )
     ))  
   }
   if(req$GET()$what=="random"){
@@ -75,6 +74,7 @@ setJSONdata <- function(req, res){
            returnList <- list(
              model = 0,
              name = "null",
+             niceName = "null",
              bf = 1,
              isBase = FALSE,
              iterations = "",
@@ -98,12 +98,11 @@ setJSONdata <- function(req, res){
                iterations = iterations)[1]
        })[[3]]
        modelName = ifelse(modNum==0, "null", names(bf))
-       
-       rookEnv$aov$bfEnv$doneBFs[[modelName]] = as.numeric(bf)
-       
+              
        returnList <- list(
             model = modNum,
             name = modelName,
+            niceName = modelName,
             bf = as.numeric(bf),
             isBase = FALSE,
             iterations = iterations,
@@ -140,26 +139,41 @@ aovApp <- Builder$new(
       req <- Request$new(env)
       res <- Response$new()
       res$header('Content-type','image/png')
-      if (length(rookEnv$aov$bfEnv$doneBFs) == 0){
+      if (is.null(req$params()$BFobj)){
         res$finish()
         return()
-      } 
-      baseBF <- ifelse(is.null(req$GET()$baseBF), 0, as.numeric(req$GET()$baseBF))
-      bfs <- unlist(rookEnv$aov$bfEnv$doneBFs) - baseBF
+      }
+      textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
+      logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
+      
+      # Parse Bayes factors from JSON and put them in data.frame
+      bfs <- fromJSON(req$GET()$BFobj)
+      bfs <- merge_recurse(lapply(bfs,data.frame))
+      
+      baseBF <- bfs$bf[bfs$isBase]
+      bfs$bf <- bfs$bf - baseBF
       
       t <- tempfile()
       png(file=t)
-      png(t,width=800,height=300)
+      png(t,width=700,height=350)
       
-      rng <- range(bfs/log(10))
+      rng <- range(bfs$bf/log(logBase))
       yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
       ygrids <- seq(yaxes[1], yaxes[length(yaxes)], .1)
       
+      if(textLogBase=="ln"){
+        tickLab <- paste("exp(",yaxes,")",sep="")
+        tickLab[yaxes==0] = "1"
+      }else{
+        tickLab <- logBase^yaxes
+        tickLab[yaxes<0] = paste("1/",logBase^abs(yaxes[yaxes<0]),sep="")
+      }
+      
       par(mar=c(4,20,1,1),las=1)
-      barplot(sort(bfs/log(10)),horiz=TRUE, axes=FALSE, xlim=range(yaxes))
-      axis(1, at = yaxes, lab=10^yaxes)
+      barplot(sort(bfs$bf/log(logBase)), names.arg=bfs$niceName[order(bfs$bf)], horiz=TRUE, axes=FALSE, xlim=range(yaxes))
+      axis(1, at = yaxes, lab=tickLab, las=2)
       abline(v=0)
-      abline(v=ygrids,col="gray",lty=2)
+      if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
       dev.off()
       
       

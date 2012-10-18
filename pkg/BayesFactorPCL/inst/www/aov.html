@@ -3,75 +3,127 @@
 <html>
 	<head>
 		<title>Test</title>
+		<link type="text/css" href="css/bf.css" rel="stylesheet" media="all" />
   
+  		<!-- styles needed by jScrollPane -->
+		<link type="text/css" href="css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+
     	<script type="text/javascript" src="js/jquery/jquery.min.js"></script>
+
+		<!-- the mousewheel plugin - optional to provide mousewheel support -->
+		<script type="text/javascript" src="js/jquery/jquery.mousewheel.js"></script>
+
+		<!-- the jScrollPane script -->
+		<script type="text/javascript" src="js/jquery/jquery.jscrollpane.min.js"></script>
+  
 		
 		<script type="text/javascript" src="js/functions.js"></script>
 		<script type="text/javascript" src="js/values.js"></script>
 	</head>
 	<body>
-		<div id="effectsTableContainer">
-			<table id="effectsTable">
-				<thead>
-					<tr>
-						<th>&nbsp; </th>
-						<th>Select</th>
-						<th>Name</th>
-					</tr>
-				<thead>
-				<tbody id="effectsTableBody">
-				</tbody>
-			</table>
+		<div id="optionsContainer" class="dropdowndiv">
+			<div id="analysisOptions">
+				<div id="iterationsDiv">
+					Iterations:
+					<select id="nIterations">
+  						<option value="1000">1,000</option>
+  						<option value="10000">10,000</option>
+  						<option value="100000">100,000</option>
+  						<option value="1000000">1,000,000</option>
+					</select>
+				</div>
+				<div id="rfixed" class="rscale">  
+					r scale, fixed effects<input type='text' id="rscaleFixed" value="0.5" size=4 width=5/>
+				</div>
+				<div id="rrandom" class="rscale">  
+					r scale, random effects <input type='text' id="rscaleRandom" value="1.0" size=4 width=5/>
+				</div>
+			</div>
+			<div class="optionsDivider"></div>
+			<div id="displayOptions">
+				<div>Round numbers to&nbsp; 
+					<select id="roundTo">
+  						<option value="0">0</option>
+  						<option value="2" selected="selected">2</option>
+  						<option value="4">4</option>
+  						<option value="8">8</option>
+					</select>
+				&nbsp;digits
+				</div>
+				<div>Logarithm:
+					<select id="logBase">
+  						<option value="2">log2</option>
+  						<option value="2.71828182845904523536">ln</option>
+  						<option value="10" selected="selected">log10</option>
+					</select>
+				</div>
+				<div>
+					Extra Columns:<input type="checkbox" value="on" id="extraColsToggle"/>
+				</div>
+			</div>
+			<div class="clear"></div>
 		</div>
-		<div id="optionsContainer">
-		Iterations:
-			<select id="nIterations">
-  				<option value="1000">1,000</option>
-  				<option value="10000">10,000</option>
-  				<option value="100000">100,000</option>
-  				<option value="1000000">1,000,000</option>
-			</select>
-			<br/>
-			r scale: 
-			<br/>
-			fixed<input type='text' id="rscaleFixed" value="0.5" size=4 width=5/>
-			<br/>
-			random<input type='text' id="rscaleRandom" value="1.0" size=4 width=5/>
+		<div id="showdiv" title="drop the div down"><span id="optionsContainerIcon">[+]</span> Options</div>	
+		<div id="topdiv">
+			<div id="effectsStuff">
+				<div>
+					<span id="effectsSelectNone" class="effectsSelect">[Select none]</span>
+					<span id="effectsSelectAll" class="effectsSelect">[Select all]</span>
+				</div>
+				<div id="effectsTableContainer">
+					<table id="effectsTable">
+						<thead>
+							<tr>
+								<th>&nbsp; </th>
+								<th>Name</th>
+								<th>Added?</th>
+							</tr>
+						<thead>
+						<tbody id="effectsTableBody">
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="bfImageContainer">
+			</div>
+			<div class="clear">
+			</div>
 		</div>
 		<div id="analyzeButtonContainer">
 			<input type="button" value="Analyze selected model" id="analyzeSelectedButton" />
+			<input type="button" value="Analyze all models" id="analyzeAllButton" />
+			<input type="button" value="Analyze top models" id="analyzeTopButton" />
+			<input type="button" value="Clear analyses" id="clearButton" />
 		</div>
-		
 		<div id="bfTableContainer">
 			<table id="bfTable">
 				<thead>
 					<tr>
-						<th>&nbsp; </th>
-						<th>Base model</th>
-						<th>Model</th>
-						<th>Bayes factor</th>
-						<th id="logTH"> Bayes factor</th>
-						<th>Iterations</th>
-						<th>r scale (fixed)</th>
-						<th>r scale (random)</th>
-						<th>time</th>
-						<th>duration</th>
-						<th>delete?</th>
+						<th scope="col">Model #</th>
+						<th scope="col">Base?</th>
+						<th scope="col">Name</th>
+						<th scope="col">Model</th>
+						<th scope="col" onClick="listBayesFactors('bf');">Bayes factor</th>
+						<th scope="col" onClick="listBayesFactors('bf');"><span id="logTHspan"></span> Bayes factor</th>
+						<th scope="col">Iterations</th>
+						<th scope="col">r scale (fixed)</th>
+						<th scope="col">r scale (random)</th>
+						<th scope="col" onClick="listBayesFactors('timestamp');">time</th>
+						<th scope="col">duration</th>
+						<th scope="col">delete?</th>
 					</tr>
 				<thead>
 				<tbody id="bfTableBody">
 				</tbody>
 			</table>
 		</div>
-		<div id="bfImageContainer">
-		</div>
-		<div id="messages">
-		</div>
 		<script>
 			$(document).ready(function() {
   				setup();
+  				
   				listEffects();
   				analyzeModel( 0 );
+  				
 			});
 		</script>
 	</body>

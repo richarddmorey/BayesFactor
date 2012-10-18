@@ -1,0 +1,157 @@
+.clear { clear: both;}
+
+#displayOptions
+{
+	height: 100%;
+	float: left;
+}
+
+.optionsDivider
+{
+	height: 100%;
+	float: left;
+	width: 50px;
+}
+
+#analysisOptions
+{
+	height: 100%;
+	float: left;
+}
+
+body{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	background-color:#DDDDFF;
+}
+
+#optionsContainerIcon{
+	font-size: 130%;
+}
+
+#showdiv{
+	width: 100%
+	text-align: right;
+	font-size: 130%;
+	cursor: pointer;
+	margin-bottom: 20px;
+	border-bottom: 1px solid #B1B1B1;
+	background-color: white;
+}
+
+
+.dropdowndiv{
+	width:100%;
+	height: 60px;
+	background-color:#FEFEFE;
+	margin:0px !important;
+	display:none;
+}
+
+.deleteButton{
+	color: #FF0000 !important;
+	font-size: 200%;
+	text-align: center;
+	cursor: pointer;
+}
+
+#effectsStuff
+{
+	float: left;
+	width: 400px;
+	height: 350px;
+	display:inline;
+}
+
+#bfImageContainer
+{
+	width: 700px;
+	height: 350px;
+	float: right;
+	border:1px solid black;
+	background-color: white;
+}
+
+#effectsTableContainer
+{
+	width: 100%;
+	height: 300px;
+	overflow: auto;
+}
+
+
+#topdiv
+{
+	width:  1200px;
+	height:  355px;
+}
+
+
+#bfTableContainer
+{
+	width: 1200px;
+	height: 400px;
+	overflow: auto;
+}
+
+table{
+	text-align: left;
+	border-collapse: collapse;
+}
+
+#bfTable
+{
+	margin: 15px;
+}
+
+#bfTable th
+{
+	font-size: 14px;
+	font-weight: normal;
+	padding: 6px 4px;
+	color: #039;
+	cursor: pointer;
+}
+
+#bfTable td
+{
+	padding: 2px;
+	color: #669;
+	padding-right:8px;
+	padding-left:8px;
+}
+
+#bfTable .odd
+{
+	background: #e8edff; 
+}
+
+#effectsTable th
+{
+	font-size: 14px;
+	font-weight: normal;
+	padding: 10px 8px;
+	color: #039;
+	cursor: pointer;
+}
+
+#effectsTable td
+{
+	padding: 2px;
+	color: #669;
+}
+
+#effectsTable .effectsTableCategory
+{
+	cursor: pointer;
+	background-color: thistle;
+	border:1px dashed gray;
+}
+
+#analyzeButtonContainer
+{
+	width: 800px;
+	height: 25px;
+}
+
+
