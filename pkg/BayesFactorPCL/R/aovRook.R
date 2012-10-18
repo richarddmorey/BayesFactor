@@ -1,5 +1,16 @@
 rookEnv <- new.env(parent=emptyenv())
   
+newToken <- function(token, returnList)
+{
+  newToken <- list(status="running",
+                   percent=0,
+                   start=as.integer(Sys.time()),
+                   finish=NULL,
+                   returnList=returnList,
+                   token=token)
+  return(newToken)
+}
+
 aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   if(!exists("aov",envir=rookEnv)){
     rookEnv$aov <- new.env(parent = rookEnv)
@@ -25,6 +36,7 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   rookEnv$aov$bfEnv$y = y
   rookEnv$aov$bfEnv$totalN = length(as.vector(y))
   rookEnv$aov$bfEnv$dataRandom = dataRandom  
+  rookEnv$aov$status <- list()
   
   rookEnv$aov$bfEnv$allEffects = sapply(1:(2^rookEnv$aov$bfEnv$nFac-1),
                                         other.design,env=rookEnv$aov$bfEnv,type='n')
@@ -49,74 +61,121 @@ setJSONdata <- function(req, res){
       list(effects=rookEnv$aov$bfEnv$allEffects,
            nFac=rookEnv$aov$bfEnv$nFac
       )
-    ))  
+    ))
+    return(res$finish())
   }
   if(req$GET()$what=="random"){
     res$write(toJSON(
       names(rookEnv$aov$bfEnv$dataRandom)
     ))  
+    return(res$finish())
   }
   if(req$GET()$what=="nFac"){
     res$write(toJSON(
       rookEnv$aov$bfEnv$nFac
-    ))  
+    ))
+    return(res$finish())
   }
   if(req$GET()$what=="analysis"){
-    if(is.null(req$GET()$model)){
-      res$write(toJSON("Error"))  
-      res$finish()
-      return()
-    }else{
-      modNum <- as.integer(req$GET()$model)
-    }   
+    token <- req$GET()$token
+    model <- req$GET()$model
     
-       if( modNum==0 & is.null(rookEnv$aov$bfEnv$dataRandom)){
-           returnList <- list(
-             model = 0,
-             name = "null",
-             niceName = "null",
-             bf = 1,
-             isBase = FALSE,
-             iterations = "",
-             rscaleFixed = "",
-             rscaleRandom = "",
-             duration = "",
-             time = format(Sys.time(), "%H:%M:%S"),
-             timestamp = as.integer(Sys.time())
-           )
-         res$write(toJSON(
-           returnList
-         ))  
-       }
-       
-       rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
-       rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
-       iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
-       duration <- system.time({
-          bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
-               rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
-               iterations = iterations)[1]
-       })[[3]]
-       modelName = ifelse(modNum==0, "null", names(bf))
-              
-       returnList <- list(
-            model = modNum,
-            name = modelName,
-            niceName = modelName,
-            bf = as.numeric(bf),
-            isBase = FALSE,
-            iterations = iterations,
-            rscaleFixed = rscaleFixed,
-            rscaleRandom = rscaleRandom,
-            duration = duration,
-            time = format(Sys.time(), "%H:%M:%S"),
-            timestamp = as.integer(Sys.time())
-         )
+    if(!is.null(token)){
+      tokenContent <- rookEnv$aov$status[[token]]
+      if(is.null(tokenContent)){
         res$write(toJSON(
-            returnList
-       ))  
+          list(token=-1)
+        ))  
+        return(res$finish())
+      }else{
+        res$write(toJSON(
+          rookEnv$aov$status[[token]]
+        ))
+        return(res$finish())
+      }
+    }
+    if(is.null(model)){
+      res$write(toJSON(
+        list(token=-1)
+      ))  
+      return(res$finish())
+    }  
+    
+    token <- substring(tempfile(tmpdir=""),5)
+    
+    rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
+    rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
+    iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
+    
+    
+    modNum <- as.integer(model)
+    modelName = ifelse(modNum==0, "null", 
+                       paste(joined.design(modNum, env=rookEnv$aov$bfEnv, other="n"), collapse=" + "))
+    
+    if( modNum==0 & is.null(rookEnv$aov$bfEnv$dataRandom)){
+      returnList <- list(
+        model = 0,
+        name = "null",
+        niceName = "null",
+        bf = 1,
+        isBase = FALSE,
+        iterations = "",
+        rscaleFixed = "",
+        rscaleRandom = "",
+        duration = "",
+        time = format(Sys.time(), "%H:%M:%S"),
+        timestamp = as.integer(Sys.time()),
+        token = token,
+        status = "done"
+      )
+      rookEnv$aov$status[[token]]$status = "done"
+      rookEnv$aov$status[[token]]$percent = 100
+      rookEnv$aov$status[[token]]$finish = as.integer(Sys.time())
+    }else{
+      returnList <- list(
+        model = modNum,
+        name = modelName,
+        niceName = modelName,
+        bf = NULL,
+        isBase = FALSE,
+        iterations = iterations,
+        rscaleFixed = rscaleFixed,
+        rscaleRandom = rscaleRandom,
+        duration = "",
+        time = format(Sys.time(), "%H:%M:%S"),
+        timestamp = as.integer(Sys.time()),
+        token = token
+      )
+    }
+    
+    gibi <- function(percent){
+      rookEnv$aov$status[[token]]$percent <- percent
+    }
+    
+    rookEnv$aov$status[[token]] <- newToken(token, returnList)
+    res$write(toJSON(
+      rookEnv$aov$status[[token]]
+    ))
+    
+    finish <- res$finish()
+    if(rookEnv$aov$status[[token]]$status == "done") return(finish)
+    
+    
+    duration <- system.time({
+      bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
+                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
+                     iterations = iterations, progress=TRUE, gibi=gibi)[1]
+    })[[3]]
+    
+    
+    rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
+    rookEnv$aov$status[[token]]$returnList$duration <- duration
+    rookEnv$aov$status[[token]]$status = "done"
+    rookEnv$aov$status[[token]]$percent = 100
+    rookEnv$aov$status[[token]]$finish = as.integer(Sys.time())
+    
+    return(finish)
   }
-  res$finish()
 }
 
 aovApp <- Builder$new(
@@ -129,10 +188,10 @@ aovApp <- Builder$new(
       req <- Request$new(env)
       res <- Response$new()
       if (is.null(req$GET()$what)){
-        res$finish()
-        return()
+        return(res$finish())
       }else{
-        setJSONdata(req, res)
+        finish <- setJSONdata(req, res)
+        return(finish)
       }
     },
     '^/.*\\.png$' = function(env){
@@ -140,8 +199,7 @@ aovApp <- Builder$new(
       res <- Response$new()
       res$header('Content-type','image/png')
       if (is.null(req$params()$BFobj)){
-        res$finish()
-        return()
+        return(res$finish())
       }
       textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
       logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)

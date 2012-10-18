@@ -67,7 +67,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	returnList = .Call("RjeffSamplerNwayAov", iterations, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b,
 				as.integer(progress), pbFun, new.env(), package="BayesFactor")
 
-	if(progress) close(pb);
+	if(inherits(pb,"txtProgressBar")) close(pb);
 	
 	bf = returnList[[1]] - nullLike
 	if(!logbf)

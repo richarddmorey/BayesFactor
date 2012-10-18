@@ -94,10 +94,9 @@ function listBayesFactors( sortby ){
 	var n = bayesFactors.length;
 	var checked;
 	var base = $('#logBase').val();
-	
+
 	$('#bfTableBody').html('');
 	if(n<1) {return;}
-
 	var baseBF = baseBayesFactor();
 	
 	if(typeof sortby !== "undefined"){
@@ -115,9 +114,10 @@ function listBayesFactors( sortby ){
 						" value='" + i + "' " + 
 						"/>";
 		
-		$('#bfTableBody').append('<tr>' +
+		$('#bfTableBody').append('<tr id="bfRow-' + i +  '">' +
 										  '<td>' + bayesFactors[i].model + '</td>' +
 										  '<td>' + checkBox + '</td>' +
+										  '<td><div class="progressBar"></div></td>' +
 										  '<td id="niceName-' + i +  '">' + bayesFactors[i].niceName + '</td>' +
 										  '<td>' + bayesFactors[i].name + '</td>' +
 										  '<td class="roundMe">' + Math.exp( bayesFactors[i].bf - baseBF ) + '</td>' +
@@ -145,6 +145,16 @@ function listBayesFactors( sortby ){
 	$(".roundMe").each( roundCell );
 	$('#bfTableContainer').data('jsp').reinitialise();
 	checkExtraCols();
+}
+
+function changeProgress(token,percent)
+{
+	var row = tokenRow(token);
+	if(percent==100){
+		$("#bfRow-" + row).find('.progressBar').html(percent + "%");
+	}else{
+		$("#bfRow-" + row).find('.progressBar').html(percent + "%");
+	}
 }
 
 function roundCell(){
@@ -297,30 +307,83 @@ function analyzeModel(whichModel, plot) {
 			rscaleFixed: rscaleFixed,
 			rscaleRandom: rscaleRandom
 		},
-		function(data) { setResults(data, plot); });
+		function(data) { getToken(data, plot); });
+}
+
+function getToken(data, plot) {
+	var token = data.token;
+	var percent = parseInt(data.percent);
+	
+	if(data.status=="done"){
+		setResults(data, plot);
+		changeProgress(token,percent);
+	}else{
+		if(token==-1){
+			alert("BayesFactor error: Invalid token response from Rook.")
+			return;
+		}
+
+		setResults(data, false);
+		changeProgress(token,percent);
+	
+		setTimeout( function(){ 
+			$.getJSON("/custom/aov/data?", 
+				{
+					what: "analysis",
+					token: token
+				}, function(data){ getToken(data,plot); }
+			);
+		}, progressPollTime);
+	}	
 }
 
 function setResults(data, plot) {
-	bayesFactors.push(data);
-	if(bayesFactors.length == 1){
-		bayesFactors[0].isBase = true;
+	var row = tokenRow(data.token);
+	if(row == null){
+		bayesFactors.push(data.returnList);
+		if(bayesFactors.length == 1){
+			bayesFactors[0].isBase = true;
+		}
+		update(false);
+	}else if(data.status=="done"){
+		var base = bayesFactors[row].isBase;
+		bayesFactors[row] = data.returnList;
+		bayesFactors[row].isBase = base;
+		if(bayesFactors.length == 1){
+			bayesFactors[0].isBase = true;
+		}
+		update(plot);
 	}
-	update(plot);
 }
 
+
 function baseBayesFactor(which){
-	var whichBase; 
+	var whichBase=-1; 
 	var i;
 	for(i=0;i<bayesFactors.length;i++){
 		if(bayesFactors[i].isBase){
 			whichBase = i;
+			break;
 		}
 	}
 	if(which=="index"){
 		return(whichBase);
+	}else if (whichBase == -1){
+		return(0);
 	}else{
 		return(bayesFactors[whichBase].bf);
 	}
+}
+
+function tokenRow(token){
+	var which; 
+	var i;
+	for(i=0;i<bayesFactors.length;i++){
+		if(bayesFactors[i].token == token){
+			return(i);
+		}
+	}
+	return(null);
 }
 
 
