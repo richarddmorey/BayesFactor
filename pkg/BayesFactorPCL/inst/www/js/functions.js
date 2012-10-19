@@ -1,3 +1,23 @@
+
+// http://stackoverflow.com/questions/6967975/how-to-generate-and-append-a-random-string-using-jquery
+function randString(n)
+{
+    if(!n)
+    {
+        n = 5;
+    }
+
+    var text = '';
+    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    for(var i=0; i < n; i++)
+    {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return text;
+}
+
 // http://stackoverflow.com/questions/2595835/how-to-hide-table-columns-in-jquery
 function hideExtraColumns() {
 	$.each(advCols, function(index, value){
@@ -53,6 +73,7 @@ function setup(){
 		listBayesFactors();
 	});
 
+	$.ajaxSetup({ cache:false });
 }
 
 function toggleOptions(){
@@ -294,10 +315,14 @@ function chosenModel(){
 
 function analyzeModel(whichModel, plot) {
 	plot = (typeof plot === "undefined") ? "true" : plot;
-
+	var token = "a" + randString(10);
+	
 	var iterations = $("#nIterations").val();
 	var rscaleFixed = $("#rscaleFixed").val();
 	var rscaleRandom = $("#rscaleRandom").val();
+	
+	addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRandom)
+	update(false);
 	
 	$.getJSON("/custom/aov/data?", 
 		{
@@ -305,53 +330,64 @@ function analyzeModel(whichModel, plot) {
 			model: whichModel,
 			iterations: iterations,
 			rscaleFixed: rscaleFixed,
-			rscaleRandom: rscaleRandom
+			rscaleRandom: rscaleRandom,
+			token: token
 		},
-		function(data) { getToken(data, plot); });
+		function(data) { setResults(data, plot); });
+		
+		((new Date())+"")
+	
+	intervalRefs[token] = window.setInterval(function(){
+		$.getJSON("/custom/aov/update?", 
+				{
+					token: token,
+					time: ((new Date())+"")
+				}, function(data){ updateProgressHandler(data); }
+			);
+	}, progressPollTime);
+	 
 }
 
-function getToken(data, plot) {
+function updateProgressHandler(data) {
 	var token = data.token;
 	var percent = parseInt(data.percent);
 	
 	if(data.status=="done"){
-		setResults(data, plot);
-		changeProgress(token,percent);
+		window.clearInterval(intervalRefs[token]);
+		return;
 	}else{
 		if(token==-1){
 			alert("BayesFactor error: Invalid token response from Rook.")
 			return;
 		}
-
-		setResults(data, false);
-		changeProgress(token,percent);
-	
-		setTimeout( function(){ 
-			$.getJSON("/custom/aov/data?", 
-				{
-					what: "analysis",
-					token: token
-				}, function(data){ getToken(data,plot); }
-			);
-		}, progressPollTime);
+		
+		bayesFactors[tokenRow(token)].status = percent;
+		changeProgress(token, percent);
 	}	
+}
+
+function addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRandom){
+	bayesFactors.push({
+			model: whichModel,
+			iterations: iterations,
+			rscaleFixed: rscaleFixed,
+			rscaleRandom: rscaleRandom,
+			token: token,
+			isBase: false,
+			status: 0
+	});
+	if(bayesFactors.length == 1){
+		bayesFactors[0].isBase = true;
+	}
 }
 
 function setResults(data, plot) {
 	var row = tokenRow(data.token);
-	if(row == null){
-		bayesFactors.push(data.returnList);
-		if(bayesFactors.length == 1){
-			bayesFactors[0].isBase = true;
-		}
-		update(false);
-	}else if(data.status=="done"){
+	if(data.status=="done"){
 		var base = bayesFactors[row].isBase;
 		bayesFactors[row] = data.returnList;
 		bayesFactors[row].isBase = base;
-		if(bayesFactors.length == 1){
-			bayesFactors[0].isBase = true;
-		}
+		
 		update(plot);
 	}
 }
