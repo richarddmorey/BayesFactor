@@ -64,7 +64,6 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 	for(i=0;i<iters;i++)
 	{
 		R_CheckUserInterrupt();
-	
 		
 		//Check progress
 		if(progress && !((i+1)%progress)){

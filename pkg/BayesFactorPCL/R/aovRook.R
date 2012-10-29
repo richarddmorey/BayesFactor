@@ -1,5 +1,71 @@
 rookEnv <- new.env(parent=emptyenv())
+RservePort <- 6401
+RserveArgs <- "--no-save"
+
+getURL <- function(loc){
+  con = url(loc, open = "r")
+  readLines(con)
+  close(con)
+}
+
+RserveCleanup <- function(){
+  if(rookEnv$RserveStatus=="free" & exists("RserveSession", envir=rookEnv)){
+    rookEnv$RserveConnection = RSattach(rookEnv$RserveSession)
+    rm("RserveSession", envir=rookEnv)
+    RSshutdown(rookEnv$RserveConnection)
+    RSclose(rookEnv$RserveConnection)
+    rm("RserveConnection", envir=rookEnv)
+  }
+}
+
+RserveAov2 <- function(tokens,updateURL,...){
+  tryStart = try( { Rserve(port=RservePort,args=RserveArgs) }, silent=TRUE )
+  if(inherits(tryStart, "try-error")) {
+    stopAovGUI()
+    stop("Could not start Rserve.")
+    return()
+  }
+  rookEnv$RserveConnection <- RSconnect(port=RservePort)
   
+  theseArgs = list(...)
+  RSassign(rookEnv$RserveConnection,theseArgs)
+  RSassign(rookEnv$RserveConnection,tokens)
+  RSassign(rookEnv$RserveConnection,updateURL)
+  RSeval(rookEnv$RserveConnection, quote(library(BayesFactor, quietly=TRUE)))
+
+  cmd = parse(text='
+    lastUpdate = 0
+    for(i in 1:length(tokens)){
+      token <- names(tokens)[i]
+      model <- tokens[i]
+      gibi <- function(percent){
+        rightNow = proc.time()[3]
+        timeSince = rightNow - lastUpdate
+        if( timeSince > 0.5){
+          myURL = paste(updateURL, "?token=",token,"&percent=",percent,"&status=running&since=",timeSince, sep="")
+          BayesFactor:::getURL(myURL)
+          lastUpdate <<- rightNow
+        }
+      }
+      theseArgs$modNum = model
+      theseArgs$progress = TRUE
+      theseArgs$gibi=gibi
+      duration <- system.time({
+        bf <- do.call("nWayAOV2", theseArgs)[1]
+      })[[3]]
+      myURL = paste(updateURL, "?token=",token,
+                    "&percent=100&status=done&bf=",bf,
+                    "&duration=",as.numeric(duration),
+                    "&time=",as.integer(Sys.time()),sep="")
+      BayesFactor:::getURL(myURL)
+  }
+  myURL = paste(updateURL, "?status=alldone",sep="")
+  BayesFactor:::getURL(myURL)
+  ')
+  RSassign(rookEnv$RserveConnection,cmd)
+  rookEnv$RserveStatus = "running"
+  rookEnv$RserveSession <- RSevalDetach(rookEnv$RserveConnection, "eval(cmd)")
+}
 
 newToken <- function(token, returnList)
 {
@@ -16,6 +82,8 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
   if(!exists("aov",envir=rookEnv)){
     rookEnv$aov <- new.env(parent = rookEnv)
   }
+  
+  rookEnv$RserveStatus = "free"
   
   # Convert to factors if needed.
   dataFixed = data.frame(dataFixed)
@@ -52,8 +120,16 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
 }
 
 stopAovGUI <- function(){
-  rookEnv$aov$s$remove(all=TRUE)
-  rm(aov, envir=rookEnv)
+  if(exists("RserveConnection",envir=rookEnv)){
+    RSshutdown(rookEnv$RserveConnection)
+    RSclose(rookEnv$RserveConnection)
+    rm("RserveConnection",envir=rookEnv)
+  }
+  
+  if(exists("s",envir=rookEnv$aov)){
+    rookEnv$aov$s$remove(all=TRUE)
+    rm("aov", envir=rookEnv)
+  }
 }
 
 setJSONdata <- function(req, res){
@@ -78,97 +154,104 @@ setJSONdata <- function(req, res){
     return()
   }
   if(req$GET()$what=="analysis"){
-    token <- req$GET()$token
-    model <- req$GET()$model
-   
-    if(is.null(token)){
+    if(rookEnv$RserveStatus!="free"){
+      res$write(toJSON(
+        list(status="busy")
+      )) 
+      return()
+    }
+    
+    tokens <- unlist(strsplit(req$params()$tokens, ","))
+    models <- unlist(strsplit(req$params()$models, ","))
+    
+    if(is.null(tokens)){
       res$write(toJSON(
         list(token=-1)
       )) 
       return()
     }  
-    tokenContent <- rookEnv$aov$status[[token]]
-    if(!is.null(tokenContent)){
+    tokensExist = sapply(tokens,function(e){!is.null(rookEnv$aov$status[[e]])})
+    tokenContent <- rookEnv$aov$status[tokens]
+    
+    if(all(tokensExist)){
       res$write(toJSON(
-        rookEnv$aov$status[[token]]
+        list(status="oldtokens")
       ))
       return()
     } 
-    if(is.null(model)){
+    
+    if(is.null(models)){
       res$write(toJSON(
         list(token=-1)
       ))  
       return()
     }  
     
+    tokens = tokens[!tokensExist]
+    models = models[!tokensExist]
+    
     rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
     rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
     iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
     
-    modNum <- as.integer(model)
-    modelName = ifelse(modNum==0, "null", 
+    tokensToAnalyze = c()
+    modelsToAnalyze = c()
+    
+    for(i in 1:length(models)){
+      modNum <- as.integer(models[i])
+      modelName = ifelse(modNum==0, "null", 
                        paste(joined.design(modNum, env=rookEnv$aov$bfEnv, other="n"), collapse=" + "))
     
-    if( modNum==0 & is.null(rookEnv$aov$bfEnv$dataRandom)){
-      returnList <- list(
-        model = 0,
-        name = "null",
-        niceName = "null",
-        bf = 1,
-        isBase = FALSE,
-        iterations = "",
-        rscaleFixed = "",
-        rscaleRandom = "",
-        duration = "",
-        time = format(Sys.time(), "%H:%M:%S"),
-        timestamp = as.integer(Sys.time()),
-        token = token,
-        status = "done"
-      )
-      rookEnv$aov$status[[token]] <- newToken(token, returnList)
-      rookEnv$aov$status[[token]]$status = "done"
-      rookEnv$aov$status[[token]]$percent = 100
-      rookEnv$aov$status[[token]]$finish = as.integer(Sys.time())
-      
-      res$write(toJSON(rookEnv$aov$status[[token]]))
-      return()
-    }else{
-      returnList <- list(
-        model = modNum,
-        name = modelName,
-        niceName = modelName,
-        bf = NULL,
-        isBase = FALSE,
-        iterations = iterations,
-        rscaleFixed = rscaleFixed,
-        rscaleRandom = rscaleRandom,
-        duration = "",
-        time = format(Sys.time(), "%H:%M:%S"),
-        timestamp = as.integer(Sys.time()),
-        token = token
-      )
-    }
+      if( modNum==0 & is.null(rookEnv$aov$bfEnv$dataRandom)){
+        returnList <- list(
+          model = 0,
+          name = "null",
+          niceName = "null",
+          bf = 1,
+          isBase = FALSE,
+          iterations = "",
+          rscaleFixed = "",
+          rscaleRandom = "",
+          duration = "",
+          time = format(Sys.time(), "%H:%M:%S"),
+          timestamp = as.integer(Sys.time()),
+          token = tokens[i],
+          status = "done"
+        )
+        rookEnv$aov$status[[ tokens[i] ]] <- newToken(tokens[i], returnList)
+        rookEnv$aov$status[[ tokens[i] ]]$status = "done"
+        rookEnv$aov$status[[ tokens[i] ]]$percent = 100
+        rookEnv$aov$status[[ tokens[i] ]]$finish = as.integer(Sys.time())
+      }else{
+        tokensToAnalyze = c(tokensToAnalyze, tokens[i])
+        modelsToAnalyze = c(modelsToAnalyze, modNum)
+        returnList <- list(
+          model = modNum,
+          name = modelName,
+          niceName = modelName,
+          bf = NULL,
+          isBase = FALSE,
+          iterations = iterations,
+          rscaleFixed = rscaleFixed,
+          rscaleRandom = rscaleRandom,
+          duration = "",
+          time = format(Sys.time(), "%H:%M:%S"),
+          timestamp = as.integer(Sys.time()),
+          token = tokens[i]
+        )
+        rookEnv$aov$status[[ tokens[i] ]] <- newToken(tokens[i], returnList)
+      }
+    }        
+      updateURL = paste(rookEnv$aov$s$full_url(1),"/rserve",sep="")
+      names(modelsToAnalyze) = tokensToAnalyze
+      #print(modelsToAnalyze)
     
-    rookEnv$aov$status[[token]] <- newToken(token, returnList)
-    
-    gibi <- function(percent){
-      rookEnv$aov$status[[token]]$percent <- percent
-    }    
-    
-    duration <- system.time({
-      bf <- nWayAOV2(modNum, env = rookEnv$aov$bfEnv, 
-                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom, 
-                     iterations = iterations, progress=TRUE, gibi=gibi)[1]
-    })[[3]]
-    
-    rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
-    rookEnv$aov$status[[token]]$returnList$duration <- duration
-    rookEnv$aov$status[[token]]$status = "done"
-    rookEnv$aov$status[[token]]$percent = 100
-    rookEnv$aov$status[[token]]$finish = as.integer(Sys.time())
-    
-    res$write(toJSON(rookEnv$aov$status[[token]]))
-    
+      RserveAov2(modelsToAnalyze,updateURL, env=rookEnv$aov$bfEnv,
+                 iterations = iterations,
+                 rscaleFixed = rscaleFixed,
+                 rscaleRandom = rscaleRandom)
+         
+    res$write(toJSON(list(status="started")))
     return()
   }
 }
@@ -182,6 +265,7 @@ aovApp <- Builder$new(
     '^/data' = function(env){
       req <- Request$new(env)
       res <- Response$new()
+      RserveCleanup()
       if (is.null(req$GET()$what)){
         return(res$finish())
       }else{
@@ -192,6 +276,8 @@ aovApp <- Builder$new(
     '^/update' = function(env){
       req <- Request$new(env)
       res <- Response$new()
+      RserveCleanup()
+      #cat("Update request:",req$query_string(),"\n")
       token <- req$GET()$token
       if (is.null(token)){
         res$write(toJSON(-1))
@@ -206,9 +292,38 @@ aovApp <- Builder$new(
         return(res$finish())
       }
     },
+    '^/rserve' = function(env){
+      req <- Request$new(env)
+      res <- Response$new()
+      RserveCleanup()
+      #cat("Rserve request:",req$query_string(),"\n")
+      status = req$GET()$status
+      percent = req$GET()$percent
+      token = req$GET()$token
+      if(is.null(token) & status=="alldone"){
+        rookEnv$RserveStatus = "free"
+      }
+      if(!is.null(token) & status=="done"){
+        bf = req$GET()$bf
+        finish = req$GET()$time
+        duration = req$GET()$duration
+        rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
+        rookEnv$aov$status[[token]]$returnList$duration <- duration
+        rookEnv$aov$status[[token]]$status = "done"
+        rookEnv$aov$status[[token]]$percent = 100
+        rookEnv$aov$status[[token]]$finish = as.integer(finish)        
+      }
+      if(!is.null(token) & status=="running"){
+        rookEnv$aov$status[[token]]$status = "running"
+        rookEnv$aov$status[[token]]$percent = req$GET()$percent
+      }
+      res$write(0)
+      return(res$finish())
+    },
     '^/.*\\.png$' = function(env){
       req <- Request$new(env)
       res <- Response$new()
+      RserveCleanup()
       res$header('Content-type','image/png')
       if (is.null(req$params()$BFobj)){
         return(res$finish())

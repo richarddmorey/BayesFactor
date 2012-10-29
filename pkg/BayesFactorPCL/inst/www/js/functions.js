@@ -51,7 +51,7 @@ function setup(){
 	
 	$('#analyzeSelectedButton').click( function(){
 		var whichModel = chosenModel();
-		analyzeModel( whichModel ); 
+		analyzeModels( [ whichModel ] ); 
 	});
 	$('#analyzeAllButton').click( allNways );
 	$('#analyzeTopButton').click( topNways );
@@ -215,40 +215,36 @@ function changeBase(){
 
 function allNways(){
 	$("#bfImageContainer").html("Click to refresh.");
-	$.getJSON("/custom/aov/data?what=nFac", 
-		function(data) { 
-			var nFac = parseInt(data);
-			var i;
-			if(nFac > 4) { return; }
+	var i;
+	if(nFac > 4) { return; }
+	var toAnalyze = [];	
 	
-			var nModels = Math.pow(2, Math.pow(2, nFac) - 1);
-	
-			for(i=0;i<nModels;i++){
-				analyzeModel( i, false );
-			}
-		});	
+	var nModels = Math.pow(2, Math.pow(2, nFac) - 1);
+	for(i=0;i<nModels;i++){
+		toAnalyze.push(i);
+	}
+	analyzeModels( toAnalyze, false );
 }
 
 function topNways(){
 	$("#bfImageContainer").html("Click to refresh.");
-	$.getJSON("/custom/aov/data?what=nFac", 
-		function(data) { 
-			var nFac = parseInt(data);
-			var i, binaryRep;
 	
-			var nChar = Math.pow(2, nFac) - 1;
-			var topModel = Math.pow(2, nChar) - 1;
+	var i, binaryRep;
+	var nChar = Math.pow(2, nFac) - 1;
+	var topModel = Math.pow(2, nChar) - 1;
+	var toAnalyze = [];
 	
-			analyzeModel( topModel, false );
+	toAnalyze.push(topModel);
+	
 			
-			for(i=0;i<nChar;i++){
-				binaryRep = Array(nChar + 1).join("1").split("");
-				binaryRep[i] = "0";
-				binaryRep = binaryRep.join("");
-				analyzeModel( parseInt(binaryRep,2), false );
-			}
-			
-		});	
+	for(i=0;i<nChar;i++){
+		binaryRep = Array(nChar + 1).join("1").split("");
+		binaryRep[i] = "0";
+		binaryRep = binaryRep.join("");
+		toAnalyze.push( parseInt(binaryRep,2));
+	}		
+	analyzeModels( toAnalyze, false );
+
 }
 
 
@@ -257,7 +253,6 @@ function listEffects(){
 	 
 	$.getJSON("/custom/aov/data?what=fixed",
   		function(data) {
- 			var nFac = parseInt(data.nFac);
  			var effectNames = data.effects;
  			var checkBox;
 			var way;
@@ -313,47 +308,70 @@ function chosenModel(){
 	return(whichModel);
 }
 
-function analyzeModel(whichModel, plot) {
+function createTokens(n){
+	var i;
+	var tokens = [];
+	for(i=0;i<n;i++){
+		tokens.push("a" + randString(10));
+	}
+	return(tokens);
+}
+
+function analyzeModels(whichModels, plot) {
 	plot = (typeof plot === "undefined") ? "true" : plot;
-	var token = "a" + randString(10);
+	var tokens = createTokens(whichModels.length);
+	var i;
 	
 	var iterations = $("#nIterations").val();
 	var rscaleFixed = $("#rscaleFixed").val();
 	var rscaleRandom = $("#rscaleRandom").val();
 	
-	addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRandom)
-	update(false);
+	for(i=0;i<whichModels.length;i++){
+		addNewBayesFactor(tokens[i], whichModels[i], iterations, rscaleFixed, rscaleRandom)
+		update(false);
+	}
+	
 	
 	$.getJSON("/custom/aov/data?", 
 		{
 			what: "analysis",
-			model: whichModel,
+			models: whichModels.join(","),
 			iterations: iterations,
 			rscaleFixed: rscaleFixed,
 			rscaleRandom: rscaleRandom,
-			token: token
+			tokens: tokens.join(",")
 		},
-		function(data) { setResults(data, plot); });
+		function(data) { startAnalysis(data, plot); });
 		
-		((new Date())+"")
-	
-	intervalRefs[token] = window.setInterval(function(){
-		$.getJSON("/custom/aov/update?", 
-				{
-					token: token,
-					time: ((new Date())+"")
-				}, function(data){ updateProgressHandler(data); }
-			);
-	}, progressPollTime);
+	$.each(tokens, function(index,token){
+		intervalRefs[token] = window.setInterval(function(){
+			$.getJSON("/custom/aov/update?", 
+					{
+						token: token,
+						time: ((new Date())+"")
+					}, function(data){ updateProgressHandler(data, plot); }
+				);
+		}, progressPollTime);
+	});
 	 
 }
 
-function updateProgressHandler(data) {
+function updateProgressHandler(data, plot) {
 	var token = data.token;
 	var percent = parseInt(data.percent);
 	
 	if(data.status=="done"){
 		window.clearInterval(intervalRefs[token]);
+		var row = tokenRow(data.token);
+	
+		if(data.status=="done"){
+			var base = bayesFactors[row].isBase;
+			bayesFactors[row] = data.returnList;
+			bayesFactors[row].isBase = base;
+		
+			update(plot);
+		}
+
 		return;
 	}else{
 		if(token==-1){
@@ -361,6 +379,7 @@ function updateProgressHandler(data) {
 			return;
 		}
 		
+
 		bayesFactors[tokenRow(token)].status = percent;
 		changeProgress(token, percent);
 	}	
@@ -381,14 +400,13 @@ function addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRan
 	}
 }
 
-function setResults(data, plot) {
-	var row = tokenRow(data.token);
-	if(data.status=="done"){
-		var base = bayesFactors[row].isBase;
-		bayesFactors[row] = data.returnList;
-		bayesFactors[row].isBase = base;
-		
-		update(plot);
+function startAnalysis(data, plot) {
+	if(data.status=="busy"){
+		alert("Busy response from BayesFactor.");
+	}else if(data.status=="started"){
+		//alert("Analyses started.");
+	}else{
+		alert("Invalid response from BayesFactor.");
 	}
 }
 

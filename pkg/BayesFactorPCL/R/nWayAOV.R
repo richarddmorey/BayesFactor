@@ -65,7 +65,7 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 	gMap = as.integer(inverse.rle(list(values = (1:nGs)-1, lengths = struc)))
 	
 	returnList = .Call("RjeffSamplerNwayAov", iterations, XtCX, XtCy, ytCy, N, P, nGs, gMap, a, b,
-				as.integer(progress), pbFun, new.env(), package="BayesFactor")
+				as.integer(iterations/100*progress), pbFun, new.env(), package="BayesFactor")
 
 	if(inherits(pb,"txtProgressBar")) close(pb);
 	

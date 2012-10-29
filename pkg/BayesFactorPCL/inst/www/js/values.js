@@ -8,7 +8,9 @@ var intervalRefs = [ ];
 var base;
 var textBase;
 var bayesFactors = [ ];
+var nFac;
 
 var progressWidth = 200;
 var progressHeight = 50;
+
 

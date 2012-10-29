@@ -122,8 +122,11 @@
 			$(document).ready(function() {
   				setup();
   				
-  				listEffects();
-  				analyzeModel( 0 );
+  				$.getJSON("/custom/aov/data?what=nFac", function(data){
+	  				nFac = parseInt(data);
+	  				listEffects();
+  					analyzeModels( [ 0 ] );		
+  				});
   				
 			});
 		</script>
