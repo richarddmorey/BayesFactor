@@ -4,10 +4,10 @@
 \alias{nWayAOV.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Backend functions to compute a Bayes factors for a specified ANOVA model defined by a design matrix.
+Functions to compute Bayes factors for a specified ANOVA model defined by a design matrix.
 }
 \description{
-This function computes a single Bayes factor for a specified ANOVA model to a null ANOVA model defined by the addition of a grand mean and error terms.}
+These functions computes a single Bayes factor, or estimate parameters, for a specified ANOVA model to a null ANOVA model defined by the addition of a grand mean and error terms.}
 \usage{
     
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
@@ -18,7 +18,7 @@ nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{y}{
+\item{y}{
 	A vector of observations	
 }
 \item{X}{
@@ -55,6 +55,7 @@ Interface for a future graphical user interface (not intended for use by end use
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
+
 }
 \details{
 The models, priors, and methods of computation are provided in Rouder et al. (2012).  	
