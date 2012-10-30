@@ -13,8 +13,8 @@ t tests, ANOVA, and linear regression.
 \tabular{ll}{
 Package: \tab BayesFactor\cr
 Type: \tab Package\cr
-Version: \tab 0.8.3\cr
-Date: \tab 2012-10-11\cr
+Version: \tab 0.8.5\cr
+Date: \tab 2012-10-30\cr
 License: \tab GPL 2.0\cr
 LazyLoad: \tab yes\cr
 }

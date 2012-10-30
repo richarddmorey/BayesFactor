@@ -3,7 +3,7 @@ var progressPollTime = 1000; // time in ms
 var roundTo;
 
 var advCols = [ 0, 6, 7, 8, 9, 10, 11 ];
-var intervalRefs = [ ];
+var intervalRefs;
 
 var base;
 var textBase;

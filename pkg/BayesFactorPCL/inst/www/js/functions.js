@@ -36,7 +36,9 @@ function showExtraColumns() {
 function update(plot){
 		plot = (typeof plot === "undefined") ? true : plot;
 		if(plot) makePlot();
+		makeSaveLink();
 		listBayesFactors();
+		changeProgress();
 }
 
 function changeLogBase(){
@@ -45,7 +47,7 @@ function changeLogBase(){
 }
 
 function setup(){
-
+	setDefaults();
 	changeLogBase();
 	$("#logBase").change( function() { changeLogBase(); update(); } );
 	
@@ -56,6 +58,8 @@ function setup(){
 	$('#analyzeAllButton').click( allNways );
 	$('#analyzeTopButton').click( topNways );
 	$('#clearButton').click( clearAnalyses );
+	$('#cullButton').click( cullAnalyses );
+
 	
 	$('#bfTableContainer').jScrollPane();
 	$('#effectsTableContainer').jScrollPane();
@@ -74,6 +78,45 @@ function setup(){
 	});
 
 	$.ajaxSetup({ cache:false });
+}
+
+function cullAnalyses(plot){
+	var cullLevel = parseFloat($('#cullLevel').val());
+	var culled = [];
+	var baseBF = baseBayesFactor();
+	jQuery.each(bayesFactors, function(index, value){
+		var bf = value.bf - baseBF;
+		if(bf > -Math.log(cullLevel)){
+			culled.push(value);
+		}
+	});
+	bayesFactors = culled;
+	update(plot);
+}
+
+function autoCull(){
+	if($("#autoCull").prop("checked")){
+		cullAnalyses(false);
+	}
+}
+
+function baseIsMax(){
+	var max = Number.NEGATIVE_INFINITY;
+	var whichMax = -1;
+	jQuery.each(bayesFactors, function(index, value){
+		if(value.bf > max){
+			max = value.bf;
+			whichMax = index;
+		}
+	});
+	$('[name=baseM][value="' + whichMax +'"]').attr('checked', 'checked');
+	$('[name=baseM][value="' + whichMax +'"]').trigger('change');
+}
+
+function setBase(){
+	if($("#baseIsMax").prop("checked")){
+		baseIsMax();
+	}
 }
 
 function toggleOptions(){
@@ -135,20 +178,30 @@ function listBayesFactors( sortby ){
 						" value='" + i + "' " + 
 						"/>";
 		
+		var bf, logbf;
+		if(bayesFactors[i].bf == null){
+			bf = "-";
+			logbf = "-";			
+		}else{
+			bf = Math.exp( bayesFactors[i].bf - baseBF );
+			logbf = (bayesFactors[i].bf - baseBF  ) / Math.log(base);
+		}
+		
 		$('#bfTableBody').append('<tr id="bfRow-' + i +  '">' +
 										  '<td>' + bayesFactors[i].model + '</td>' +
 										  '<td>' + checkBox + '</td>' +
-										  '<td><div class="progressBar"></div></td>' +
+										  '<td class="status"><div class="progressBarContainer">' +
+										  		'<div class="progressBar"></div></div>' + bayesFactors[i].status + '</td>' +
 										  '<td id="niceName-' + i +  '">' + bayesFactors[i].niceName + '</td>' +
-										  '<td>' + bayesFactors[i].name + '</td>' +
-										  '<td class="roundMe">' + Math.exp( bayesFactors[i].bf - baseBF ) + '</td>' +
-										  '<td class="roundMe">' + (bayesFactors[i].bf  / Math.log(base) - 
-										  		    baseBF  / Math.log(base)) + '</td>' +
+										  '<td id="name-' + i +  '" class="modelName">' + bayesFactors[i].name + '</td>' +
+										  '<td class="roundMe">' + bf + '</td>' +
+										  '<td class="roundMe">' + logbf + '</td>' +
 										  '<td>' + bayesFactors[i].iterations + '</td>' +
 										  '<td>' + bayesFactors[i].rscaleFixed + '</td>' +
 										  '<td>' + bayesFactors[i].rscaleRandom + '</td>' +
 										  '<td>' + bayesFactors[i].time + '</td>' +
 										  '<td>' + bayesFactors[i].duration + '</td>' +
+										  '<td id="refresh-' + i + '"><img src="img/refresh.png" class="refreshimg"/></td>' +
 										  '<td id="delete-' + i + '">&#10006;</td>' +
 										  '</tr>'
 										  );
@@ -156,10 +209,15 @@ function listBayesFactors( sortby ){
 		if( i%2 ) {
 			$("#bfTableBody > tr").last().addClass("odd");
 		}
+		if(bayesFactors[i].bf == null){
+			$('[name=baseM][value="' + i +'"]').attr('disabled', 'disabled');
+		}
 				
 	}
+	$('td[id^="refresh-"]').click( refreshRow );
 	$('td[id^="delete-"]').click( deleteRow );
 	$('td[id^="delete-"]').addClass( "deleteButton" );		
+	$('td[id^="name-"]').click( selectedModel );
 	$('td[id^="niceName-"]').attr('contentEditable',true);
 	$('td[id^="niceName-"]').blur( changeNiceName );
 	$("input[name=baseM]").change( changeBase );
@@ -168,14 +226,38 @@ function listBayesFactors( sortby ){
 	checkExtraCols();
 }
 
-function changeProgress(token,percent)
+function selectedModel() {
+	var i = this.id.split("-")[1];
+	var mod = parseInt(bayesFactors[i].model);
+	var bin = mod.toString(2);    
+	var ar = bin.split("");
+	var eff;
+	$('input[id^="effect-"]').prop('checked', false);
+	for(i=0;i<ar.length;i++){
+    	eff = ar.length - 1 - i;
+    	if(parseInt(ar[i])){
+       	  $('#effect-' + eff).prop('checked', true);
+    	}
+    }
+	
+}
+
+
+
+
+function changeProgress()
 {
-	var row = tokenRow(token);
-	if(percent==100){
-		$("#bfRow-" + row).find('.progressBar').html(percent + "%");
-	}else{
-		$("#bfRow-" + row).find('.progressBar').html(percent + "%");
-	}
+	$("td.status:contains('%')").each(function(index){
+		var percent = parseInt($(this).text().split("%")[0]);
+		$(this).children('.progressBarContainer').css("height","10px");
+		$(this).children('.progressBarContainer').css("width","100%");
+		$(this).children('.progressBarContainer').css("border","1px solid gray");
+		$(this).find('.progressBar').html("&nbsp;");
+		$(this).find('.progressBar').css("background-color","rgba(0,0,0,0.2)");
+		$(this).find('.progressBar').css("height","100%");
+		$(this).find('.progressBar').css("width",percent/100*40);
+		//$(this).find('.progressBar').css("border","1px solid gray");
+	});
 }
 
 function roundCell(){
@@ -190,6 +272,13 @@ function changeNiceName() {
 	$(this).html($(this).text());
 	makePlot();
 }
+
+function refreshRow() {
+	var i = this.id.split("-")[1];
+	var mod = bayesFactors[i].model;
+	analyzeModels([ mod ], true, [ i ]);
+}
+
 
 function deleteRow() {
 	var i = this.id.split("-")[1];
@@ -223,7 +312,7 @@ function allNways(){
 	for(i=0;i<nModels;i++){
 		toAnalyze.push(i);
 	}
-	analyzeModels( toAnalyze, false );
+	analyzeModels( toAnalyze, true );
 }
 
 function topNways(){
@@ -243,7 +332,7 @@ function topNways(){
 		binaryRep = binaryRep.join("");
 		toAnalyze.push( parseInt(binaryRep,2));
 	}		
-	analyzeModels( toAnalyze, false );
+	analyzeModels( toAnalyze, true );
 
 }
 
@@ -284,7 +373,7 @@ function listEffects(){
 			});
 			
  			$.each(effectNames, function(index,value){
-				checkBox = "<input id='effect:" + index + "' type='checkbox' " + "/>";
+				checkBox = "<input id='effect-" + index + "' type='checkbox' " + "/>";
  				way = value.split(":").length;
  				$('#' + way + "way").after(
  					"<tr class='effectsRow" + way + "way'>" +
@@ -301,8 +390,8 @@ function listEffects(){
 function chosenModel(){
 	var whichModel = 0;
 	var effNum;
-	$('input:checked[id^="effect:"]').each( function() {
-		effNum = parseInt(this.id.split(':')[1]);
+	$('input:checked[id^="effect-"]').each( function() {
+		effNum = parseInt(this.id.split('-')[1]);
 		whichModel += Math.pow(2, effNum);
 	});
 	return(whichModel);
@@ -317,8 +406,10 @@ function createTokens(n){
 	return(tokens);
 }
 
-function analyzeModels(whichModels, plot) {
+function analyzeModels(whichModels, plot, placeat) {
 	plot = (typeof plot === "undefined") ? "true" : plot;
+	placeat = (typeof placeat === "undefined") ? new Array(whichModels.length) : placeat;
+	
 	var tokens = createTokens(whichModels.length);
 	var i;
 	
@@ -327,7 +418,7 @@ function analyzeModels(whichModels, plot) {
 	var rscaleRandom = $("#rscaleRandom").val();
 	
 	for(i=0;i<whichModels.length;i++){
-		addNewBayesFactor(tokens[i], whichModels[i], iterations, rscaleFixed, rscaleRandom)
+		addNewBayesFactor(tokens[i], whichModels[i], iterations, rscaleFixed, rscaleRandom, placeat[i]);
 		update(false);
 	}
 	
@@ -342,59 +433,80 @@ function analyzeModels(whichModels, plot) {
 			tokens: tokens.join(",")
 		},
 		function(data) { startAnalysis(data, plot); });
-		
-	$.each(tokens, function(index,token){
-		intervalRefs[token] = window.setInterval(function(){
-			$.getJSON("/custom/aov/update?", 
-					{
-						token: token,
-						time: ((new Date())+"")
-					}, function(data){ updateProgressHandler(data, plot); }
-				);
-		}, progressPollTime);
-	});
-	 
+
+	intervalRef = window.setInterval(function(){
+		jQuery.getJSON("/custom/aov/update?", 
+				{
+					tokens: tokens.join(","),
+					time: ((new Date())+"")
+				}, function(data){ updateProgressHandler(data, plot); }
+			);
+	}, progressPollTime);
+	
 }
 
 function updateProgressHandler(data, plot) {
-	var token = data.token;
-	var percent = parseInt(data.percent);
+	var tokens = data.tokens;
+	var percents = data.percents;
+	var statuses = data.statuses;
+	var allstatus = data.allstatus;
 	
-	if(data.status=="done"){
-		window.clearInterval(intervalRefs[token]);
-		var row = tokenRow(data.token);
-	
-		if(data.status=="done"){
-			var base = bayesFactors[row].isBase;
-			bayesFactors[row] = data.returnList;
-			bayesFactors[row].isBase = base;
+	var status, percent, row, base;
 		
-			update(plot);
+	jQuery.each(tokens, function(index,token){
+		status = statuses[index];
+		percent = parseInt(percents[index]);
+		row = tokenRow(token);		
+		base = bayesFactors[row].isBase;
+		var oldNiceName = bayesFactors[row].niceName;
+		bayesFactors[row] = jQuery.parseJSON(data.returnLists[index]);
+		
+		// replace nice name with previous (for refreshes)
+		if(oldNiceName !== undefined) bayesFactors[row].niceName = oldNiceName;
+		
+		bayesFactors[row].isBase = base;
+		if(status=="done"){
+			bayesFactors[tokenRow(token)].status = "";
+		}else if(status=="running"){
+			bayesFactors[tokenRow(token)].status = percent + "%";
 		}
-
-		return;
+	});
+	
+	if(allstatus=="done"){
+		window.clearInterval(intervalRef);
+		setBase();
+		autoCull();
+		update(plot);
 	}else{
-		if(token==-1){
-			alert("BayesFactor error: Invalid token response from Rook.")
-			return;
-		}
-		
-
-		bayesFactors[tokenRow(token)].status = percent;
-		changeProgress(token, percent);
-	}	
+		update(false);
+	}
 }
 
-function addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRandom){
-	bayesFactors.push({
+function addNewBayesFactor(token, whichModel, iterations, rscaleFixed, rscaleRandom, placeat){
+	if( ( typeof placeat === "undefined" )  || ( placeat == null ) ){
+		bayesFactors.push({
 			model: whichModel,
 			iterations: iterations,
 			rscaleFixed: rscaleFixed,
 			rscaleRandom: rscaleRandom,
 			token: token,
 			isBase: false,
-			status: 0
-	});
+			status: "0%"
+		});
+	}else if( placeat < bayesFactors.length ){
+		bayesFactors[placeat] = 
+		{
+			model: whichModel,
+			name: bayesFactors[placeat].name,
+			niceName: bayesFactors[placeat].niceName,
+			iterations: iterations,
+			rscaleFixed: rscaleFixed,
+			rscaleRandom: rscaleRandom,
+			token: token,
+			isBase:  bayesFactors[placeat].isBase,
+			status: "0%"
+		} 
+	}
 	if(bayesFactors.length == 1){
 		bayesFactors[0].isBase = true;
 	}
@@ -466,15 +578,39 @@ function extractNames(){
 function makePlot()
 {
 	var base = $('#logBase option:selected').text();
-	if(bayesFactors.length>1){
-		var baseBF = baseBayesFactor();
-		var BFobj = JSON.stringify(bayesFactors);
-		var qstr = $.param({logBase: base, BFobj: BFobj })
-		$("#bfImageContainer").html("<img src='/custom/aov/bf.png?" + qstr + "'/>");
+	var culled = [];
+	jQuery.each(bayesFactors, function(index, value){
+		if(value.bf != null){
+			culled.push(value);
+		}
+	});
+	if(culled.length>1){
+		var BFobj = JSON.stringify(culled);
+		var qstr = jQuery.param({logBase: base, BFobj: BFobj })
+		$("#bfImageContainer").html("<img src='/custom/aov/bfs.png?" + qstr + "'/>");
 	}else{
 		$("#bfImageContainer").html("Analyze models for plot.");
 	}
 }
+
+function makeSaveLink()
+{
+	var base = $('#logBase option:selected').text();
+	var culled = [];
+	jQuery.each(bayesFactors, function(index, value){
+		if(value.bf != null){
+			culled.push(value);
+		}
+	});
+	if(culled.length>0){
+		var BFobj = JSON.stringify(culled);
+		var qstr = jQuery.param({logBase: base, BFobj: BFobj })
+		$("#bfCSVlink").html("<a href='/custom/aov/saveobj?" + qstr + "&which=CSV'>CSV download</a>");
+	}else{
+		$("#bfCSVlink").html("");
+	}
+}
+
 
 function dynSort(property) {
     return function (a,b) {
@@ -482,3 +618,30 @@ function dynSort(property) {
     }
 }
 
+function setDefaults(){
+	jQuery.getJSON('/custom/aov/getdefaults', function(data){
+		$("#rscaleFixed").val(data.rscaleFixed);
+		$("#rscaleRandom").val(data.rscaleFixed);
+		setDefaultIterations(data.iterations);
+	});
+}
+
+function setDefaultIterations(iterations){
+		var found = false;
+		$("#nIterations").children("option").each(function(){
+    		if(parseInt($(this).attr("value")) == iterations){
+    			found = true;
+    		}
+		});
+		if(!found){
+			$("#nIterations").prepend(
+				"<option value='" +iterations + "'>" + numberWithCommas(iterations) + "</option>"
+			);
+		}
+		$("#nIterations").val(iterations);
+}
+
+// From http://stackoverflow.com/questions/2901102/how-to-print-number-with-commas-as-thousands-separators-in-javascript
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

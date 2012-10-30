@@ -78,7 +78,7 @@ newToken <- function(token, returnList)
   return(newToken)
 }
 
-aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
+aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL, iterations = 1000, rscaleFixed=.5, rscaleRandom=1){
   if(!exists("aov",envir=rookEnv)){
     rookEnv$aov <- new.env(parent = rookEnv)
   }
@@ -97,6 +97,7 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL){
     warning("Converted columns of dataRandom to factors.")
   } 
   
+  rookEnv$aov$defaults = list(iterations=iterations, rscaleRandom=rscaleRandom, rscaleFixed=rscaleFixed)
   rookEnv$aov$bfEnv = new.env(parent = rookEnv$aov)
   rookEnv$aov$bfEnv$nFac = dim(dataFixed)[2]
   rookEnv$aov$bfEnv$designMatrices = list()
@@ -190,9 +191,9 @@ setJSONdata <- function(req, res){
     tokens = tokens[!tokensExist]
     models = models[!tokensExist]
     
-    rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), 0.5, as.numeric(req$GET()$rscaleFixed))
-    rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), 1, as.numeric(req$GET()$rscaleRandom))
-    iterations <- ifelse (is.null(req$GET()$iterations), 10000, as.integer(req$GET()$iterations))
+    rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), rookEnv$aov$defaults$rscaleFixed, as.numeric(req$GET()$rscaleFixed))
+    rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), rookEnv$aov$defaults$rscaleRandom, as.numeric(req$GET()$rscaleRandom))
+    iterations <- ifelse (is.null(req$GET()$iterations), rookEnv$aov$defaults$iterations, as.integer(req$GET()$iterations))
     
     tokensToAnalyze = c()
     modelsToAnalyze = c()
@@ -278,17 +279,19 @@ aovApp <- Builder$new(
       res <- Response$new()
       RserveCleanup()
       #cat("Update request:",req$query_string(),"\n")
-      token <- req$GET()$token
-      if (is.null(token)){
-        res$write(toJSON(-1))
-        return(res$finish())
-      }else if(is.null(rookEnv$aov$status[[token]])){
+      if (is.null(req$GET()$tokens)){
         res$write(toJSON(-1))
         return(res$finish())
       }else{  
-        res$write(toJSON(
-          rookEnv$aov$status[[token]]
-        ))
+        tokens <- unlist(strsplit(req$params()$tokens, ","))
+        percents <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$percent},USE.NAMES = FALSE)
+        statuses <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$status},USE.NAMES = FALSE)
+        allstatus <- ifelse(all(statuses=="done"),"done","running")
+        returnLists <- sapply(tokens, function(e){ toJSON(rookEnv$aov$status[[e]]$returnList)},USE.NAMES = FALSE)      
+        retJSON = list(
+          tokens=tokens, percents=percents, statuses=statuses, allstatus=allstatus, returnLists=returnLists
+        )
+        res$write(toJSON(retJSON,asIs=TRUE))
         return(res$finish())
       }
     },
@@ -320,7 +323,53 @@ aovApp <- Builder$new(
       res$write(0)
       return(res$finish())
     },
-    '^/.*\\.png$' = function(env){
+    '^/getdefaults' = function(env){
+      req <- Request$new(env)
+      res <- Response$new()
+      RserveCleanup()
+      res$write(toJSON(rookEnv$aov$defaults))
+      res$finish()
+    },
+    '^/saveobj' = function(env){
+      req <- Request$new(env)
+      res <- Response$new()
+      RserveCleanup()
+            
+      if (is.null(req$params()$BFobj)){
+        return(res$finish())
+      }
+      textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
+      logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
+      
+
+      # Parse Bayes factors from JSON and put them in data.frame
+      bfs <- fromJSON(req$GET()$BFobj)
+      if(length(bfs)>1){
+        bfs <- merge_recurse(lapply(bfs,data.frame))
+      }else{
+        bfs <- data.frame(bfs) 
+      }
+      
+      baseBF <- bfs$bf[bfs$isBase]
+      bfs[[paste("logbf.",textLogBase,sep="")]] <- (bfs$bf - baseBF) / log(logBase)
+      bfs$bf <- exp(bfs$bf - baseBF)
+      
+      if(req$params()$which=="CSV"){
+        t <- tempfile()
+        write.csv(bfs,file=t)
+        res$header('Content-type','text/csv')
+        res$header("Content-Disposition", "attachment;filename=bfs.csv")
+        res$body <- t
+        names(res$body) <- 'file'
+        return(res$finish())
+      }else if(req$params()$which=="R"){
+        .GlobalEnv$BayesFactorTable = bfs
+        return(res$finish())
+      }else{
+        return(res$finish())
+      }
+    },
+    '^/bfs.png' = function(env){
       req <- Request$new(env)
       res <- Response$new()
       RserveCleanup()
@@ -334,10 +383,11 @@ aovApp <- Builder$new(
       # Parse Bayes factors from JSON and put them in data.frame
       bfs <- fromJSON(req$GET()$BFobj)
       bfs <- merge_recurse(lapply(bfs,data.frame))
-
       
       baseBF <- bfs$bf[bfs$isBase]
       bfs$bf <- bfs$bf - baseBF
+      bfs = bfs[!is.na(bfs$bf),]
+      
       
       t <- tempfile()
       png(file=t)

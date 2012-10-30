@@ -61,6 +61,24 @@
 					Extra Columns:<input type="checkbox" value="on" id="extraColsToggle"/>
 				</div>
 			</div>
+			<div class="optionsDivider"></div>
+			<div id="miscOptions">
+				<div>Cull to 1 in&nbsp;
+					<select id="cullLevel">
+  						<option value="100">100</option>
+  						<option value="1000">1,000</option>
+  						<option value="10000" selected="selected">10,000</option>
+  						<option value="100000">100,000</option>
+  						<option value="1000000">1,000,000</option>
+					</select>
+				</div>
+				<div>
+					Max bf base:<input type="checkbox" value="on" id="baseIsMax"/>
+				</div>
+				<div>
+					Auto cull:<input type="checkbox" value="on" id="autoCull"/>
+				</div>
+			</div>
 			<div class="clear"></div>
 		</div>
 		<div id="showdiv" title="drop the div down"><span id="optionsContainerIcon">[+]</span> Options</div>	
@@ -93,7 +111,8 @@
 			<input type="button" value="Analyze selected model" id="analyzeSelectedButton" />
 			<input type="button" value="Analyze all models" id="analyzeAllButton" />
 			<input type="button" value="Analyze top models" id="analyzeTopButton" />
-			<input type="button" value="Clear analyses" id="clearButton" />
+			<input type="button" value="Clear" id="clearButton" />
+			<input type="button" value="Cull" id="cullButton" />
 		</div>
 		<div id="bfTableContainer">
 			<table id="bfTable">
@@ -111,6 +130,7 @@
 						<th scope="col">r scale (random)</th>
 						<th scope="col" onClick="listBayesFactors('timestamp');">time</th>
 						<th scope="col">duration</th>
+						<th scope="col">refresh?</th>
 						<th scope="col">delete?</th>
 					</tr>
 				<thead>
@@ -130,5 +150,6 @@
   				
 			});
 		</script>
+	<div id="bfCSVlink"></div>
 	</body>
 </html>

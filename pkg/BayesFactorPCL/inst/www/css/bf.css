@@ -1,5 +1,24 @@
 .clear { clear: both;}
 
+#bfCSVlink{
+	color: red;
+}
+
+.refreshimg {
+	width: 20px;
+	cursor: pointer;
+	margin-left: auto;
+    margin-right: auto;
+}
+
+.modelName {
+	cursor: pointer;
+}
+
+.status {
+	width: 40px;
+}
+
 #displayOptions
 {
 	height: 100%;
