@@ -630,7 +630,7 @@ function dynSort(property) {
 function setDefaults(){
 	jQuery.getJSON('/custom/aov/getdefaults', function(data){
 		$("#rscaleFixed").val(data.rscaleFixed);
-		$("#rscaleRandom").val(data.rscaleFixed);
+		$("#rscaleRandom").val(data.rscaleRandom);
 		setDefaultIterations(data.iterations);
 	});
 }
