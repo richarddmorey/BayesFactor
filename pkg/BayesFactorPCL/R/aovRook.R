@@ -426,6 +426,6 @@ aovApp <- Builder$new(
       res$write(toJSON(list(filename=t)))
       res$finish()
     },
-  '.*' = Redirect$new('/www/aov.html')
+  '.*' = Redirect$new('/www/warning.html')
   )
 )
