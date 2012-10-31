@@ -134,7 +134,7 @@ stopAovGUI <- function(){
 }
 
 setJSONdata <- function(req, res){
-  if(req$GET()$what=="fixed"){
+  if(req$params()$what=="fixed"){
     res$write(toJSON(
       list(effects=rookEnv$aov$bfEnv$allEffects,
            nFac=rookEnv$aov$bfEnv$nFac
@@ -142,19 +142,19 @@ setJSONdata <- function(req, res){
     ))
     return()
   }
-  if(req$GET()$what=="random"){
+  if(req$params()$what=="random"){
     res$write(toJSON(
       names(rookEnv$aov$bfEnv$dataRandom)
     ))  
     return()
   }
-  if(req$GET()$what=="nFac"){
+  if(req$params()$what=="nFac"){
     res$write(toJSON(
       rookEnv$aov$bfEnv$nFac
     ))
     return()
   }
-  if(req$GET()$what=="analysis"){
+  if(req$params()$what=="analysis"){
     if(rookEnv$RserveStatus!="free"){
       res$write(toJSON(
         list(status="busy")
@@ -191,9 +191,9 @@ setJSONdata <- function(req, res){
     tokens = tokens[!tokensExist]
     models = models[!tokensExist]
     
-    rscaleFixed <- ifelse (is.null(req$GET()$rscaleFixed), rookEnv$aov$defaults$rscaleFixed, as.numeric(req$GET()$rscaleFixed))
-    rscaleRandom <- ifelse (is.null(req$GET()$rscaleRandom), rookEnv$aov$defaults$rscaleRandom, as.numeric(req$GET()$rscaleRandom))
-    iterations <- ifelse (is.null(req$GET()$iterations), rookEnv$aov$defaults$iterations, as.integer(req$GET()$iterations))
+    rscaleFixed <- ifelse (is.null(req$params()$rscaleFixed), rookEnv$aov$defaults$rscaleFixed, as.numeric(req$params()$rscaleFixed))
+    rscaleRandom <- ifelse (is.null(req$params()$rscaleRandom), rookEnv$aov$defaults$rscaleRandom, as.numeric(req$params()$rscaleRandom))
+    iterations <- ifelse (is.null(req$params()$iterations), rookEnv$aov$defaults$iterations, as.integer(req$params()$iterations))
     
     tokensToAnalyze = c()
     modelsToAnalyze = c()
@@ -267,7 +267,7 @@ aovApp <- Builder$new(
       req <- Request$new(env)
       res <- Response$new()
       RserveCleanup()
-      if (is.null(req$GET()$what)){
+      if (is.null(req$params()$what)){
         return(res$finish())
       }else{
         setJSONdata(req, res)
@@ -279,7 +279,7 @@ aovApp <- Builder$new(
       res <- Response$new()
       RserveCleanup()
       #cat("Update request:",req$query_string(),"\n")
-      if (is.null(req$GET()$tokens)){
+      if (is.null(req$params()$tokens)){
         res$write(toJSON(-1))
         return(res$finish())
       }else{  
@@ -300,16 +300,16 @@ aovApp <- Builder$new(
       res <- Response$new()
       RserveCleanup()
       #cat("Rserve request:",req$query_string(),"\n")
-      status = req$GET()$status
-      percent = req$GET()$percent
-      token = req$GET()$token
+      status = req$params()$status
+      percent = req$params()$percent
+      token = req$params()$token
       if(is.null(token) & status=="alldone"){
         rookEnv$RserveStatus = "free"
       }
       if(!is.null(token) & status=="done"){
-        bf = req$GET()$bf
-        finish = req$GET()$time
-        duration = req$GET()$duration
+        bf = req$params()$bf
+        finish = req$params()$time
+        duration = req$params()$duration
         rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
         rookEnv$aov$status[[token]]$returnList$duration <- duration
         rookEnv$aov$status[[token]]$status = "done"
@@ -318,7 +318,7 @@ aovApp <- Builder$new(
       }
       if(!is.null(token) & status=="running"){
         rookEnv$aov$status[[token]]$status = "running"
-        rookEnv$aov$status[[token]]$percent = req$GET()$percent
+        rookEnv$aov$status[[token]]$percent = req$params()$percent
       }
       res$write(0)
       return(res$finish())
@@ -343,7 +343,7 @@ aovApp <- Builder$new(
       
 
       # Parse Bayes factors from JSON and put them in data.frame
-      bfs <- fromJSON(req$GET()$BFobj)
+      bfs <- fromJSON(req$params()$BFobj)
       if(length(bfs)>1){
         bfs <- merge_recurse(lapply(bfs,data.frame))
       }else{
@@ -376,9 +376,10 @@ aovApp <- Builder$new(
       
       if (is.null(req$params()$BFobj)){
         if(!is.null(req$params()$filename)){
-          fn = URLdecode(req$params()$filename)
+		  fn = URLdecode(req$params()$filename)
           fn <- substr(fn,2,nchar(fn)-1)
-          if(file.exists(fn)){
+          cat(fn)
+		  if(file.exists(fn)){
             res$header('Content-type','image/png')
             res$body <- fn
             names(res$body) <- 'file'
@@ -390,7 +391,8 @@ aovApp <- Builder$new(
       logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
       
       # Parse Bayes factors from JSON and put them in data.frame
-      bfs <- fromJSON(req$GET()$BFobj)
+
+      bfs <- fromJSON(req$params()$BFobj)
       bfs <- merge_recurse(lapply(bfs,data.frame))
       
       baseBF <- bfs$bf[bfs$isBase]
@@ -421,6 +423,7 @@ aovApp <- Builder$new(
       if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
       dev.off()
       
+	  
       res$write(toJSON(list(filename=t)))
       res$finish()
     },

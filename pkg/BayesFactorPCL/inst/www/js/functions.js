@@ -586,14 +586,14 @@ function makePlot()
 	});
 	if(culled.length>1){
 		var BFobj = JSON.stringify(culled);
-		jQuery.getJSON('/custom/aov/bfs.png', 
+		jQuery.post('/custom/aov/bfs.png', 
 			{
 				logBase: base, 
 				BFobj: BFobj 
 			}, function(data){
 				var fn = JSON.stringify(data.filename);
 				$("#bfImageContainer").html("<img src='/custom/aov/bfs.png?filename=" + fn + "'/>");
-			});
+			}, "json");
 	}else{
 		$("#bfImageContainer").html("Analyze models for plot.");
 	}
