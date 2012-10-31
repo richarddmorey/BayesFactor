@@ -243,7 +243,7 @@ setJSONdata <- function(req, res){
         rookEnv$aov$status[[ tokens[i] ]] <- newToken(tokens[i], returnList)
       }
     }        
-      updateURL = paste(rookEnv$aov$s$full_url(1),"/rserve",sep="")
+      updateURL = paste(rookEnv$aov$s$full_url("aov"),"/rserve",sep="")
       names(modelsToAnalyze) = tokensToAnalyze
       #print(modelsToAnalyze)
     
