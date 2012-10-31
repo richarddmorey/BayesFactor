@@ -378,7 +378,6 @@ aovApp <- Builder$new(
         if(!is.null(req$params()$filename)){
 		  fn = URLdecode(req$params()$filename)
           fn <- substr(fn,2,nchar(fn)-1)
-          cat(fn)
 		  if(file.exists(fn)){
             res$header('Content-type','image/png')
             res$body <- fn
