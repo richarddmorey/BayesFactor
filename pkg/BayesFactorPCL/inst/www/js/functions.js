@@ -586,8 +586,14 @@ function makePlot()
 	});
 	if(culled.length>1){
 		var BFobj = JSON.stringify(culled);
-		var qstr = jQuery.param({logBase: base, BFobj: BFobj })
-		$("#bfImageContainer").html("<img src='/custom/aov/bfs.png?" + qstr + "'/>");
+		jQuery.getJSON('/custom/aov/bfs.png', 
+			{
+				logBase: base, 
+				BFobj: BFobj 
+			}, function(data){
+				var fn = JSON.stringify(data.filename);
+				$("#bfImageContainer").html("<img src='/custom/aov/bfs.png?filename=" + fn + "'/>");
+			});
 	}else{
 		$("#bfImageContainer").html("Analyze models for plot.");
 	}
@@ -595,6 +601,8 @@ function makePlot()
 
 function makeSaveLink()
 {
+	// This needs reworked, as with the plot, to avoid sending long query strings
+	/*
 	var base = $('#logBase option:selected').text();
 	var culled = [];
 	jQuery.each(bayesFactors, function(index, value){
@@ -609,6 +617,7 @@ function makeSaveLink()
 	}else{
 		$("#bfCSVlink").html("");
 	}
+	*/
 }
 
 

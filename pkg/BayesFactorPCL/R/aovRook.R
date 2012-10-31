@@ -373,8 +373,17 @@ aovApp <- Builder$new(
       req <- Request$new(env)
       res <- Response$new()
       RserveCleanup()
-      res$header('Content-type','image/png')
+      
       if (is.null(req$params()$BFobj)){
+        if(!is.null(req$params()$filename)){
+          fn = URLdecode(req$params()$filename)
+          fn <- substr(fn,2,nchar(fn)-1)
+          if(file.exists(fn)){
+            res$header('Content-type','image/png')
+            res$body <- fn
+            names(res$body) <- 'file'
+          }
+        }
         return(res$finish())
       }
       textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
@@ -412,9 +421,7 @@ aovApp <- Builder$new(
       if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
       dev.off()
       
-      
-      res$body <- t
-      names(res$body) <- 'file'
+      res$write(toJSON(list(filename=t)))
       res$finish()
     },
   '.*' = Redirect$new('/www/aov.html')
