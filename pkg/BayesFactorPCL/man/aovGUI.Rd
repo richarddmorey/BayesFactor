@@ -56,7 +56,7 @@ Richard D. Morey
 This interface is still in a very early stage of development.
 }
 \seealso{
-\code{\link{allNways}},\code{\link{nWayAOV.MC}}, \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}, \code{\link[doMC:doMC-package]{doMC}}, \code{\link{options}}
+\code{\link{allNways}},\code{\link{nWayAOV.MC}}, \code{\link{aov}}
 }
 \examples{
 data(puzzles)
