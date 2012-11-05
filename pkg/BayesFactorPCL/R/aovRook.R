@@ -400,8 +400,7 @@ aovApp <- Builder$new(
       
       
       t <- tempfile()
-      png(file=t)
-      png(t,width=700,height=350)
+      png(file=t,width=700,height=350)
       
       rng <- range(bfs$bf/log(logBase))
       yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
