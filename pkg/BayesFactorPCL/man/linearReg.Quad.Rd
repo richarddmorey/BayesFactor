@@ -8,7 +8,7 @@ A function to compute the Bayes factors regression designs
 This function computes the Bayes factor for multiple linear regression, testing whether slopes are zero or not.
 }
 \usage{
-linearReg.Quad(N,p,R2, logbf=FALSE)
+linearReg.Quad(N,p,R2, rscale=1, logbf=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,8 +18,11 @@ linearReg.Quad(N,p,R2, logbf=FALSE)
   \item{p}{
 	Total number of predictors
 }
-  \item{R2}{
-The coefficient of detemination for the full regression model containing all \code{p} predictors
+\item{R2}{
+  The coefficient of detemination for the full regression model containing all \code{p} predictors
+}
+\item{rscale}{
+  Scale of the Cauchy prior on standardized effect size  
 }
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor

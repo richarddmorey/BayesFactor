@@ -12,7 +12,8 @@ export( ttest.Gibbs,
 		logCumMeanExpLogs,
     BFInfo,
     aovGUI,
-    nWayAOV2)
+    nWayAOV2,
+    allLinearReg)
 
 import(mvtnorm,reshape, Rook, RJSONIO, pbapply, Rserve)
 
