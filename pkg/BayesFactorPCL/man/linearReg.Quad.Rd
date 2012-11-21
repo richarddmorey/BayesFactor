@@ -1,14 +1,18 @@
 \name{linearReg.Quad}
 \alias{linearReg.Quad}
+\alias{linearReg.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-A function to compute the Bayes factors regression designs
+A functions to compute the Bayes factors and sample from posteriors in regression designs
 }
 \description{
-This function computes the Bayes factor for multiple linear regression, testing whether slopes are zero or not.
+These functions compute the Bayes factor for multiple linear regression, testing whether slopes are zero or not, or sample from the corresponding posteriors.
 }
 \usage{
 linearReg.Quad(N,p,R2, rscale=1, logbf=FALSE)
+
+linearReg.Gibbs(y, covariates, iterations = 10000, rscale = 1, 
+               progress = TRUE, gibi=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,13 +31,35 @@ linearReg.Quad(N,p,R2, rscale=1, logbf=FALSE)
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
+\item{y}{
+  A vector of observations	
+}
+\item{covariates}{
+A data frame containing the covariates, one column per covariate. 
+}
+\item{iterations}{
+Number of Gibbs sampler iterations to perform
+}
+\item{progress}{
+If \code{TRUE}, text progress bar is displayed
+}
+\item{gibi}{
+Interface for a future graphical user interface (not intended for use by end users)
+}
 }
 \details{
-This Bayes factor tests the hypothesis that all slopes are 0. 
+\code{linearReg.Quad} computes Bayes factors that test the hypothesis that all slopes are 0 against the alternative that all slopes are nonzero. \code{linearReg.Quad} uses the Gibbs sampler to sample from the posterior distribution assuming that all slopes are non-zero. 
 
+The vector of observations \eqn{y} is assumed to be distributed as
+\deqn{y ~ Normal(\alpha 1 + X\beta, \sigma^2 I).}
+The joint prior on \eqn{\alpha,\sigma^2} is proportional to \eqn{1/\sigma^2}, the prior on \eqn{\beta} is
+\deqn{\beta ~ Normal(0, N g \sigma^2(X'X)^{-1}).}
+where \eqn{g ~ InverseGamma(1/2,r/2)}. See Liang et al. (2008) section 3 for details.
 }
 \value{
-A scalar giving the Bayes factor in favor of the alternative hypothesis at least one slope is nonzero.
+\code{linearReg.Quad} returns a scalar giving the Bayes factor in favor of the alternative hypothesis at least one slope is nonzero. 
+
+\code{linearReg.Gibbs} returns an \code{mcmc} object containing the samples from the Gibbs sampler. 
 }
 \references{
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection.
@@ -44,13 +70,13 @@ Rouder, J. N.  and Morey, R. D. (submitted). Bayesian testing in regression.
 Perception and Cognition Lab (University of Missouri): Bayes factor calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \author{
-Jeffrey N. Rouder
+Jeffrey N. Rouder, Richard D. Morey
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{lm}}
+\code{\link{lm}}, \code{\link{mcmc}}
 }
 \examples{
 ## Use attitude data set

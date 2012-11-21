@@ -13,14 +13,14 @@ t tests, ANOVA, and linear regression. It also contains an experimental user int
 \tabular{ll}{
 Package: \tab BayesFactor\cr
 Type: \tab Package\cr
-Version: \tab 0.8.6\cr
-Date: \tab 2012-11-19\cr
+Version: \tab 0.8.7\cr
+Date: \tab 2012-11-20\cr
 License: \tab GPL 2.0\cr
 LazyLoad: \tab yes\cr
 }
 The following methods are currently implemented, with more to follow:
 
-Linear regression: \code{\link{linearReg.Quad}}, \code{\link{allLinearReg}}
+Linear regression: \code{\link{linearReg.Quad}},\code{\link{linearReg.Gibbs}} \code{\link{allLinearReg}}
 
 t test: \code{\link{ttest.Quad}}, \code{\link{ttest.Gibbs}}
 
