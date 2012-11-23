@@ -1,3 +1,4 @@
+globalVariables("gIndex")
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
 dinvgamma = function (x, shape, scale = 1) 

@@ -14,7 +14,7 @@ t tests, ANOVA, and linear regression. It also contains an experimental user int
 Package: \tab BayesFactor\cr
 Type: \tab Package\cr
 Version: \tab 0.8.7\cr
-Date: \tab 2012-11-20\cr
+Date: \tab 2012-11-22\cr
 License: \tab GPL 2.0\cr
 LazyLoad: \tab yes\cr
 }
