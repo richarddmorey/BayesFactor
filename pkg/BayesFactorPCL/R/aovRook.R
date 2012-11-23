@@ -86,16 +86,20 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL, iterations = 1000, rscaleFi
   rookEnv$RserveStatus = "free"
   
   # Convert to factors if needed.
-  dataFixed = data.frame(dataFixed)
-  if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
-    dataFixed <- data.frame(lapply(dataFixed, as.factor))
-    warning("Converted columns of dataFixed to factors.")
-  } 
-  dataRandom = data.frame(dataRandom)
-  if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
-    dataRandom <- data.frame(lapply(dataRandom, as.factor))
-    warning("Converted columns of dataRandom to factors.")
-  } 
+  if(!is.null(dataFixed)){
+    dataFixed = data.frame(dataFixed)
+    if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
+      dataFixed <- data.frame(lapply(dataFixed, as.factor))
+      warning("Converted columns of dataFixed to factors.")
+    }
+  }
+  if(!is.null(dataRandom)){
+    dataRandom = data.frame(dataRandom)
+    if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
+      dataRandom <- data.frame(lapply(dataRandom, as.factor))
+      warning("Converted columns of dataRandom to factors.")
+    }
+  }
   
   rookEnv$aov$defaults = list(iterations=iterations, rscaleRandom=rscaleRandom, rscaleFixed=rscaleFixed)
   rookEnv$aov$bfEnv = new.env(parent = rookEnv$aov)
@@ -247,11 +251,12 @@ setJSONdata <- function(req, res){
       names(modelsToAnalyze) = tokensToAnalyze
       #print(modelsToAnalyze)
     
-      RserveAov2(modelsToAnalyze,updateURL, env=rookEnv$aov$bfEnv,
+      if(length(modelsToAnalyze>0)){
+        RserveAov2(modelsToAnalyze,updateURL, env=rookEnv$aov$bfEnv,
                  iterations = iterations,
                  rscaleFixed = rscaleFixed,
                  rscaleRandom = rscaleRandom)
-         
+      }   
     res$write(toJSON(list(status="started")))
     return()
   }
