@@ -119,7 +119,7 @@ aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL, iterations = 1000, rscaleFi
     rookEnv$aov$s <- Rhttpd$new()
     rookEnv$aov$s$start(quiet=TRUE)
     rookEnv$aov$s$add(name="aov",
-          app=aovApp)
+          app=aovApp())
   }
   rookEnv$aov$s$browse("aov")
 }
@@ -262,174 +262,178 @@ setJSONdata <- function(req, res){
   }
 }
 
-aovApp <- Builder$new(
-  Static$new(
-    urls = '/www',
-    root = system.file('.', package='BayesFactor')
-  ),
-  URLMap$new(
-    '^/data' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-      if (is.null(req$params()$what)){
-        return(res$finish())
-      }else{
-        setJSONdata(req, res)
-        return(res$finish())
-      }
-    },
-    '^/update' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-      #cat("Update request:",req$query_string(),"\n")
-      if (is.null(req$params()$tokens)){
-        res$write(toJSON(-1))
-        return(res$finish())
-      }else{  
-        tokens <- unlist(strsplit(req$params()$tokens, ","))
-        percents <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$percent},USE.NAMES = FALSE)
-        statuses <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$status},USE.NAMES = FALSE)
-        allstatus <- ifelse(all(statuses=="done"),"done","running")
-        returnLists <- sapply(tokens, function(e){ toJSON(rookEnv$aov$status[[e]]$returnList)},USE.NAMES = FALSE)      
-        retJSON = list(
-          tokens=tokens, percents=percents, statuses=statuses, allstatus=allstatus, returnLists=returnLists
-        )
-        res$write(toJSON(retJSON,asIs=TRUE))
-        return(res$finish())
-      }
-    },
-    '^/rserve' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-      #cat("Rserve request:",req$query_string(),"\n")
-      status = req$params()$status
-      percent = req$params()$percent
-      token = req$params()$token
-      if(is.null(token) & status=="alldone"){
-        rookEnv$RserveStatus = "free"
-      }
-      if(!is.null(token) & status=="done"){
-        bf = req$params()$bf
-        finish = req$params()$time
-        duration = req$params()$duration
-        rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
-        rookEnv$aov$status[[token]]$returnList$duration <- duration
-        rookEnv$aov$status[[token]]$status = "done"
-        rookEnv$aov$status[[token]]$percent = 100
-        rookEnv$aov$status[[token]]$finish = as.integer(finish)        
-      }
-      if(!is.null(token) & status=="running"){
-        rookEnv$aov$status[[token]]$status = "running"
-        rookEnv$aov$status[[token]]$percent = req$params()$percent
-      }
-      res$write(0)
-      return(res$finish())
-    },
-    '^/getdefaults' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-      res$write(toJSON(rookEnv$aov$defaults))
-      res$finish()
-    },
-    '^/saveobj' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-            
-      if (is.null(req$params()$BFobj)){
-        return(res$finish())
-      }
-      textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
-      logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
-      
-
-      # Parse Bayes factors from JSON and put them in data.frame
-      bfs <- fromJSON(req$params()$BFobj)
-      if(length(bfs)>1){
-        bfs <- merge_recurse(lapply(bfs,data.frame))
-      }else{
-        bfs <- data.frame(bfs) 
-      }
-      
-      baseBF <- bfs$bf[bfs$isBase]
-      bfs[[paste("logbf.",textLogBase,sep="")]] <- (bfs$bf - baseBF) / log(logBase)
-      bfs$bf <- exp(bfs$bf - baseBF)
-      
-      if(req$params()$which=="CSV"){
-        t <- tempfile()
-        write.csv(bfs,file=t)
-        res$header('Content-type','text/csv')
-        res$header("Content-Disposition", "attachment;filename=bfs.csv")
-        res$body <- t
-        names(res$body) <- 'file'
-        return(res$finish())
-      }else if(req$params()$which=="R"){
-        .GlobalEnv$BayesFactorTable = bfs
-        return(res$finish())
-      }else{
-        return(res$finish())
-      }
-    },
-    '^/bfs.png' = function(env){
-      req <- Request$new(env)
-      res <- Response$new()
-      RserveCleanup()
-      
-      if (is.null(req$params()$BFobj)){
-        if(!is.null(req$params()$filename)){
-		  fn = URLdecode(req$params()$filename)
-          fn <- substr(fn,2,nchar(fn)-1)
-		  if(file.exists(fn)){
-            res$header('Content-type','image/png')
-            res$body <- fn
-            names(res$body) <- 'file'
-          }
+aovApp <- function(){
+  Builder$new(
+   Static$new(
+      urls = '/www',
+      root = system.file('.', package='BayesFactor')
+    ),
+    URLMap$new(
+      '^/data' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+        if (is.null(req$params()$what)){
+          return(res$finish())
+        }else{
+          setJSONdata(req, res)
+          return(res$finish())
         }
+      },
+      '^/update' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+        #cat("Update request:",req$query_string(),"\n")
+        if (is.null(req$params()$tokens)){
+          res$write(toJSON(-1))
+          return(res$finish())
+        }else{  
+          tokens <- unlist(strsplit(req$params()$tokens, ","))
+          percents <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$percent},USE.NAMES = FALSE)
+          statuses <- sapply(tokens, function(e){ rookEnv$aov$status[[e]]$status},USE.NAMES = FALSE)
+          allstatus <- ifelse(all(statuses=="done"),"done","running")
+          returnLists <- sapply(tokens, function(e){ toJSON(rookEnv$aov$status[[e]]$returnList)},USE.NAMES = FALSE)      
+          retJSON = list(
+            tokens=tokens, percents=percents, statuses=statuses, allstatus=allstatus, returnLists=returnLists
+          )
+          res$write(toJSON(retJSON,asIs=TRUE))
+          return(res$finish())
+        }
+      },
+      '^/rserve' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+        #cat("Rserve request:",req$query_string(),"\n")
+        status = req$params()$status
+        percent = req$params()$percent
+        token = req$params()$token
+        if(is.null(token) & status=="alldone"){
+          rookEnv$RserveStatus = "free"
+        }
+        if(!is.null(token) & status=="done"){
+          bf = req$params()$bf
+          finish = req$params()$time
+          duration = req$params()$duration
+          rookEnv$aov$status[[token]]$returnList$bf <- as.numeric(bf)
+          rookEnv$aov$status[[token]]$returnList$duration <- duration
+          rookEnv$aov$status[[token]]$status = "done"
+          rookEnv$aov$status[[token]]$percent = 100
+          rookEnv$aov$status[[token]]$finish = as.integer(finish)        
+        }
+        if(!is.null(token) & status=="running"){
+          rookEnv$aov$status[[token]]$status = "running"
+          rookEnv$aov$status[[token]]$percent = req$params()$percent
+        }
+        res$write(0)
         return(res$finish())
-      }
-      textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
-      logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
-      
-      # Parse Bayes factors from JSON and put them in data.frame
+      },
+      '^/getdefaults' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+        res$write(toJSON(rookEnv$aov$defaults))
+        res$finish()
+      },
+      '^/saveobj' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+            
+        if (is.null(req$params()$BFobj)){
+          return(res$finish())
+        }
+        textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
+        logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
+        
 
-      bfs <- fromJSON(req$params()$BFobj)
-      bfs <- merge_recurse(lapply(bfs,data.frame))
-      
-      baseBF <- bfs$bf[bfs$isBase]
-      bfs$bf <- bfs$bf - baseBF
-      bfs = bfs[!is.na(bfs$bf),]
-      
-      
-      t <- tempfile()
-      png(file=t,width=700,height=350)
-      
-      rng <- range(bfs$bf/log(logBase))
-      yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
-      ygrids <- seq(yaxes[1], yaxes[length(yaxes)], .1)
-      
-      if(textLogBase=="ln"){
-        tickLab <- paste("exp(",yaxes,")",sep="")
-        tickLab[yaxes==0] = "1"
-      }else{
-        tickLab <- logBase^yaxes
-        tickLab[yaxes<0] = paste("1/",logBase^abs(yaxes[yaxes<0]),sep="")
-      }
-      
-      par(mar=c(4,20,1,1),las=1)
-      barplot(sort(bfs$bf/log(logBase)), names.arg=bfs$niceName[order(bfs$bf)], horiz=TRUE, axes=FALSE, xlim=range(yaxes))
-      axis(1, at = yaxes, lab=tickLab, las=2)
-      abline(v=0)
-      if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
-      dev.off()
-      
-	  
-      res$write(toJSON(list(filename=t)))
-      res$finish()
-    },
-  '.*' = Redirect$new('/www/warning.html')
+        # Parse Bayes factors from JSON and put them in data.frame
+        bfs <- fromJSON(req$params()$BFobj)
+        if(length(bfs)>1){
+          bfs <- merge_recurse(lapply(bfs,data.frame))
+        }else{
+          bfs <- data.frame(bfs) 
+        }
+          
+        baseBF <- bfs$bf[bfs$isBase]
+        bfs[[paste("logbf.",textLogBase,sep="")]] <- (bfs$bf - baseBF) / log(logBase)
+        bfs$bf <- exp(bfs$bf - baseBF)
+        
+        if(req$params()$which=="CSV"){
+          t <- tempfile()
+          write.csv(bfs,file=t)
+          res$header('Content-type','text/csv')
+          res$header("Content-Disposition", "attachment;filename=bfs.csv")
+          res$body <- t
+          names(res$body) <- 'file'
+          return(res$finish())
+        }else if(req$params()$which=="R"){
+          .GlobalEnv$BayesFactorTable = bfs
+          return(res$finish())
+        }else{
+          return(res$finish())
+        }
+      },
+      '^/bfs.png' = function(env){
+        req <- Request$new(env)
+        res <- Response$new()
+        RserveCleanup()
+        
+        if (is.null(req$params()$BFobj)){
+          if(!is.null(req$params()$filename)){
+  		  fn = URLdecode(req$params()$filename)
+            fn <- substr(fn,2,nchar(fn)-1)
+  		  if(file.exists(fn)){
+              res$header('Content-type','image/png')
+              res$body <- fn
+              names(res$body) <- 'file'
+            }
+          }
+          return(res$finish())
+        }
+        textLogBase <- ifelse(is.null(req$params()$logBase), "log10", req$params()$logBase)
+        logBase <- switch(textLogBase, log10=10,ln=exp(1),log2=2)
+        
+        # Parse Bayes factors from JSON and put them in data.frame  
+
+        bfs <- fromJSON(req$params()$BFobj)
+        bfs <- merge_recurse(lapply(bfs,data.frame))
+        
+        baseBF <- bfs$bf[bfs$isBase]
+        bfs$bf <- bfs$bf - baseBF
+        bfs = bfs[!is.na(bfs$bf),]
+        
+        
+        t <- tempfile()
+        png(filename=t,width=700,height=350)
+        
+        rng <- range(bfs$bf/log(logBase))
+        yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
+        ygrids <- seq(yaxes[1], yaxes[length(yaxes)], .1)
+        
+        if(textLogBase=="ln"){
+          tickLab <- paste("exp(",yaxes,")",sep="")
+          tickLab[yaxes==0] = "1"
+        }else{
+          tickLab <- logBase^yaxes
+          tickLab[yaxes<0] = paste("1/",logBase^abs(yaxes[yaxes<0]),sep="")
+        }
+        
+        par(mar=c(4,20,1,1),las=1)
+        barplot(sort(bfs$bf/log(logBase)), names.arg=bfs$niceName[order(bfs$bf)], horiz=TRUE, axes=FALSE, xlim=range(yaxes))
+        axis(1, at = yaxes, labels=tickLab, las=2)
+        abline(v=0)
+        if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
+        dev.off()
+        
+  	  
+        res$write(toJSON(list(filename=t)))
+        res$finish()
+      },
+    '.*' = Redirect$new('/www/warning.html')
+    )
   )
-)
+}
+
+
