@@ -47,7 +47,7 @@ ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2)/2,null.interval=NULL,pr
 	lbf = log(postDens) - log(priorDens)
 	priorArea = pcauchy(interval[2],scale=rscale) - pcauchy(interval[1],scale=rscale)
 	postArea = mean(chains[6,])
-	lbfarea = log(postArea) - log(priorArea)
+	lbfarea = log(postArea/(1-postArea)) - log(priorArea/(1-priorArea))
 	
 	rownames(chains) = c("mu","sig2","g","delta","CMDE","areaPost")			
 	if(logbf){
