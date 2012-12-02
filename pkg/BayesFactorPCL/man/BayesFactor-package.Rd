@@ -13,8 +13,8 @@ t tests, ANOVA, and linear regression. It also contains an experimental user int
 \tabular{ll}{
 Package: \tab BayesFactor\cr
 Type: \tab Package\cr
-Version: \tab 0.8.8\cr
-Date: \tab 2012-11-28\cr
+Version: \tab 0.8.9\cr
+Date: \tab 2012-12-15\cr
 License: \tab GPL 2.0\cr
 LazyLoad: \tab yes\cr
 }

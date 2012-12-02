@@ -5,14 +5,14 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
     dataFixed = data.frame(dataFixed)
     if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
       dataFixed <- data.frame(lapply(dataFixed, as.factor))
-      warning("Converted columns of dataFixed to factors.")
+      message("Converted columns of dataFixed to factors.")
     }
   }
   if(!is.null(dataRandom)){
     dataRandom = data.frame(dataRandom)
     if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
       dataRandom <- data.frame(lapply(dataRandom, as.factor))
-      warning("Converted columns of dataRandom to factors.")
+      message("Converted columns of dataRandom to factors.")
     } 
   }
   
@@ -137,30 +137,59 @@ all.Nways.env.mc = function(env, only.top=FALSE,progress=progress, rscaleFixed=r
   return(bfs)
 }
 
-
-
-nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL, ...)
-{
+buildModelInfo <- function(modNum, env) {
   X = joined.design(modNum,env=env)
-  y = env$y
-  g.groups = unlist(joined.design(modNum,env=env,other="g"))
   my.name = paste(joined.design(modNum,env=env,other="n"),collapse=" + ")
+  g.groups = unlist(joined.design(modNum,env=env,other="g"))
   dataRandom = env$dataRandom
-    if(!is.null(dataRandom)){
+  if(!is.null(dataRandom)){
     gr.groups = unlist(lapply(data.frame(dataRandom),nlevels))
   }else{
     gr.groups = NULL
   } 
-  bfs = c(nWayAOV.MC(y,X,c(g.groups,gr.groups),samples=FALSE,logbf=TRUE, progress=FALSE, 
-  						rscale = c(rscaleFixed + g.groups*0, rscaleRandom=rscaleRandom + gr.groups*0),...), 
-  						my.name)
-  names(bfs)=my.name
+  return(list(
+    X = X,
+    struc = c(g.groups,gr.groups),
+    g.groups = g.groups,
+    gr.groups = gr.groups,
+    names=my.name
+    ))
+}
+
+
+nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL, ...)
+{
+  modInfo = buildModelInfo(modNum, env)
+  y = env$y
+  
+  bfs = c(nWayAOV.MC(y, modInfo$X, modInfo$struc, samples=FALSE,logbf=TRUE, progress=FALSE, 
+  						rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...), 
+  						modInfo$names)
+  names(bfs)=modInfo$names
   
   if(is.function(progressCallback)){
     progressCallback()
   }
   
   return(bfs)
+}
+
+unreduceChains = function(g.groups, chains){
+  iterations <- dim(chains)[1]
+  fixed.chains = chains[,2:(1+sum(g.groups))]
+  fixed.chains = matrix(fixed.chains,nrow=iterations)
+  stdChains = lapply(1:length(g.groups), 
+    function(el, g.groups, chains){
+      sums = c(0,cumsum(g.groups))
+      nlev = g.groups[el] + 1
+      C = chains[,sums[el] + 1:(nlev-1)]
+      centering=diag(nlev)-(1/nlev)
+      S=(eigen(centering)$vectors)[,1:(nlev-1)]
+      S = matrix(S,nrow=nlev)
+      C%*%t(S)
+    }, g.groups=g.groups, chains=fixed.chains)
+  unreduced = data.frame(stdChains)
+  mcmc(data.frame(chains[,1],unreduced,chains[,-(1:(1+sum(g.groups)))]))
 }
 
 design.mat.single=function(v,reduce=TRUE)
@@ -178,6 +207,7 @@ design.mat.single=function(v,reduce=TRUE)
   }
 }
 
+# Create the design matrix for an interaction, given the design matrices for the two factors
 design.mat.int = function(X1,X2)
 {
   p1 = dim(X1)[2]

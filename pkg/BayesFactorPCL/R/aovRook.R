@@ -1,6 +1,6 @@
 rookEnv <- new.env(parent=emptyenv())
 RservePort <- 6401
-RserveArgs <- "--no-save"
+RserveArgs <- c("--vanilla","--quiet")
 
 getURL <- function(loc){
   con = url(loc, open = "r")
@@ -31,7 +31,7 @@ RserveAov2 <- function(tokens,updateURL,...){
   RSassign(rookEnv$RserveConnection,theseArgs)
   RSassign(rookEnv$RserveConnection,tokens)
   RSassign(rookEnv$RserveConnection,updateURL)
-  RSeval(rookEnv$RserveConnection, quote(library(BayesFactor, quietly=TRUE)))
+  RSeval(rookEnv$RserveConnection, quote(suppressPackageStartupMessages(require(BayesFactor, quietly=TRUE))))
 
   cmd = parse(text='
     lastUpdate = 0

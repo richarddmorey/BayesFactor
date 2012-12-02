@@ -1,7 +1,7 @@
-nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL, logbf=FALSE){
+nWayAOV.MC = function(y,X, struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL, logbf=FALSE){
 	
-	y = as.numeric(y)
-	X = as.numeric(X)
+	y = as.numeric(y)  
+  X = as.numeric(X)
 	struc = unlist(struc)
 	
 	X = matrix(X,nrow=length(y))
@@ -88,8 +88,53 @@ nWayAOV.MC = function(y,X,struc,iterations=10000,rscale=1,progress=FALSE,samples
 }
 
 
-nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
+nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,iterations=10000,rscale=1,progress=TRUE, unreduce=TRUE)
 {
+  if(!is.null(X) & !is.null(struc)){
+    builtDesign = FALSE
+    message("Using X and struc arguments to build model.")
+  }else if(!is.null(dataFixed) | !is.null(dataRandom)){
+    builtDesign = TRUE
+    message("Using dataFixed/dataRandom to build model.")
+    
+    # Convert to factors if needed.
+    if(!is.null(dataFixed)){
+      dataFixed = data.frame(dataFixed)
+      if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
+        dataFixed <- data.frame(lapply(dataFixed, as.factor))
+        message("Converted columns of dataFixed to factors.")
+      }
+    }
+    if(!is.null(dataRandom)){
+      dataRandom = data.frame(dataRandom)
+      if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
+        dataRandom <- data.frame(lapply(dataRandom, as.factor))
+        message("Converted columns of dataRandom to factors.")
+      } 
+    }
+    
+    
+    ## Build design matrix of full model
+    bfEnv = new.env(parent = baseenv())
+    nFac = dim(dataFixed)[2]
+    topModel = ((2^(2^nFac-1))-1)
+    designs = list()
+    designs[[2^nFac]] = matrix(nrow=0,ncol=0)
+    
+    bfEnv$designMatrices = designs
+    bfEnv$dataFixed = dataFixed
+    bfEnv$y = y
+    bfEnv$totalN = length(as.vector(y))
+    bfEnv$dataRandom = dataRandom
+    modInfo = buildModelInfo(topModel, bfEnv) 
+    
+    X = modInfo$X
+    struc = modInfo$struc
+  }else{
+    stop("Insufficient information specified to build model. Specify either X and struc, or dataFixed/dataRandom as appropriate.")
+  }
+  
+  
   nLevels <- apply(X,2,function(v) length(unique(v)))
   if(any(nLevels==1)){
     const = which(nLevels==1)
@@ -143,8 +188,34 @@ nWayAOV.Gibbs <- function(y,X,struc,iterations=10000,rscale=1,progress=TRUE)
   if(progress) close(pb);
 	dim(chains) <- c(2 + p + length(struc), iterations)
 	chains = mcmc(t(chains))  
-	labels = c("mu",paste("beta",1:p,sep="_"),"sig2",paste("g",1:length(struc),sep="_"))
-	colnames(chains) = labels
+	if(builtDesign){
+    labels = c("mu")
+    if(!is.null(dataFixed)){
+      g.groups = modInfo$g.groups
+      modNames = strsplit(modInfo$names," + ", fixed=TRUE)
+      if(unreduce){
+        chains = unreduceChains(g.groups,chains)
+        g.groups = g.groups + 1
+        labLevels = unlist(lapply(dataFixed,function(v) sort(levels(v))))
+      }else{
+        labLevels = unlist(sapply(g.groups,function(i) 1:i))
+      }
+      labFixed = inverse.rle(list(values=modNames,lengths=g.groups))
+      
+      labels = c(labels, paste(labFixed,labLevels,sep="_"))
+    }
+    if(!is.null(dataRandom)){
+      modNames = colnames(dataRandom)
+      gr.groups = modInfo$gr.groups
+      labRandom = inverse.rle(list(values=modNames,lengths=gr.groups))
+      labLevels = unlist(lapply(dataRandom,function(v) sort(levels(v))))
+      labels = c(labels, paste(labRandom,labLevels,sep="_"))
+    }
+    labels = c(labels, "sig2",paste("g",1:length(struc),sep="_"))
+	}else{
+    labels = c("mu",paste("beta",1:p,sep="_"),"sig2",paste("g",1:length(struc),sep="_"))
+	}
+  colnames(chains) = labels
 	return(chains)
 }
 

@@ -13,7 +13,7 @@ These functions computes a single Bayes factor, or estimate parameters, for a sp
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
     samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
     
-nWayAOV.Gibbs(y, X, struc, iterations = 10000, rscale = 1, progress = TRUE)
+nWayAOV.Gibbs(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL, iterations = 10000, rscale = 1, progress = TRUE, unreduce=TRUE)
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -28,6 +28,12 @@ A design matrix whose number of rows match \code{length(y)}.
 \item{struc}{
 Vector grouping the columns of \code{X} (see details).
 }
+  \item{dataFixed}{
+An (optional) data frame containing the fixed factors, one column per factor. Columns will be converted to factors if they are not factors already. If \code{dataFixed} or \code{dataRandom} are specified, \code{X} and \code{struc} for the corresponding full model will be constructed
+}
+  \item{dataRandom}{
+An (optional) data frame containing the random factors, one column per factor. Columns will be converted to factors if they are not factors already.
+}
 
 \item{iterations}{
 Number of Monte Carlo samples used to estimate Bayes factor.
@@ -40,7 +46,9 @@ A scalar or a vector (same length as \code{struc}) of prior scale(s) (see detail
 \item{progress}{
 If \code{TRUE}, text progress bar is displayed
 }
-
+\item{unreduce}{
+  \code{TRUE}, project the \code{K-1} effects back into \code{K} effects that sum to 0 (if \code{X} is constructed using \code{dataFixed})
+}
   \item{samples}{
 If \code{TRUE}, return the Monte Carlo samples used in estimating the integral (default is \code{FALSE})
 }
@@ -113,16 +121,20 @@ X <- cbind(1, group.column, subject.matrix)
 ## Bayes factor of full model against grand-mean only model
 bf.full <- nWayAOV.MC(y = sleep$extra, X = X, struc = c(1,10), rscale=c(.5,1))
 
-## Build new design matrix so that we can interpret 
-## first beta as difference between means
-group.column <- rep(1/c(-2,2),each=10)
-subject.matrix <- model.matrix(~sleep$ID - 1,data=sleep$ID)
-X <- cbind(1, group.column, subject.matrix)
-
 ## Sample from posterior distribution of full model
 ## And plot estimated effect of drug
 samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), rscale = c(0.5,1), progress = FALSE)
-plot(samples.full[,2])
+## transform effect so that it is interpretable as difference in means, and plot
+plot(samples.full[,2] * sqrt(2))
+
+\dontrun{
+## Alternative (easier) way to sample from the 
+## posterior distribution of the full model
+samples.full2 = nWayAOV.Gibbs(y = sleep$extra,
+        dataFixed = data.frame(sleep$group),      
+        dataRandom = data.frame(sleep$ID),
+        rscale = c(0.5,1), progress = FALSE)
+}
 
 ## Remove subject effect
 X <- cbind(1, subject.matrix)
