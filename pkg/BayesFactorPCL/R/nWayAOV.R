@@ -192,15 +192,19 @@ nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,it
     labels = c("mu")
     if(!is.null(dataFixed)){
       g.groups = modInfo$g.groups
-      modNames = strsplit(modInfo$names," + ", fixed=TRUE)
+      tempEnv = new.env(parent=baseenv())
+      tempEnv$dataFixed=dataFixed
+      n.levels = sapply(1:length(g.groups),other.design,fixed=FALSE,tempEnv)
+      modNames = unlist(strsplit(modInfo$names," + ", fixed=TRUE))
       if(unreduce){
-        chains = unreduceChains(g.groups,chains)
-        g.groups = g.groups + 1
-        labLevels = unlist(lapply(dataFixed,function(v) sort(levels(v))))
+        chains = unreduceChains(g.groups,tempEnv,chains)
+        labLevels = unlist(sapply(n.levels,function(i) 1:i))
+        labFixed = inverse.rle(list(values=modNames,lengths=n.levels))
       }else{
         labLevels = unlist(sapply(g.groups,function(i) 1:i))
+        labFixed = inverse.rle(list(values=modNames,lengths=g.groups))
       }
-      labFixed = inverse.rle(list(values=modNames,lengths=g.groups))
+      
       
       labels = c(labels, paste(labFixed,labLevels,sep="_"))
     }

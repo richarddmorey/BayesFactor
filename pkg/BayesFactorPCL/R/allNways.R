@@ -174,20 +174,18 @@ nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL
   return(bfs)
 }
 
-unreduceChains = function(g.groups, chains){
+unreduceChains = function(g.groups, env, chains){
   iterations <- dim(chains)[1]
   fixed.chains = chains[,2:(1+sum(g.groups))]
   fixed.chains = matrix(fixed.chains,nrow=iterations)
+
   stdChains = lapply(1:length(g.groups), 
-    function(el, g.groups, chains){
+    function(el, g.groups, env, chains){
       sums = c(0,cumsum(g.groups))
-      nlev = g.groups[el] + 1
-      C = chains[,sums[el] + 1:(nlev-1)]
-      centering=diag(nlev)-(1/nlev)
-      S=(eigen(centering)$vectors)[,1:(nlev-1)]
-      S = matrix(S,nrow=nlev)
+      C = chains[ ,sums[el] + 1:(g.groups[el]) ]
+      S = other.design(el,fixed=TRUE,env,type="c")
       C%*%t(S)
-    }, g.groups=g.groups, chains=fixed.chains)
+    }, g.groups=g.groups, env=env, chains=fixed.chains)
   unreduced = data.frame(stdChains)
   mcmc(data.frame(chains[,1],unreduced,chains[,-(1:(1+sum(g.groups)))]))
 }
@@ -270,19 +268,31 @@ other.design = function(effNum,fixed=TRUE,env,type="g")
       return(NULL)
   }
   data = get("dataFixed",envir=env)
-  dataRandom = get("dataRandom",envir=env)
+  #dataRandom = get("dataRandom",envir=env)
   interaction = binary(effNum)$dicotomy
   my.names = colnames(data)[which(interaction)]
   if(sum(interaction)==1){
-      df = nlevels(data[,which(interaction)])-1
+      df = nlevels(data[,which(interaction)])-fixed
   }else{
-      df = prod(unlist(lapply(data[,which(interaction)],nlevels))-1)
+      df = prod(unlist(lapply(data[,which(interaction)],nlevels))-fixed)
   }
   if(type=="g"){
     return(df)
   }else if(type=="n"){
     my.names <- gsub(":", "-", my.names, fixed=TRUE)
     return(paste(my.names,collapse=":"))
+  }else if(type=='c'){
+    if(sum(interaction)==1){
+      nlev = nlevels(data[,which(interaction)])
+      centering=diag(nlev)-(1/nlev)
+      S=(eigen(centering)$vectors)[,1:(nlev-1)]
+      return(matrix(S,nrow=nlev))
+    }else{
+      eff1 = 2^(which(interaction)[1]-1)
+      eff2 = sum(2^(which(interaction)[-1]-1))
+      S = other.design(eff1,fixed,env,type="c") %x%  other.design(eff2,fixed,env,type="c")
+      return(S)
+    }    
   }
 }
 
