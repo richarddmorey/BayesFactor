@@ -54,9 +54,9 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   	bfs = bfs - bfs[topModelIndex]
   }
   if(logbf){
-  	return(sort(bfs))
+  	return(sort(bfs, decreasing=TRUE))
   }else{
-  	return(sort(exp(bfs)))
+  	return(sort(exp(bfs), decreasing=TRUE))
   }
 }
 

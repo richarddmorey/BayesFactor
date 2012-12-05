@@ -86,7 +86,8 @@ allLinearReg(y = attitude$rating, covariates = attitude[,-1])
 output <- allLinearReg(y = attitude$rating, covariates = attitude[,-1], extraInfo = TRUE)
 output$bf <- output$bf / output$bf[which.max(output$p)]
 
-print(output)
+## What are the top models?
+head(output)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
