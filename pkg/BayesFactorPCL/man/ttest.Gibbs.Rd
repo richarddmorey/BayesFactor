@@ -10,9 +10,11 @@ Function to for Bayesian analysis of one- and two sample designs
 one-sample designs, using Gibbs sampling; \code{ttest.Quad} computes Bayes factors for one- or two-sample designs.
 }
 \usage{
-ttest.Gibbs(y,iterations=10000,rscale=sqrt(2)/2,null.interval=NULL,progress=TRUE, logbf = FALSE)
+ttest.Gibbs(y, iterations=10000, rscale=sqrt(2)/2, null.interval=NULL,
+    progress=TRUE, logbf = FALSE)
 
-ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2)/2, prior.cauchy = TRUE, logbf=FALSE)
+ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2)/2, prior.cauchy = TRUE, 
+    logbf=FALSE)
 
 }
 \arguments{

@@ -13,7 +13,8 @@ These functions computes a single Bayes factor, or estimate parameters, for a sp
 nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
     samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
     
-nWayAOV.Gibbs(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL, iterations = 10000, rscale = 1, progress = TRUE, unreduce=TRUE)
+nWayAOV.Gibbs(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL, 
+    iterations = 10000, rscale = 1, progress = TRUE, unreduce=TRUE)
 }
 
 %- maybe also 'usage' for other objects documented here.

@@ -9,7 +9,9 @@ Function to compute the Bayes factors in an ANOVA design
 This function computes Bayes factors for all main-effects and interaction contrasts in an ANOVA design. 
 }
 \usage{
-allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, only.top = TRUE, progress = TRUE, rscaleFixed = .5, rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
+allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, 
+        which.models = "simple", progress = TRUE, rscaleFixed = .5, 
+        rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
     
 }
 
@@ -27,8 +29,8 @@ A data frame containing the random factors, one column per factor. Columns will 
   \item{iterations}{
 Number of Monte Carlo samples to perform (see details).  
 }
-  \item{only.top}{
-If \code{FALSE}, then all nested submodels will be compared.  If \code{TRUE}, then only the first level of a top-down strategy of comparing submodels missing a single covariate is implemented.  \code{TRUE} is the default because the comparisons are analogous to classical ANOVA, and this option dramatically cuts down the computation time (see details).
+  \item{which.models}{
+One of three values: 'all', 'top', or 'simple' (see details).
 }
 \item{progress}{
 If \code{TRUE}, a text progress bar is displayed. Currently unavailable if \code{multicore=TRUE}.
@@ -66,13 +68,14 @@ Bayes factors are computed by integrating the likelihood with respect to the pri
 
 If no random factors are specified, the null model assumed by \code{allNways} is the grand-mean only model. If random factors are specified, the null model is the model with all random factors plus a grand mean. Thus, \code{allNways} cannot currently be used to test random factors. Testing random factors is possible with \code{\link{nWayAOV.MC}}.
 
+The argument \code{which.models} controls which models are tested. Setting \code{which.models} to 'all' will test all models that can be created by including or not including a main effect or interaction. 'top' will test all models that can be created by removing or leaving in a main effect or interaction term from the full model. 'simple' will test all models, with the constraint that if an interaction is included, the corresponding simple effects are also included.
 }
 
 
 \value{
-If \code{only.top} is FALSE, a vector of Bayes factors, each measuring the support for a model relative to the null model. 
+If \code{which.models} is 'all' or 'simple', a vector of Bayes factors, each measuring the support for a model relative to the null model. 
 
-If \code{only.top} is TRUE, a vector of Bayes factors, each measuring the support for a model relative to the full model. Only the models that can be formed by removing an effect or interaction from the full model are analyzed and returned.
+If \code{which.models} is 'top', a vector of Bayes factors, each measuring the support for a model relative to the full model. Only the models that can be formed by removing an effect or interaction from the full model are analyzed and returned.
 }
 
 \references{
@@ -91,7 +94,7 @@ Richard D. Morey, Jeffrey N. Rouder
 \section{Warning }{
 The function \code{allNways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
 
-It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{only.top} argument. This reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. If other tests are required besides those provided by \code{only.top}, they can be obtained via the function \code{\link{nWayAOV.MC}}.
+It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{which.models} argument. Setting this argument to 'top' reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. Setting \code{which.models} to 'simple' will not reduce the number of tests as much as 'top' but the results may be more interpretable, since an interaction is only allowed when all simple effects are included in the model.
 
 }
 \seealso{

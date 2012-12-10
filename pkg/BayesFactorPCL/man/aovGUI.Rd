@@ -9,9 +9,9 @@ Function to start GUI for computing the Bayes factors in an ANOVA design
 This function starts a graphical user interface that allows model comparisons with data from ANOVA designs. 
 }
 \usage{
-    aovGUI(y, dataFixed=NULL, dataRandom=NULL, iterations = 1000, 
-    		rscaleFixed=.5, rscaleRandom=1)
 
+aovGUI(y, dataFixed=NULL, dataRandom=NULL, iterations = 1000, 
+    		rscaleFixed=.5, rscaleRandom=1)
 }
 
 %- maybe also 'usage' for other objects documented here.

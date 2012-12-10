@@ -1,5 +1,8 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.top=TRUE, progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="simple", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
 {
+  if( !(which.models %in% c("all","top","simple"))){
+    stop("Invalid value for which.models: must be 'all', 'top', or 'simple'")
+  }
   # Convert to factors if needed.
   if(!is.null(dataFixed)){
     dataFixed = data.frame(dataFixed)
@@ -17,7 +20,7 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   }
   
   nFac = dim(dataFixed)[2]
-  if(nFac==1) only.top=FALSE
+  if(nFac==1) which.models='all'
   bfEnv = new.env(parent = baseenv())
   designs = list()
   designs[[2^nFac]] = matrix(nrow=0,ncol=0)
@@ -30,9 +33,9 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
 
   
   if(multicore){
-    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, only.top, progress=FALSE, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, which.models, progress=FALSE, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }else{
-    allResults <- all.Nways.env(env=bfEnv,iterations=iterations, only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env(env=bfEnv,iterations=iterations, which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }
   bfs = as.numeric(allResults[1,])
   names(bfs) = allResults[2,]
@@ -41,13 +44,13 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   if(!is.null(dataRandom))
   {
   	nullMod = as.numeric(
-                nWayAOV2(0,bfEnv,iterations=iterations, only.top, 
+                nWayAOV2(0,bfEnv,iterations=iterations, which.models, 
                       rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)[1]
                 )
   	bfs = bfs - nullMod
 	bfs[1] = 0
   }
-  if(only.top){
+  if(which.models=="top"){
   	topModel = ((2^(2^nFac-1))-1)
   	topModelName= paste(joined.design(topModel,env=bfEnv,other="n"),collapse=" + ")
   	topModelIndex = which(names(bfs)==topModelName)
@@ -60,16 +63,18 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, only.to
   }
 }
 
-all.Nways.env = function(env, only.top=FALSE, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+all.Nways.env = function(env, which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
   data = env$dataFixed
 	nFac = dim(data)[2]
 	topMod = ((2^(2^nFac-1))-1)
-	if(!only.top){
+	if(which.models=="all"){
 		modNums = 1:topMod
-	}else{
+	}else if(which.models=="top"){
 		nDig = 2^nFac-1
 		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
 		modNums <- as.list(mods)
+	}else if( which.models=="simple"){
+    modNums = makeModelsAllLevels(nFac)
 	}
   if(progress){
     results <- pbsapply(modNums,nWayAOV2,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...)     
@@ -81,10 +86,10 @@ all.Nways.env = function(env, only.top=FALSE, progress=progress, rscaleFixed=rsc
 
 
 #### Multi core version
-all.Nways.env.mc = function(env, only.top=FALSE,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+all.Nways.env.mc = function(env, which.models,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
   if(!require(doMC)){
     warning("Required package (doMC) missing for multicore functionality. Falling back to single core functionality.")
-    allResults <- all.Nways.env(env=env, only.top=only.top, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env(env=env, which.models=which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
     return(allResults)
   }  
   
@@ -96,12 +101,14 @@ all.Nways.env.mc = function(env, only.top=FALSE,progress=progress, rscaleFixed=r
   data = env$dataFixed
   nFac = dim(data)[2]
   topMod = ((2^(2^nFac-1))-1)
-  if(!only.top){
+  if(which.models=="all"){
     modNums = 1:topMod
-  }else{
+  }else if(which.models=="top"){
     nDig = 2^nFac-1
     mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
     modNums <- as.list(mods)
+  }else if( which.models=="simple"){
+    modNums = makeModelsAllLevels(nFac)
   }
   
   # Taken from http://stackoverflow.com/questions/10984556/is-there-way-to-track-progress-on-a-mclapply
@@ -318,3 +325,32 @@ my.design = function(effNum,fixed=TRUE,env)
     return(X)
   }
 }
+
+# This computes all the model numbers for a given "level"
+# (that is, main effects, two-way, three way)
+# assuming all effects at lower levels are included
+# and no models at higher levels are included
+makeModelsSingleLevel <- function(level,nFac)
+{
+  levels <- choose(nFac,1:nFac)
+  totals <- cumsum(levels)
+  first <- c()
+  last <- c()
+  if(level>1){
+    first <- rep(TRUE,totals[level-1])    
+  }
+  if(level<nFac){
+    last <- rep(FALSE, totals[nFac] - totals[level])
+  }
+  #middle <- sapply(0:(2^levels[level]-1),function(n,dim) BayesFactor:::binary(n,dim=dim)$dicotomy,dim=levels[level])
+  middle <- as.matrix(expand.grid(rep(list(c(FALSE,TRUE)),levels[level])),ncol=levels[level])
+  modelBin <- apply(middle,1,function(v,first,last) c(first,v,last), first=first,last=last)
+  apply(modelBin,2,function(v) sum(2^(0:(length(v)-1))[v]))
+}
+
+# This computes all models numbers for all levels, as above 
+makeModelsAllLevels <- function(nFac){
+  modList = unique(unlist(lapply(1:nFac,makeModelsSingleLevel,nFac=nFac)))
+  modList = modList[modList!=0]
+}
+

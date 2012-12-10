@@ -31,7 +31,7 @@ summary(classical)
 
 ## Bayes Factor
 ## Best model is main effects model, no interaction
-allNways(y = puzzles$RT, dataFixed = puzzles[,3:4], dataRandom = puzzles$ID, only.top = FALSE, progress = FALSE)
+allNways(y = puzzles$RT, dataFixed = puzzles[,3:4], dataRandom = puzzles$ID, progress = FALSE)
 
 }
 \keyword{datasets}
