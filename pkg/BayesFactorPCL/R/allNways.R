@@ -204,9 +204,7 @@ design.mat.single=function(v,reduce=TRUE)
   X = matrix(0,nrow=length(v),ncol=nlev)
   X[1:length(v) + length(v)*(v-1)] = 1
   if(reduce){
-    centering=diag(nlev)-(1/nlev)
-    S=(eigen(centering)$vectors)[,1:(nlev-1)]
-    return(X%*%S)
+    return(X %*% fixedFromRandomProjection(nlev) )
   }else{
     return(X)
   }
@@ -291,9 +289,7 @@ other.design = function(effNum,fixed=TRUE,env,type="g")
   }else if(type=='c'){
     if(sum(interaction)==1){
       nlev = nlevels(data[,which(interaction)])
-      centering=diag(nlev)-(1/nlev)
-      S=(eigen(centering)$vectors)[,1:(nlev-1)]
-      return(matrix(S,nrow=nlev))
+      return(fixedFromRandomProjection(nlev))
     }else{
       eff1 = 2^(which(interaction)[1]-1)
       eff2 = sum(2^(which(interaction)[-1]-1))
@@ -352,5 +348,11 @@ makeModelsSingleLevel <- function(level,nFac)
 makeModelsAllLevels <- function(nFac){
   modList = unique(unlist(lapply(1:nFac,makeModelsSingleLevel,nFac=nFac)))
   modList = modList[modList!=0]
+}
+
+fixedFromRandomProjection <- function(nlevRandom){
+  centering=diag(nlevRandom)-(1/nlevRandom)
+  S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
+  return(matrix(S,nrow=nlevRandom))
 }
 
