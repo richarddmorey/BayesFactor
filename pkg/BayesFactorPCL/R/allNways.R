@@ -1,7 +1,7 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="simple", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="withmain", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
 {
-  if( !(which.models %in% c("all","top","simple"))){
-    stop("Invalid value for which.models: must be 'all', 'top', or 'simple'")
+  if( !(which.models %in% c("all","top","withmain"))){
+    stop("Invalid value for which.models: must be 'all', 'top', or 'withmain'")
   }
   # Convert to factors if needed.
   if(!is.null(dataFixed)){
@@ -73,7 +73,7 @@ all.Nways.env = function(env, which.models, progress=progress, rscaleFixed=rscal
 		nDig = 2^nFac-1
 		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
 		modNums <- as.list(mods)
-	}else if( which.models=="simple"){
+	}else if( which.models=="withmain"){
     modNums = makeModelsAllLevels(nFac)
 	}
   if(progress){
@@ -107,7 +107,7 @@ all.Nways.env.mc = function(env, which.models,progress=progress, rscaleFixed=rsc
     nDig = 2^nFac-1
     mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
     modNums <- as.list(mods)
-  }else if( which.models=="simple"){
+  }else if( which.models=="withmain"){
     modNums = makeModelsAllLevels(nFac)
   }
   
