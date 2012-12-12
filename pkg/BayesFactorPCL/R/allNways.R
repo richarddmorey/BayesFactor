@@ -1,5 +1,8 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="withmain", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, ...)
+allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="withmain", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, only.top=NULL, ...)
 {
+  if(!is.null(only.top)){
+    warning("only.top has been deprecated; use which.models instead. See the ?allNways for details.")
+  }
   if( !(which.models %in% c("all","top","withmain"))){
     stop("Invalid value for which.models: must be 'all', 'top', or 'withmain'")
   }

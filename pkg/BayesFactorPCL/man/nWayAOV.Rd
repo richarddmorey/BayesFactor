@@ -1,4 +1,4 @@
-\name{nWayAOV.MC}
+\name{ANOVA}
 \alias{nWayAOV.MC}
 \alias{nWayAOV}
 \alias{nWayAOV.Gibbs}
@@ -71,7 +71,7 @@ The models, priors, and methods of computation are provided in Rouder et al. (20
 The linear model for a vector of \eqn{N} observations, denoted by \eqn{y}, is 
 \deqn{ y = \mu + X \theta +\epsilon,}
 where \eqn{\theta} is a vector of \eqn{p} effects, \eqn{X} is an \eqn{N}-by-\eqn{p} design matrix, and \eqn{\epsilon} is a vector of \eqn{N} zero-centered noise terms with variance \eqn{\sigma^2}.    Zellner and Siow (1980) inspired g-priors are placed on effects, but with a possibly separate g-prior parameter for each effect:
-\deqn{\theta~N(0,\sigma^2G),} 
+\deqn{\theta ~ N(0,\sigma^2G),} 
 where \eqn{G} is a \eqn{p}-by-\eqn{p} diagonal matrix.  
 
 Following Gelman (2005), effects may grouped into blocks where effects within a single block are exchangable and those across blocks are not.  These blocks correspond to the main effect of a factor or the interaction between factors.  Blocking is implemented by placing constraints on diag(G) as follows.  Consider a design with two factors each with two levels.  There are eight effects (2 main effects for the two levels and 4 interaction effects) which should be grouped into three blocks (one for each main effect, and one for the interaction).  Exchangability within blocks but not across it is given by \eqn{diag(G)=(g_1, g_1, g_2, g_2, g_3, g_3, g_3, g_3, g_3)} where the first two elements are for one main effect, the next two are for the other, and the last four are for the interaction (assuming this order is coded in the design matrix \eqn{X}).  \code{struct} codes how the diagonal of \eqn{G} should be grouped, with each entry indicating how many levels are in a block. Note \code{sum(struct)} must equal the number of non-constant columns of \code{X}.  
@@ -120,11 +120,13 @@ subject.matrix <- model.matrix(~sleep$ID - 1,data=sleep$ID)
 X <- cbind(1, group.column, subject.matrix)
 
 ## Bayes factor of full model against grand-mean only model
-bf.full <- nWayAOV.MC(y = sleep$extra, X = X, struc = c(1,10), rscale=c(.5,1))
+bf.full <- nWayAOV.MC(y = sleep$extra, X = X, struc = c(1,10), 
+    rscale=c(.5,1))
 
 ## Sample from posterior distribution of full model
 ## And plot estimated effect of drug
-samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), rscale = c(0.5,1), progress = FALSE)
+samples.full <- nWayAOV.Gibbs(y = sleep$extra, X = X, struc = c(1,10), 
+    rscale = c(0.5,1), progress = FALSE)
 ## transform effect so that it is interpretable as difference in means, and plot
 plot(samples.full[,2] * sqrt(2))
 

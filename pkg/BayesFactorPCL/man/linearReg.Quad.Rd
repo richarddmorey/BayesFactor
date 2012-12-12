@@ -1,4 +1,4 @@
-\name{linearReg.Quad}
+\name{Linear Regression}
 \alias{linearReg.Quad}
 \alias{linearReg.Gibbs}
 %- Also NEED an '\alias' for EACH other topic documented here.

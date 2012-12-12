@@ -1,4 +1,4 @@
-\name{ttest.Gibbs}
+\name{t tests}
 \alias{ttest.Gibbs}
 \alias{ttest.Quad}
 %- Also NEED an '\alias' for EACH other topic documented here.

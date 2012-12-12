@@ -11,7 +11,7 @@ This function computes Bayes factors for all main-effects and interaction contra
 \usage{
 allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, 
         which.models = "withmain", progress = TRUE, rscaleFixed = .5, 
-        rscaleRandom = 1, logbf = FALSE, multicore = FALSE, ...) 
+        rscaleRandom = 1, logbf = FALSE, multicore = FALSE, only.top=NULL, ...) 
     
 }
 
@@ -46,6 +46,9 @@ If \code{TRUE}, return the natural logarithm of the Bayes factor
 \item{multicore}{
 If \code{TRUE}, and the \code{\link[doMC:doMC-package]{doMC}} 
  package is installed, the function will attempt to use multiple cores. Number of cores is set by options(cores).
+}
+\item{only.top}{
+This argument does nothing; it has been replaced by \code{which.models}, and will be removed in the future.
 }
 
 \item{...}{

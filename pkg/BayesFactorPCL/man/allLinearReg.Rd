@@ -83,7 +83,8 @@ allLinearReg(y = attitude$rating, covariates = attitude[,-1])
 ## Best model is 'complaints' only
 
 ## Output extra info, and compute all Bayes factors against full model
-output <- allLinearReg(y = attitude$rating, covariates = attitude[,-1], extraInfo = TRUE)
+output <- allLinearReg(y = attitude$rating, covariates = attitude[,-1],
+    extraInfo = TRUE)
 output$bf <- output$bf / output$bf[which.max(output$p)]
 
 ## What are the top models?

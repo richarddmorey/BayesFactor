@@ -1,4 +1,4 @@
-\name{oneWayAOV.Gibbs}
+\name{one-way ANOVA}
 \alias{oneWayAOV}
 \alias{oneWayAOV.Gibbs}
 \alias{oneWayAOV.Quad}
@@ -111,7 +111,9 @@ postSD <- apply(samples,2,sd)[2:7]
 
 # Plot
 cellMeans <- postMeans[1] + postMeans[2:7]
-plot(cellMeans, pch=19, ylim = c(0,5.5),xlim=c(0,7), axes=FALSE, ylab="Insect Count", xlab="Spray", main="Bayesian analysis\nPosterior means (with SDs)")
+plot(cellMeans, pch=19, ylim = c(0,5.5),xlim=c(0,7), axes=FALSE, 
+    ylab="Insect Count", xlab="Spray", 
+    main="Bayesian analysis\nPosterior means (with SDs)")
 arrows(1:6, cellMeans - postSD,1:6, cellMeans + postSD, code=3, angle=90)
 axis(2, at=sqrt(0:6*5), lab=0:6*5)
 axis(1, at=1:6, lab=LETTERS[1:6])
