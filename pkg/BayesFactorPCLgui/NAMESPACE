@@ -1,8 +1,0 @@
-#useDynLib(BayesFactorPCLgui)
-
-import(RGtk2)
-import(grDevices)
-import(XML)
-
-exportPattern("^[^\\.]")
-exportPattern("_") # Needed for the Glade interface
