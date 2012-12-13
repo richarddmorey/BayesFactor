@@ -10,8 +10,9 @@ This function computes Bayes factors for all main-effects and interaction contra
 }
 \usage{
 allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, 
-        which.models = "withmain", progress = TRUE, rscaleFixed = .5, 
-        rscaleRandom = 1, logbf = FALSE, multicore = FALSE, only.top=NULL, ...) 
+        whichModels = "withmain", progress = TRUE, rscaleFixed = .5, 
+        rscaleRandom = 1, logbf = FALSE, multicore = FALSE, 
+        extraInfo=FALSE, only.top=NULL, ...) 
     
 }
 
@@ -29,7 +30,7 @@ A data frame containing the random factors, one column per factor. Columns will 
   \item{iterations}{
 Number of Monte Carlo samples to perform (see details).  
 }
-  \item{which.models}{
+  \item{whichModels}{
 One of three values: 'all', 'top', or 'withmain' (see details).
 }
 \item{progress}{
@@ -47,8 +48,11 @@ If \code{TRUE}, return the natural logarithm of the Bayes factor
 If \code{TRUE}, and the \code{\link[doMC:doMC-package]{doMC}} 
  package is installed, the function will attempt to use multiple cores. Number of cores is set by options(cores).
 }
+\item{extraInfo}{
+  If \code{TRUE}, return a data frame containing useful information. If \code{FALSE}, only the Bayes factors are returned. 
+}
 \item{only.top}{
-This argument does nothing; it has been replaced by \code{which.models}, and will be removed in the future.
+This argument does nothing; it has been replaced by \code{whichModels}, and will be removed in the future.
 }
 
 \item{...}{
@@ -71,14 +75,14 @@ Bayes factors are computed by integrating the likelihood with respect to the pri
 
 If no random factors are specified, the null model assumed by \code{allNways} is the grand-mean only model. If random factors are specified, the null model is the model with all random factors plus a grand mean. Thus, \code{allNways} cannot currently be used to test random factors. Testing random factors is possible with \code{\link{nWayAOV.MC}}.
 
-The argument \code{which.models} controls which models are tested. Setting \code{which.models} to 'all' will test all models that can be created by including or not including a main effect or interaction. 'top' will test all models that can be created by removing or leaving in a main effect or interaction term from the full model. 'withmain' will test all models, with the constraint that if an interaction is included, the corresponding main effects are also included.
+The argument \code{whichModels} controls which models are tested. Setting \code{whichModels} to 'all' will test all models that can be created by including or not including a main effect or interaction. 'top' will test all models that can be created by removing or leaving in a main effect or interaction term from the full model. 'withmain' will test all models, with the constraint that if an interaction is included, the corresponding main effects are also included.
 }
 
 
 \value{
-If \code{which.models} is 'all' or 'withmain', a vector of Bayes factors, each measuring the support for a model relative to the null model. 
+If \code{whichModels} is 'all' or 'withmain', a vector of Bayes factors, each measuring the support for a model relative to the null model. 
 
-If \code{which.models} is 'top', a vector of Bayes factors, each measuring the support for a model relative to the full model. Only the models that can be formed by removing an effect or interaction from the full model are analyzed and returned.
+If \code{whichModels} is 'top', a vector of Bayes factors, each measuring the support for a model relative to the full model. Only the models that can be formed by removing an effect or interaction from the full model are analyzed and returned.
 }
 
 \references{
@@ -97,7 +101,7 @@ Richard D. Morey, Jeffrey N. Rouder
 \section{Warning }{
 The function \code{allNways} will compute Bayes factors for all possible combinations of fixed factors and interactions, against the null hypothesis that \emph{all} effects are 0. The total number of tests computed will be \eqn{2^{2^K - 1}}{2^(2^K - 1)} for \eqn{K} fixed factors. This number increases very quickly with the number of factors. For instance, for a five-way ANOVA, the total number of tests exceeds two billion. Even though each test takes a fraction of a second, the time taken for all tests could exceed your lifetime.
 
-It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{which.models} argument. Setting this argument to 'top' reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. Setting \code{which.models} to 'withmain' will not reduce the number of tests as much as 'top' but the results may be more interpretable, since an interaction is only allowed when all interacting effects (main or interaction) are also included in the model.
+It is possible to reduce the number of models tested by only testing the most complex model and every restriction that can be formed by removing one factor or interaction using the \code{whichModels} argument. Setting this argument to 'top' reduces the number of tests to \eqn{2^K-1}, which is more manageable. The Bayes factor for each restriction against the most complex model can be interpreted as a test of the removed factor/interaction. Setting \code{whichModels} to 'withmain' will not reduce the number of tests as much as 'top' but the results may be more interpretable, since an interaction is only allowed when all interacting effects (main or interaction) are also included in the model.
 }
 \seealso{
 \code{\link{nWayAOV.MC}}, \code{\link{aov}}, \code{\link{ttest.Quad}}, \code{\link{oneWayAOV.Quad}},\code{\link{oneWayAOV.Gibbs}}, \code{\link[doMC:doMC-package]{doMC}}, \code{\link{options}}

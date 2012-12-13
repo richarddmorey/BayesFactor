@@ -1,10 +1,13 @@
-allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.models="withmain", progress=TRUE, rscaleFixed=.5, rscaleRandom=1, logbf=FALSE, multicore=FALSE, only.top=NULL, ...)
+allNways = function(y, dataFixed=NULL, dataRandom=NULL, iterations = 10000, 
+                    whichModels="withmain", progress=TRUE, rscaleFixed=.5, 
+                    rscaleRandom=1, logbf=FALSE, multicore=FALSE, extraInfo=FALSE, 
+                    only.top=NULL, ... )
 {
   if(!is.null(only.top)){
-    warning("only.top has been deprecated; use which.models instead. See the ?allNways for details.")
+    warning("only.top has been deprecated; use whichModels instead. See the ?allNways for details.")
   }
-  if( !(which.models %in% c("all","top","withmain"))){
-    stop("Invalid value for which.models: must be 'all', 'top', or 'withmain'")
+  if( !(whichModels %in% c("all","top","withmain"))){
+    stop("Invalid value for whichModels: must be 'all', 'top', or 'withmain'")
   }
   # Convert to factors if needed.
   if(!is.null(dataFixed)){
@@ -23,7 +26,7 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.m
   }
   
   nFac = dim(dataFixed)[2]
-  if(nFac==1) which.models='all'
+  if(nFac==1) whichModels='all'
   bfEnv = new.env(parent = baseenv())
   designs = list()
   designs[[2^nFac]] = matrix(nrow=0,ncol=0)
@@ -33,52 +36,88 @@ allNways = function(y,dataFixed=NULL,dataRandom=NULL,iterations = 10000, which.m
   bfEnv$y = y
   bfEnv$totalN = length(as.vector(y))
   bfEnv$dataRandom = dataRandom
+  bfEnv$nFac = nFac
 
   
   if(multicore){
-    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, which.models, progress=FALSE, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env.mc(env=bfEnv,iterations=iterations, whichModels, progress=FALSE, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }else{
-    allResults <- all.Nways.env(env=bfEnv,iterations=iterations, which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env(env=bfEnv,iterations=iterations, whichModels, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
   }
-  bfs = as.numeric(allResults[1,])
-  names(bfs) = allResults[2,]
-  bfs = c(null=0,bfs)
+
+  bfs = data.frame(t(allResults), stringsAsFactors=FALSE)
+  
+
+  
+  topModel = ((2^(2^nFac-1))-1)
+  topModelName= paste(joined.design(topModel,env=bfEnv,other="n"),collapse=" + ")
+  topModelIndex = which(bfs$model==topModelName)
+  
+  bfs = rbind(bfs,c(bf=0, model="null", number=0,
+              nParFixed=0,nParRandom=bfs$nParRandom[1],
+              rscaleFixed=NA,
+              rscaleRandom=bfs$rscaleRandom[1],
+              omitted=topModelName))
+  rownames(bfs) = bfs$model
+  
+  bfs$bf = as.numeric(bfs$bf)
+  bfs$number = as.integer(bfs$number)
+  bfs$nParFixed = as.integer(bfs$nParFixed)
+  bfs$nParRandom = as.integer(bfs$nParRandom)  
+  bfs$rscaleFixed = as.numeric(bfs$rscaleFixed)
+  bfs$rscaleRandom = as.numeric(bfs$rscaleRandom)  
   	
   if(!is.null(dataRandom))
   {
   	nullMod = as.numeric(
-                nWayAOV2(0,bfEnv,iterations=iterations, which.models, 
+                nWayAOV2(0,bfEnv,iterations=iterations, whichModels, 
                       rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)[1]
                 )
-  	bfs = bfs - nullMod
-	bfs[1] = 0
+  	bfs$bf = bfs$bf - nullMod
+	bfs$bf[bfs$model=="null"] = 0
   }
-  if(which.models=="top"){
-  	topModel = ((2^(2^nFac-1))-1)
-  	topModelName= paste(joined.design(topModel,env=bfEnv,other="n"),collapse=" + ")
-  	topModelIndex = which(names(bfs)==topModelName)
-  	bfs = bfs - bfs[topModelIndex]
+  
+  if(whichModels=="top"){
+  	bfs$bf = bfs$bf - bfs$bf[topModelIndex]
   }
-  if(logbf){
-  	return(sort(bfs, decreasing=TRUE))
+  
+  # Prepare for return
+  # sort
+  bfs = bfs[order(bfs$bf, decreasing=TRUE),]
+  
+  # exponentiate
+  if(!logbf){
+  	bfs$bf = exp(bfs$bf)
+  }
+  
+  if(extraInfo){
+    return(bfs)
   }else{
-  	return(sort(exp(bfs), decreasing=TRUE))
+    retVec = bfs$bf
+    names(retVec) = bfs$model
+    return(retVec)
   }
 }
 
-all.Nways.env = function(env, which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
-  data = env$dataFixed
-	nFac = dim(data)[2]
-	topMod = ((2^(2^nFac-1))-1)
-	if(which.models=="all"){
-		modNums = 1:topMod
-	}else if(which.models=="top"){
-		nDig = 2^nFac-1
-		mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
-		modNums <- as.list(mods)
-	}else if( which.models=="withmain"){
+makeModelsVector <- function(whichModels, nFac){
+  topMod = ((2^(2^nFac-1))-1)
+  if(whichModels=="all"){
+    modNums = 1:topMod
+  }else if(whichModels=="top"){
+    nDig = 2^nFac-1
+    mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
+    modNums <- as.list(mods)
+  }else if( whichModels=="withmain"){
     modNums = makeModelsAllLevels(nFac)
-	}
+  }
+  return(modNums)
+}
+
+all.Nways.env = function(env, whichModels, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+  data = env$dataFixed
+	nFac = env$nFac
+  modNums <- makeModelsVector(whichModels,nFac)
+  
   if(progress){
     results <- pbsapply(modNums,nWayAOV2,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...)     
   }else{
@@ -89,10 +128,10 @@ all.Nways.env = function(env, which.models, progress=progress, rscaleFixed=rscal
 
 
 #### Multi core version
-all.Nways.env.mc = function(env, which.models,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
+all.Nways.env.mc = function(env, whichModels,progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...){
   if(!require(doMC)){
     warning("Required package (doMC) missing for multicore functionality. Falling back to single core functionality.")
-    allResults <- all.Nways.env(env=env, which.models=which.models, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
+    allResults <- all.Nways.env(env=env, whichModels=whichModels, progress=progress, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, ...)
     return(allResults)
   }  
   
@@ -102,54 +141,22 @@ all.Nways.env.mc = function(env, which.models,progress=progress, rscaleFixed=rsc
   }
   
   data = env$dataFixed
-  nFac = dim(data)[2]
-  topMod = ((2^(2^nFac-1))-1)
-  if(which.models=="all"){
-    modNums = 1:topMod
-  }else if(which.models=="top"){
-    nDig = 2^nFac-1
-    mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
-    modNums <- as.list(mods)
-  }else if( which.models=="withmain"){
-    modNums = makeModelsAllLevels(nFac)
-  }
+  nFac = env$nFac
   
-  # Taken from http://stackoverflow.com/questions/10984556/is-there-way-to-track-progress-on-a-mclapply
-  # Multicore progress bar: does not work!
-  if(progress){
-    bfs <- local({
-      f <- fifo(tempfile(), open="w+b", blocking=TRUE)
-      if (inherits(fork(), "masterProcess")) {
-        # Child
-        progressSoFar <- 0.0
-        cat(progressSoFar,"\n")
-        while (progressSoFar < 1 & !isIncomplete(f)) {
-          msg <- readBin(f, "double")
-          progressSoFar <- progressSoFar + as.numeric(msg)
-          cat(sprintf("Progress: %.2f%%\n", progressSoFar * 100))
-        } 
-        exit()
-      }
-      numJobs <- length(modNums)
-      progressCallback = function(){
-        writeBin(1/numJobs, f)
-      }
-    
-      bfs <- foreach(gIndex=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(gIndex,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom, progressCallback = progressCallback,...) 
-    
-      close(f)
-      bfs
-    })
-  }else{
-    # No progress bar
-    bfs <- foreach(gIndex=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(gIndex,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...) 
-  }  
-  return(bfs)
+  modNums <- makeModelsVector(whichModels,nFac)
+  
+  # No progress bar
+  results <- foreach(gIndex=modNums,.combine='cbind', .options.multicore=mcoptions) %dopar% nWayAOV2(gIndex,env=env, rscaleFixed=rscaleFixed, rscaleRandom=rscaleRandom,...) 
+  
+  return(results)
 }
 
 buildModelInfo <- function(modNum, env) {
+  nFac = env$nFac
+  nModels = 2^(2^nFac - 1)
   X = joined.design(modNum,env=env)
-  my.name = paste(joined.design(modNum,env=env,other="n"),collapse=" + ")
+  my.name = paste(joined.design(modNum, env=env, other="n"), collapse=" + ")
+  my.omitted = paste(joined.design(nModels - modNum - 1, env=env, other="n"), collapse=" + ")
   g.groups = unlist(joined.design(modNum,env=env,other="g"))
   dataRandom = env$dataRandom
   if(!is.null(dataRandom)){
@@ -162,7 +169,8 @@ buildModelInfo <- function(modNum, env) {
     struc = c(g.groups,gr.groups),
     g.groups = g.groups,
     gr.groups = gr.groups,
-    names=my.name
+    names=my.name,
+    omitted=my.omitted
     ))
 }
 
@@ -173,9 +181,16 @@ nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL
   y = env$y
   
   bfs = c(nWayAOV.MC(y, modInfo$X, modInfo$struc, samples=FALSE,logbf=TRUE, progress=FALSE, 
-  						rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...), 
-  						modInfo$names)
-  names(bfs)=modInfo$names
+  						rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...), 		
+          modInfo$names,
+          modNum,
+          sum(modInfo$g.groups),
+          sum(modInfo$gr.groups),
+          ifelse(length(rscaleFixed)==1,rscaleFixed,NA),
+          ifelse(length(rscaleRandom)==1,rscaleRandom,NA),
+          modInfo$omitted
+          )
+  names(bfs) = c("bf","model","number","nParFixed","nParRandom","rscaleFixed","rscaleRandom","omitted")
   
   if(is.function(progressCallback)){
     progressCallback()
@@ -234,15 +249,7 @@ joined.design = function(modelNum, env, other=NULL)
   N = get("totalN",env)
   dataRandom = get("dataRandom",env)
   if(modelNum==0 & is.null(dataRandom)){
-    #if(!is.null(other)){
-    #  if(other=="g"){
-    #  	return(NULL)
-    #  }else if(other=="n"){
-    #  	return("<null>")
-    #  }
-    #}else{
       return(matrix(1,nrow=N))
-    #}
   }else{
     effects = binary(modelNum)$dicotomy
     effNums = which(effects)
