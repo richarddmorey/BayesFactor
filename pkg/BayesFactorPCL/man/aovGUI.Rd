@@ -10,8 +10,8 @@ This function starts a graphical user interface that allows model comparisons wi
 }
 \usage{
 
-aovGUI(y, dataFixed=NULL, dataRandom=NULL, iterations = 1000, 
-    		rscaleFixed=.5, rscaleRandom=1)
+aovGUI(y, dataFixed=NULL, dataRandom=NULL, iterations = 10000, 
+    		rscaleFixed="medium", rscaleRandom=1)
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -28,7 +28,7 @@ A data frame containing the random factors, one column per factor. Columns will 
   \item{iterations}{
 Number of Monte Carlo samples to perform (see details).  
 }
-\item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed.
+\item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed. A number of preset values are available as strings; see Details in \code{\link{allNways}} for more information.
 }
 \item{rscaleRandom}{
 The prior scale of effect size for factors that are treated as random.}

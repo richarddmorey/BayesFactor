@@ -78,11 +78,14 @@ newToken <- function(token, returnList)
   return(newToken)
 }
 
-aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL, iterations = 1000, rscaleFixed=.5, rscaleRandom=1){
+aovGUI <- function(y,dataFixed=NULL,dataRandom=NULL, iterations = 10000, rscaleFixed="medium", rscaleRandom=1){
   if(!exists("aov",envir=rookEnv)){
     rookEnv$aov <- new.env(parent = rookEnv)
   }
   
+  rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
+  rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
+
   rookEnv$RserveStatus = "free"
   
   # Convert to factors if needed.
@@ -198,6 +201,8 @@ setJSONdata <- function(req, res){
     rscaleFixed <- ifelse (is.null(req$params()$rscaleFixed), rookEnv$aov$defaults$rscaleFixed, as.numeric(req$params()$rscaleFixed))
     rscaleRandom <- ifelse (is.null(req$params()$rscaleRandom), rookEnv$aov$defaults$rscaleRandom, as.numeric(req$params()$rscaleRandom))
     iterations <- ifelse (is.null(req$params()$iterations), rookEnv$aov$defaults$iterations, as.integer(req$params()$iterations))
+    
+    
     
     tokensToAnalyze = c()
     modelsToAnalyze = c()
