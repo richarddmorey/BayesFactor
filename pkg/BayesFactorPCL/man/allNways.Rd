@@ -10,10 +10,9 @@ This function computes Bayes factors for all main-effects and interaction contra
 }
 \usage{
 allNways(y, dataFixed = NULL, dataRandom = NULL, iterations = 10000, 
-        whichModels = "withmain", progress = TRUE, rscaleFixed = .5, 
+        whichModels = "withmain", progress = TRUE, rscaleFixed = "medium", 
         rscaleRandom = 1, logbf = FALSE, multicore = FALSE, 
         extraInfo=FALSE, only.top=NULL, ...) 
-    
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -36,7 +35,7 @@ One of three values: 'all', 'top', or 'withmain' (see details).
 \item{progress}{
 If \code{TRUE}, a text progress bar is displayed. Currently unavailable if \code{multicore=TRUE}.
 }
-\item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed.
+\item{rscaleFixed}{The prior scale of effect size for factors that are treated as a fixed. A number of preset values can be given as strings; see Details.
 }
 \item{rscaleRandom}{
 The prior scale of effect size for factors that are treated as random.}
@@ -76,6 +75,9 @@ Bayes factors are computed by integrating the likelihood with respect to the pri
 If no random factors are specified, the null model assumed by \code{allNways} is the grand-mean only model. If random factors are specified, the null model is the model with all random factors plus a grand mean. Thus, \code{allNways} cannot currently be used to test random factors. Testing random factors is possible with \code{\link{nWayAOV.MC}}.
 
 The argument \code{whichModels} controls which models are tested. Setting \code{whichModels} to 'all' will test all models that can be created by including or not including a main effect or interaction. 'top' will test all models that can be created by removing or leaving in a main effect or interaction term from the full model. 'withmain' will test all models, with the constraint that if an interaction is included, the corresponding main effects are also included.
+
+For the \code{rscaleFixed} argument, several named values are recongized: "medium" corresponds to \eqn{r=1/2}{r=1/2}; "wide" corresponds to \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}.
+
 }
 
 

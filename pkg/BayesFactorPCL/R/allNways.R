@@ -1,5 +1,5 @@
 allNways = function(y, dataFixed=NULL, dataRandom=NULL, iterations = 10000, 
-                    whichModels="withmain", progress=TRUE, rscaleFixed=.5, 
+                    whichModels="withmain", progress=TRUE, rscaleFixed="medium", 
                     rscaleRandom=1, logbf=FALSE, multicore=FALSE, extraInfo=FALSE, 
                     only.top=NULL, ... )
 {
@@ -24,6 +24,9 @@ allNways = function(y, dataFixed=NULL, dataRandom=NULL, iterations = 10000,
       message("Converted columns of dataRandom to factors.")
     } 
   }
+  
+  rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
+  rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
   
   nFac = dim(dataFixed)[2]
   if(nFac==1) whichModels='all'

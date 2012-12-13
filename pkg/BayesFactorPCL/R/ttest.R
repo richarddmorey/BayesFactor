@@ -1,6 +1,8 @@
-ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2)/2,prior.cauchy=TRUE,logbf=FALSE)
+ttest.Quad=function(t,n1,n2=0,rscale="medium",prior.cauchy=TRUE,logbf=FALSE)
 {
-	nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
+  rscale = rpriorValues("ttest",,rscale)
+  
+  nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
 	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
 	r2=rscale^2
 	marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
@@ -15,9 +17,20 @@ ttest.Quad=function(t,n1,n2=0,rscale=sqrt(2)/2,prior.cauchy=TRUE,logbf=FALSE)
 	}
 }
 
-ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2)/2,null.interval=NULL,progress=TRUE,logbf=FALSE){
-	N = as.integer(length(y))
-	iterations = as.integer(iterations)
+ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",null.interval=NULL,progress=TRUE,logbf=FALSE){
+	if( (is.null(t) | is.null(n)) & !is.null(y) ){
+    n = as.integer(length(y))
+  }else if(!is.null(t) & !is.null(n)){
+    # Create some fake data with needed parameters to pass
+    y = rnorm(n)
+    y = (y - mean(y))/sd(y)
+    y = y + t / sqrt(n)
+    n = as.integer(n)
+	}else{
+    stop("Insufficient data: either t, or both t and n, must be given.")
+	}
+  rscale = rpriorValues("ttest",,rscale)
+  iterations = as.integer(iterations)
 	if(progress){
 		progress = round(iterations/100)
 		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
@@ -38,7 +51,7 @@ ttest.Gibbs = function(y,iterations=10000,rscale=sqrt(2)/2,null.interval=NULL,pr
     
     pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
 	
-	chains = .Call("RgibbsOneSample", y, N, rscale, iterations, do.interval, interval,
+	chains = .Call("RgibbsOneSample", y, n, rscale, iterations, do.interval, interval,
 				progress, pbFun, new.env(), package="BayesFactor")
 
 	if(progress) close(pb);

@@ -1,5 +1,6 @@
 linearReg.Quad=function(N,p,R2,rscale=1,logbf=FALSE) {
-	h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
+  rscale = rpriorValues("regression",,rscale)
+  h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
 	if(logbf){
 		return(log(h$value))
 	}else{
@@ -15,7 +16,8 @@ integrand.regression=function(g,N,p,R2,rscaleSqr=1)
 }
 
 linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL){
-  	X <- apply(covariates,2,function(v) v - mean(v))
+    rscale = rpriorValues("regression",,rscale)
+    X <- apply(covariates,2,function(v) v - mean(v))
   	y = matrix(y,ncol=1)
   	N = length(y)
   	p = ncol(X)

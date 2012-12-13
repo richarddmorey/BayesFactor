@@ -1,6 +1,8 @@
 
-oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1/2, progress=TRUE, gibi=NULL, logbf=FALSE){
-	N = as.integer(colSums(!is.na(y)))
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, gibi=NULL, logbf=FALSE){
+	
+  rscale = rpriorValues("allNways","fixed",rscale)
+  N = as.integer(colSums(!is.na(y)))
 	J=as.integer(dim(y)[2])
 	I=as.integer(dim(y)[1])
 	iterations = as.integer(iterations)
@@ -48,9 +50,10 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale=1/2, progress=TRUE, gibi=NU
 
 }
 
-oneWayAOV.Quad = function(F,N,J,rscale=1/2,logbf=FALSE)
+oneWayAOV.Quad = function(F,N,J,rscale="medium",logbf=FALSE)
 {
-	lbf = -log(integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]])
+  rscale = rpriorValues("allNways","fixed",rscale)
+  lbf = -log(integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]])
 	if(logbf){
 		return(-lbf)
 	}else{

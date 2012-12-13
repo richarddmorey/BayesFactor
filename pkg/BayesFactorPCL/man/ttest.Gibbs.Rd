@@ -10,12 +10,11 @@ Function to for Bayesian analysis of one- and two sample designs
 one-sample designs, using Gibbs sampling; \code{ttest.Quad} computes Bayes factors for one- or two-sample designs.
 }
 \usage{
-ttest.Gibbs(y, iterations=10000, rscale=sqrt(2)/2, null.interval=NULL,
-    progress=TRUE, logbf = FALSE)
-
-ttest.Quad(t, n1, n2 = 0, rscale = sqrt(2)/2, prior.cauchy = TRUE, 
+ttest.Quad(t, n1, n2 = 0, rscale = "medium", prior.cauchy = TRUE, 
     logbf=FALSE)
 
+ttest.Gibbs(y, t, n, iterations=10000, rscale="medium", null.interval=NULL,
+    progress=TRUE, logbf = FALSE)
 }
 \arguments{
   \item{y}{
@@ -25,7 +24,7 @@ A vector of observations
 Number of MCMC iterations to perform
 }
   \item{rscale}{
-The prior scale (see Details below)
+The prior scale.  A number of preset values can be given as strings; see Details.
 }
   \item{null.interval}{
 Vector of length two, giving a range of ``negligible'' standardized effect sizes to serve as an interval null hypothesis. Endpoints can be infinite.
@@ -42,6 +41,9 @@ Sample size for first group
 }
   \item{n2}{
 Sample size for second group. If a one-sample test is desired, \code{n2} should be 0.
+}
+\item{n}{
+Sample size for the single group (Gibbs sampler is for one-sample designs)
 }
   \item{prior.cauchy}{
 Use a Cauchy prior for the prior on effect size? If false, the prior on effect size is Normal (see Details below) 
@@ -60,6 +62,8 @@ A noninformative Jeffreys prior is placed on the variance of the normal populati
 prior is placed on the standardized effect size. The \code{rscale} argument controls the scale of the prior 
 distribution, with \code{rscale=1} yielding a standard Cauchy prior. If \code{prior.Cauchy=FALSE}, then a Normal prior is used
 instead of a Cauchy prior. See the references below for more details.
+
+For the \code{rscale} argument, several named values are recongized: "medium" corresponds to \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}; "wide" corresponds to \eqn{r=1}{r=1}.
 
 \code{ttest.Gibbs} samples from the posterior distributions for
 one-sample designs. For two (or more) sample designs, see \link{oneWayAOV.Gibbs} or \link{nWayAOV.Gibbs}.

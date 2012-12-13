@@ -37,6 +37,7 @@ linearReg2 <- function(modNum, y, covariates, extraInfo = FALSE, rscale = 1, log
 }
 
 allLinearReg <- function(y, covariates, extraInfo = FALSE, progress = FALSE, rscale = 1, logbf = FALSE, ...){
+  rscale = rpriorValues("regression",,rscale)
   topModel <- 2 ^ ncol(covariates) - 1
   ret <- list()
   progressEvery <- round((topModel + 1) / 100)

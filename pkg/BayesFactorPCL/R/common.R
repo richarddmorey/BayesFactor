@@ -2,6 +2,38 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
+  if(length(priorType)>1 | is.numeric(priorType)){
+    return(priorType)
+  }
+  
+  if(modelType=="allNways"){
+    return(
+      switch(effectType,
+             fixed = switch(priorType, 
+                            wide=sqrt(2)/2, 
+                            medium=1/2, 
+                            stop("Unknown prior type.")),
+             random = 1,
+             stop("Unknown prior type.")
+      )
+    )
+  }
+  
+  if(modelType=="ttest"){
+    return(
+      switch(priorType, wide=1, medium=sqrt(2)/2, stop("Unknown prior type."))  
+    )
+  }
+  
+  if(modelType=="regression"){
+    return(1)  
+  }
+  
+  stop("Unknown prior type.")
+}
+
+
 dinvgamma = function (x, shape, scale = 1) 
 {
     if (shape <= 0 | scale <= 0) {
