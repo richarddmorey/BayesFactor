@@ -121,7 +121,17 @@ allNways(y = sleep$extra,
       dataFixed = data.frame(sleep$group), 	   
       dataRandom = data.frame(sleep$ID), progress=FALSE)
 
+## Demonstrate top down testing
+data(puzzles)
 
+result = allNways(y = puzzles$RT, dataFixed = puzzles[,3:4], 
+    dataRandom = puzzles$ID, whichModels = 'top', extraInfo=TRUE, progress=FALSE)
+
+## 'result' contains data frame with extra information
+## `omitted' column shows which effect was left out
+result[c("bf","omitted")]
+## In orthogonal designs, the top down Bayes factor can be
+## interpreted as a test of the omitted effect
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
