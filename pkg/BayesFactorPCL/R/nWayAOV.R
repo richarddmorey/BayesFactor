@@ -392,8 +392,12 @@ makeChainNeater <- function(chains,struc,formula,dataFixed,dataRandom,unreduce){
            function(el, chains, parMap, terms, types, data){
              chains = chains[,parMap==el]
              term = strsplit(terms[el],':',fixed=TRUE)[[1]]
-             S = design.projection.intList(data[term], types)
-             return(chains%*%t(S))
+             if(any(types[term]=="fixed")){
+                S = design.projection.intList(data[term], types)
+                return(chains%*%t(S))
+             }else{
+                return(chains)
+             }
            }, 
            chains = betaChains, parMap = parMap,
            terms = terms, types = types,
