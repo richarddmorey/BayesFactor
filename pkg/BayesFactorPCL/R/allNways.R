@@ -183,8 +183,10 @@ nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL
   modInfo = buildModelInfo(modNum, env)
   y = env$y
   
-  bfs = c(nWayAOV.MC(y, modInfo$X, modInfo$struc, samples=FALSE,logbf=TRUE, progress=FALSE, 
-  						rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...), 		
+  aovResults = suppressMessages(nWayAOV.MC(y, X=modInfo$X, struc=modInfo$struc, samples=FALSE,logbf=TRUE, progress=FALSE, 
+                              rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...))
+  
+  bfs = c(aovResults, 		
           modInfo$names,
           modNum,
           sum(modInfo$g.groups),
@@ -240,11 +242,52 @@ design.mat.int = function(X1,X2)
   return(t(matrix(X3,ncol=dim(X1)[1])))
 }
 
+design.mat.intList <- function(Xlist){
+  if(length(Xlist)==1){
+    return(Xlist[[1]])
+  }else{
+    return(design.mat.int(Xlist[[1]], design.mat.intList(Xlist[-1]) ))
+  }    
+}
+
+design.names.intList <- function(Dlist,types){
+  type = types[colnames(Dlist)[1]]
+  nLevs = nlevels(Dlist[[1]])
+  if(length(Dlist)==1){
+    if(type=="random") return(levels(Dlist[[1]]))
+    if(type=="fixed") return(0:(nLevs-2))
+  }else{
+    if(type=="random") 
+      return(do.row.paste(levels(Dlist[[1]]), design.names.intList(Dlist[-1], types) ))
+    if(type=="fixed") 
+      return(do.row.paste(0:(nLevs-2), design.names.intList(Dlist[-1], types) ))
+  }    
+}
+
+design.projection.intList <- function(Dlist,types){
+  type = types[colnames(Dlist)[1]]
+  nLevs = nlevels(Dlist[[1]])
+  if(length(Dlist)==1){
+    if(type=="random") return(diag(nLevs))
+    if(type=="fixed") return(fixedFromRandomProjection(nLevs))
+  }else{
+    if(type=="random") 
+      return(kronecker(diag(nLevs), design.projection.intList(Dlist[-1], types) ))
+    if(type=="fixed") 
+      return(kronecker(fixedFromRandomProjection(nLevs), design.projection.intList(Dlist[-1], types) ))
+  }    
+}
+
+do.row.paste = function(v1,v2)
+{
+  as.vector(t(outer(v1,v2,paste,sep=".&.")))
+}
+
 do.row.mult = function(v,p1,p2)
 {
   v1 = v[1:p1]
   v2 = v[p1 + 1:p2]
-  as.vector(outer(v1,v2,'*'))
+  as.vector(t(outer(v1,v2,'*')))
 }
 
 joined.design = function(modelNum, env, other=NULL)

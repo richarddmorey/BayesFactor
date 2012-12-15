@@ -1,6 +1,64 @@
-nWayAOV.MC = function(y,X, struc,iterations=10000,rscale=1,progress=FALSE,samples=FALSE, gsamples=FALSE, gibi=NULL, logbf=FALSE){
-	
-	y = as.numeric(y)  
+
+
+nWayAOV.MC<- function(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL,
+           modelFormula = NULL, iterations = 10000, rscale = 1, rscaleFixed="medium", rscaleRandom=1, progress = FALSE, 
+           samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
+{
+  if(!is.null(X) & !is.null(struc)){
+    builtDesign = FALSE
+    message("Using X and struc arguments to build model.")
+    if(is.null(rscale)){
+      stop("rscale must be specified if using design matrix.")
+    }
+  }else if(!is.null(dataFixed) | !is.null(dataRandom)){
+    builtDesign = TRUE
+    
+    rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
+    rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
+    
+    # Convert to factors if needed.
+    if(!is.null(dataFixed)){
+      dataFixed = data.frame(dataFixed)
+      if(any(!sapply(dataFixed,is.factor)) & !is.null(dataFixed)){
+        dataFixed <- data.frame(lapply(dataFixed, as.factor))
+        message("Converted columns of dataFixed to factors.")
+      }
+    }
+    if(!is.null(dataRandom)){
+      dataRandom = data.frame(dataRandom)
+      if(any(!sapply(dataRandom,is.factor)) & !is.null(dataRandom)){
+        dataRandom <- data.frame(lapply(dataRandom, as.factor))
+        message("Converted columns of dataRandom to factors.")
+      } 
+    }
+    ## Build design matrix of full model
+    bfEnv = new.env(parent = baseenv())
+
+    bfEnv$dataFixed = dataFixed
+    bfEnv$dataRandom = dataRandom    
+    
+    if(is.null(modelFormula)){
+      message("Using dataFixed/dataRandom to build full model.")
+      modelFormula = topModelFormula(bfEnv)
+    }else{
+      message("Using formula and dataFixed/dataRandom to build model.")
+    } 
+    modInfo = buildModelInfoFormula(modelFormula, bfEnv)
+    X = modInfo$X
+    struc = modInfo$struc
+    effType = modInfo$type
+
+    rscale = sapply(effType, function(type){
+      if(type=="random") return(rscaleRandom)
+      if(type=="fixed") return(rscaleFixed)
+    })
+    
+  }else{
+    stop("Insufficient information specified to build model. Specify either X and struc, or dataFixed/dataRandom as appropriate.")
+  }
+  
+  
+  y = as.numeric(y)  
   X = as.numeric(X)
 	struc = unlist(struc)
 	
@@ -87,15 +145,109 @@ nWayAOV.MC = function(y,X, struc,iterations=10000,rscale=1,progress=FALSE,sample
 	}
 }
 
+topModelFormula <- function(env)
+{  
+  dataFixed = env$dataFixed
+  dataRandom = env$dataRandom
+  
+  if(!is.null(dataFixed)){
+    fixedPart = paste(colnames(dataFixed),collapse=" * ")
+  }else{
+    fixedPart = NULL
+  }
+  if(!is.null(dataRandom)){
+    randomPart = paste(colnames(dataRandom),collapse=" + ")
+  }else{
+    randomPart = NULL
+  }
+  wholeFormula = paste(c(fixedPart,randomPart),collapse=' + ')
+  return(as.formula(paste("~",wholeFormula)))
+}
 
-nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,iterations=10000,rscale=1,progress=TRUE, unreduce=TRUE)
+buildModelInfoFormula <- function(formula, env)
+{
+  terms = attr(terms(formula),"term.labels")
+  columns = unique(unlist(strsplit(terms,':',fixed=TRUE)))
+  
+  
+  dataFixed = env$dataFixed
+  dataRandom = env$dataRandom
+  
+  randomEffs = columns[columns %in% colnames(dataRandom)]
+  fixedEffs = columns[columns %in% colnames(dataFixed)]
+    
+  if(any(randomEffs %in% fixedEffs)) stop("Duplicate names in dataFixed and dataRandom.")
+  
+  effTypes <- sapply(terms, fixedOrRandom, fixedEffs=fixedEffs, randomEffs=randomEffs) 
+ 
+  
+  randomDesigns = lapply(dataRandom,dmat1,fixed=FALSE)
+  fixedDesigns = lapply(dataFixed,dmat1,fixed=TRUE)
+  names(randomDesigns) = colnames(dataRandom)
+  names(fixedDesigns) = colnames(dataFixed)
+  allDesigns = c(fixedDesigns,randomDesigns)
+  
+  modelDesignList <- lapply(terms,dmatGeneric,allDesigns=allDesigns)
+  struc = sapply(modelDesignList,ncol)
+  X = do.call(cbind,modelDesignList)
+  
+  return(list(X=X,struc=struc,types=effTypes))
+}
+
+fixedOrRandom <- function(term, fixedEffs, randomEffs){
+  splterm = strsplit(term,':',fixed=TRUE)[[1]]
+  if(length(splterm)==1){
+    if(splterm %in% randomEffs){
+      return("random")
+    }else if(splterm %in% fixedEffs){
+      return("fixed")
+    }
+  }else{
+    if(any(splterm %in% randomEffs)){
+      return("random")
+    }else if(all(splterm %in% fixedEffs)){
+      return("fixed")
+    }
+  }
+  stop(paste("Could not determine column type for ",term,"- was it included in data?"))
+}
+
+dmatGeneric <- function(term,allDesigns){
+  elements = strsplit(term,':',fixed=TRUE)[[1]]
+  if(length(elements)==1){
+      return(allDesigns[[term]])
+  }else{
+      return(design.mat.intList(allDesigns[elements]))
+  }
+}
+
+dmat1 <- function(data, fixed=FALSE){
+  data = data.frame(x = data)
+  data$x = as.factor(data$x)
+  X = model.matrix(~ x - 1, data)
+  X = matrix(X,nrow=length(data$x))
+  if(fixed){
+    X = X %*% fixedFromRandomProjection(ncol(X))
+  }
+  return(X)
+}
+
+
+
+
+nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,modelFormula = NULL,iterations=10000,rscale = 1,rscaleFixed="medium", rscaleRandom=1, progress=TRUE, unreduce=TRUE)
 {
   if(!is.null(X) & !is.null(struc)){
     builtDesign = FALSE
     message("Using X and struc arguments to build model.")
+    if(is.null(rscale)){
+      stop("rscale must be specified if using design matrix.")
+    }
   }else if(!is.null(dataFixed) | !is.null(dataRandom)){
     builtDesign = TRUE
-    message("Using dataFixed/dataRandom to build model.")
+    
+    rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
+    rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
     
     # Convert to factors if needed.
     if(!is.null(dataFixed)){
@@ -112,24 +264,28 @@ nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,it
         message("Converted columns of dataRandom to factors.")
       } 
     }
-    
-    
     ## Build design matrix of full model
     bfEnv = new.env(parent = baseenv())
-    nFac = dim(dataFixed)[2]
-    topModel = ((2^(2^nFac-1))-1)
-    designs = list()
-    designs[[2^nFac]] = matrix(nrow=0,ncol=0)
     
-    bfEnv$designMatrices = designs
     bfEnv$dataFixed = dataFixed
-    bfEnv$y = y
-    bfEnv$totalN = length(as.vector(y))
-    bfEnv$dataRandom = dataRandom
-    modInfo = buildModelInfo(topModel, bfEnv) 
+    bfEnv$dataRandom = dataRandom    
     
+    if(is.null(modelFormula)){
+      message("Using dataFixed/dataRandom to build full model.")
+      modelFormula = topModelFormula(bfEnv)
+    }else{
+      message("Using formula and dataFixed/dataRandom to build model.")
+    } 
+    modInfo = buildModelInfoFormula(modelFormula, bfEnv)
     X = modInfo$X
     struc = modInfo$struc
+    effType = modInfo$type
+    
+    rscale = sapply(effType, function(type){
+      if(type=="random") return(rscaleRandom)
+      if(type=="fixed") return(rscaleFixed)
+    })
+    
   }else{
     stop("Insufficient information specified to build model. Specify either X and struc, or dataFixed/dataRandom as appropriate.")
   }
@@ -189,37 +345,66 @@ nWayAOV.Gibbs <- function(y,X=NULL,struc=NULL,dataFixed=NULL, dataRandom=NULL,it
 	dim(chains) <- c(2 + p + length(struc), iterations)
 	chains = mcmc(t(chains))  
 	if(builtDesign){
-    labels = c("mu")
-    if(!is.null(dataFixed)){
-      g.groups = modInfo$g.groups
-      tempEnv = new.env(parent=baseenv())
-      tempEnv$dataFixed=dataFixed
-      n.levels = sapply(1:length(g.groups),other.design,fixed=FALSE,tempEnv)
-      modNames = unlist(strsplit(modInfo$names," + ", fixed=TRUE))
-      if(unreduce){
-        chains = unreduceChains(g.groups,tempEnv,chains)
-        labLevels = unlist(sapply(n.levels,function(i) 1:i))
-        labFixed = inverse.rle(list(values=modNames,lengths=n.levels))
-      }else{
-        labLevels = unlist(sapply(g.groups,function(i) 1:i))
-        labFixed = inverse.rle(list(values=modNames,lengths=g.groups))
-      }
-      
-      
-      labels = c(labels, paste(labFixed,labLevels,sep="_"))
-    }
-    if(!is.null(dataRandom)){
-      modNames = colnames(dataRandom)
-      gr.groups = modInfo$gr.groups
-      labRandom = inverse.rle(list(values=modNames,lengths=gr.groups))
-      labLevels = unlist(lapply(dataRandom,function(v) sort(levels(v))))
-      labels = c(labels, paste(labRandom,labLevels,sep="_"))
-    }
-    labels = c(labels, "sig2",paste("g",1:length(struc),sep="_"))
-	}else{
+    chains = makeChainNeater(chains,struc,modelFormula,dataFixed,dataRandom,unreduce=unreduce)	  
+  }else{
     labels = c("mu",paste("beta",1:p,sep="_"),"sig2",paste("g",1:length(struc),sep="_"))
-	}
-  colnames(chains) = labels
+	  colnames(chains) = labels
+  }
 	return(chains)
 }
 
+
+makeChainNeater <- function(chains,struc,formula,dataFixed,dataRandom,unreduce){
+  labels = c("mu")
+  
+  terms = attr(terms(formula),"term.labels")
+  types = c()
+  types[colnames(dataRandom)] = "random"
+  if(unreduce){
+    types[colnames(dataFixed)] = "random"  
+  }else{
+    types[colnames(dataFixed)] = "fixed"
+  }
+  
+  if(is.null(dataFixed)){
+    allData = dataRandom
+  }else if(is.null(dataRandom)){
+    allData = dataFixed
+  }else if(!is.null(dataRandom) & !is.null(dataFixed)){
+    allData = cbind(dataFixed,dataRandom)
+  }else{
+    stop("No data.")
+  }
+  
+  labelList = lapply(terms, 
+         function(term, types){
+           terms = strsplit(term,':',fixed=TRUE)[[1]]
+           my.names = design.names.intList(allData[terms], types)
+           return(paste(term,"-",my.names))
+          },
+         types=types)
+  types[colnames(dataFixed)] = "fixed"
+  labels = c(labels,unlist(labelList))
+  if(unreduce & any(types=="fixed")){
+    betaChains = chains[,1:sum(struc) + 1]
+    parMap = inverse.rle(list(values=1:length(struc),lengths=struc))
+    unreducedChains = lapply(1:length(struc), 
+           function(el, chains, parMap, terms, types, data){
+             chains = chains[,parMap==el]
+             term = strsplit(terms[el],':',fixed=TRUE)[[1]]
+             S = design.projection.intList(data[term], types)
+             return(chains%*%t(S))
+           }, 
+           chains = betaChains, parMap = parMap,
+           terms = terms, types = types,
+           data = allData
+           )
+    betaChains = do.call(cbind, unreducedChains)
+    chains = cbind(chains[,1],betaChains,chains[,-(1:(sum(struc) + 1))])
+  }
+  
+  labels = c(labels, "sig2",paste("g",1:length(struc),sep="_"))
+  
+  colnames(chains) = labels  
+  return(chains)
+}

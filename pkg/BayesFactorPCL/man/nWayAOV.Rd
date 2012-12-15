@@ -10,11 +10,14 @@ Functions to compute Bayes factors for a specified ANOVA model defined by a desi
 These functions computes a single Bayes factor, or estimate parameters, for a specified ANOVA model to a null ANOVA model defined by the addition of a grand mean and error terms.}
 \usage{
     
-nWayAOV.MC(y, X, struc, iterations = 10000, rscale = 1, progress = FALSE, 
-    samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
+nWayAOV.MC(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL,
+           modelFormula = NULL, iterations = 10000, rscale = 1, 
+           rscaleFixed="medium", rscaleRandom=1, progress = FALSE, 
+           samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
     
 nWayAOV.Gibbs(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL, 
-    iterations = 10000, rscale = 1, progress = TRUE, unreduce=TRUE)
+    modelFormula = NULL, iterations = 10000, rscale = 1,
+    rscaleFixed="medium", rscaleRandom=1, progress = TRUE, unreduce=TRUE)
 }
 
 %- maybe also 'usage' for other objects documented here.
@@ -29,7 +32,10 @@ A design matrix whose number of rows match \code{length(y)}.
 \item{struc}{
 Vector grouping the columns of \code{X} (see details).
 }
-  \item{dataFixed}{
+\item{modelFormula}{
+A formula specifying a model.
+}
+\item{dataFixed}{
 An (optional) data frame containing the fixed factors, one column per factor. Columns will be converted to factors if they are not factors already. If \code{dataFixed} or \code{dataRandom} are specified, \code{X} and \code{struc} for the corresponding full model will be constructed
 }
   \item{dataRandom}{
@@ -43,6 +49,11 @@ Number of Monte Carlo samples used to estimate Bayes factor.
 \item{rscale}{
 A scalar or a vector (same length as \code{struc}) of prior scale(s) (see details).
 }
+\item{rscaleFixed}{
+The prior scale of effect size for factors that are treated as a fixed. A number of preset values can be given as strings; see Details.
+}
+\item{rscaleRandom}{
+The prior scale of effect size for factors that are treated as a random. A number of preset values can be given as strings; see Details.}
 
 \item{progress}{
 If \code{TRUE}, text progress bar is displayed
@@ -81,6 +92,12 @@ A Jeffreys prior is placed on \eqn{\mu} and \eqn{\sigma^2}.  Independent scaled 
 The null model is given by \deqn{y_i = \mu + \epsilon_i} for \eqn{i=1,...,N}.
 
 \code{nWayAOV.Gibbs} returns posterior samples of the parameters, which are computed using Markov-chain Monte Carlo sampling.  
+
+There are three ways of specifying a model: a design matrix, a model formula, and allowing the function to choose a "full" model. If \code{X} and \code{struc} are defined, then analysis will procede using those arguments, and using \code{rscale} to determine the prior scales. 
+
+If \code{X} and \code{struc} are \code{NULL}, but \code{modelFormula} and one of \code{dataFixed} or \code{dataRandom} are defined, then the function uses the basic formula interface. The formula should have no left-hand side, should include all fixed and random terms, and consist only of main effects or interactions. All terms will be treated as factors. The prior scales are determined by \code{rscaleFixed} and \code{rscaleRandom}. 
+
+If one of \code{dataFixed} or \code{dataRandom} are defined, but there is no \code{modelFormula}, then the function will construct a "full" model consisting of the all terms up to the highest possible interaction of the fixed effects, with every random effect entering as an additive term. The prior scales are determined by \code{rscaleFixed} and \code{rscaleRandom}. See \code{\link{allNways}} for details on prior scale settings.
 }
 
 \value{
