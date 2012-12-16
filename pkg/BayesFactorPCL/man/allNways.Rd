@@ -120,14 +120,14 @@ summary(aov(extra ~ group + Error(ID/group), data = sleep))
 ## Gives a Bayes factor of about 11.6
 ## in favor of the alternative hypothesis
 allNways(y = sleep$extra,
-      dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID), progress=FALSE)
+      dataFixed = sleep["group"], 	   
+      dataRandom = sleep["ID"], progress=FALSE)
 
-## Demonstrate top down testing
+## Demonstrate top-down testing
 data(puzzles)
 
 result = allNways(y = puzzles$RT, dataFixed = puzzles[,3:4], 
-    dataRandom = puzzles$ID, whichModels = 'top', extraInfo=TRUE, progress=FALSE)
+    dataRandom = puzzles["ID"], whichModels = 'top', extraInfo=TRUE, progress=FALSE)
 
 ## 'result' contains data frame with extra information
 ## `omitted' column shows which effect was left out

@@ -151,12 +151,13 @@ plot(samples.full[,2] * sqrt(2))
 ## Alternative (easier) way to sample from the 
 ## posterior distribution of the full model
 samples.full2 = nWayAOV.Gibbs(y = sleep$extra,
-        dataFixed = data.frame(sleep$group),      
-        dataRandom = data.frame(sleep$ID),
+        modelFormula = ~ group + ID,
+        dataFixed = sleep["group"],      
+        dataRandom = sleep["ID"],
         rscale = c(0.5,1), progress = FALSE)
 }
 
-## Remove subject effect
+## Remove group effect
 X <- cbind(1, subject.matrix)
 ## Bayes factor of subject-only model against grand-mean only model
 bf.reduced <- nWayAOV.MC(y = sleep$extra, X = X, struc = 10, rscale=1)
@@ -166,8 +167,8 @@ bf.full / bf.reduced
 
 ## Compare with allNways result (should be about the same)
 allNways(y = sleep$extra,
-      dataFixed = data.frame(sleep$group), 	   
-      dataRandom = data.frame(sleep$ID), progress=FALSE)
+      dataFixed = sleep["group"], 	   
+      dataRandom = sleep["ID"], progress=FALSE)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
