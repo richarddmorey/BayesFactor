@@ -1,5 +1,5 @@
 allNways = function(y, dataFixed=NULL, dataRandom=NULL, iterations = 10000, 
-                    whichModels="withmain", progress=TRUE, rscaleFixed="medium", 
+                    whichModels="all", progress=TRUE, rscaleFixed="medium", 
                     rscaleRandom=1, logbf=FALSE, multicore=FALSE, extraInfo=FALSE, 
                     only.top=NULL, ... )
 {
