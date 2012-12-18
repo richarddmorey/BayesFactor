@@ -111,7 +111,7 @@ makeModelsVector <- function(whichModels, nFac){
     mods <- c(colSums((1-diag(nDig))*2^(0:(nDig-1))),topMod)
     modNums <- as.list(mods)
   }else if( whichModels=="withmain"){
-    modNums = makeModelsAllLevels(nFac)
+    modNums = createModelNumbersWithMain(nFac)
   }
   return(modNums)
 }
@@ -378,32 +378,68 @@ my.design = function(effNum,fixed=TRUE,env)
   }
 }
 
-# This computes all the model numbers for a given "level"
-# (that is, main effects, two-way, three way)
-# assuming all effects at lower levels are included
-# and no models at higher levels are included
-makeModelsSingleLevel <- function(level,nFac)
-{
-  levels <- choose(nFac,1:nFac)
-  totals <- cumsum(levels)
-  first <- c()
-  last <- c()
-  if(level>1){
-    first <- rep(TRUE,totals[level-1])    
-  }
-  if(level<nFac){
-    last <- rep(FALSE, totals[nFac] - totals[level])
-  }
-  #middle <- sapply(0:(2^levels[level]-1),function(n,dim) BayesFactor:::binary(n,dim=dim)$dicotomy,dim=levels[level])
-  middle <- as.matrix(expand.grid(rep(list(c(FALSE,TRUE)),levels[level])),ncol=levels[level])
-  modelBin <- apply(middle,1,function(v,first,last) c(first,v,last), first=first,last=last)
-  apply(modelBin,2,function(v) sum(2^(0:(length(v)-1))[v]))
+combn2 <- function(x,lower=1){
+  unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }
 
-# This computes all models numbers for all levels, as above 
-makeModelsAllLevels <- function(nFac){
-  modList = unique(unlist(lapply(1:nFac,makeModelsSingleLevel,nFac=nFac)))
-  modList = modList[modList!=0]
+enumeratePossibleModels <- function(lowerLevel=NULL,order,struc){
+  nFac = struc$nFac
+  if(order==1){
+    mains = 2^(1:nFac - 1)
+    combs = combn2(mains,1)
+    nextLevel = lapply(combs,enumeratePossibleModels,order=2,struc=struc)
+    nextLevel = nextLevel[!sapply(nextLevel, is.null)]
+    nextLevel = unlist(nextLevel,recursive=FALSE)
+    return(c(combs, nextLevel))
+  }
+  if(sum(struc$nEffs[match(lowerLevel,struc$sums)]==(order-1))<order) return()
+  possibleEffects = struc$sums[struc$nEffs==order]
+  checkEffects = sapply(possibleEffects,checkPossibleEffect,lowerLevel=lowerLevel,struc=struc)
+  possibleEffects = possibleEffects[checkEffects]
+  
+  if(length(possibleEffects)==0) return()
+  
+  if(order==nFac){
+    return(list(c(lowerLevel,possibleEffects)))
+  }else{
+    if(length(possibleEffects)>1){
+      combs = combn2(possibleEffects,1)
+    }else{
+      combs = possibleEffects
+    }
+    names(combs)=NULL
+    models = lapply(combs,function(effects,lowerLevel) c(lowerLevel,effects), lowerLevel=lowerLevel)
+    nextLevel = lapply(models,enumeratePossibleModels,order=order+1,struc=struc)
+    nextLevel = nextLevel[!sapply(nextLevel, is.null)]
+    nextLevel = unlist(nextLevel,recursive=FALSE)
+    return(c(models,nextLevel))
+  }
+}
+
+checkPossibleEffect <- function(effect,lowerLevel,struc)
+{
+  order = struc$nEffs[struc$sums==effect]
+  if(order==1) return(TRUE)
+  vec = struc$mat[struc$sums==effect,]
+  vec = vec[vec != 0]
+  necessaryEffects = combn(vec,order-1,sum)
+  if(all(necessaryEffects %in% lowerLevel)){
+    return(TRUE)
+  }else{
+    return(FALSE)
+  }
+}  
+
+createModelNumbersWithMain<-function(nFac){
+  effs = 2^(1:nFac - 1)
+  struc = list()
+  struc$mat = expand.grid(lapply(effs,function(el) c(0,el)))[-1,]
+  struc$sums = rowSums(struc$mat)
+  struc$nEffs = rowSums(struc$mat != 0)
+  struc$nFac = nFac
+  mods = enumeratePossibleModels(,1,struc)
+  mods = lapply(mods, function(v) sum(2^(v-1)))  
+  sort(unique(unlist(mods)))
 }
 
 fixedFromRandomProjection <- function(nlevRandom){
@@ -411,4 +447,3 @@ fixedFromRandomProjection <- function(nlevRandom){
   S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
   return(matrix(S,nrow=nlevRandom))
 }
-
