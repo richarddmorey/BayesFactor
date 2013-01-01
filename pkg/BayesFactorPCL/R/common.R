@@ -2,6 +2,11 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+randomString <- function(x=1){
+  n = ifelse(length(x)>1, length(x), x)
+  substring(tempfile(rep("",n),"",""),2)
+}
+
 rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
   if(length(priorType)>1 | is.numeric(priorType)){
     return(priorType)

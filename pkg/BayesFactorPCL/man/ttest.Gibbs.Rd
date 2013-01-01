@@ -11,7 +11,7 @@ one-sample designs, using Gibbs sampling; \code{ttest.Quad} computes Bayes facto
 }
 \usage{
 ttest.Quad(t, n1, n2 = 0, rscale = "medium", prior.cauchy = TRUE, 
-    logbf=FALSE)
+    logbf=FALSE, error.est=FALSE)
 
 ttest.Gibbs(y, t, n, iterations=10000, rscale="medium", null.interval=NULL,
     progress=TRUE, logbf = FALSE)
@@ -51,6 +51,9 @@ Use a Cauchy prior for the prior on effect size? If false, the prior on effect s
 \item{logbf}{
 If \code{TRUE}, return the natural logarithm of the Bayes factor
 }
+\item{error.est}{
+If \code{TRUE}, also return an estimate of the proportional error
+}
 }
 \details{
 The Bayes factor provided by \code{ttest.Quad} tests the null hypothesis that the mean of a normal population is 0. 
@@ -69,7 +72,7 @@ For the \code{rscale} argument, several named values are recongized: "medium" co
 one-sample designs. For two (or more) sample designs, see \link{oneWayAOV.Gibbs} or \link{nWayAOV.Gibbs}.
 }
 \value{
-\code{ttest.Quad} returns a scalar giving the Bayes factor in favor of the alternative hypothesis that the effect size is not 0.
+If \code{error.est} is \code{FALSE}, \code{ttest.Quad} returns a scalar giving the Bayes factor in favor of the alternative hypothesis that the effect size is not 0. If \code{error.est} is \code{TRUE}, a vector of length two is returned containing the Bayes factor (or log Bayes factor) and an estimate of the proportional error.
 
 \code{ttest.Gibbs} returns a list containing the following:
 \item{chains}{A object of type MCMC containing the chains for each parameter}
