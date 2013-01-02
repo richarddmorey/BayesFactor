@@ -9,18 +9,19 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
       if(length(x)!=length(y)) stop("Length of x and y must be the same if paired=TRUE.")
       x = x - y
     }
-    modFull = BFoneSample(type = "JZS one sample", 
-                                 identifier = list(formula = "y ~ 1"), 
-                                 prior=list(rscale=rscale, mu=mu),
-                                 shortName = paste("Alt., r=",round(rscale,3),sep=""),
-                                 longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, sep="")
-                         )
     if(is.null(nullInterval)){
+      modFull = BFoneSample(type = "JZS", 
+                            identifier = list(formula = "y ~ 1"), 
+                            prior=list(rscale=rscale, mu=mu),
+                            shortName = paste("Alt., r=",round(rscale,3),sep=""),
+                            longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, sep="")
+      )
+      
       bf = compare(numerator = modFull, data = data.frame(y=x))
       return(bf)
     }else{
       nullInterval = range(nullInterval)
-      modInterval = BFoneSample(type = "JZS one sample", 
+      modInterval = BFoneSample(type = "JZS", 
                                  identifier = list(formula = "y ~ 1",nullInterval = nullInterval), 
                                  prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
                                  shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
@@ -43,30 +44,27 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
     if(length(ivs) > 1) stop("Only one independent variable allowed for t test.")
     dataTypes = "fixed"
     names(dataTypes) = ivs
+    if(mu != 0) stop("Use of nonzero null hypothesis not implemented for independent samples test.")
     
-    modFull = BFlinearModel(type = "JZS independent samples", 
-                          identifier = list(formula = deparse(formula)), 
-                          prior=list(rscale=rscale, mu=mu),
-                          dataTypes = dataTypes,
-                          shortName = paste("Alt., r=",round(rscale,3),sep=""),
-                          longName = paste("Alternative, r = ",rscale,", mu1-mu2 =/= ",mu, sep="")
-    )
     if(is.null(nullInterval)){
-      bf = compare(numerator = modFull, data = data)
-      return(bf)
+      numerator = BFindepSample(type = "JZS", 
+                              identifier = list(formula = deparse(formula)), 
+                              prior=list(rscale=rscale, mu=mu),
+                              shortName = paste("Alt., r=",round(rscale,3),sep=""),
+                              longName = paste("Alternative, r = ",rscale,", mu =/= ",mu,sep="")
+      )
     }else{
       nullInterval = range(nullInterval)
-      modInterval = BFlinearModel(type = "JZS independent samples", 
+      numerator = BFindepSample(type = "JZS", 
                                 identifier = list(formula = deparse(formula),nullInterval = nullInterval), 
                                 prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
-                                dataTypes = dataTypes,
                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                 longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )
-     bf = compare(numerator = modInterval, data = data)
-      return(bf)
     }
-    
+
+    bf = compare(numerator = numerator, data = data)
+    return(bf)    
   }
 }
 

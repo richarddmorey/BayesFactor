@@ -2,6 +2,15 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+are.factors<-function(df) sapply(df, function(v) is.factor(v))
+
+getDataOfType <- function(type, dataTypes, data){
+  data = data[names(dataTypes)[dataTypes==type]]
+  if(length(data)==0) data = NULL
+  return(data)
+}
+
+
 randomString <- function(x=1){
   n = ifelse(length(x)>1, length(x), x)
   substring(tempfile(rep("",n),"",""),2)

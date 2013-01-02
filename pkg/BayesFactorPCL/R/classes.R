@@ -19,4 +19,6 @@ setClass("BFBayesFactor", representation(
 
 setClass("BFlinearModel", contains = "BFmodel")
 setClass("BFoneSample", contains = "BFlinearModel")
+setClass("BFindepSample", contains = "BFlinearModel")
+
 setClass("BFBayesFactorList", contains = "list", representation(version="character"))

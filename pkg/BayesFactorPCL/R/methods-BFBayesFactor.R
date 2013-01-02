@@ -15,11 +15,28 @@ setValidity("BFBayesFactor", function(object){
   if( any(!numeratorsAreBFs)) return("Some numerators are not BFmodel objects.")
   # check numerators all have same data types as denominator
   dataTypeDenom = object@denominator@dataTypes
-  typesEqual = unlist(lapply(object@numerator, 
+  dataTypesEqual = unlist(lapply(object@numerator, 
                 function(model, compType) 
                   identical(model@dataTypes, compType), 
-                compType=dataTypeDenom))
-  if( any(!typesEqual)) return("Data types are not equal across models.")
+                compType=dataTypeDenom))  
+  if( any(!dataTypesEqual)) return("Data types are not equal across models.")
+  
+  typeDenom = object@denominator@type
+  typesEqual = unlist(lapply(object@numerator, 
+                             function(model, compType) 
+                               identical(model@type, compType), 
+                             compType=typeDenom))
+  
+  if( any(!typesEqual)) return("Model types are not equal across models.")
+
+  classDenom = class(object@denominator)
+  typesEqual = unlist(lapply(object@numerator, 
+                             function(model, compType) 
+                               identical(class(model), compType), 
+                             compType=classDenom))
+  
+  if( any(!typesEqual)) return("Model classes are not equal across models.")
+  
   # Check to see that Bayes factor data frame has required columns
   if( !all(colnames(object@bayesFactor) %in% c("bf", "error", "time", "code")) )
     return("Object does not have required columns (bf, error, time, code).")
@@ -90,7 +107,8 @@ setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
 setMethod('show', "BFBayesFactor", function(object){
   cat("Bayes factor analysis\n--------------\n")
   bfs = extractBF(object, logbf=FALSE)
-  nms = rownames(bfs)
+  indices = paste("[",1:nrow(bfs),"]",sep="")
+  nms = paste(indices,rownames(bfs),sep=" ")
   maxwidth = max(nchar(nms))
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
   for(i in 1:nrow(bfs)){

@@ -1,8 +1,8 @@
 
 
 nWayAOV.MC<- function(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL,
-           modelFormula = NULL, iterations = 10000, rscale = 1, rscaleFixed="medium", rscaleRandom=1, progress = FALSE, 
-           samples = FALSE, gsamples = FALSE, gibi = NULL, logbf = FALSE)
+           modelFormula = NULL, iterations = 10000, rscale = NULL, rscaleFixed="medium", rscaleRandom=1, 
+           progress = FALSE, gibi = NULL, logbf = FALSE, error.est = FALSE)
 {
   if(!is.null(X) & !is.null(struc)){
     builtDesign = FALSE
@@ -126,20 +126,25 @@ nWayAOV.MC<- function(y, X=NULL, struc=NULL, dataFixed=NULL, dataRandom=NULL,
 				as.integer(iterations/100*progress), pbFun, new.env(), package="BayesFactor")
 
 	if(inherits(pb,"txtProgressBar")) close(pb);
-	
-	bf = returnList[[1]] - nullLike
+
+  bf = returnList[[1]] - nullLike
+  
+  # estimate error
+  bfSamp = returnList[[2]] - nullLike
+  sumXsq = exp(logMeanExpLogs(2 * bfSamp)+log(iterations))
+  SSq = sumXsq - exp(2*(returnList[[1]] - nullLike) + log(iterations))
+  err = .5 * log(SSq) - log(iterations)
+  properror = exp(err - bf)
+  
+
 	if(!logbf)
 	{
 		bf = exp(bf)
 	}
 	
-	if(samples & gsamples)
+	if(error.est)
 	{
-		return(list(bf,returnList[[2]],returnList[[3]]))
-	}else if(!samples & gsamples){
-		return(list(bf,returnList[[3]]))
-	}else if(samples & !gsamples){
-		return(list(bf,returnList[[2]]))
+		return(c(bf = bf, properror=properror))
 	}else{
 		return(bf)
 	}

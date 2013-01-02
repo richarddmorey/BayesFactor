@@ -14,7 +14,8 @@ export( ttest.Gibbs,
     nWayAOV2,
     allLinearReg,
     linearReg.Gibbs,
-    ttestBF)
+    ttestBF,
+    lmBF)
 
 import(mvtnorm, pbapply, stringr)
 importFrom(methods, show)
@@ -22,7 +23,8 @@ importFrom(utils, head)
 importFrom(utils, tail)
 importFrom(graphics, plot)
 
-exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFBayesFactorList")
+exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
+exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
 exportMethods("show","/","extractBF","length","[","compare", "sort", "min", "max", 
               "head", "tail","t","plot","summary","names")
 

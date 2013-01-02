@@ -1,11 +1,12 @@
 ## S4 method
 #####
 
-setMethod("plot", "BFBayesFactor", function(x, include1 = TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), pars=NULL, ...){
+setMethod("plot", "BFBayesFactor", function(x, include1 = TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand=.4,pars=NULL, ...){
   plot.BFBayesFactor(x, include1 = include1,
                      addDenom = addDenom, 
                      sortbf = sortbf,
                      logbase = logbase,
+                     marginExpand = marginExpand,
                      pars = pars, ...)
   invisible(NULL)
 })
@@ -13,7 +14,7 @@ setMethod("plot", "BFBayesFactor", function(x, include1 = TRUE, addDenom = FALSE
 ## S3 method
 #####
 
-plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand = .5, pars=NULL, ...){
+plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand = .4, pars=NULL, ...){
 
   oldPar <- par()
   on.exit(par(oldPar[c("mfrow","las",names(pars))]))
@@ -33,7 +34,7 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
 
   # Estimate left margin
   maxChar = max(nchar(rownames(bfs)))
-  leftMargin = marginExpand * maxChar
+  leftMargin = marginExpand * maxChar + 4
   
   # Errors
   errs <- exp(bfs$bf + log(bfs$error))
@@ -55,6 +56,8 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
     tickLab[yaxes<0] = paste("1/",logBase^abs(yaxes[yaxes<0]),sep="")
   }
 
+
+  cols = c("wheat","lightslateblue")[(bfs$bf>0) + 1]
   pars = c(pars, list(mar=c(4,leftMargin,4,1),las=1))
   par(pars)
   yloc <- barplot( bfs$bf/log(logBase), 
@@ -62,14 +65,16 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
            horiz=TRUE, 
            axes=FALSE, 
            xlim=range(yaxes), 
-           main = paste("vs.",x@denominator@longName), ...)
+           main = paste("vs.",x@denominator@longName), col=cols,...)
 
   # add error bars
   segments(errs[,1],yloc,errs[,2],yloc,col="red")
   
   axis(1, at = yaxes, labels=tickLab, las=2)
-  abline(v=0)
   if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)
+  
+  abline(v=yaxes, col="gray")
+  abline(v=0)
   
   invisible(NULL)
 }

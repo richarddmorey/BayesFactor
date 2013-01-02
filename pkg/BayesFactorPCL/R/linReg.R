@@ -1,11 +1,13 @@
-linearReg.Quad=function(N,p,R2,rscale=1,logbf=FALSE) {
+linearReg.Quad=function(N,p,R2,rscale=1,logbf=FALSE, error.est=FALSE) {
   rscale = rpriorValues("regression",,rscale)
   h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
-	if(logbf){
-		return(log(h$value))
-	}else{
-		return(h$value)
-	}
+  properror = exp(log(h[[2]]) - log(h[[1]]))
+  bf = ifelse(logbf, log(h$value),h$value)
+  if(error.est){
+    return(c(bf=bf, properror=properror))
+  }else{
+    return(bf)
+  }
 }
 
 

@@ -183,7 +183,7 @@ nWayAOV2 = function(modNum,env, rscaleFixed, rscaleRandom, progressCallback=NULL
   modInfo = buildModelInfo(modNum, env)
   y = env$y
   
-  aovResults = suppressMessages(nWayAOV.MC(y, X=modInfo$X, struc=modInfo$struc, samples=FALSE,logbf=TRUE, progress=FALSE, 
+  aovResults = suppressMessages(nWayAOV.MC(y, X=modInfo$X, struc=modInfo$struc,logbf=TRUE, progress=FALSE, 
                               rscale = c(rscaleFixed + modInfo$g.groups*0, rscaleRandom=rscaleRandom + modInfo$gr.groups*0),...))
   
   bfs = c(aovResults, 		

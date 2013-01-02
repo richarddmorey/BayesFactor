@@ -50,14 +50,16 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, gi
 
 }
 
-oneWayAOV.Quad = function(F,N,J,rscale="medium",logbf=FALSE)
+oneWayAOV.Quad = function(F,N,J,rscale="medium",logbf=FALSE,error.est=FALSE)
 {
   rscale = rpriorValues("allNways","fixed",rscale)
-  lbf = -log(integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)[[1]])
-	if(logbf){
-		return(-lbf)
+  integral = integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)
+  properror = exp(log(integral[[2]]) - log(integral[[1]]))
+	bf = ifelse(logbf, log(integral[[1]]), integral[[1]])
+  if(error.est){
+		return(c(bf=bf, properror=properror))
 	}else{
-		return(exp(-lbf))
+		return(bf)
 	}
 }
 
