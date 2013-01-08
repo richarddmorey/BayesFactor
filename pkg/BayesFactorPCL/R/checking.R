@@ -42,7 +42,7 @@ checkFormula <- function(formula, data, analysis){
   factors = fmlaFactors(formula, data)
   terms = colnames(attr(terms(formula, data = data),"factors"))  
   
-  if(is.null(factors)) invisible()
+  if(is.null(factors)) return()
   if(factors[1] %in% terms) stop("Dependent variable cannot be a predictor.")
   if(!all(factors %in% cnames)) stop("Some variables missing in data frame.")
   

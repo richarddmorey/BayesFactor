@@ -20,9 +20,10 @@ importFrom(graphics, plot)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
-exportMethods("show","/","extractBF","length","[","compare", "sort", "min", "max", 
-              "head", "tail","t","plot","summary","names","recompute", 
-              "which.min","which.max","posterior")
+exportMethods("extractBF","compare","t","recompute","posterior")
+#exportMethods("plot", show","/","length","[", "sort", "min", "max", 
+#              "head", "tail","plot","summary","names", 
+#              "which.min","which.max")
 
 S3method("c","BFBayesFactor")
 S3method("plot","BFBayesFactor")
@@ -35,6 +36,9 @@ S3method("which.max","BFBayesFactor")
 S3method("sort","BFBayesFactor")
 S3method("as.data.frame","BFBayesFactor")
 S3method("as.vector","BFBayesFactor")
+S3method("names","BFBayesFactor")
+S3method("length","BFBayesFactor")
+
 
 S3method("as.matrix", "BFBayesFactorList")
 S3method("as.vector", "BFBayesFactorList")

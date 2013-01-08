@@ -18,10 +18,14 @@ setMethod('show', "BFBayesFactorList", function(object){
   print(as(object,"matrix"))
 })
 
+#' @rdname BFBayesFactorList-class
+#' @name t,BFBayesFactorList-method
 setMethod('t', "BFBayesFactorList", function(x){
   return(1/x)
 })
 
+#' @rdname BFBayesFactorList-class
+#' @name /,numeric,BFBayesFactorList-method
 setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
   if( (e1 == 1) & (length(e2[[1]])==1) ){
     bflist = lapply(e2,function(el) 1/el)
@@ -39,6 +43,8 @@ setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
 }
 )
 
+#' @rdname BFBayesFactorList-class
+#' @name [,BFBayesFactorList,index,index,missing-method
 setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "index",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
@@ -48,6 +54,8 @@ setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "index",
             return(x)
           })
 
+#' @rdname BFBayesFactorList-class
+#' @name [,BFBayesFactorList,index,missing,missing-method
 setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "missing",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
@@ -58,6 +66,8 @@ setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "missing",
             return(x)
           })
 
+#' @rdname BFBayesFactorList-class
+#' @name [,BFBayesFactorList,missing,index,missing-method
 setMethod("[", signature(x = "BFBayesFactorList", i = "missing", j = "index",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
@@ -73,13 +83,9 @@ setMethod("[", signature(x = "BFBayesFactorList", i = "missing", j = "index",
           })
 
 
-setAs("BFBayesFactorList" , "vector",
+setAs("BFBayesFactorList" , "list",
       function ( from , to ){
-        vec = vector(mode = "list", length = length(from) )
-        for(i in 1:length(from))
-          vec[[i]] = from[[i]]
-        names(vec) = names(from)
-        return(vec)
+        as.vector(from)
       })
 
 setAs("BFBayesFactorList" , "vector",

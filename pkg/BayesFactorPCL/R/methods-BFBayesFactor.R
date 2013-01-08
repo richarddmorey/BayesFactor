@@ -43,6 +43,9 @@ setValidity("BFBayesFactor", function(object){
   return(TRUE)
 })
 
+
+#' @rdname recompute-methods
+#' @aliases recompute,BFBayesFactor-method
 setMethod("recompute", "BFBayesFactor", function(x, progress = FALSE, ...){
   if(progress) lapply = pblapply 
   bfs = lapply(x@numerator, function(num, data, ...)
@@ -53,14 +56,9 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = FALSE, ...){
   return(joined / denbf)
 })
 
-setMethod("names", "BFBayesFactor", function(x){ 
-  num <- sapply(x@numerator, function(el) el@shortName)
-  den <- x@denominator@shortName
-  return(list(numerator=num,denominator=den))
-})
 
-setMethod("length", "BFBayesFactor", function(x) nrow(x@bayesFactor))
-
+#' @rdname BFBayesFactor-class
+#' @name /,numeric,BFBayesFactor-method
 setMethod('/', signature("numeric", "BFBayesFactor"), function(e1, e2){
   if( (e1 == 1) & (length(e2)==1) ){
     numer = e2@numerator[[1]]
@@ -80,6 +78,8 @@ setMethod('/', signature("numeric", "BFBayesFactor"), function(e1, e2){
 }
 )
 
+#' @rdname BFBayesFactor-class
+#' @name /,BFBayesFactor,BFBayesFactor-method
 setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
     if( !(e1@denominator %same% e2@denominator) ) stop("Bayes factors have different denominator models; they cannot be compared.")
     if( !identical(e1@data, e2@data) ) stop("Bayes factors were computed using different data; they cannot be compared.")
@@ -112,6 +112,7 @@ setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
   }
 )
 
+
 setMethod('show', "BFBayesFactor", function(object){
   cat("Bayes factor analysis\n--------------\n")
   bfs = extractBF(object, logbf=FALSE)
@@ -131,7 +132,8 @@ setMethod('summary', "BFBayesFactor", function(object){
     show(object)
   })
 
-
+#' @rdname BFBayesFactor-class
+#' @name [,BFBayesFactor,index,missing,missing-method
 setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
@@ -143,11 +145,20 @@ setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
             return(x)
           })
 
+#' @rdname extractBF-methods
+#' @aliases extractBF,BFBayesFactor-method
 setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALSE){
   x = x@bayesFactor
   if(onlybf) x = x$bf
   if(!logbf) x$bf = exp(x$bf)
   return(x)
+})
+
+
+#' @rdname BFBayesFactor-class
+#' @name t,BFBayesFactor-method
+setMethod('t', "BFBayesFactor", function(x){
+  return(1/x)
 })
 
 setAs("BFBayesFactor", "data.frame",
@@ -169,34 +180,56 @@ setAs("BFBayesFactor", "vector",
       })
 
 
-setMethod("sort", "BFBayesFactor", function(x, decreasing = FALSE, ...)
-  sort.BFBayesFactor(x, decreasing, ...) )
+#####
+# Are these needed? I have S3 methods for these, anyway.
+#####
+#
+# setMethod("sort", "BFBayesFactor", function(x, decreasing = FALSE, ...)
+#   sort.BFBayesFactor(x, decreasing, ...) )
+# 
+# setMethod("max", "BFBayesFactor", function(x)
+#   max.BFBayesFactor(x) )
+# 
+# setMethod("min", "BFBayesFactor", function(x)
+#   min.BFBayesFactor(x) )
+# 
+# setMethod("which.max", "BFBayesFactor", function(x)
+#   which.max.BFBayesFactor(x) )
+# 
+# setMethod("which.min", "BFBayesFactor", function(x)
+#   which.min.BFBayesFactor(x) )
+# 
+# setMethod("head", "BFBayesFactor", function(x, n=6L)
+#   head.BFBayesFactor(x, n) )
+# 
+# setMethod("tail", "BFBayesFactor", function(x, n=6L)
+#   tail.BFBayesFactor(x, n) )
 
-setMethod("max", "BFBayesFactor", function(x)
-  max.BFBayesFactor(x) )
+#setMethod("length", "BFBayesFactor", function(x) nrow(x@bayesFactor))
 
-setMethod("min", "BFBayesFactor", function(x)
-  min.BFBayesFactor(x) )
+# setMethod("names", "BFBayesFactor", function(x){ 
+#   num <- sapply(x@numerator, function(el) el@shortName)
+#   den <- x@denominator@shortName
+#   return(list(numerator=num,denominator=den))
+# })
 
-setMethod("which.max", "BFBayesFactor", function(x)
-  which.max.BFBayesFactor(x) )
 
-setMethod("which.min", "BFBayesFactor", function(x)
-  which.min.BFBayesFactor(x) )
 
-setMethod("head", "BFBayesFactor", function(x, n=6L)
-  head.BFBayesFactor(x, n) )
-
-setMethod("tail", "BFBayesFactor", function(x, n=6L)
-  tail.BFBayesFactor(x, n) )
-
-setMethod('t', "BFBayesFactor", function(x){
-  return(1/x)
-})
 
 ######
 # S3
 ######
+
+
+names.BFBayesFactor <- function(x) {
+  num <- sapply(x@numerator, function(el) el@shortName)
+  den <- x@denominator@shortName
+  return(list(numerator=num,denominator=den))  
+}
+
+length.BFBayesFactor <- function(x) 
+  nrow(x@bayesFactor)
+
 # See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
 sort.BFBayesFactor <- function(x, decreasing = FALSE, ...){
   ord = order(x@bayesFactor$bf, decreasing = decreasing)

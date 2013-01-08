@@ -21,12 +21,16 @@ setAs("BFmcmc" , "data.frame",
       })
 
 
+#' @rdname recompute-methods
+#' @aliases recompute,BFmcmc-method
 setMethod('recompute', signature(x = "BFmcmc", progress="ANY"),
   function(x, progress, ...){
     posterior(model=x@model, data = x@data, progress = progress, ...)
   }
 )
 
+#' @rdname compare-methods
+#' @aliases compare,BFmcmc,BFmcmc,ANY-method
 setMethod('compare', signature(numerator = "BFmcmc", denominator = "BFmcmc"), 
   function(numerator, denominator, ...){
     compare(numerator = numerator@model, data = numerator@data, ...) / 
@@ -34,22 +38,30 @@ setMethod('compare', signature(numerator = "BFmcmc", denominator = "BFmcmc"),
   }
 )    
 
+#' @rdname compare-methods
+#' @aliases compare,BFmcmc,missing,ANY-method
 setMethod('compare', signature(numerator = "BFmcmc", denominator = "missing"), 
           function(numerator, denominator, ...){
             compare(numerator = numerator@model, data = numerator@data, ...)
           }
 )    
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFlinearModel,missing,data.frame,missing-method
 setMethod("posterior", signature(model="BFlinearModel", index="missing", data="data.frame", iterations="missing"),
   function(model, index, data, iterations, ...)
     stop("Iterations must be specified for posterior sampling.")
   )
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFBayesFactor,missing,missing,missing-method
 setMethod("posterior", signature(model="BFBayesFactor", index="missing", data="missing", iterations="missing"),
           function(model, index, data, iterations, ...)
             stop("Iterations must be specified for posterior sampling.")
 )
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFBayesFactor,numeric,missing,numeric-method
 setMethod('posterior', signature(model = "BFBayesFactor", index = "numeric", data = "missing", iterations = "numeric"), 
   function(model, index, data, iterations, ...){
     if(length(model[index])>1) stop("Index must specify single element.")
@@ -57,6 +69,8 @@ setMethod('posterior', signature(model = "BFBayesFactor", index = "numeric", dat
   }
 )    
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFBayesFactor,missing,missing,numeric-method
 setMethod('posterior', signature(model = "BFBayesFactor", index = "missing", data = "missing", iterations = "numeric"), 
   function(model, index=NULL, data, iterations, ...){
     if(length(model)>1) stop("Index argument required for posterior with multiple numerators.")
@@ -64,6 +78,8 @@ setMethod('posterior', signature(model = "BFBayesFactor", index = "missing", dat
   }
 ) 
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFlinearModel,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFlinearModel", index = "missing", data = "data.frame", iterations = "numeric"), 
   function(model, index = NULL, data, iterations, ...){
 
@@ -105,6 +121,8 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
   }
 )
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFindepSample,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFindepSample", index = "missing", data = "data.frame", iterations = "numeric"), 
   function(model, index = NULL, data, iterations, ...){
     formula = formula(model@identifier$formula)
@@ -112,6 +130,8 @@ setMethod('posterior', signature(model = "BFindepSample", index = "missing", dat
     lmBF(formula, data = data, rscaleFixed = rscale / sqrt(2), posterior = TRUE, iterations = iterations, ...)                
 })
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFoneSample,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFoneSample", index = "missing", data = "data.frame", iterations = "numeric"), 
   function(model, index = NULL, data, iterations, ...){
      mu = model@prior$mu

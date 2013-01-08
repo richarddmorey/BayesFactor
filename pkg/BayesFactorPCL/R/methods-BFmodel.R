@@ -62,6 +62,8 @@ setMethod("%same%", signature = c(x="BFmodel",y="BFmodel"),
             return(all(slotSame) & classesSame)
           })
 
+#' @rdname compare-methods
+#' @aliases compare,BFlinearModel,BFlinearModel,data.frame-method
 setMethod('compare', signature(numerator = "BFlinearModel", denominator = "BFlinearModel", data = "data.frame"), 
           function(numerator, denominator, data, ...){
               if(!identical(numerator@type, denominator@type)) stop("Models of different types cannot be currently be compared by compare().")
@@ -77,6 +79,8 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "BFlin
               return(BFnum / BFden)
               })
 
+#' @rdname compare-methods
+#' @aliases compare,BFoneSample,missing,data.frame-method
 setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing", data = "data.frame"), 
           function(numerator, data, ...){
 
@@ -136,6 +140,8 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
             }
           })
 
+#' @rdname compare-methods
+#' @aliases compare,BFindepSample,missing,data.frame-method
 setMethod('compare', signature(numerator = "BFindepSample", denominator = "missing", data = "data.frame"), 
           function(numerator, data, ...){
             

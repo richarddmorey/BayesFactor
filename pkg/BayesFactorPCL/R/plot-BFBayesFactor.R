@@ -1,19 +1,43 @@
 ## S4 method
 #####
 
-setMethod("plot", "BFBayesFactor", function(x, include1 = TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand=.4,pars=NULL, ...){
-  plot.BFBayesFactor(x, include1 = include1,
-                     addDenom = addDenom, 
-                     sortbf = sortbf,
-                     logbase = logbase,
-                     marginExpand = marginExpand,
-                     pars = pars, ...)
-  invisible(NULL)
-})
+# setMethod("plot", "BFBayesFactor", function(x, include1 = TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand=.4,pars=NULL, ...){
+#   plot.BFBayesFactor(x, include1 = include1,
+#                      addDenom = addDenom, 
+#                      sortbf = sortbf,
+#                      logbase = logbase,
+#                      marginExpand = marginExpand,
+#                      pars = pars, ...)
+#   invisible(NULL)
+# })
 
 ## S3 method
 #####
 
+
+#' Plot a Bayes factor object
+#' 
+#' This function creates a barplot of the (log) Bayes factors in a Bayes factor 
+#' object. Error bars are added (though in many cases they may be too small to
+#' see) in red to show the error in estimation of the Bayes factor.
+#' @title Plot a Bayes factor object
+#' @param x a BFBayesFactor object
+#' @param include1 if \code{TRUE}, ensure that Bayes factor = 1 is on the plot
+#' @param addDenom if \code{TRUE}, add the denominator model into the group
+#' @param sortbf sort the Bayes factors before plotting them? Defaults to 
+#'   \code{TRUE}
+#' @param logbase the base of the log Bayes factors in the plot
+#' @param marginExpand an expansion factor for the left margin, in case more 
+#'   space is needed for model names
+#' @param pars a list of par() settings
+#' @param ... additional arguments to pass to barplot()
+#' @method plot BFBayesFactor
+#' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
+#' @examples
+#' data(puzzles)
+#' 
+#' bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", progress=FALSE)
+#' plot(bfs)
 plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand = .4, pars=NULL, ...){
 
   oldPar <- par()
