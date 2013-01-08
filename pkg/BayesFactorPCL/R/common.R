@@ -2,14 +2,21 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
-are.factors<-function(df) sapply(df, function(v) is.factor(v))
-
-getDataOfType <- function(type, dataTypes, data){
-  data = data[names(dataTypes)[dataTypes==type]]
-  if(length(data)==0) data = NULL
-  return(data)
+combn2 <- function(x,lower=1){
+  unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }
 
+fmlaFactors <- function(formula){
+  rownames(attr(terms(formula),"factors"))
+}
+
+are.factors<-function(df) sapply(df, function(v) is.factor(v))
+
+`%com%` <- function(x,y){
+  common = intersect(names(x),names(y))
+  if(length(common)==0) return(logical(0))
+  all(sapply(common, function(el,x,y) identical(x[el],y[el]), x=x,y=y))
+}
 
 randomString <- function(x=1){
   n = ifelse(length(x)>1, length(x), x)
@@ -19,6 +26,8 @@ randomString <- function(x=1){
 rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
   if(length(priorType)>1 | is.numeric(priorType)){
     return(priorType)
+  }else if(length(priorType)==0){
+    return(NULL)
   }
   
   if(modelType=="allNways"){

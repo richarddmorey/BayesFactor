@@ -1,5 +1,5 @@
 ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
-                    paired = FALSE, data = NULL, rscale="medium"){
+                    paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, ...){
   
   rscale = rpriorValues("ttest",,rscale)
   
@@ -17,8 +17,13 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
                             longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, sep="")
       )
       
-      bf = compare(numerator = modFull, data = data.frame(y=x))
-      return(bf)
+      if(posterior){
+        chains = posterior(modFull,data = data.frame(y=x), ...)
+        return(chains)
+      }else{
+        bf = compare(numerator = modFull, data = data.frame(y=x))
+        return(bf)
+      }
     }else{
       nullInterval = range(nullInterval)
       modInterval = BFoneSample(type = "JZS", 
@@ -27,8 +32,13 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
                                  shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                  longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )      
-      bf = compare(numerator = modInterval, data = data.frame(y=x))
-      return(bf)
+      if(posterior){
+        chains = posterior(modInterval, data = data.frame(y=x), ...)
+        return(chains)
+      }else{
+        bf = compare(numerator = modInterval, data = data.frame(y=x))
+        return(bf)
+      }
     }
   }else if(!is.null(y) & !paired){
     data = data.frame(y = c(x,y), 
@@ -63,12 +73,17 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
       )
     }
 
-    bf = compare(numerator = numerator, data = data)
-    return(bf)    
+    if(posterior){
+      chains = posterior(numerator, data = data, ...)
+      return(chains)
+    }else{
+      bf = compare(numerator = numerator, data = data)
+      return(bf)
+    }
   }
 }
 
-ttest.Quad=function(t,n1,n2=0,nullInterval=NULL,rscale="medium",logbf=FALSE,error.est=FALSE)
+ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium",logbf=FALSE,error.est=FALSE)
 {
   rscale = rpriorValues("ttest",,rscale)
   
@@ -186,7 +201,7 @@ ttestAreaNull <- function(t, n1, n2=0, nullInterval=c(-.2,.2), rscale=1, safeInt
 
   
   # encompassing vs point null
-  vsNull = ttest.Quad(t, n1, n2, rscale=rscale, logbf=TRUE, error.est=TRUE)
+  vsNull = ttest.tstat(t, n1, n2, rscale=rscale, logbf=TRUE, error.est=TRUE)
   
   val = areaIntegral[[1]]
   err = areaIntegral[[2]]

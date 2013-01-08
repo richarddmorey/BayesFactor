@@ -1,21 +1,16 @@
 useDynLib(BayesFactor)
 
-export( ttest.Gibbs,
-		ttest.Quad,
-		oneWayAOV.Gibbs,  
-		oneWayAOV.Quad, 
-		linearReg.Quad, 
-		nWayAOV.MC,
-		nWayAOV.Gibbs, 
-		allNways, 
-		logMeanExpLogs, 
+export(logMeanExpLogs, 
 		logCumMeanExpLogs,
     BFInfo,
-    nWayAOV2,
-    allLinearReg,
-    linearReg.Gibbs,
+		ttest.tstat,
+		oneWayAOV.Fstat, 
+		linearReg.R2stat, 
+		nWayAOV,
     ttestBF,
-    lmBF)
+    lmBF,
+    regressionBF,
+    anovaBF)
 
 import(mvtnorm, pbapply, stringr)
 importFrom(methods, show)
@@ -26,7 +21,8 @@ importFrom(graphics, plot)
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
 exportMethods("show","/","extractBF","length","[","compare", "sort", "min", "max", 
-              "head", "tail","t","plot","summary","names")
+              "head", "tail","t","plot","summary","names","recompute", 
+              "which.min","which.max","posterior")
 
 S3method("c","BFBayesFactor")
 S3method("plot","BFBayesFactor")
@@ -34,8 +30,15 @@ S3method("head","BFBayesFactor")
 S3method("tail","BFBayesFactor")
 S3method("min","BFBayesFactor")
 S3method("max","BFBayesFactor")
+S3method("which.min","BFBayesFactor")
+S3method("which.max","BFBayesFactor")
 S3method("sort","BFBayesFactor")
+S3method("as.data.frame","BFBayesFactor")
+S3method("as.vector","BFBayesFactor")
 
 S3method("as.matrix", "BFBayesFactorList")
 S3method("as.vector", "BFBayesFactorList")
 
+S3method("as.mcmc", "BFmcmc")
+S3method("as.matrix", "BFmcmc")
+S3method("as.data.frame", "BFmcmc")

@@ -1,4 +1,4 @@
-linearReg.Quad=function(N,p,R2,rscale=1,logbf=FALSE, error.est=FALSE) {
+linearReg.R2stat=function(N,p,R2,rscale=1,logbf=FALSE, error.est=FALSE) {
   rscale = rpriorValues("regression",,rscale)
   h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
   properror = exp(log(h[[2]]) - log(h[[1]]))
@@ -72,7 +72,7 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = 1, progr
   if(progress & is.null(gibi)) close(pb);
   chains = t(chains)
   
-  colnames(chains) = c(paste("beta",1:p,sep=""),"sig2","g")
+  colnames(chains) = c(colnames(covariates),"sig2","g")
   return(mcmc(chains))
 
 }

@@ -17,7 +17,7 @@ setValidity("BFBayesFactor", function(object){
   dataTypeDenom = object@denominator@dataTypes
   dataTypesEqual = unlist(lapply(object@numerator, 
                 function(model, compType) 
-                  identical(model@dataTypes, compType), 
+                  model@dataTypes %com% compType, 
                 compType=dataTypeDenom))  
   if( any(!dataTypesEqual)) return("Data types are not equal across models.")
   
@@ -43,12 +43,14 @@ setValidity("BFBayesFactor", function(object){
   return(TRUE)
 })
 
-setGeneric("extractBF", function(x, ...) standardGeneric("extractBF"))
-setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALSE){
-  df = x@bayesFactor
-  if(!logbf) df$bf = exp(df$bf) 
-  if(onlybf) df = df$bf
-  return(df)
+setMethod("recompute", "BFBayesFactor", function(x, progress = FALSE, ...){
+  if(progress) lapply = pblapply 
+  bfs = lapply(x@numerator, function(num, data, ...)
+    compare(numerator = num, data = data, ...),
+          data = x@data, ...)
+  joined = do.call("c", bfs)
+  denbf = compare(numerator = x@denominator, data = x@data, ...) 
+  return(joined / denbf)
 })
 
 setMethod("names", "BFBayesFactor", function(x){ 
@@ -72,14 +74,14 @@ setMethod('/', signature("numeric", "BFBayesFactor"), function(e1, e2){
   }else if( e1 != 1 ){
     stop("Dividend must be 1 (to take reciprocal).")
   }else if( length(e2)>1 ){
-    allNum = as(e2,"vector")
+    allNum = as(e2,"list")
     BFlist = BFBayesFactorList(lapply(allNum, function(num) 1 / num))    
   }
 }
 )
 
 setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
-    if( !identical(e1@denominator, e2@denominator) ) stop("Bayes factors have different denominator models; they cannot be compared.")
+    if( !(e1@denominator %same% e2@denominator) ) stop("Bayes factors have different denominator models; they cannot be compared.")
     if( !identical(e1@data, e2@data) ) stop("Bayes factors were computed using different data; they cannot be compared.")
     if( (length(e2)==1) ){
       errorEst = sqrt(e1@bayesFactor$error^2 + e2@bayesFactor$error^2)
@@ -88,8 +90,14 @@ setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
                        time  = date(), 
                        code = randomString(length(e1)))
       rownames(bfs) = rownames(e1@bayesFactor)
-      bfs[ as.character(e1@bayesFactor$code) == as.character(e2@bayesFactor$code), "error" ] = 0
-      bfs[ as.character(e1@bayesFactor$code) == as.character(e2@bayesFactor$code), "bf" ] = 0
+      
+      # when bayes factors were computed at the same time or for the same model, 
+      # they must be exactly equal  (no error)
+      sameModel <- sapply(e1@numerator, function(num, den) num %same% den, den = e2@numerator[[1]])
+      sameCode <- as.character(e1@bayesFactor$code) == as.character(e2@bayesFactor$code)
+      bfs[ sameModel | sameCode, "error" ] = 0
+      bfs[ sameModel | sameCode, "bf" ] = 0
+      
       newbf = new("BFBayesFactor",
                   numerator=e1@numerator,
                   denominator=e2@numerator[[1]],
@@ -97,7 +105,7 @@ setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
                   data = e1@data)
       return(newbf)
     }else{
-      allDenom = as(e2,"vector")
+      allDenom = as(e2,"list")
       BFlist = BFBayesFactorList(lapply(allDenom, function(denom, num) num / denom, num = e1))
       return(BFlist)
     }
@@ -123,9 +131,6 @@ setMethod('summary', "BFBayesFactor", function(object){
     show(object)
   })
 
-# https://stat.ethz.ch/pipermail/r-devel/2010-May/057506.html
-## for 'i' in x[i] or A[i,] : (numeric = {double, integer})
-setClassUnion("index", members =  c("numeric", "logical", "character"))
 
 setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
                          drop = "missing"),
@@ -138,14 +143,27 @@ setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
             return(x)
           })
 
+setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALSE){
+  as.data.frame.BFBayesFactor(x, logbf, onlybf)
+})
 
-setAs("BFBayesFactor" , "vector",
+setAs("BFBayesFactor", "data.frame",
+      function( from, to ){
+        as.data.frame.BFBayesFactor(from)
+      })
+
+setAs("BFBayesFactor" , "list",
        function ( from , to ){
           vec = vector(mode = "list", length = length(from) )
           for(i in 1:length(from))
             vec[i] = from[i]
           return(vec)
          })
+
+setAs("BFBayesFactor", "vector",
+      function( from, to ){
+        as.vector.BFBayesFactor(from)
+      })
 
 
 setMethod("sort", "BFBayesFactor", function(x, decreasing = FALSE, ...)
@@ -156,6 +174,12 @@ setMethod("max", "BFBayesFactor", function(x)
 
 setMethod("min", "BFBayesFactor", function(x)
   min.BFBayesFactor(x) )
+
+setMethod("which.max", "BFBayesFactor", function(x)
+  which.max.BFBayesFactor(x) )
+
+setMethod("which.min", "BFBayesFactor", function(x)
+  which.min.BFBayesFactor(x) )
 
 setMethod("head", "BFBayesFactor", function(x, n=6L)
   head.BFBayesFactor(x, n) )
@@ -186,6 +210,18 @@ min.BFBayesFactor <- function(x){
   return(el)
 }
 
+which.max.BFBayesFactor <- function(x){
+  index = which.max(x@bayesFactor$bf)
+  names(index) = rownames(x@bayesFactor)[index]
+  return(index)
+}
+
+which.min.BFBayesFactor <- function(x){
+  index = which.min(x@bayesFactor$bf)
+  names(index) = rownames(x@bayesFactor)[index]
+  return(index)
+}
+
 head.BFBayesFactor <- function(x, n=6L){
   n = ifelse(n>length(x),length(x),n)
   x = sort(x, decreasing=TRUE)
@@ -197,17 +233,37 @@ tail.BFBayesFactor <- function(x, n=6L){
   x = sort(x)
   return(x[n:1])}
 
+as.data.frame.BFBayesFactor <- function(x,logbf = FALSE, onlybf = FALSE){
+  df = x@bayesFactor
+  if(!logbf) df$bf = exp(df$bf) 
+  if(onlybf) df = df["bf"]
+  return(df) 
+}
+
+as.vector.BFBayesFactor <- function(x, mode = "any"){
+  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)  
+  v = exp(x@bayesFactor$bf)
+  names(v) = rownames(x@bayesFactor)
+  return(v) 
+}
 
 
 c.BFBayesFactor <-
   function(..., recursive = FALSE)
   {
     z = list(...)
+    if(length(z)==1) return(z[[1]])
     correctClass = unlist(lapply(z, function(object) inherits(object,"BFBayesFactor")))
     if(any(!correctClass)) stop("Cannot concatenate Bayes factor with non-Bayes factor.")
     
-    dataAndDenoms = lapply(z, function(object){list(object@denominator,object@data,object@denominator@dataTypes)})
-    sameInfo = unlist(lapply(dataAndDenoms, function(object, compObj){ identical(object, compObj)}, compObj=dataAndDenoms[[1]]))
+    dataAndDenoms = lapply(z, function(object){list(den = object@denominator, dat = object@data)})
+    sameInfo = unlist(lapply(dataAndDenoms[-1], 
+                             function(el, cmp){ 
+                               sameType = el$dat %com% cmp$dat
+                               sameType = ifelse(length(sameType)>0,sameType,TRUE)
+                               (el$den %same% cmp$den) & sameType
+                               },
+                             cmp=dataAndDenoms[[1]]))
     if(any(!sameInfo)) stop("Cannot concatenate Bayes factors with different denominator models or data.")
     
     numerators = unlist(lapply(z, function(object){object@numerator}),recursive=FALSE, use.names=FALSE)    

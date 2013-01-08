@@ -105,7 +105,7 @@ as.vector.BFBayesFactorList <- function(x, mode = "any"){
 }
 
 as.matrix.BFBayesFactorList <- function(x){
-  matr <- sapply(x, extractBF, onlybf=TRUE)
+  matr <- sapply(x, as.vector)
   dim(matr) <- c(length(x[[1]]),length(x))
   numNames <- rownames(extractBF(x[[1]]))
   denNames <- names(x)

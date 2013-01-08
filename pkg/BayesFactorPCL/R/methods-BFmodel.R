@@ -37,11 +37,30 @@ BFindepSample <- function(type, identifier, prior, shortName, longName){
       version = BFInfo(FALSE))
 }
 
-
 #######
 
-setGeneric("compare", function(numerator, denominator, data, ...) standardGeneric("compare"))
+setMethod('show', signature = c("BFlinearModel"),
+  function(object){
+    cat("---\n Model:\n")
+    cat("Type: ",class(object)[1],", ",object@type,"\n",sep="")
+    cat(object@longName,"\n")
+    cat("Data types:\n")
+    lapply(names(object@dataTypes),function(el) cat(el,": ",object@dataTypes[el],"\n") )
+    cat("\n\n")
+  }
+)
 
+setMethod("%same%", signature = c(x="BFmodel",y="BFmodel"),
+          function(x,y){
+            classesSame = identical(class(x),class(y))
+            dataTypeSame = x@dataTypes %com% y@dataTypes
+            slotSame = sapply(slotNames(x), function(el,x,y) identical(slot(x,el),slot(y,el)),
+                   x=x,y=y)
+            slotSame["dataTypes"] = ifelse(length(dataTypeSame)>0,dataTypeSame, TRUE)
+            # exclude version
+            slotSame = slotSame[names(slotSame)!="version"]
+            return(all(slotSame) & classesSame)
+          })
 
 setMethod('compare', signature(numerator = "BFlinearModel", denominator = "BFlinearModel", data = "data.frame"), 
           function(numerator, denominator, data, ...){
@@ -76,7 +95,7 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
                 errorEst = 0
               }else{
                 t = (mean(y) - mu) / sd(y) * sqrt(N)
-                bf = ttest.Quad(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
+                bf = ttest.tstat(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
@@ -140,7 +159,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
                 errorEst = 0
               }else{
                 t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
-                bf = ttest.Quad(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
+                bf = ttest.tstat(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
@@ -182,9 +201,6 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
             
           })
           
-
-
-
 
 
 

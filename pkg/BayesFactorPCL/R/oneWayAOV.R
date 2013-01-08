@@ -50,7 +50,7 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, gi
 
 }
 
-oneWayAOV.Quad = function(F,N,J,rscale="medium",logbf=FALSE,error.est=FALSE)
+oneWayAOV.Fstat = function(F,N,J,rscale="medium",logbf=FALSE,error.est=FALSE)
 {
   rscale = rpriorValues("allNways","fixed",rscale)
   integral = integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale)
