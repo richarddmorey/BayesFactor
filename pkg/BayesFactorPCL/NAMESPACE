@@ -12,7 +12,7 @@ export(logMeanExpLogs,
     regressionBF,
     anovaBF)
 
-import(mvtnorm, pbapply, stringr)
+import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
 importFrom(utils, head)
 importFrom(utils, tail)

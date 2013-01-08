@@ -1,26 +1,3 @@
-lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
-                 rscaleRandom=1, rscaleCont=1, posterior=FALSE, ...)
-{    
-  checkFormula(formula, data, analysis="lm")
-  dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")
-  rscales = list(fixed=rscaleFixed, random=rscaleRandom, continuous=rscaleCont)
-  
-  numerator = BFlinearModel(type = "JZS", 
-                        identifier = list(formula = deparse(formula)), 
-                        prior=list(rscale=rscales),
-                        dataTypes = dataTypes,
-                        shortName = paste(deparse(formula[[3]]),sep=""),
-                        longName = paste(deparse(formula),sep="")
-      )
-  
-  if(posterior){
-    chains = posterior(numerator, data = data, ...)
-    return(chains)
-  }else{
-    bf = compare(numerator = numerator, data = data,...)
-    return(bf)    
-  }
-}
 
 
 ############### Linear models
@@ -35,7 +12,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
     formula = formula(numerator@identifier$formula)
     checkFormula(formula, data, analysis = "lm")
             
-    factors = fmlaFactors(formula)[-1]
+    factors = fmlaFactors(formula, data)[-1]
     nFactors = length(factors)
     dataTypes = numerator@dataTypes
     relevantDataTypes = dataTypes[names(dataTypes) %in% factors]
@@ -60,7 +37,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
       R2 = reg[[8]]
       N = nrow(data)
       p = length(factors)
-      bf = linearReg.R2stat(N,p,R2,rscale=rscaleCont,logbf=TRUE, error.est=TRUE)
+      bf = linearReg.R2stat(N,p,R2,rscale=rscaleCont)
     }else if(all(relevantDataTypes != "continuous")){
       # ANOVA or t test
       freqs <- table(data[[factors[1]]])
@@ -78,11 +55,11 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
         Fstat = summary(aov(formula, data=data))[[1]]["F value"][1,] 
         J = length(freqs)
         N = freqs[1]
-        bf = oneWayAOV.Fstat(Fstat, N, J, rscale, logbf=TRUE, error.est=TRUE)                
+        bf = oneWayAOV.Fstat(Fstat, N, J, rscale)                
       }else if(nLvls==2){
         # independent groups t
         t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
-        bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2), logbf=TRUE, error.est=TRUE)
+        bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
       }else{ # Nothing
         stop("Too few levels in independent variable: ",factors[1])
       }

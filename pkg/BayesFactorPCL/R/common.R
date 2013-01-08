@@ -6,8 +6,8 @@ combn2 <- function(x,lower=1){
   unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }
 
-fmlaFactors <- function(formula){
-  rownames(attr(terms(formula),"factors"))
+fmlaFactors <- function(formula, data){
+  rownames(attr(terms(formula, data = data),"factors"))
 }
 
 are.factors<-function(df) sapply(df, function(v) is.factor(v))

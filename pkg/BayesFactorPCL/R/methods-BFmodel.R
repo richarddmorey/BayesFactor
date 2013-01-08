@@ -90,12 +90,12 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
             
             if( (numerator@type=="JZS") ){
 
-              if( attr(terms(formula),"intercept") == 0 ){
+              if( attr(terms(formula, data = data),"intercept") == 0 ){
                 numBF = 0
                 errorEst = 0
               }else{
                 t = (mean(y) - mu) / sd(y) * sqrt(N)
-                bf = ttest.tstat(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
+                bf = ttest.tstat(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
@@ -140,26 +140,27 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
           function(numerator, data, ...){
             
             formula = formula(numerator@identifier$formula)
-            LHSnum = all.vars(update(formula, .~0))
-            RHSnum = all.vars(update(formula, 0~.))
-            
-            y = data[[LHSnum]]
-            iv = data[[RHSnum]]
+            checkFormula(formula, data, analysis = "indept")
+ 
+            dv = deparse(formula[[2]])            
+            factor = fmlaFactors(formula, data)[-1]
+                        
+            y = data[[dv]]
+            iv = data[[factor]]
             ns = table(iv)
             
             mu = numerator@prior$mu
             nullInterval=numerator@prior$nullInterval
             
-            if( attr(terms(formula),"intercept") == 0 ) stop("Indep. groups t test without intercepts not supported yet.")
             if( mu != 0 ) stop("Indep. groups t test with nonzero null not supported yet.")
             
             if( (numerator@type=="JZS") ){
-              if( length(attr(terms(formula),"term.labels")) == 0 ){
+              if( length(attr(terms(formula, data = data),"term.labels")) == 0 ){
                 numBF = 0
                 errorEst = 0
               }else{
                 t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
-                bf = ttest.tstat(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale, logbf=TRUE, error.est=TRUE)
+                bf = ttest.tstat(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }

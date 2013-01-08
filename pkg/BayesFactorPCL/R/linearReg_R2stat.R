@@ -1,0 +1,63 @@
+##' Using the classical R^2 test statistic for (linear) regression designs, this
+##' function computes the corresponding Bayes factor test.
+##' 
+##' This function can be used to compute the Bayes factor corresponding to a 
+##' multiple regression, using the classical R^2 (coefficient of determination)
+##' statistic.  It can be used when you don't have access to the full data set
+##' for analysis by \code{\link{lmBF}}, but you do have the test statistic.
+##' 
+##' For details about the model, see the help for \code{\link{regressionBF}},
+##' and the references therein.
+##' 
+##' The Bayes factor is computed via Gaussian quadrature.
+##' @title Use R^2 statistic to compute Bayes factor for regression designs
+##' @param N number of observations
+##' @param p number of predictors in model, excluding intercept
+##' @param R2 proportion of variance accounted for by the predictors, excluding
+##'   intercept
+##' @param rscale numeric prior scale
+##' @return a vector of length 2 containing the computed log(e) Bayes factor 
+##'   (against the intercept-only null), along with a proportional error 
+##'   estimate on the Bayes factor.
+##' @author Richard D. Morey (\email{richarddmorey@@gmail.com}) and Jeffrey N. 
+##'   Rouder (\email{rouderj@@missouri.edu})
+##' @keywords htest
+##' @export
+##' @references Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
+##'   Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable
+##'   Selection. Journal of the American Statistical Association, 103, pp.
+##'   410-423
+##'   
+##'   Rouder, J. N.  and Morey, R. D. (in press, Multivariate Behavioral Research). Bayesian testing in
+##'   regression.
+##'   
+##'   Perception and Cognition Lab (University of Missouri): Bayes factor
+##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
+##' @seealso \code{\link{integrate}}, \code{\link{lm}}; see 
+##'   \code{\link{lmBF}} for the intended interface to this function, using 
+##'   the full data set.
+##' @examples
+##' ## Use attitude data set
+##' data(attitude)
+##' ## Scatterplot
+##' lm1 = lm(rating~complaints,data=attitude)
+##' plot(attitude$complaints,attitude$rating)
+##' abline(lm1)
+##' ## Traditional analysis
+##' ## p value is highly significant
+##' summary(lm1)
+##' 
+##' ## Bayes factor
+##' ## The Bayes factor is almost 80,000;
+##' ## the data strongly favor hypothesis that 
+##' ## the slope is not 0.
+##' result = linearReg.R2stat(30,1,0.6813)
+##' exp(result[['bf']])
+
+linearReg.R2stat=function(N,p,R2,rscale=1) {
+  rscale = rpriorValues("regression",,rscale)
+  h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
+  properror = exp(log(h[[2]]) - log(h[[1]]))
+  bf = log(h$value)
+  return(c(bf=bf, properror=properror))
+}

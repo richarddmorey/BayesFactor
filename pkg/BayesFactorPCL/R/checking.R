@@ -1,5 +1,5 @@
 createDataTypes <- function(formula, whichRandom, data, analysis){
-  factors <- rownames(attr(terms(formula),"factors"))[-1]
+  factors <- rownames(attr(terms(formula, data = data),"factors"))[-1]
   cnames <- colnames(data)
   
   # check status of data columns
@@ -35,11 +35,12 @@ createDataTypes <- function(formula, whichRandom, data, analysis){
 checkFormula <- function(formula, data, analysis){
   if(length(formula) < 3) stop("LHS of formula must be given.")
   cnames = colnames(data)
+  
   dv = deparse(formula[[2]])
   
   if(!is.numeric(data[,dv])) stop("Dependent variable must be numeric.")
-  factors = fmlaFactors(formula)
-  terms = colnames(attr(terms(formula),"factors"))  
+  factors = fmlaFactors(formula, data)
+  terms = colnames(attr(terms(formula, data = data),"factors"))  
   
   if(is.null(factors)) invisible()
   if(factors[1] %in% terms) stop("Dependent variable cannot be a predictor.")
@@ -50,9 +51,11 @@ checkFormula <- function(formula, data, analysis){
     if( grepl(":",RHS,fixed=TRUE) ) stop("Interactions not allowed in regression.")
   }
   
-  if(analysis=="lm" | analysis=="anova" | analysis == "regression")
-    if(attr(terms(formula),"intercept") == 0) stop("Formula must include intercept.")            
+  if(analysis=="lm" | analysis=="anova" | analysis == "regression" | analysis == "indept")
+    if(attr(terms(formula, data = data),"intercept") == 0) stop("Formula must include intercept.")            
   
+  if(analysis=="indept")
+    if( length(factors)>2 ) stop("Indep. groups t test can only support 1 factor as predictor.")  
   
   invisible()
 }

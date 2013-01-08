@@ -1,14 +1,14 @@
 Package: BayesFactor
 Type: Package
 Title: Computation of Bayes factors for simple designs
-Version: 0.8.9
-Date: 2012-12-15
+Version: 0.9.0
+Date: 2013-1-10
 Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactor package is a suite of functions for computing various Bayes factors for simple designs, including the one- and two-sample designs, one-way designs, general ANOVA designs, and linear regression.
 License: GPL-2
 Depends:  coda 
-Imports:  pbapply, mvtnorm, stringr
+Imports:  pbapply, mvtnorm, stringr, methods, utils, graphics, coda
 Suggests: doMC, testthat
 LazyLoad: yes
 

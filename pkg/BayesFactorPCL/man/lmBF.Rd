@@ -1,0 +1,86 @@
+\name{lmBF}
+\alias{lmBF}
+\title{Function to compute Bayes factors for specific linear models}
+\usage{
+  lmBF(formula, data, whichRandom = NULL,
+    rscaleFixed = "medium", rscaleRandom = 1,
+    rscaleCont = 1, posterior = FALSE, ...)
+}
+\arguments{
+  \item{formula}{a formula containing all factors to
+  include in the analysis (see Examples)}
+
+  \item{data}{a data frame containing data for all factors
+  in the formula}
+
+  \item{whichRandom}{a character vector specifying which
+  factors are random}
+
+  \item{rscaleFixed}{prior scale for standardized, reduced
+  fixed effects. A number of preset values can be given as
+  strings; see Details.}
+
+  \item{rscaleRandom}{prior scale for standardized random
+  effects}
+
+  \item{rscaleCont}{prior scale for standardized slopes}
+
+  \item{posterior}{if \code{TRUE}, return samples from the
+  posterior distribution instead of the Bayes factor}
+
+  \item{...}{further arguments to be passed to or from
+  methods.}
+}
+\value{
+  If \code{posterior} is \code{FALSE}, an object of class
+  \code{BFBayesFactor}, containing the computed model
+  comparisons is returned. Otherwise, an object of class
+  \code{BFmcmc}, containing MCMC samples from the posterior
+  is returned.
+}
+\description{
+  This function computes Bayes factors, or samples from the
+  posterior, of specific linear models (either ANOVA or
+  regression).
+}
+\details{
+  This function provides an interface for computing Bayes
+  factors for specific linear models against the
+  intercept-only null; other tests may be obtained by
+  computing two models and dividing their Bayes factors.
+  Specifics about the priors for regression models can be
+  found in the help for \code{\link{regressionBF}};
+  likewise, details for ANOVA models can be found in the
+  help for \code{\link{anovaBF}}.
+
+  Currently, the function does not allow for general linear
+  models, containing both continuous and categorical
+  predcitors, but this support will be added in the future.
+}
+\examples{
+## Puzzles data; see ?puzzles for details
+data(puzzles)
+## Bayes factor of full model against null
+bfFull = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, whichRandom = "ID")
+
+## Bayes factor of main effects only against null
+bfMain = lmBF(RT ~ shape + color + ID, data = puzzles, whichRandom = "ID")
+
+## Compare the main-effects only model to the full model
+bfMain / bfFull
+
+## sample from the posterior of the full model
+samples = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, whichRandom = "ID", posterior = TRUE, iterations = 1000)
+
+## Aother way to sample from the posterior of the full model
+samples2 = posterior(bfFull, iterations = 1000)
+}
+\author{
+  Richard D. Morey (\email{richarddmorey@gmail.com})
+}
+\seealso{
+  \code{\link{regressionBF}} and \code{anovaBF} for testing
+  many regression or ANOVA models simultaneously.
+}
+\keyword{htest}
+

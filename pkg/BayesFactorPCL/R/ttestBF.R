@@ -1,3 +1,86 @@
+##' This function computes Bayes factors, or samples from the posterior, for 
+##' one- and two-sample designs.
+##' 
+##' The Bayes factor provided by \code{ttestBF} tests the null hypothesis that 
+##' the mean (or mean difference) of a normal population is \eqn{\mu_0}{mu0} 
+##' (argument \code{mu}). Specifically, the Bayes factor compares two 
+##' hypotheses: that the standardized effect size is 0, or that the standardized
+##' effect size is not 0. For one-sample tests, the standardized effect size is 
+##' \eqn{(\mu-\mu_0)/\sigma}{(mu-mu0)/sigma}; for two sample tests, the 
+##' standardized effect size is \eqn{(\mu_2-\mu_1)/\sigma}{(mu2-mu1)/sigma}.
+##' 
+##' A noninformative Jeffreys prior is placed on the variance of the normal 
+##' population, while a Cauchy prior is placed on the standardized effect size. 
+##' The \code{rscale} argument controls the scale of the prior distribution, 
+##' with \code{rscale=1} yielding a standard Cauchy prior. See the references 
+##' below for more details.
+##' 
+##' For the \code{rscale} argument, several named values are recognized: 
+##' "medium" corresponds to \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}; "wide" corresponds 
+##' to \eqn{r=1}{r=1}.
+##' 
+##' The Bayes factor is computed via Gaussian quadrature.
+##' @title Function for Bayesian analysis of one- and two-sample designs
+##' @param x a vector of observations for the first (or only) group
+##' @param y a vector of observations for the second group (or condition, for 
+##'   paired)
+##' @param formula for independent-group designs, a (optional) formula 
+##'   describing the model
+##' @param mu for one-sample and paired designs, the null value of the mean (or 
+##'   mean difference)
+##' @param nullInterval optional vector of length 2 containing lower and upper bounds of an interval hypothesis to test, in standardized units
+##' @param paired if \code{TRUE}, observations are paired
+##' @param data for use with \code{formula}, a data frame containing all the 
+##'   data
+##' @param rscale prior scale.  A number of preset values can be given as 
+##'   strings; see Details.
+##' @param posterior if \code{TRUE}, return samples from the posterior instead 
+##'   of Bayes factor
+##' @param ... further arguments to be passed to or from methods.
+##' @return If \code{posterior} is \code{FALSE}, an object of class 
+##'   \code{BFBayesFactor} containing the computed model comparisons is 
+##'   returned. If \code{nullInterval} is defined, then two Bayes factors will
+##'   be computed: The Bayes factor for the interval against the null hypothesis
+##'   that the standardized effect is 0, and the corresponding Bayes factor for
+##'   the compliment of the interval.
+##'   
+##'   If \code{posterior} is \code{TRUE}, an object of class \code{BFmcmc},
+##'   containing MCMC samples from the posterior is returned.
+##' @export
+##' @keywords htest
+##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
+##' @references Morey, R. D., Rouder, J. N., Pratte, M. S., & Speckman, P. L. 
+##'   (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. 
+##'   Journal of Mathematical Psychology, 55, 368-378
+##'   
+##'   Morey, R. D. \& Rouder, J. N. (2011). Bayes Factor Approaches for Testing 
+##'   Interval Null Hypotheses. Psychological Methods, 16, 406-419
+##'   
+##'   Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. 
+##'   (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
+##'   Psychonomic Bulletin & Review, 16, 752-760
+##'   
+##'   Perception and Cognition Lab (University of Missouri): Bayes factor 
+##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
+##' @note The default prior scale has changed from 1 to \eqn{\sqrt{2}/2}. The 
+##'   factor of \eqn{\sqrt{2}} is to be consistent with Morey et al. (2011) and 
+##'   Rouder et al. (2012), and the factor of \eqn{1/2} is to better scale the 
+##'   expected effect sizes; the previous scaling put more weight on larger 
+##'   effect sizes. To obtain the same Bayes factors as Rouder et al. (2009), 
+##'   change the prior scale to 1.
+##' @examples
+##' ## Sleep data from t test example
+##' data(sleep)
+##' plot(extra ~ group, data = sleep)
+##' 
+##' ## paired t test
+##' ttestBF(x = sleep$extra[sleep$group==1], y = sleep$extra[sleep$group==2], paired=TRUE)
+##' 
+##' ## Sample from the corresponding posterior distribution
+##' samples = ttestBF(x = sleep$extra[sleep$group==1], y = sleep$extra[sleep$group==2], paired=TRUE, posterior = TRUE, iterations = 1000)
+##' plot(samples[,"mu"])
+##' @seealso \code{\link{integrate}}, \code{\link{t.test}}
+
 ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
                     paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, ...){
   
@@ -50,7 +133,7 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
     if(paired) stop("Cannot use 'paired' with formula.")
     if(is.null(data)) stop("'data' needed for formula.")
     
-    ivs = attr(terms(formula),"term.labels")
+    ivs = attr(terms(formula, data = data),"term.labels")
     if(length(ivs) > 1) stop("Only one independent variable allowed for t test.")
     dataTypes = "fixed"
     names(dataTypes) = ivs
@@ -83,141 +166,5 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
   }
 }
 
-ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium",logbf=FALSE,error.est=FALSE)
-{
-  rscale = rpriorValues("ttest",,rscale)
-  
-  nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
-	n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
-	r2=rscale^2
-	marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
-  if(is.null(nullInterval)){
-    integral = integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)  
-	  marg.like.1 = integral$value
-	  prop.error = integral$abs.error / marg.like.1
-    lbf = log(marg.like.1) - log(marg.like.0)
-  }else{
-    areabf = ttestAreaNull(t, n1, n2, nullInterval=nullInterval, rscale=rscale)
-    lbf = areabf$bf
-    prop.error = areabf$properror
-  }
-  if(logbf){
-    if(error.est){
-      return(list(bf = lbf, properror=prop.error))
-    }else{
-      return(lbf)
-    }  	
-  }else{
-    if(error.est){
-      return(list(bf = exp(lbf), properror=prop.error))
-    }else{
-      return(exp(lbf))
-    }  	
-	}
-}
 
-ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",null.interval=NULL,progress=TRUE,logbf=FALSE){
-	if( (is.null(t) | is.null(n)) & !is.null(y) ){
-    n = as.integer(length(y))
-  }else if(!is.null(t) & !is.null(n)){
-    # Create some fake data with needed parameters to pass
-    y = rnorm(n)
-    y = (y - mean(y))/sd(y)
-    y = y + t / sqrt(n)
-    n = as.integer(n)
-	}else{
-    stop("Insufficient data: either t, or both t and n, must be given.")
-	}
-  rscale = rpriorValues("ttest",,rscale)
-  iterations = as.integer(iterations)
-	if(progress){
-		progress = round(iterations/100)
-		pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
-	}else{ 
-		pb=NULL 
-	}
-	
-	if(is.null(null.interval)){
-		do.interval=0
-		interval = c(-Inf,Inf)
-	}else{
-		if(length(null.interval)!=2){
-			stop("null.interval must be a vector of length 2.")
-		}
-		do.interval=1
-		interval=sort(as.numeric(null.interval))
-	}
-    
-    pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
-	
-	chains = .Call("RgibbsOneSample", y, n, rscale, iterations, do.interval, interval,
-				progress, pbFun, new.env(), package="BayesFactor")
 
-	if(progress) close(pb);
-	priorDens = 1/(pi*rscale)
-	postDens = mean(chains[5,])
-	lbf = log(postDens) - log(priorDens)
-	priorArea = pcauchy(interval[2],scale=rscale) - pcauchy(interval[1],scale=rscale)
-	postArea = mean(chains[6,])
-	lbfarea = log(postArea) - log(1-postArea) - (log(priorArea) - log(1-priorArea))
-	
-	rownames(chains) = c("mu","sig2","g","delta","CMDE","areaPost")			
-	if(logbf){
-		return(list(chains=mcmc(t(chains)),BF=-lbf,BFarea=-lbfarea))
-	}else{
-		return(list(chains=mcmc(t(chains)),BF=exp(-lbf),BFarea=exp(-lbfarea)))
-	}
-}
-
-t.joint=function(g,t,n,nu,r2)
-{
-	t1=-.5*log(1+n*g*r2)
-	t2=(-(nu+1)/2)*log(1+t^2/((1+n*g*r2)*(nu)))
-	return(dinvgamma(g,.5,.5)*exp(t1+t2))
-}
-
-ttestAreaNull <- function(t, n1, n2=0, nullInterval=c(-.2,.2), rscale=1, safeInt = .9999)
-{
-  nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
-  n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
-  
-  nullInterval = range(nullInterval)
-  safeRange = t/sqrt(n) + c(-1,1) * qt(1-(1-safeInt)/2,nu)/sqrt(n)
-  
-  priorOdds = diff(pcauchy(nullInterval,scale=rscale))
-
-  nullInterval[1] = max(nullInterval[1],safeRange[1]) 
-  nullInterval[2] = min(nullInterval[2],safeRange[2]) 
-  
-  ifelse(nullInterval[1]<safeRange[1],safeRange[1],nullInterval[1])
-  
-  allIntegral = integrate(function(delta,tstat,n1,nu,rscale){
-    exp(dt(t,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE))
-  }, safeRange[1], safeRange[2], tstat=t,n1=n,nu=nu, rscale=rscale)[[1]]
-  
-  areaIntegral = integrate(function(delta,tstat,n1,nu,rscale,const=1){
-    exp(dt(t,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE) - log(const))
-  }, nullInterval[1], nullInterval[2], tstat=t,n1=n,nu=nu,rscale=rscale,const=allIntegral)
-
-  
-  # encompassing vs point null
-  vsNull = ttest.tstat(t, n1, n2, rscale=rscale, logbf=TRUE, error.est=TRUE)
-  
-  val = areaIntegral[[1]]
-  err = areaIntegral[[2]]
-  
-  err = err / val 
-  err = sqrt(err^2 + vsNull[['properror']]^2)
-  val = log(val) -  log(priorOdds) + vsNull[['bf']]
-  
-  complArea = 1-areaIntegral[[1]]
-  errCompl = areaIntegral[[2]] / complArea
-  errCompl = sqrt(errCompl^2 + vsNull[['properror']]^2)  
-  valCompl = log(complArea) - log(1-priorOdds) + vsNull[['bf']]
-  
-  return(
-    list(
-      bf = c(null=val,alt=valCompl),
-      properror = c(null=err,alt=errCompl)
-    ))
-}

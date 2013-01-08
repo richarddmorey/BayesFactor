@@ -31,7 +31,7 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
   if(sortbf) x = sort(x)
   
   bfs <- extractBF(x, logbf = TRUE)
-
+  
   # Estimate left margin
   maxChar = max(nchar(rownames(bfs)))
   leftMargin = marginExpand * maxChar + 4

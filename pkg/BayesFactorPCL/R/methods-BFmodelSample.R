@@ -74,7 +74,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
     formula = formula(model@identifier$formula)
     checkFormula(formula, data, analysis = "lm")
     
-    factors = fmlaFactors(formula)[-1]
+    factors = fmlaFactors(formula, data)[-1]
     nFactors = length(factors)
     dataTypes = model@dataTypes
     relevantDataTypes = dataTypes[names(dataTypes) %in% factors]
@@ -128,10 +128,10 @@ as.mcmc.BFmcmc <- function(x){
   return(S3Part(x))
 }
 
-as.matrix.BFmcmc <- function(x){
+as.matrix.BFmcmc <- function(x,...){
   return(as.matrix(S3Part(x)))
 }
 
-as.data.frame.BFmcmc <- function(x){
+as.data.frame.BFmcmc <- function(x, row.names=NULL,optional=FALSE,...){
   return(as.data.frame(S3Part(x)))
 }

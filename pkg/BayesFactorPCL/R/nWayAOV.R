@@ -1,204 +1,88 @@
 
 
-createRscales <- function(formula, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL){
-  
-  rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
-  rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
-  rscaleCont = rpriorValues("regression",,rscaleCont)
-  
-  types = termTypes(formula, dataTypes)
-  nFac = sum( (types=="random") | (types=="fixed") ) 
-  nCont = any(types=="continuous") * 1
-  nGs = nFac + nCont
-  
-  rscale = 1:nGs * NA
-  rscaleTypes = rscale
-    
-  if(nCont > 0) rscaleTypes[nGs] = "continuous"
-  if(nFac > 0){
-    facTypes = types[types != "continuous"]
-    rscaleTypes[1:nFac] = facTypes 
-  }
-  
-  rscale[rscaleTypes=="continuous"] = rscaleCont
-  rscale[rscaleTypes=="fixed"] = rscaleFixed
-  rscale[rscaleTypes=="random"] = rscaleRandom
-  
-  return(rscale)
-}
-
-
-createGMap <- function(formula, data, dataTypes){
-  
-  factors = fmlaFactors(formula)[-1]
-  if(length(factors)<1) return(c())
-  
-  # Compute number of parameters for each specified column
-  nXcols = numColsForFactor(formula, data, dataTypes)
-  lvls = termLevels(formula, nXcols)
-  types = termTypes(formula, dataTypes)
-  
-  # each random or fixed group gets a parameter, and all continuous together get 1
-  nFac = sum( (types=="random") | (types=="fixed") ) 
-  nCont = any(types=="continuous") * 1
-  nGs = nFac + nCont
-  P = sum(lvls)
-  
-  gGroups = inverse.rle(list(lengths=lvls,values=names(lvls)))
-  gMap = 1:P * NA
-  names(gMap) = gGroups
-  
-  gGroupsFac = lvls[types != "continuous"] * 0 + (1:nFac - 1)
-  
-  gMap[types[gGroups] == "continuous"] = nGs - 1
-  gMap[types[gGroups] != "continuous"] = gGroupsFac[names(gMap[types[gGroups] != "continuous"])]
-  
-  return(gMap)
-}
-
-numColsForFactor <- function(formula, data, dataTypes){
-  factors = fmlaFactors(formula)[-1]
-  sapply(factors, function(el, data, dataTypes){
-    switch(dataTypes[el],
-           fixed = nlevels(data[,el]) - 1,
-           random = nlevels(data[,el]),
-           continuous = 1
-    )
-  }, data = data, dataTypes = dataTypes)
-}
-
-termLevels <- function(formula, nXcols){
-  trms = attr(terms(formula),"term.labels")
-  sapply(trms, function(term, nXcols){
-    constit = strsplit(term, ":", fixed=TRUE)[[1]]
-    prod(nXcols[constit])
-  }, nXcols = nXcols)
-}
-
-termTypes <- function(formula, dataTypes){
-  trms = attr(terms(formula),"term.labels")
-  sapply(trms, function(term, dataTypes){
-    constit = strsplit(term, ":", fixed=TRUE)[[1]]
-    types = dataTypes[constit]
-    if(any(types=="continuous")) return("continuous")
-    if(any(types=="random")) return("random")
-    return("fixed")
-  }, dataTypes = dataTypes)
-}
-
-
-fullDesignMatrix <- function(fmla, data, dataTypes){
-  trms <- attr(terms(fmla), "term.labels")
-  
-  Xs = lapply(trms,function(trm, data, dataTypes){
-    oneDesignMatrix(trm, data = data, dataTypes = dataTypes)      
-  }, data = data, dataTypes = dataTypes)    
-  
-  do.call("cbind",Xs)
-}
-
-oneDesignMatrix <- function(trm, data, dataTypes)
-{
-  effects <- unlist(strsplit(trm, ":", fixed = TRUE))
-  #check to ensure all terms are in data
-  checkEffects(effects, data, dataTypes)
-  
-  if(length(effects) == 1){
-    effect = paste("~",effects,"-1")
-    X = model.matrix(formula(effect),data = data)
-    if(dataTypes[effects] == "fixed"){
-      X = X %*% fixedFromRandomProjection(ncol(X))
-      colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
-    }
-    return(X)
-  }else{
-    Xs = lapply(effects, function(trm, data, dataTypes){
-      oneDesignMatrix(trm, data = data, dataTypes = dataTypes)
-    }, data = data, dataTypes = dataTypes)
-    X = Reduce(rowMultiply, x = Xs)
-    return(X)
-  }
-}
-
-design.names.intList <- function(effects, data, dataTypes){
-  type = dataTypes[ effects[1] ]
-  firstCol = data[ ,effects[1] ]
-  nLevs = nlevels( firstCol )
-  if(length(effects)==1){
-    if(type=="random") return(levels(firstCol))
-    if(type=="fixed") return(0:(nLevs-2))
-    if(type=="continuous") return(effects)
-  }else{
-    if(type=="random") 
-      return(rowPaste(levels(firstCol), design.names.intList(effects[-1], data, dataTypes) ))
-    if(type=="fixed") 
-      return(rowPaste(0:(nLevs-2), design.names.intList(effects[-1], data, dataTypes) ))
-    if(type=="continuous") 
-      return(rowPaste(0:(nLevs-2), design.names.intList(effects[-1], data, dataTypes) ))
-  }    
-}
-
-design.projection.intList <- function(effects, data, dataTypes){
-  type = dataTypes[ effects[1] ]
-  firstCol = data[ ,effects[1] ]
-  nLevs = nlevels( firstCol )
-  if(length(effects)==1){
-    if(type=="random" | type=="continuous") return(diag(nLevs))
-    if(type=="fixed") return(fixedFromRandomProjection(nLevs))
-  }else{
-    if(type=="random") 
-      return(kronecker(diag(nLevs), design.projection.intList(effects[-1],data, dataTypes) ))
-    if(type=="fixed") 
-      return(kronecker(fixedFromRandomProjection(nLevs), design.projection.intList(effects[-1], data, dataTypes) ))
-    if(type=="continuous") 
-      return( design.projection.intList(effects[-1], data, dataTypes) )
-  }    
-}
-
-rowPaste = function(v1,v2)
-{
-  as.vector(t(outer(v1,v2,paste,sep=".&.")))
-}
-
-rowMultiply = function(x,y)
-{
-  if(nrow(x) != nrow(y)) stop("Unequal row numbers in row.multiply:", nrow(x),", ",nrow(y))
-  K = sapply(1:nrow(x), function(n, x, y){
-    kronecker(x[n,], y[n,])
-  }, x = x, y = y )
-  # add names
-  K <- t(matrix(K, ncol = nrow(x)))
-  colnames(K) = as.vector(t(
-    outer(colnames(x), colnames(y), function(x,y){
-      paste(x, y,sep=".&.")
-    })))
-  return(K)
-}
-
-# Create projection matrix
-fixedFromRandomProjection <- function(nlevRandom){
-  centering=diag(nlevRandom)-(1/nlevRandom)
-  S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
-  return(matrix(S,nrow=nlevRandom))
-}
-
-
-nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, unreduce=TRUE, ...){
-  
-  checkFormula(formula, data, analysis = "lm")
-  y = data[,deparse(formula[[2]])]
-  
-  X = fullDesignMatrix(formula, data, dataTypes)
-  
-  rscale = createRscales(formula, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
-  gMap = createGMap(formula, data, dataTypes)
-  
-  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, ...)
-  if(gibbs){
-    retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce))  
-  }
-  return(retVal)
-}  
+##' Computes a single Bayes factor, or samples from the posterior, for an ANOVA 
+##' model defined by a design matrix
+##' 
+##' This function is not meant to be called by end-users, although 
+##' technically-minded users can call this function for flexibility beyond what 
+##' the other functions in this package provide. See \code{\link{lmBF}} for a 
+##' user-friendly front-end to this function. Details about the priors can be 
+##' found in the help for \code{\link{anovaBF}} and the references therein.
+##' 
+##' Arguments \code{struc} and \code{gMap} provide a way of grouping columns of 
+##' the design matrix as a factor; the effects in each group will share a common
+##' \eqn{g} parameter. Only one of these arguments is needed; if both are given,
+##' \code{gMap} takes precedence.
+##' 
+##' \code{gMap} should be a vector of the same length as the number of 
+##' nonconstant rows in \code{X}. It will contain all integers from 0 to 
+##' \eqn{N_g-1}{Ng-1}, where \eqn{N_g}{Ng} is the total number of \eqn{g} 
+##' parameters. Each element of \code{gMap} specifies the group to which that 
+##' column belongs.
+##' 
+##' If all columns belonging to a group are adjacent, \code{struc} can instead 
+##' be used to compactly represent the groupings. \code{struc} is a vector of 
+##' length \eqn{N_g}{Ng}. Each element specifies the number columns in the 
+##' group. \code{gMap} is thus the \code{\link{inverse.rle}} of \code{struc}, 
+##' minus 1.
+##' 
+##' The vector \code{rscale} should be of length \eqn{N_g}{Ng}, and contain the 
+##' prior scales of the standardized effects. See Rouder et al. (2012) for more 
+##' details and the help for \code{\link{anovaBF}} for some typical values.
+##' 
+##' The Bayes factor is estimated using Monte Carlo integration, and the
+##' posterior is sampled with a Gibbs sampler.
+##' @title Use ANOVA design matrix to compute Bayes factors or sample posterior
+##' @param y vector of observations
+##' @param X design matrix whose number of rows match \code{length(y)}.
+##' @param struc vector grouping the columns of \code{X} (see Details).
+##' @param gMap alternative way of grouping the columns of \code{X}
+##' @param rscale a vector of prior scale(s) of appropriate length (see 
+##'   Details).
+##' @param iterations Number of Monte Carlo samples used to estimate Bayes 
+##'   factor or posterior
+##' @param progress  if \code{TRUE}, show progress with a text progress bar
+##' @param gibi interface for a future graphical user interface (not intended 
+##'   for use by end users)
+##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
+##'   Bayes factor
+##' @return If \code{posterior} is \code{FALSE}, a vector of length 2 containing
+##'   the computed log(e) Bayes factor (against the intercept-only null), along 
+##'   with a proportional error estimate on the Bayes factor. Otherwise, an 
+##'   object of class \code{mcmc}, containing MCMC samples from the posterior is
+##'   returned.
+##' @export
+##' @keywords htest
+##' @author Richard D. Morey (\email{richarddmorey@@gmail.com}), Jeffery N. 
+##'   Rouder (\email{rouderj@@missouri.edu})
+##' @seealso  See \code{\link{lmBF}} for the user-friendly front end to this 
+##'   function; see \code{\link{regressionBF}} and \code{anovaBF} for testing 
+##'   many regression or ANOVA models simultaneously.
+##' @references Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., 
+##'   (2012) Default Bayes Factors for ANOVA Designs. Journal of Mathematical 
+##'   Psychology.  56.  p. 356-374.
+##' @examples
+##' ## Classical example, taken from t.test() example
+##' ## Student's sleep data
+##' data(sleep)
+##' plot(extra ~ group, data = sleep)
+##' 
+##' ## traditional ANOVA gives a p value of 0.00283
+##' summary(aov(extra ~ group + Error(ID/group), data = sleep))
+##' 
+##' ## Build design matrix
+##' group.column <- rep(1/c(-sqrt(2),sqrt(2)),each=10)
+##' subject.matrix <- model.matrix(~sleep$ID - 1,data=sleep$ID)
+##' ## Note that we include no constant column
+##' X <- cbind(group.column, subject.matrix)
+##' 
+##' ## (log) Bayes factor of full model against grand-mean only model
+##' bf.full <- nWayAOV(y = sleep$extra, X = X, struc = c(1,10), rscale=c(.5,1))
+##' exp(bf.full['bf'])
+##' 
+##' ## Compare with lmBF result (should be about the same, give or take 1%)
+##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
+##' bf.full2
 
 nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = FALSE, gibi = NULL, gibbs = FALSE)
 {
@@ -316,71 +200,4 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   
   if(inherits(pb,"txtProgressBar")) close(pb);
   return(retVal)
-}
-
-makeLabelList <- function(formula, data, dataTypes, unreduce){
-  
-  terms = attr(terms(formula), "term.labels")
-  
-  if(unreduce) 
-    dataTypes[dataTypes == "fixed"] = "random"
-  
-  labelList = lapply(terms, 
-                     function(term, data, dataTypes){
-                       effects = strsplit(term,":",fixed=TRUE)[[1]]
-                       my.names = design.names.intList(effects, data, dataTypes)
-                       return(paste(term,"-",my.names,sep=""))
-                     },
-                     data = data, dataTypes=dataTypes)
-  
-  # join them all together in one cector
-  unlist(labelList)
-}
-
-unreduceChainPart = function(term, chains, data, dataTypes, gMap){
-  effects = strsplit(term,":", fixed = TRUE)[[1]]
-  chains = chains[, names(gMap)==term, drop = FALSE ]
-  if(any(dataTypes[effects]=="fixed")){
-    S = design.projection.intList(effects, data, dataTypes)
-    return(chains%*%t(S))
-  }else{
-    return(chains)
-  }
-}
-
-ureduceChains = function(chains, formula, data, dataTypes, gMap){
-  
-  terms = attr(terms(formula), "term.labels")
-  
-  unreducedChains = lapply(terms, unreduceChainPart, chains=chains, data = data, dataTypes = dataTypes, gMap = gMap)  
-  do.call(cbind, unreducedChains)
-}
-
-makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce){
-  P = length(gMap)
-  nGs = max(gMap) + 1
-  factors = fmlaFactors(formula)[-1]
-  dataTypes = dataTypes[ names(dataTypes) %in% factors ]
-    
-  if(!unreduce | !any(dataTypes == "fixed")) {
-    labels = c("mu", Xnames, "sig2", paste("g",1:nGs,sep="_"))
-    colnames(chains) = labels 
-    return(chains)
-  }
-
-  labels = c("mu")  
-  betaChains = chains[,1:P + 1, drop = FALSE]
-  types = termTypes(formula, dataTypes)
-  
-  # Make column names 
-  parLabels = makeLabelList(formula, data, dataTypes, unreduce)
-  labels = c(labels, parLabels)
-  
-  betaChains = ureduceChains(betaChains, formula, data, dataTypes, gMap)
-  
-  newChains = cbind(chains[,1],betaChains,chains[,-(1:(P + 1))])
-  
-  labels = c(labels, "sig2",paste("g",1:nGs,sep="_"))
-  colnames(newChains) = labels 
-  return(newChains)
 }

@@ -144,7 +144,10 @@ setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
           })
 
 setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALSE){
-  as.data.frame.BFBayesFactor(x, logbf, onlybf)
+  x = x@bayesFactor
+  if(onlybf) x = x$bf
+  if(!logbf) x$bf = exp(x$bf)
+  return(x)
 })
 
 setAs("BFBayesFactor", "data.frame",
@@ -200,13 +203,15 @@ sort.BFBayesFactor <- function(x, decreasing = FALSE, ...){
   return(x[ord])
 }
 
-max.BFBayesFactor <- function(x){
-  el <- head(x, n=1)
+max.BFBayesFactor <- function(..., na.rm=FALSE){
+  joinedbf = do.call('c',list(...))
+  el <- head(joinedbf, n=1)
   return(el)
 }
 
-min.BFBayesFactor <- function(x){
-  el <- tail(x, n=1)
+min.BFBayesFactor <- function(..., na.rm=FALSE){
+  joinedbf = do.call('c',list(...))
+  el <- tail(joinedbf, n=1)
   return(el)
 }
 
@@ -222,21 +227,20 @@ which.min.BFBayesFactor <- function(x){
   return(index)
 }
 
-head.BFBayesFactor <- function(x, n=6L){
+head.BFBayesFactor <- function(x, n=6L, ...){
   n = ifelse(n>length(x),length(x),n)
   x = sort(x, decreasing=TRUE)
   return(x[1:n])
 }
 
-tail.BFBayesFactor <- function(x, n=6L){
+tail.BFBayesFactor <- function(x, n=6L, ...){
   n = ifelse(n>length(x),length(x),n)
   x = sort(x)
   return(x[n:1])}
 
-as.data.frame.BFBayesFactor <- function(x,logbf = FALSE, onlybf = FALSE){
+as.data.frame.BFBayesFactor <- function(x, row.names = NULL, optional=FALSE,...){
   df = x@bayesFactor
-  if(!logbf) df$bf = exp(df$bf) 
-  if(onlybf) df = df["bf"]
+  df$bf = exp(df$bf) 
   return(df) 
 }
 
