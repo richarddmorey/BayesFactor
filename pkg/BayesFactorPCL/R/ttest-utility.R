@@ -1,4 +1,4 @@
-ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",null.interval=NULL,progress=TRUE,logbf=FALSE){
+ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=TRUE,logbf=FALSE){
   if( (is.null(t) | is.null(n)) & !is.null(y) ){
     n = as.integer(length(y))
   }else if(!is.null(t) & !is.null(n)){
@@ -19,15 +19,15 @@ ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nul
     pb=NULL 
   }
   
-  if(is.null(null.interval)){
+  if(is.null(nullInterval)){
     do.interval=0
     interval = c(-Inf,Inf)
   }else{
-    if(length(null.interval)!=2){
-      stop("null.interval must be a vector of length 2.")
+    if(length(nullInterval)!=2){
+      stop("nullInterval must be a vector of length 2.")
     }
     do.interval=1
-    interval=sort(as.numeric(null.interval))
+    interval=sort(as.numeric(nullInterval))
   }
   
   pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
