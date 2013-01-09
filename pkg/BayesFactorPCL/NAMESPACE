@@ -17,6 +17,7 @@ importFrom(methods, show)
 importFrom(utils, head)
 importFrom(utils, tail)
 importFrom(graphics, plot)
+importFrom(utils, packageDescription)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
