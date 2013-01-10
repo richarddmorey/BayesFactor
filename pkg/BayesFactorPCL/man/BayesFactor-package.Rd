@@ -17,12 +17,20 @@ and hypotheses.}
   follow:
 
   Linear regression: \code{\link{regressionBF}}
-  \code{\link{lmBF}}, \code{\link{linearReg.R2stat}}
+  \code{\link{lmBF}}, \code{\link{linearReg.R2stat}};
 
-  t test: \code{\link{ttestBF}}, \code{\link{ttest.tstat}},
+  t test: \code{\link{ttestBF}}, \code{\link{ttest.tstat}};
 
   ANOVA: \code{\link{anovaBF}}, \code{\link{lmBF}},
-  \code{\link{oneWayAOV.Fstat}},
+  \code{\link{oneWayAOV.Fstat}};
+
+  Other useful functions: \code{\link{posterior}}, for
+  sampling from posterior distributions;
+  \code{\link{recompute}}, for re-estimating a Bayes factor
+  or posterior distribution; \code{\link{compare}}, to
+  compare two model posteriors; and
+  \code{\link{plot.BFBayesFactor}}, for plotting Bayes
+  factor objects.
 }
 \examples{
 ## See specific functions for examples.

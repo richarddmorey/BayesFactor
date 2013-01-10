@@ -1,8 +1,8 @@
 \name{BFBayesFactor-class}
-\alias{[,BFBayesFactor,index,missing,missing-method}
 \alias{/,BFBayesFactor,BFBayesFactor-method}
 \alias{/,numeric,BFBayesFactor-method}
 \alias{BFBayesFactor-class}
+\alias{[,BFBayesFactor,index,missing,missing-method}
 \alias{t,BFBayesFactor-method}
 \title{General S4 class for representing multiple Bayes factor model comparisons, all against the same model}
 \description{
