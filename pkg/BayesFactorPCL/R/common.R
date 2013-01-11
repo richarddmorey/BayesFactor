@@ -2,6 +2,13 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+propErrorEst = function(logX){
+  n = length(logX)
+  logSumX = logMeanExpLogs(logX) + log(n)
+  logSumX2 = logMeanExpLogs(2*logX) + log(n)
+  sqrt((exp(logSumX2 - 2*logSumX) - 1/n) * (n/(n-1)))
+}
+
 combn2 <- function(x,lower=1){
   unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }

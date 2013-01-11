@@ -190,10 +190,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     
     # estimate error
     bfSamp = returnList[[2]] - nullLike
-    sumXsq = exp(logMeanExpLogs(2 * bfSamp)+log(iterations))
-    SSq = sumXsq - exp(2*(returnList[[1]] - nullLike) + log(iterations))
-    err = .5 * log(SSq) - log(iterations)
-    properror = exp(err - bf)
+    properror = propErrorEst(bfSamp)
     
     retVal = c(bf = bf, properror=properror)
   }
