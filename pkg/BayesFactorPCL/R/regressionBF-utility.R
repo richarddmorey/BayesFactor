@@ -1,7 +1,7 @@
 enumerateRegressionModels = function(fmla, whichModels, data){
   trms <- attr(terms(fmla, data = data), "term.labels")
   ntrms <- length(trms)
-  dv = deparse(fmla[[2]])
+  dv = stringFromFormula(fmla[[2]])
   if(ntrms == 1 ) whichModels = "all"
   
   if(whichModels=="top"){
@@ -25,7 +25,7 @@ enumerateRegressionModels = function(fmla, whichModels, data){
 createFullRegressionModel <- function(formula, data){
   factors = fmlaFactors(formula, data)[-1]
   
-  dv = deparse(formula[[2]])
+  dv = stringFromFormula(formula[[2]])
   
   RHS = paste(factors,collapse=" + ")
   strng = paste(dv, " ~ ", RHS, collapse = "")

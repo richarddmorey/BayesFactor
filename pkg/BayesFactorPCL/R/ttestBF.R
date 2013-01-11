@@ -141,7 +141,7 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
     
     if(is.null(nullInterval)){
       numerator = BFindepSample(type = "JZS", 
-                              identifier = list(formula = deparse(formula)), 
+                              identifier = list(formula = stringFromFormula(formula)), 
                               prior=list(rscale=rscale, mu=mu),
                               shortName = paste("Alt., r=",round(rscale,3),sep=""),
                               longName = paste("Alternative, r = ",rscale,", mu =/= ",mu,sep="")
@@ -149,7 +149,7 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
     }else{
       nullInterval = range(nullInterval)
       numerator = BFindepSample(type = "JZS", 
-                                identifier = list(formula = deparse(formula),nullInterval = nullInterval), 
+                                identifier = list(formula = stringFromFormula(formula),nullInterval = nullInterval), 
                                 prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                 longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")

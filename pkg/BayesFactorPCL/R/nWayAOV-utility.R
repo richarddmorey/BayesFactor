@@ -184,7 +184,7 @@ fixedFromRandomProjection <- function(nlevRandom){
 nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, unreduce=TRUE, ...){
   
   checkFormula(formula, data, analysis = "lm")
-  y = data[,deparse(formula[[2]])]
+  y = data[,stringFromFormula(formula[[2]])]
   
   X = fullDesignMatrix(formula, data, dataTypes)
   

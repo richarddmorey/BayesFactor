@@ -6,6 +6,11 @@ combn2 <- function(x,lower=1){
   unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }
 
+stringFromFormula <- function(formula){
+  oneLine = paste(deparse(formula),collapse="")
+  sub("\\s\\s+"," ", oneLine, perl=TRUE) # get rid of extra spaces
+}
+
 fmlaFactors <- function(formula, data){
   rownames(attr(terms(formula, data = data),"factors"))
 }

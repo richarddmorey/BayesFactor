@@ -58,11 +58,11 @@ lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
   rscales = list(fixed=rscaleFixed, random=rscaleRandom, continuous=rscaleCont)
   
   numerator = BFlinearModel(type = "JZS", 
-                            identifier = list(formula = deparse(formula)), 
+                            identifier = list(formula = stringFromFormula(formula)), 
                             prior=list(rscale=rscales),
                             dataTypes = dataTypes,
-                            shortName = paste(deparse(formula[[3]]),sep=""),
-                            longName = paste(deparse(formula),sep="")
+                            shortName = paste(stringFromFormula(formula[[3]]),sep=""),
+                            longName = paste(stringFromFormula(formula),sep="")
   )
   
   if(posterior){

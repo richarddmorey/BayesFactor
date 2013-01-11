@@ -74,7 +74,7 @@ modelIndicatorToName <- function(indic, factors){
 enumerateAnovaModels = function(fmla, whichModels, data){
   trms <- attr(terms(fmla, data = data), "term.labels")
   ntrms <- length(trms)
-  dv = deparse(fmla[[2]])
+  dv = stringFromFormula(fmla[[2]])
   if(ntrms == 1 ) whichModels = "all"
   
   if(whichModels=="top"){
@@ -103,7 +103,7 @@ createFixedAnovaModel <- function(dataTypes, formula){
   fixedPart <- paste(fixedFactors,collapse="*")
   
   # get LHS of formula
-  dv = deparse(formula[[2]])
+  dv = stringFromFormula(formula[[2]])
   
   formula(paste(dv, "~", fixedPart, collapse=""))
 }
@@ -112,11 +112,12 @@ addRandomModelPart <- function(formula, dataTypes, null = FALSE){
   randomFactors <- names(dataTypes[dataTypes=="random"])
   randomPart <- paste(randomFactors,collapse="+")
   
-  fmla = deparse(formula)
-  dv = deparse(formula[[2]])
+  fmla = stringFromFormula(formula)
+  dv = stringFromFormula(formula[[2]])
   if(null){
     ret = formula(paste(dv, "~", randomPart, collapse=""))
   }else{
     ret = formula(paste(fmla, "+", randomPart, collapse=""))    
   }
+  return(ret)
 }

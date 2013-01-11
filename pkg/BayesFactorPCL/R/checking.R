@@ -36,7 +36,7 @@ checkFormula <- function(formula, data, analysis){
   if(length(formula) < 3) stop("LHS of formula must be given.")
   cnames = colnames(data)
   
-  dv = deparse(formula[[2]])
+  dv = stringFromFormula(formula[[2]])
   
   if(!is.numeric(data[,dv])) stop("Dependent variable must be numeric.")
   factors = fmlaFactors(formula, data)
@@ -47,7 +47,7 @@ checkFormula <- function(formula, data, analysis){
   if(!all(factors %in% cnames)) stop("Some variables missing in data frame.")
   
   if(analysis=="regression"){
-    RHS = deparse(formula[[3]])
+    RHS = stringFromFormula(formula[[3]])
     if( grepl(":",RHS,fixed=TRUE) ) stop("Interactions not allowed in regression.")
   }
   

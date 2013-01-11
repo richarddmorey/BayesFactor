@@ -19,7 +19,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
     dataTypes = numerator@dataTypes
     relevantDataTypes = dataTypes[names(dataTypes) %in% factors]
               
-    dv = deparse(formula[[2]])
+    dv = stringFromFormula(formula[[2]])
     if(numerator@type != "JZS") stop("Unknown model type.")
             
     denominator = BFlinearModel(type = "JZS", 
