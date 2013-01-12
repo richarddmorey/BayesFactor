@@ -11,5 +11,7 @@ Depends:  coda
 Imports:  pbapply, mvtnorm, stringr, methods, utils, graphics, coda, utils
 Suggests: doMC, testthat, knitr, markdown
 URL:  http://bayesfactorpcl.r-forge.r-project.org/
+BugReports:  https://r-forge.r-project.org/tracker/?group_id=554
 LazyLoad: yes
+
 
