@@ -1,0 +1,34 @@
+Using the BayesFactor package, version 0.9.0+
+===============================
+Richard D. Morey
+-----------------
+
+### Introduction
+
+[Richard D. Morey](mailto:richarddmorey@gmail.com)
+
+```{r echo=FALSE,message=FALSE,results='hide'}
+opts_chunk$set(concordance=TRUE)
+```
+
+
+```{r message=FALSE}
+library(BayesFactor)
+```
+
+
+### Repeated-measures ANOVA
+
+```{r testing,tidy=FALSE}
+data(puzzles)
+
+bf = anovaBF(RT ~ shape*color + ID, data = puzzles, 
+             whichRandom="ID", progress=FALSE)
+bf
+```
+
+Figure 1
+
+```{r testplot,fig.width=10,fig.height=5}
+plot(bf)
+```

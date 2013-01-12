@@ -1,0 +1,10 @@
+  	CHANGES IN BayesFactor VERSION 0.9.0
+
+CHANGES
+  *  New S4 classes representing Bayes factors, models, and MCMC chains. The output of all functions will now be objects of these classes
+  *  Error estimates are now given for all Bayes factor outputs
+  *  To accomodate the new system for creating and manipulating Bayes factors, the main function names have all changed. ANOVA is done via anovaBF(), multiple regression is done via regressionBF() and both can be done through lmBF()
+  *  Posterior sampling is supported by calling the new posterior() method on Bayes factor objects. The result is an BayesFactor MCMC object, which inherits methods for for mcmc objects from the coda class
+  *  New recompute() method will allow the reestimation of Bayes factors (for Bayes factor objects) and restimation of posteriors (for BayesFactor MCMC objects)
+  *  New cleaned-up code base
+
