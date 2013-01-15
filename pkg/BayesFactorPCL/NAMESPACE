@@ -10,7 +10,8 @@ export(logMeanExpLogs,
     ttestBF,
     lmBF,
     regressionBF,
-    anovaBF)
+    anovaBF,
+    BFManual)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
