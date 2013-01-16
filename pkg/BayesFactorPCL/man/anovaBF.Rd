@@ -121,7 +121,11 @@
   factors. For instance, for a five-way ANOVA, the total
   number of tests exceeds two billion. Even though each
   test takes a fraction of a second, the time taken for all
-  tests could exceed your lifetime.
+  tests could exceed your lifetime. An option is included
+  to prevent this: \code{options('BFMaxModels')}, which
+  defaults to 50,000, is the maximum number of models that
+  `anovaBF` will analyze at once. This can be increased by
+  increasing the option value.
 
   It is possible to reduce the number of models tested by
   only testing the most complex model and every restriction

@@ -5,4 +5,5 @@
                         " questions, please contact Richard Morey (richarddmorey@gmail.com).\n\n",
                         "Type BFManual() to open the manual.\n************", 
                         appendLF = TRUE)
+  if(is.null(options()$BFMaxModels)) options(BFMaxModels = 50000)
 }

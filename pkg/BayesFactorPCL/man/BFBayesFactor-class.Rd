@@ -4,6 +4,8 @@
 \alias{/,numeric,BFBayesFactor-method}
 \alias{BFBayesFactor-class}
 \alias{t,BFBayesFactor-method}
+\alias{which.max,BFBayesFactor-method}
+\alias{which.min,BFBayesFactor-method}
 \title{General S4 class for representing multiple Bayes factor model comparisons, all against the same model}
 \description{
   The \code{BFBayesFactor} class is a general S4 class for

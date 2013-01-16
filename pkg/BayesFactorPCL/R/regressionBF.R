@@ -4,7 +4,7 @@
 ##' regression designs
 ##' 
 ##' \code{regressionBF} computes Bayes factors to test the hypothesis that 
-##' slopes are 0 against the alternative that all slopes are nonzero. 
+##' slopes are 0 against the alternative that all slopes are nonzero.
 ##' 
 ##' The vector of observations \eqn{y} is assumed to be distributed as \deqn{y ~
 ##' Normal(\alpha 1 + X\beta, \sigma^2 I).} The joint prior on 
@@ -21,6 +21,11 @@
 ##' results of 'top' testing is interpreted as a test of each covariate, the 
 ##' test is conditional on all other covariates being in the model (and likewise
 ##' 'bottom' testing is conditional on no other covariates being in the model).
+##' 
+##' An option is included to prevent analyzing too many models at once:
+##' \code{options('BFMaxModels')}, which defaults to 50,000, is the maximum
+##' number of models that `anovaBF` will analyze at once. This can be increased
+##' by increasing the option value.
 ##' 
 ##' @title Function to compute Bayes factors for regression designs
 ##' @param formula a formula containing all covariates to include in the 
@@ -74,6 +79,11 @@ regressionBF <- function(formula, data, whichModels = "all", progress=TRUE, rsca
   fmla <- createFullRegressionModel(formula, data)
   
   models <- enumerateRegressionModels(fmla, whichModels, data)
+  
+  if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
+                                                length(models), " > ",options()$BFMaxModels ,"). ",
+                                                "The maximum can be increased by changing ",
+                                                "options('BFMaxModels').")
   
   if(progress) myapply = pblapply else myapply = lapply
   bfs <- myapply(models, lmBF, data = data, dataTypes = dataTypes,

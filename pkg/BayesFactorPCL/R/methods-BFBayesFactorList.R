@@ -33,8 +33,8 @@ setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
   }else if( e1 != 1 ){
     stop("Dividend must be 1 (to take reciprocal).")
   }else if( length(e2[[1]])>1 ){
-    vec = vector(mode = "list", length = length(e2))
-    for(i in 1:length(e2)){
+    vec = vector(mode = "list", length = length(e2[[1]]))
+    for(i in 1:length(e2[[1]])){
       vec[[i]] = 1/e2[i,]
     }
     bflist = BFBayesFactorList(vec)

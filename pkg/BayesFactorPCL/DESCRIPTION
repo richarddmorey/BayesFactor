@@ -9,7 +9,7 @@ Description: The BayesFactor package is a suite of functions for computing vario
 License: GPL-2
 Depends:  coda
 Imports:  pbapply, mvtnorm, stringr, methods, utils, graphics, coda, utils
-Suggests: doMC, testthat, knitr, markdown
+Suggests: doMC, testthat, knitr, markdown, graphics
 URL:  http://bayesfactorpcl.r-forge.r-project.org/
 BugReports:  https://r-forge.r-project.org/tracker/?group_id=554
 LazyLoad: yes

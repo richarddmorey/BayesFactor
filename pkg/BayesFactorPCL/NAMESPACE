@@ -22,10 +22,10 @@ importFrom(utils, packageDescription)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
-exportMethods("extractBF","compare","t","recompute","posterior")
+exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max")
 #exportMethods("plot", show","/","length","[", "sort", "min", "max", 
-#              "head", "tail","plot","summary","names", 
-#              "which.min","which.max")
+#              "head", "tail","plot","summary","names") 
+              
 
 S3method("c","BFBayesFactor")
 S3method("plot","BFBayesFactor")

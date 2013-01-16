@@ -84,7 +84,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = FALSE, gibi = NULL, gibbs = FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE)
 {
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  

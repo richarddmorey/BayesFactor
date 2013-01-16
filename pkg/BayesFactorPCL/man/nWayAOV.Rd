@@ -3,7 +3,7 @@
 \title{Use ANOVA design matrix to compute Bayes factors or sample posterior}
 \usage{
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
-    iterations = 10000, progress = FALSE, gibi = NULL,
+    iterations = 10000, progress = TRUE, gibi = NULL,
     gibbs = FALSE)
 }
 \arguments{

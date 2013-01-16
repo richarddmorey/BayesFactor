@@ -53,6 +53,12 @@
   test is conditional on all other covariates being in the
   model (and likewise 'bottom' testing is conditional on no
   other covariates being in the model).
+
+  An option is included to prevent analyzing too many
+  models at once: \code{options('BFMaxModels')}, which
+  defaults to 50,000, is the maximum number of models that
+  `anovaBF` will analyze at once. This can be increased by
+  increasing the option value.
 }
 \examples{
 ## See help(attitude) for details about the data set

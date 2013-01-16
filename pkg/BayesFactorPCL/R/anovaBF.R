@@ -92,7 +92,10 @@
 ##'   This number increases very quickly with the number of factors. For 
 ##'   instance, for a five-way ANOVA, the total number of tests exceeds two 
 ##'   billion. Even though each test takes a fraction of a second, the time 
-##'   taken for all tests could exceed your lifetime.
+##'   taken for all tests could exceed your lifetime. An option is included 
+##'   to prevent this: \code{options('BFMaxModels')}, which defaults to 50,000,
+##'   is the maximum number of models that `anovaBF` will analyze at once. This 
+##'   can be increased by increasing the option value.
 ##'   
 ##'   It is possible to reduce the number of models tested by only testing the 
 ##'   most complex model and every restriction that can be formed by removing 
@@ -150,6 +153,11 @@ anovaBF <-
     
     models <- enumerateAnovaModels(fmla, whichModels, data)
     
+    if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
+                                                  length(models), " > ",options()$BFMaxModels ,"). ",
+                                                  "The maximum can be increased by changing ",
+                                                  "options('BFMaxModels').")
+    
     if(length(whichRandom) > 0 ){
       models <- lapply(models, addRandomModelPart, dataTypes = dataTypes)
       models <- c(models, addRandomModelPart(fmla, dataTypes, null=TRUE))
@@ -176,7 +184,7 @@ anovaBF <-
       if(progress) myapply = pblapply else myapply = lapply
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-                    iterations = iterations)
+                    iterations = iterations, progress = FALSE)
       
     }
     

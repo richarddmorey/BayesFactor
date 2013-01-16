@@ -50,9 +50,9 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = FALSE, ...){
   if(progress) lapply = pblapply 
   bfs = lapply(x@numerator, function(num, data, ...)
     compare(numerator = num, data = data, ...),
-          data = x@data, ...)
+          data = x@data, progress = progress, ...)
   joined = do.call("c", bfs)
-  denbf = compare(numerator = x@denominator, data = x@data, ...) 
+  denbf = compare(numerator = x@denominator, data = x@data, progress = progress, ...) 
   return(joined / denbf)
 })
 
@@ -190,14 +190,21 @@ setAs("BFBayesFactor", "vector",
 # setMethod("max", "BFBayesFactor", function(x)
 #   max.BFBayesFactor(x) )
 # 
-# setMethod("min", "BFBayesFactor", function(x)
+#setMethod("min", "BFBayesFactor", function(x)
 #   min.BFBayesFactor(x) )
-# 
-# setMethod("which.max", "BFBayesFactor", function(x)
-#   which.max.BFBayesFactor(x) )
-# 
-# setMethod("which.min", "BFBayesFactor", function(x)
-#   which.min.BFBayesFactor(x) )
+ 
+
+#' @rdname BFBayesFactor-class
+#' @name which.max,BFBayesFactor-method
+setMethod("which.max", "BFBayesFactor", function(x)
+  which.max.BFBayesFactor(x) )
+
+#' @rdname BFBayesFactor-class
+#' @name which.min,BFBayesFactor-method
+setMethod("which.min", "BFBayesFactor", function(x)
+  which.min.BFBayesFactor(x) )
+
+
 # 
 # setMethod("head", "BFBayesFactor", function(x, n=6L)
 #   head.BFBayesFactor(x, n) )
