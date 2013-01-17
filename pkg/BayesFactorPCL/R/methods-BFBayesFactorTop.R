@@ -24,7 +24,7 @@ setMethod('show', "BFBayesFactorTop", function(object){
   nms = omitted
   maxwidth = max(nchar(nms))
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
-  cat("When effect is omitted from ",object@denominator@shortName,", BF changes by...\n")
+  cat("When effect is omitted from ",object@denominator@shortName,", BF is...\n")
   for(i in 1:nrow(bfs)){
     cat("Omit ",nms[i]," : ",bfs$bf[i]," (",round(bfs$error[i]*100,2),"%)\n",sep="")
   }
