@@ -98,8 +98,7 @@ setMethod('/', signature("BFBayesFactor", "BFBayesFactor"), function(e1, e2){
       bfs[ sameModel | sameCode, "error" ] = 0
       bfs[ sameModel | sameCode, "bf" ] = 0
       
-      newbf = new("BFBayesFactor",
-                  numerator=e1@numerator,
+      newbf = BFBayesFactor(numerator=e1@numerator,
                   denominator=e2@numerator[[1]],
                   bayesFactor=bfs,
                   data = e1@data)
@@ -335,7 +334,7 @@ c.BFBayesFactor <-
     bfs = do.call("rbind",bfs)
     rownames(bfs) = df_rownames
       
-    bf = new("BFBayesFactor", numerator=numerators,
+    bf = BFBayesFactor(numerator=numerators,
              denominator=z[[1]]@denominator, bayesFactor=bfs, 
              data = z[[1]]@data)
   }
