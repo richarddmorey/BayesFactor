@@ -193,6 +193,8 @@ anovaBF <-
     # If we have random effects, make those the denominator
     if(length(whichRandom) > 0) bfObj = bfObj[-length(bfObj)] / bfObj[length(bfObj)]
     
+    if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)
+    
     return(bfObj)
   }
 

@@ -252,8 +252,7 @@ One alternative is `whichModels='top'`, which reduces the number of comparisons 
 
 ```{r }
 bf = anovaBF(len ~ supp*dose, data=ToothGrowth, whichModels="top", progress = FALSE)
-## full model is bf[4]
-bf[-4] / bf[4]
+bf
 ```
 Note that all of the Bayes factors are less than 1, indicating that removing any effect from the full model is deleterious.
 
@@ -386,7 +385,8 @@ We might also be interested in comparing the most complex model to all models th
 ```{r regresstop, fig.width=10, fig.height=5}
 bf = regressionBF(rating ~ ., data = attitude, whichModels = "top", progress= FALSE)
 ## The seventh model is the most complex
-plot(bf / bf[7])
+bf
+plot(bf)
 ```
 With all other covariates in the model, the model containing `complaints` is preferred to the model not containing `complaints` by a factor of almost 80. The model containing `learning`, is only barely favored to the one without (a factor of about 1.3).
 

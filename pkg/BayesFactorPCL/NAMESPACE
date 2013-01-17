@@ -11,7 +11,8 @@ export(logMeanExpLogs,
     lmBF,
     regressionBF,
     anovaBF,
-    BFManual)
+    BFManual,
+    as.BFBayesFactor)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
@@ -23,8 +24,6 @@ importFrom(utils, packageDescription)
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
 exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max")
-#exportMethods("plot", show","/","length","[", "sort", "min", "max", 
-#              "head", "tail","plot","summary","names") 
               
 
 S3method("c","BFBayesFactor")
@@ -41,10 +40,13 @@ S3method("as.vector","BFBayesFactor")
 S3method("names","BFBayesFactor")
 S3method("length","BFBayesFactor")
 
-
 S3method("as.matrix", "BFBayesFactorList")
 S3method("as.vector", "BFBayesFactorList")
 
 S3method("as.mcmc", "BFmcmc")
 S3method("as.matrix", "BFmcmc")
 S3method("as.data.frame", "BFmcmc")
+
+S3method("as.BFBayesFactor", "BFBayesFactorTop")
+S3method("plot","BFBayesFactorTop")
+S3method("sort","BFBayesFactorTop")

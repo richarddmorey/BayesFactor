@@ -2,6 +2,34 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+alphabetizeTerms <- function(trms){
+  splt = strsplit(trms,":",fixed=TRUE)
+  sorted=lapply(splt, function(trm){
+    if(length(trm)==1) return(trm)
+    trm = sort(trm)
+    paste(trm,collapse=":")
+  })
+  sorted = unlist(sorted)
+  
+  return(sorted)
+}
+
+whichOmitted <- function(numerator, full){
+  fullFmla <- formula(full@identifier$formula)
+  numFmla <- formula(numerator@identifier$formula)
+
+  fullTrms <- attr(terms(fullFmla), "term.labels")
+  numTrms <- attr(terms(numFmla), "term.labels")
+  
+  fullTrms = alphabetizeTerms(fullTrms)
+  numTrms = alphabetizeTerms(numTrms)
+  
+  omitted = fullTrms[!(fullTrms %in% numTrms)]
+  if(any( !(numTrms %in% fullTrms) )) stop("Numerator not a proper restriction of full.")
+  return(omitted)
+}
+
+
 propErrorEst = function(logX){
   n = length(logX)
   logSumX = logMeanExpLogs(logX) + log(n)

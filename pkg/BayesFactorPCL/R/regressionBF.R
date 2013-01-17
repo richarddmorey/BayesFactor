@@ -88,8 +88,10 @@ regressionBF <- function(formula, data, whichModels = "all", progress=TRUE, rsca
   if(progress) myapply = pblapply else myapply = lapply
   bfs <- myapply(models, lmBF, data = data, dataTypes = dataTypes,
                 rscaleCont = rscaleCont)
-  
-  do.call("c", bfs)
+
+  bfObj = do.call("c", bfs)
+  if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)
+  return(bfObj)
 }
 
 

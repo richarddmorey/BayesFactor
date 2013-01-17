@@ -125,5 +125,9 @@ setClass("BFBayesFactor", representation(
 #' t(bfList)
 setClass("BFBayesFactorList", contains = "list", representation(version="character"))
 
+#' @name BFBayesFactorTop-class
+#' @rdname BFBayesFactor-class
+setClass("BFBayesFactorTop", contains = "BFBayesFactor")
+
 setOldClass("mcmc")
 setClass("BFmcmc", contains = "mcmc", representation(model="BFmodel",data = "data.frame"))
