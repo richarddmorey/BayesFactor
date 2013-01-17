@@ -26,7 +26,7 @@ setMethod('show', "BFBayesFactorTop", function(object){
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
   cat("When effect is omitted from ",object@denominator@shortName,", BF changes by...\n")
   for(i in 1:nrow(bfs)){
-    cat(nms[i]," : ",bfs$bf[i]," (",round(bfs$error[i]*100,2),"%)\n",sep="")
+    cat("Omit ",nms[i]," : ",bfs$bf[i]," (",round(bfs$error[i]*100,2),"%)\n",sep="")
   }
   cat("---\n Denominator:\n")
   cat("Type: ",class(object@denominator)[1],", ",object@denominator@type,"\n",sep="")
