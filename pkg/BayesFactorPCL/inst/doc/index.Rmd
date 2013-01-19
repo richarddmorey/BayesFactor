@@ -426,13 +426,13 @@ References
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([PDF](http://www.isds.duke.edu/courses/Spring09/sta244/Handouts/hyper-g.pdf))
 
 <a id="Moreyarea"></a>
-Morey, Richard D. and Rouder, Jeffrey N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([PDF](http://drsmorey.org/bibtex/upload/Morey:Rouder:2011.pdf))
+Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([PDF](http://drsmorey.org/bibtex/upload/Morey:Rouder:2011.pdf))
 
 <a id="MoreyMCMC"></a>
-Morey, Richard D. and Rouder, Jeffrey N. and Pratte, Michael S. and Speckman, Paul L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([PDF](http://drsmorey.org/bibtex/upload/Morey:etal:2011a.pdf))
+Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([PDF](http://drsmorey.org/bibtex/upload/Morey:etal:2011a.pdf))
 
 <a id="Rouderregression"></a>
-Default Bayes Factors for Model Selection in Regression (in press), Multivariate Behavioral Research (contact authors for PDF)
+Rouder, J. N. and Morey, R. D. (in press) Default Bayes Factors for Model Selection in Regression, Multivariate Behavioral Research (contact authors for PDF)
 
 <a id="RouderANOVA"></a>
 Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology, 56, pp. 356–374 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.JMP_.2012.pdf))
