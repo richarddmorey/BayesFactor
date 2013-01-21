@@ -68,6 +68,7 @@
 ##' @param rscaleRandom prior scale for standardized random effects
 ##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC} 
 ##'   package. Unavailable on Windows.
+##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for details.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -137,7 +138,7 @@
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", iterations = 10000, progress = TRUE,
-           rscaleFixed = "medium", rscaleRandom = 1, multicore = FALSE)
+           rscaleFixed = "medium", rscaleRandom = 1, multicore = FALSE, method="simple")
   {
     checkFormula(formula, data, analysis = "anova")
     # pare whichRandom down to terms that appear in the formula
@@ -177,14 +178,14 @@ anovaBF <-
       bfs <- foreach(gIndex=models, .options.multicore=mcoptions) %dopar% 
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-             iterations = iterations)
+             iterations = iterations, method=method)
       
     }else{ # Single core
       
       if(progress) myapply = pblapply else myapply = lapply
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-                    iterations = iterations, progress = FALSE)
+                    iterations = iterations, progress = FALSE, method = method)
       
     }
     

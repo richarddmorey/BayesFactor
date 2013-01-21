@@ -4,7 +4,7 @@
 \usage{
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
     iterations = 10000, progress = TRUE, gibi = NULL,
-    gibbs = FALSE)
+    gibbs = FALSE, method = "simple")
 }
 \arguments{
   \item{y}{vector of observations}
@@ -32,6 +32,10 @@
 
   \item{gibbs}{if \code{TRUE}, return samples from the
   posterior instead of a Bayes factor}
+
+  \item{method}{the integration method (only valid if
+  \code{gibbs=TRUE}); one of "simple", "importance",
+  "laplace"}
 }
 \value{
   If \code{posterior} is \code{FALSE}, a vector of length 2
@@ -80,9 +84,17 @@
   details and the help for \code{\link{anovaBF}} for some
   typical values.
 
-  The Bayes factor is estimated using Monte Carlo
-  integration, and the posterior is sampled with a Gibbs
-  sampler.
+  The method used to estimate the Bayes factor depends on
+  the \code{method} argument. "simple" is most accurate for
+  small to moderate sample sizes, and uses the Monte Carlo
+  sampling method described in Rouder et al. (2012).
+  "importance" uses an importance sampling algorithm with
+  an importance distribution that is multivariate normal on
+  log(g). "laplace" does not sample, but uses a Laplace
+  approximation to the integral. It is expected to be more
+  accurate for large sample sizes, where MC sampling is
+  slow. integration, and the posterior is sampled with a
+  Gibbs sampler.
 }
 \examples{
 ## Classical example, taken from t.test() example

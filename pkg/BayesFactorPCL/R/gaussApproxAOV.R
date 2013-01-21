@@ -1,0 +1,181 @@
+d2dinvgamma1 <- function(x,a,b)
+  (a+1)/(x^2) - 2*b/(x^3)
+
+ddinvgamma1 <- function(x,a,b)
+  -(a+1)/x + b/(x^2)
+
+dinvgamma1 <- function(x,a,b)
+  a * log(b) - lgamma(a) - (a+1)*log(x) - b/x
+
+Qg <- function(q,y,Xm,rscale,gMap)
+{
+  g = exp(q)
+  if(length(q) != length(rscale)) stop("length mismatch: q and r")
+  N = nrow(Xm)
+  p = ncol(Xm)
+  
+  yTilde = matrix(y - mean(y),N)
+  XTilde = t(t(Xm) - colMeans(Xm))
+  if(length(g)==1)
+    stop("not implemented for single g")  
+  
+  Ginv= diag(1/g[gMap])
+  
+  Vg = t(XTilde)%*%XTilde + Ginv
+  ybar = mean(y)
+  ans = 
+    -0.5 * sum(log(g[gMap])) +
+    - 0.5 * determinant(Vg)$modulus + 
+    0.5*(N-1) * log(sum(y^2) - N * ybar^2) - 
+    0.5*(N-1)*log(sum(yTilde^2) - t(yTilde)%*%XTilde%*%solve(Vg)%*%t(XTilde)%*%yTilde) + 
+    sum(dinvgamma1(g, .5, rscale^2/2)) +
+    sum(log(g))
+  
+  return(as.numeric(ans))
+}
+
+dQg <- function(q,y,Xm,rscale,gMap){
+  g = exp(q)
+  if(length(q) != length(rscale)) stop("length mismatch: q and r")
+  N = dim(Xm)[1]
+  nGs = max(gMap)
+  yTilde = matrix(y - mean(y),N)
+  XTilde = t(t(Xm) - colMeans(Xm))
+  if(length(g)==1)
+    stop("not implemented for single g")      
+  
+  Ginv= diag(1/g[gMap])
+  
+  ni = table(gMap)
+  Vg = t(XTilde)%*%XTilde + Ginv
+  Vginv = solve(Vg)
+
+  yTildeXtilde = t(yTilde) %*% XTilde
+  yTildeXtildeVginv = yTildeXtilde %*% Vginv
+  num3 = sapply(1:nGs, function(index, gMap, yXVinv){
+    sum(yXVinv[gMap==index]^2)
+  }, gMap = gMap, yXVinv = yTildeXtildeVginv)
+  
+  tr2 = sapply(1:nGs, function(index, gMap, Vginv){
+    sum(diag(Vginv)[gMap==index])
+  }, gMap = gMap, Vginv = Vginv) 
+  
+  yXVXy = yTildeXtildeVginv %*% t(yTildeXtilde)
+  
+  ans = 
+    -0.5 * ni / g +
+    0.5 * tr2 / g^2 +       
+    0.5*(N-1) * num3/(sum(yTilde^2) - yXVXy) / g^2 + 
+    ddinvgamma1(g, .5, rscale^2/2) + 
+    1/g
+  
+  return(ans*g)
+  
+}
+
+d2Qg <- function(q,y,Xm,rscale,gMap){
+  g = exp(q)
+  if(length(q) != length(rscale)) stop("length mismatch: q and r")
+  N = dim(Xm)[1]
+  nGs = max(gMap)
+  yTilde = matrix(y - mean(y),N)
+  XTilde = t(t(Xm) - colMeans(Xm))
+  if(length(g)==1)
+    stop("not implemented for single g")
+  ni = table(gMap)
+  Ginv= diag(1/g[gMap])
+  
+  Vg = t(XTilde)%*%XTilde + Ginv
+  Vginv = solve(Vg)
+  Vginv2 = Vginv %*% Vginv
+
+  yTildeXtilde = t(yTilde) %*% XTilde
+  yTildeXtildeVginv = yTildeXtilde %*% Vginv
+  yTildeXtildeVginv2 = yTildeXtilde %*% Vginv2
+  
+  num3 = sapply(1:nGs, function(index, gMap, yXVinv){
+    sum(yXVinv[gMap==index]^2)
+  }, gMap = gMap, yXVinv = yTildeXtildeVginv)
+  
+  num3.2 = sapply(1:nGs, function(index, gMap, yXVinv, yXVinv2){
+    sum(yXVinv[gMap==index] * yXVinv2[gMap==index])
+  }, gMap = gMap, yXVinv = yTildeXtildeVginv,yXVinv2 = yTildeXtildeVginv2)
+  
+  tr2 = sapply(1:nGs, function(index, gMap, Vginv){
+    sum(diag(Vginv)[gMap==index])
+  }, gMap = gMap, Vginv = Vginv)
+  
+  tr2.2 = sapply(1:nGs, function(index, gMap, Vginv2){
+    sum(diag(Vginv2)[gMap==index])
+  }, gMap = gMap, Vginv = Vginv2)
+  
+  yXVXy = yTildeXtildeVginv %*% t(yTildeXtilde)
+  
+  fg = num3
+  dfg = 2 * num3.2 / g^2
+  gg = 1/g^2
+  dgg = -2/g^3
+  hg = 1/(sum(yTilde^2) - yXVXy)
+  dhg = num3 / g^2 * hg^2
+  
+  alpha = -0.5 * ni / g + 0.5 * tr2 / g^2 + 0.5*(N-1) * num3/(sum(yTilde^2) - yXVXy) / g^2 + ddinvgamma1(g, .5, rscale^2/2) + 1/g
+  
+  ans = 
+    0.5 * ni / (g^2) +
+    0.5 * (tr2.2 / g^4 - 2*tr2/g^3) +       
+    0.5*(N-1) * (fg*gg*dhg + fg*hg*dgg + hg*gg*dfg) + 
+    d2dinvgamma1(g, .5, rscale^2/2) +
+    -1/g^2
+  
+  return(g * (ans*g + alpha))
+  
+}
+
+hessianQg <- function(g,y,Xm,rscale,gMap){
+  diag(d2Qg(g,y,Xm,rscale,gMap))
+}
+
+gaussianApproxAOV <- function(y,X,rscale,gMap){
+
+  # gMap is written for C indexing
+  gMap = gMap + 1
+  # dumb starting values
+  qs = rscale * 0 
+  opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",y=y,Xm=X,rscale=rscale,gMap=gMap)
+  if(opt$convergence) stop("Convergence not achieved in optim: ",opt$convergence)
+  
+  mu = opt$par
+  val = opt$value
+
+  hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap)
+  sig2 = -1/diag(hess)
+  return(list(mu=mu,sig=sqrt(sig2),val=val))
+}
+
+laplaceAOV <- function(y,X,rscale,gMap)
+{
+  apx = gaussianApproxAOV(y,X,rscale,gMap)
+  
+  approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
+  
+  apx$val - approxVal
+  
+}
+
+importanceAOV <- function(y,X,rscale,gMap, iterations = 10000)
+{
+  apx = gaussianApproxAOV(y,X,rscale,gMap)
+  
+  mu = apx$mu
+  sig = apx$sig
+  qSamp = replicate(iterations,{
+    rnorm(mu,mu,sig)
+  })
+
+  sSamp = apply(qSamp,2,function(qs,y,Xm,rscale,gMap,mu,sig){
+    exp(Qg(qs,y=y,Xm=Xm,rscale=rscale,gMap=gMap) - sum(dnorm(qs,mu,sig,log=TRUE)))
+  },mu=mu,sig=sig,y=y,Xm=X,rscale=rscale,gMap=gMap)
+
+  return(mean(sSamp))
+}
+

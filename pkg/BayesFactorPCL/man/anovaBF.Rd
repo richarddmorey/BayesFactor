@@ -5,7 +5,7 @@
   anovaBF(formula, data, whichRandom = NULL,
     whichModels = "withmain", iterations = 10000,
     progress = TRUE, rscaleFixed = "medium",
-    rscaleRandom = 1, multicore = FALSE)
+    rscaleRandom = 1, multicore = FALSE, method = "simple")
 }
 \arguments{
   \item{formula}{a formula containing all factors to
@@ -35,6 +35,9 @@
 
   \item{multicore}{if \code{TRUE} use multiple cores
   through the \code{doMC} package. Unavailable on Windows.}
+
+  \item{method}{approximation method, if needed. See
+  \code{\link{nWayAOV}} for details.}
 }
 \value{
   An object of class \code{BFBayesFactor}, containing the

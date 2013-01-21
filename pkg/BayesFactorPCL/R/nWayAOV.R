@@ -30,8 +30,14 @@
 ##' prior scales of the standardized effects. See Rouder et al. (2012) for more 
 ##' details and the help for \code{\link{anovaBF}} for some typical values.
 ##' 
-##' The Bayes factor is estimated using Monte Carlo integration, and the
-##' posterior is sampled with a Gibbs sampler.
+##' The method used to estimate the Bayes factor depends on the \code{method} 
+##' argument. "simple" is most accurate for small to moderate sample sizes, and 
+##' uses the Monte Carlo sampling method described in Rouder et al. (2012).
+##' "importance" uses an importance sampling algorithm with an importance
+##' distribution that is multivariate normal on log(g). "laplace" does not
+##' sample, but uses a Laplace approximation to the integral. It is expected to
+##' be more accurate for large sample sizes, where MC sampling is slow. 
+##' integration, and the posterior is sampled with a Gibbs sampler.
 ##' @title Use ANOVA design matrix to compute Bayes factors or sample posterior
 ##' @param y vector of observations
 ##' @param X design matrix whose number of rows match \code{length(y)}.
@@ -46,6 +52,8 @@
 ##'   for use by end users)
 ##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
 ##'   Bayes factor
+##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
+##'   of "simple", "importance", "laplace"
 ##' @return If \code{posterior} is \code{FALSE}, a vector of length 2 containing
 ##'   the computed log(e) Bayes factor (against the intercept-only null), along 
 ##'   with a proportional error estimate on the Bayes factor. Otherwise, an 
@@ -84,7 +92,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple")
 {
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
@@ -119,7 +127,9 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   }
   
   C = diag(N) - matrix(1/N,N,N)
-  XtCX = t(X) %*% C %*% X
+  Cy = y - mean(y)
+  CX = C %*% X
+  XtCX = t(X) %*% CX
   XtCy = t(X) %*% C %*% as.matrix(y,cols=1)
   ytCy = var(y)*(N-1)
   
@@ -176,7 +186,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     retVal = chains
  
   }else{ # Compute Bayes factor
-    returnList = .Call("RjeffSamplerNwayAov", 
+    if(method=="simple"){
+      returnList = .Call("RjeffSamplerNwayAov", 
                      as.integer(iterations), XtCX, XtCy, ytCy, 
                      as.integer(N), 
                      as.integer(P), 
@@ -185,7 +196,26 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                      as.integer(iterations/100*progress), 
                      pbFun, new.env(), 
                      package="BayesFactor")
-
+    }else if(method=="importance"){
+      apx = gaussianApproxAOV(y,X,rscale,gMap)
+      returnList = .Call("RimportanceSamplerNwayAov", 
+                         as.integer(iterations), XtCX, XtCy, ytCy, 
+                         as.integer(N), 
+                         as.integer(P), 
+                         as.integer(nGs), 
+                         as.integer(gMap), a, b, apx$mu, apx$sig,
+                         as.integer(iterations/100*progress), 
+                         pbFun, new.env(), 
+                         package="BayesFactor")
+    }else if(method=="laplace"){
+      bf = laplaceAOV(y,X,rscale,gMap)
+      properror=NA
+      retVal = c(bf = bf, properror=properror)
+      if(inherits(pb,"txtProgressBar")) close(pb);
+      return(retVal)
+    }else{  
+      stop("Unknown method specified.")
+    }
     bf = returnList[[1]] - nullLike
     
     # estimate error
