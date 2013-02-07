@@ -73,6 +73,7 @@ dQg <- function(q,y,Xm,rscale,gMap){
   
 }
 
+
 d2Qg <- function(q,y,Xm,rscale,gMap){
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
@@ -88,7 +89,7 @@ d2Qg <- function(q,y,Xm,rscale,gMap){
   Vg = t(XTilde)%*%XTilde + Ginv
   Vginv = solve(Vg)
   Vginv2 = Vginv %*% Vginv
-
+  
   yTildeXtilde = t(yTilde) %*% XTilde
   yTildeXtildeVginv = yTildeXtilde %*% Vginv
   yTildeXtildeVginv2 = yTildeXtilde %*% Vginv2
@@ -131,30 +132,112 @@ d2Qg <- function(q,y,Xm,rscale,gMap){
   
 }
 
+
+
 hessianQg <- function(g,y,Xm,rscale,gMap){
   diag(d2Qg(g,y,Xm,rscale,gMap))
 }
 
-gaussianApproxAOV <- function(y,X,rscale,gMap){
+Qg_nlm <- function(q,y,Xm,rscale,gMap){
+  g = exp(q)
+  if(length(q) != length(rscale)) stop("length mismatch: q and r")
+  N = dim(Xm)[1]
+  nGs = max(gMap)
+  yTilde = matrix(y - mean(y),N)
+  XTilde = t(t(Xm) - colMeans(Xm))
+  if(length(g)==1)
+    stop("not implemented for single g")
+  ni = table(gMap)
+  Ginv= diag(1/g[gMap])
+  
+  Vg = t(XTilde)%*%XTilde + Ginv
+  Vginv = solve(Vg)
+  Vginv2 = Vginv %*% Vginv
+  
+  yTildeXtilde = t(yTilde) %*% XTilde
+  yTildeXtildeVginv = yTildeXtilde %*% Vginv
+  yTildeXtildeVginv2 = yTildeXtilde %*% Vginv2
+  
+  num3 = sapply(1:nGs, function(index, gMap, yXVinv){
+    sum(yXVinv[gMap==index]^2)
+  }, gMap = gMap, yXVinv = yTildeXtildeVginv)
+  
+  num3.2 = sapply(1:nGs, function(index, gMap, yXVinv, yXVinv2){
+    sum(yXVinv[gMap==index] * yXVinv2[gMap==index])
+  }, gMap = gMap, yXVinv = yTildeXtildeVginv,yXVinv2 = yTildeXtildeVginv2)
+  
+  tr2 = sapply(1:nGs, function(index, gMap, Vginv){
+    sum(diag(Vginv)[gMap==index])
+  }, gMap = gMap, Vginv = Vginv)
+  
+  tr2.2 = sapply(1:nGs, function(index, gMap, Vginv2){
+    sum(diag(Vginv2)[gMap==index])
+  }, gMap = gMap, Vginv = Vginv2)
+  
+  yXVXy = yTildeXtildeVginv %*% t(yTildeXtilde)
+  
+  ybar = mean(y)
+  val = -0.5 * sum(log(g[gMap])) + -0.5 * determinant(Vg)$modulus + 
+    0.5*(N-1) * log(sum(y^2) - N * ybar^2) - 
+    0.5*(N-1)*log(sum(yTilde^2) - t(yTilde)%*%XTilde%*%solve(Vg)%*%t(XTilde)%*%yTilde) + 
+    sum(dinvgamma1(g, .5, rscale^2/2)) +
+    sum(q)
+  
+  dval = -0.5 * ni / g + 0.5 * tr2 / g^2 + 0.5*(N-1) * num3/(sum(yTilde^2) - yXVXy) / g^2 + ddinvgamma1(g, .5, rscale^2/2) + 1/g
+  
+  fg = num3
+  dfg = 2 * num3.2 / g^2
+  gg = 1/g^2
+  dgg = -2/g^3
+  hg = 1/(sum(yTilde^2) - yXVXy)
+  dhg = num3 / g^2 * hg^2
+  
+  ddval = 
+    0.5 * ni / (g^2) +
+    0.5 * (tr2.2 / g^4 - 2*tr2/g^3) +       
+    0.5*(N-1) * (fg*gg*dhg + fg*hg*dgg + hg*gg*dfg) + 
+    d2dinvgamma1(g, .5, rscale^2/2) +
+    -1/g^2
+  
+  grad = dval*g
+  hess = diag(g^2 * ddval + grad)
+  
+  res = -as.numeric(val)
+  attr(res, "gradient") <- -grad
+  attr(res, "hessian") <- -hess
+  return(res)
+}
+
+
+gaussianApproxAOV <- function(y,X,rscale,gMap,method="nlm"){
 
   # gMap is written for C indexing
   gMap = gMap + 1
   # dumb starting values
   qs = rscale * 0 
-  opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",y=y,Xm=X,rscale=rscale,gMap=gMap)
-  if(opt$convergence) stop("Convergence not achieved in optim: ",opt$convergence)
+  if(method=="optim"){
+    opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",y=y,Xm=X,rscale=rscale,gMap=gMap)
+    if(opt$convergence) stop("Convergence not achieved in optim: ",opt$convergence)
+    mu = opt$par
+    val = opt$value
+  }else if(method=="nlm"){
+    opt = nlm(Qg_nlm, qs, y=y,Xm=X,rscale=rscale,gMap=gMap, hessian=FALSE, check.analyticals=FALSE)
+    if(opt$code>2) stop("Convergence not achieved in nlm: ",opt$code)
+    val = -opt$minimum
+    mu = opt$estimate
+  }else{
+    stop("unknown method in gaussianApproxAOV: ",method)
+  }
   
-  mu = opt$par
-  val = opt$value
-
-  hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap)
+  hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap)  
   sig2 = -1/diag(hess)
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
 
 laplaceAOV <- function(y,X,rscale,gMap)
 {
-  apx = gaussianApproxAOV(y,X,rscale,gMap)
+
+  apx = gaussianApproxAOV(y,X,rscale,gMap,method="nlm")
   
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   
