@@ -83,11 +83,18 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
     )
   }
   
-  if(modelType=="ttest"){
+  if(modelType=="ttestTwo"){
     return(
       switch(priorType, wide=1, medium=sqrt(2)/2, stop("Unknown prior type."))  
     )
   }
+
+  if(modelType=="ttestOne"){
+    return(
+      switch(priorType, wide=sqrt(2)/2, medium=1/2, stop("Unknown prior type."))  
+    )
+  }
+  
   
   if(modelType=="regression"){
     return(1)  

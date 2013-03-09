@@ -34,6 +34,9 @@ double matrixDet(double *A, int N, int LDA, int doLog)
 double quadform(double *x, double *A, int N, int incx, int LDA)
 {
   
+  //quadform2 seems to be faster
+  return( quadform2(x, A, N, incx, LDA) );
+  
   int Nsqr = N*N,info,i=0,j=0;
   double *B = Calloc(Nsqr,double);
   //double one=1;

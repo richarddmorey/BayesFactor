@@ -67,7 +67,12 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
       }
     }else{
       # GLM
-      stop("GLM not implemented.")
+      bf = nWayFormula(formula=formula, data = data, 
+                       dataTypes = dataTypes,
+                       rscaleFixed = rscaleFixed,
+                       rscaleRandom = rscaleRandom,
+                       rscaleCont = rscaleCont,
+                       gibbs = FALSE, ...)        
     }
             
           

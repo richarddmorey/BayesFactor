@@ -113,7 +113,13 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
                        gibbs = TRUE, ...) 
     }else{
       # GLM
-      stop("GLM sampling not yet implemented.")
+      chains = nWayFormula(formula=formula, data = data, 
+                       dataTypes = dataTypes,
+                       rscaleFixed = rscaleFixed,
+                       rscaleRandom = rscaleRandom,
+                       rscaleCont = rscaleCont,
+                       iterations = iterations,
+                       gibbs = TRUE, ...)        
     }
     
     return(new("BFmcmc",chains, model = model, data = data))

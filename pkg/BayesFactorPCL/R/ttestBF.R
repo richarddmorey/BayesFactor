@@ -62,9 +62,11 @@
 ##'   
 ##'   Perception and Cognition Lab (University of Missouri): Bayes factor 
 ##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
-##' @note The default prior scale has changed from 1 to \eqn{\sqrt{2}/2}. The 
-##'   factor of \eqn{\sqrt{2}} is to be consistent with Morey et al. (2011) and 
-##'   Rouder et al. (2012), and the factor of \eqn{1/2} is to better scale the 
+##' @note The default priors have scale has changed from 1 to \eqn{\sqrt{2}/2} for the 
+##'   two-sample t test, and 1/2 for the one-sample t test. The 
+##'   factor of \eqn{\sqrt{2}} in the two-sample t test is to be consistent 
+##'   with Morey et al. (2011) and 
+##'   Rouder et al. (2012), and the factor of \eqn{1/2} in both is to better scale the 
 ##'   expected effect sizes; the previous scaling put more weight on larger 
 ##'   effect sizes. To obtain the same Bayes factors as Rouder et al. (2009), 
 ##'   change the prior scale to 1.
@@ -84,7 +86,6 @@
 ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
                     paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, ...){
   
-  rscale = rpriorValues("ttest",,rscale)
   
   if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){
     if(paired){
@@ -92,6 +93,7 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
       if(length(x)!=length(y)) stop("Length of x and y must be the same if paired=TRUE.")
       x = x - y
     }
+    rscale = rpriorValues("ttestOne",,rscale)
     if(is.null(nullInterval)){
       modFull = BFoneSample(type = "JZS", 
                             identifier = list(formula = "y ~ 1"), 
@@ -138,6 +140,8 @@ ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
     dataTypes = "fixed"
     names(dataTypes) = ivs
     if(mu != 0) stop("Use of nonzero null hypothesis not implemented for independent samples test.")
+    
+    rscale = rpriorValues("ttestTwo",,rscale)
     
     if(is.null(nullInterval)){
       numerator = BFindepSample(type = "JZS", 

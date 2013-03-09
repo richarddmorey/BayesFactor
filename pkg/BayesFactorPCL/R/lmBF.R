@@ -55,7 +55,9 @@ lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
 {    
   checkFormula(formula, data, analysis="lm")
   dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")
-  rscales = list(fixed=rscaleFixed, random=rscaleRandom, continuous=rscaleCont)
+  rscales = list(fixed=rpriorValues("allNways","fixed",rscaleFixed), 
+                 random=rpriorValues("allNways","random",rscaleRandom), 
+                 continuous=rpriorValues("regression",,rscaleCont))
   
   numerator = BFlinearModel(type = "JZS", 
                             identifier = list(formula = stringFromFormula(formula)), 

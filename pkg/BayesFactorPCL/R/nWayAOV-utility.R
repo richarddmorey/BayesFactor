@@ -191,7 +191,13 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
   gMap = createGMap(formula, data, dataTypes)
   
-  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, ...)
+  if(any(dataTypes=="continuous")){
+    continuous = dataTypes=="continuous"
+  }else{
+    continuous = FALSE
+  }
+  
+  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, continuous = continuous, ...)
   if(gibbs){
     retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce))  
   }

@@ -54,6 +54,9 @@
 ##'   Bayes factor
 ##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
 ##'   of "simple", "importance", "laplace"
+##' @param continuous either FALSE is no continuous covariates are included, or a 
+##' logical vector of length equal to number of columns of X indicating which
+##' columns of the design matrix represent continuous covariates  
 ##' @return If \code{posterior} is \code{FALSE}, a vector of length 2 containing
 ##'   the computed log(e) Bayes factor (against the intercept-only null), along 
 ##'   with a proportional error estimate on the Bayes factor. Otherwise, an 
@@ -92,7 +95,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple")
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple", continuous=FALSE)
 {
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
@@ -126,13 +129,6 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     stop("One of gMap or struc must be defined.")
   }
   
-  C = diag(N) - matrix(1/N,N,N)
-  Cy = y - mean(y)
-  CX = C %*% X
-  XtCX = t(X) %*% CX
-  XtCy = t(X) %*% C %*% as.matrix(y,cols=1)
-  ytCy = var(y)*(N-1)
-  
   a = rep(0.5,nGs)
   if(length(rscale)==nGs){
     b = rscale^2/2
@@ -140,6 +136,38 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     stop("Length of rscale vector wrong. Was ", length(rscale), " and should be ", nGs,".")
   }
   
+  
+  C = diag(N) - matrix(1/N,N,N)
+  Cy = y - mean(y)
+  CX = C %*% X
+  
+  # Rearrange design matrix if continuous columns are included
+  # We will undo this later if chains have to be returned
+  if(!identical(continuous,FALSE)){
+    if(all(continuous)) stop("All covariates are continuous: use Gaussian quadrature instead!")
+    if(length(continuous) != P) stop("argument continuous must have same length as number of predictors")
+    if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
+    sortX = order(!continuous)
+    revSortX = order(sortX)
+    CX = CX[,sortX]
+    gMap = gMap[sortX]
+    incCont = sum(continuous)
+    if(incCont>1){
+      CX[,1:incCont]
+      priorX = (t(CX[,1:incCont]) %*% CX[,1:incCont])/N
+    }else{
+      priorX = sum(CX[,1]^2)/N
+    }
+  }else{
+    incCont = 0
+    priorX = 0
+  }
+  
+  XtCX = t(CX) %*% CX
+  XtCy = t(CX) %*% C %*% as.matrix(y,cols=1)
+  ytCy = var(y)*(N-1)
+  
+
 	nullLike = - ((N-1)/2)*log((N-1)*var(y))
 	
   
@@ -169,18 +197,22 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   
   
   if(gibbs){ # Create chains
-    Z = cbind(1,X)
+    Z = cbind(1,CX)
     ZtZ = t(Z)%*%Z
     Zty = t(Z)%*%matrix(y,ncol=1)
     
     chains = .Call("RGibbsNwayAov", 
-                   as.integer(iterations), y, Z, ZtZ, Zty, as.integer(N), 
-                   as.integer(P), as.integer(nGs), as.integer(gMap), rscale,
+                   as.integer(iterations), y, Z, ZtZ, priorX, Zty, as.integer(N), 
+                   as.integer(P), as.integer(nGs), as.integer(gMap), rscale, as.integer(incCont),
                    as.integer(iterations/100*progress), pbFun, new.env(), 
                    package="BayesFactor")
     
     dim(chains) <- c(2 + P + nGs, iterations)
     chains = mcmc(t(chains))  
+    # Unsort the chains if we had continuous covariates
+    if(incCont){
+      chains[,1 + 1:P] = chains[,1+revSortX]
+    }  
     labels = c("mu",paste("beta",1:P,sep="_"),"sig2",paste("g",1:nGs,sep="_"))
     colnames(chains) = labels
     retVal = chains
@@ -188,26 +220,27 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   }else{ # Compute Bayes factor
     if(method=="simple"){
       returnList = .Call("RjeffSamplerNwayAov", 
-                     as.integer(iterations), XtCX, XtCy, ytCy, 
+                     as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
                      as.integer(N), 
                      as.integer(P), 
                      as.integer(nGs), 
-                     as.integer(gMap), a, b,
+                     as.integer(gMap), a, b, as.integer(incCont),
                      as.integer(iterations/100*progress), 
                      pbFun, new.env(), 
                      package="BayesFactor")
     }else if(method=="importance"){
       apx = gaussianApproxAOV(y,X,rscale,gMap)
       returnList = .Call("RimportanceSamplerNwayAov", 
-                         as.integer(iterations), XtCX, XtCy, ytCy, 
+                         as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
                          as.integer(N), 
                          as.integer(P), 
                          as.integer(nGs), 
-                         as.integer(gMap), a, b, apx$mu, apx$sig,
+                         as.integer(gMap), a, b, apx$mu, apx$sig, as.integer(incCont),
                          as.integer(iterations/100*progress), 
                          pbFun, new.env(), 
                          package="BayesFactor")
     }else if(method=="laplace"){
+      if(incCont) stop("Not implemented for GLM yet.")
       bf = laplaceAOV(y,X,rscale,gMap)
       properror=NA
       retVal = c(bf = bf, properror=properror)
