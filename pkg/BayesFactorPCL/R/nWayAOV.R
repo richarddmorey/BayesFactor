@@ -173,7 +173,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     }
   }else{
     incCont = 0
-    priorX = 0
+    priorX = 1
   }
   
   XtCX = t(CX) %*% CX

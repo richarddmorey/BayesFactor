@@ -22,8 +22,6 @@ double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy,
 		W[i + P*i] = W[i + P*i] + 1/g[i];
 	}
 
-  //Rprintf("%f %f %f %f\n", W[0], W[1], W[2], W[3]);
-
   ldetW = -matrixDet(W, P, P, 1);
   InvMatrixUpper(W, P);
 	internal_symmetrize(W, P);
@@ -66,7 +64,8 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 {
 	int i=0,j=0;
 	double avg = 0, *g1, g2[P], *W;
-	
+  double logDetPrX=0;
+  
 	// progress stuff
 	SEXP sampCounter, R_fcall;
 	int *pSampCounter;
@@ -74,8 +73,10 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
-  double logDetPrX = matrixDet(priorX, incCont, incCont, 1);
-    
+  if(incCont){
+    logDetPrX = matrixDet(priorX, incCont, incCont, 1);
+  }
+  
 	for(i=0;i<iters;i++)
 	{
 		R_CheckUserInterrupt();
@@ -163,7 +164,8 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 {
   int i=0,j=0;
 	double avg = 0, *q1, g2[P], sumq=0, sumdinvgamma=0, sumdnorm=0;
-	
+	double logDetPrX=0;
+  
 	// progress stuff
 	SEXP sampCounter, R_fcall;
 	int *pSampCounter;
@@ -171,8 +173,9 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
-  double logDetPrX = matrixDet(priorX, incCont, incCont, 1);
-
+  if(incCont){
+    logDetPrX = matrixDet(priorX, incCont, incCont, 1);
+  }
 	for(i=0;i<iters;i++)
 	{
 		R_CheckUserInterrupt();
