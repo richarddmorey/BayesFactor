@@ -141,8 +141,9 @@ design.projection.intList <- function(effects, data, dataTypes){
   firstCol = data[ ,effects[1] ]
   nLevs = nlevels( firstCol )
   if(length(effects)==1){
-    if(type=="random" | type=="continuous") return(diag(nLevs))
+    if(type=="random") return(diag(nLevs))
     if(type=="fixed") return(fixedFromRandomProjection(nLevs))
+    if(type=="continuous") return(matrix(1,1,1))
   }else{
     if(type=="random") 
       return(kronecker(diag(nLevs), design.projection.intList(effects[-1],data, dataTypes) ))
@@ -192,7 +193,7 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   gMap = createGMap(formula, data, dataTypes)
   
   if(any(dataTypes=="continuous")){
-    continuous = dataTypes=="continuous"
+    continuous = termTypes(formula, data, dataTypes)=="continuous"
   }else{
     continuous = FALSE
   }

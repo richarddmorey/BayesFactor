@@ -144,7 +144,20 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   # Rearrange design matrix if continuous columns are included
   # We will undo this later if chains have to be returned
   if(!identical(continuous,FALSE)){
-    if(all(continuous)) stop("All covariates are continuous: use Gaussian quadrature instead!")
+    if(all(continuous)){
+      #### If all covariates are continuous, we want to use Gaussian quadrature.
+      warning("All covariates are continuous: using Gaussian quadrature.")
+      if(gibbs){
+        chains = linearReg.Gibbs(y, X, iterations = iterations, 
+                                 rscale = rscale, progress = progress, 
+                                 gibi=gibi)
+        return(chains)
+      }else{
+        R2 = t(y)%*%X%*%solve(t(X)%*%X)%*%t(X)%*%y / (t(y)%*%y)
+        bf = linearReg.R2stat(N=N,p=ncol(X),R2=R2,rscale=rscale)  
+        return(bf)
+      }
+    } 
     if(length(continuous) != P) stop("argument continuous must have same length as number of predictors")
     if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
     sortX = order(!continuous)

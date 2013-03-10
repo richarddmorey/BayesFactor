@@ -1,16 +1,18 @@
 #include "BFPCL.h"
 
 
-double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P, double *g, int incCont, int contG)
+double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P, double *g, int incCont, double logDetPrX)
 {
 	double *W,ldetS=0,ldetW,top,bottom1,bottom2,q;
 	int i,j, Psqr=P*P;
   
 	W = Memcpy(Calloc(Psqr,double),XtCX,Psqr);
 	
+  ldetS += -logDetPrX;
   for(i=0;i<incCont;i++){
+    ldetS += log(g[i]);
     for(j=0;j<=i;j++){
-      W[j + P*i] = W[j + P*i] + priorX[i+j*incCont]/g[contG]; 
+      W[j + P*i] = W[j + P*i] + priorX[i+j*incCont]/g[i]; 
     }
   }
   
@@ -37,7 +39,7 @@ double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy,
 	return(top-bottom1-bottom2);	
 }
 
-SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR, SEXP PR, SEXP gR, SEXP incContR, SEXP contGR)
+SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR, SEXP PR, SEXP gR, SEXP incContR, SEXP logDetPrXR)
 {
 	int N = INTEGER_VALUE(NR);
 	int P = INTEGER_VALUE(PR);
@@ -47,13 +49,13 @@ SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR
 	double ytCy = REAL(ytCyR)[0];
 	double *g = REAL(gR);
   int incCont  = INTEGER_VALUE(incContR);
-  int contG = INTEGER_VALUE(contGR);
-  
+  double logDetPrX = REAL(logDetPrXR)[0];
+
 	SEXP ans;
 	PROTECT(ans = allocVector(REALSXP,1));
 	
 
-	REAL(ans)[0] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g, incCont, contG);
+	REAL(ans)[0] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g, incCont, logDetPrX);
 	
 	UNPROTECT(1);
   
@@ -72,7 +74,8 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
-  
+  double logDetPrX = matrixDet(priorX, incCont, incCont, 1);
+    
 	for(i=0;i<iters;i++)
 	{
 		R_CheckUserInterrupt();
@@ -97,7 +100,7 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 			g2[j] = g1[gMap[j]];
 		}
 	
-		samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, nGs-1);
+		samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, logDetPrX);
 		if(i==0)
 		{
 			avg = samples[i];
@@ -168,6 +171,8 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
+  double logDetPrX = matrixDet(priorX, incCont, incCont, 1);
+
 	for(i=0;i<iters;i++)
 	{
 		R_CheckUserInterrupt();
@@ -197,7 +202,7 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 			g2[j] = exp(q1[gMap[j]]);
 		}
 	
-		samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, nGs-1) + sumq + sumdinvgamma - sumdnorm;
+		samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, logDetPrX) + sumq + sumdinvgamma - sumdnorm;
 		if(i==0)
 		{
 			avg = samples[i];
@@ -327,24 +332,23 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
-		
     // Remember, continuous g is always last
 		// Sample beta
 		Memcpy(Sigma,XtX,P1Sq);
-		for(j=0;j<(P+1);j++)
+    for(j=0;j<(P+1);j++)
 		{
 			// Diagonal
       if(j>incCont){
         Sigma[ j + (P+1)*j] = (Sigma[ j + (P+1)*j] + 1/g[gMap[j-1]])/sig2;
       }else if(j>0){ // only way this can happen is if incCont>0
-	      Sigma[ j + (P+1)*j] = (Sigma[ j + (P+1)*j] + priorX[j + (P+1)*j]/g[nGs-1])/sig2;
+	      Sigma[ j + (P+1)*j] = (Sigma[ j + (P+1)*j] + priorX[(j-1) + incCont*(j-1)]/g[nGs-1])/sig2;
 			}else{
 				Sigma[ j + (P+1)*j] = Sigma[ j + (P+1)*j]/sig2;
 			}
 			for(k=j+1;k<(P+1);k++)
 			{	
-        if(k<=incCont){ // only way this can happen is if incCont>0
-          Sigma[j + (P+1)*k] = (Sigma[j + (P+1)*k] + priorX[j + (P+1)*k]/g[nGs-1])/sig2;
+        if(k<=incCont && j>0){ // only way this can happen is if incCont>0
+          Sigma[j + (P+1)*k] = (Sigma[j + (P+1)*k] + priorX[(j-1) + incCont*(k-1)]/g[nGs-1])/sig2;
         }else{
           Sigma[j + (P+1)*k] = Sigma[j + (P+1)*k]/sig2;
         }
@@ -355,7 +359,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		internal_symmetrize(Sigma,P+1);
 		oneOverSig2 = 1/sig2;
 		F77_CALL(dsymv)("U", &P1, &oneOverSig2, Sigma, &P1, Xty, &iOne, &dZero, beta, &iOne);	
-		rmvGaussianC(beta, Sigma, P+1);
+    rmvGaussianC(beta, Sigma, P+1);
 				
 		// Sample Sig2
 		SSq = 0;
@@ -366,6 +370,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		{
 			SSq += yTemp[j] * yTemp[j];
 		}
+    
     // continuous g is last
     if(incCont){
       SSq += quadform2(beta+1,priorX,incCont,1,incCont)/g[nGs - 1];
@@ -374,9 +379,8 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		{
 			SSq += beta[j+1] * beta[j+1] / g[gMap[j]];
 		}
-
     sig2 = 1/rgamma( (N+P)/2.0, 2.0/SSq );
-
+    
 		// Sample g
 		AZERO(SSqG,nGs);
 		
@@ -392,7 +396,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 		
 		for(j=0;j<nGs;j++)
 		{
-			bTemp = SSqG[j]/sig2 + r[j]*r[j];
+      bTemp = SSqG[j]/sig2 + r[j]*r[j];
       g[j]  = 1/rgamma( (nParG[j]+1)/2.0, 2.0/bTemp);
     }
 	
