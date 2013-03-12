@@ -50,7 +50,11 @@
 
 ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium")
 {
-  rscale = rpriorValues("ttest",,rscale)
+  if(n2){
+    rscale = rpriorValues("ttestTwo",,rscale)
+  }else{
+    rscale = rpriorValues("ttestOne",,rscale)
+  }
   
   nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
   n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))

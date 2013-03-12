@@ -194,6 +194,7 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   
   if(any(dataTypes=="continuous")){
     continuous = termTypes(formula, data, dataTypes)=="continuous"
+    continuous = continuous[names(gMap)]
   }else{
     continuous = FALSE
   }
