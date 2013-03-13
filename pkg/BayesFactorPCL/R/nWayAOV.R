@@ -137,16 +137,17 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   }
   
   
-  C = diag(N) - matrix(1/N,N,N)
+  #C = diag(N) - matrix(1/N,N,N)
   Cy = y - mean(y)
-  CX = C %*% X
+  #CX = C %*% X
+  CX = apply(X,2,function(v) v - mean(v))
   
   # Rearrange design matrix if continuous columns are included
   # We will undo this later if chains have to be returned
   if(!identical(continuous,FALSE)){
     if(all(continuous)){
       #### If all covariates are continuous, we want to use Gaussian quadrature.
-      warning("All covariates are continuous: using Gaussian quadrature.")
+      #warning("All covariates are continuous: using Gaussian quadrature.")
       if(gibbs){
         chains = linearReg.Gibbs(y, X, iterations = iterations, 
                                  rscale = rscale, progress = progress, 
@@ -177,7 +178,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   }
   
   XtCX = t(CX) %*% CX
-  XtCy = t(CX) %*% C %*% as.matrix(y,cols=1)
+  #XtCy = t(CX) %*% C %*% as.matrix(y,cols=1)
+  XtCy = t(CX) %*% as.matrix(y,cols=1)
   ytCy = var(y)*(N-1)
   
 
@@ -242,7 +244,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                      pbFun, new.env(), 
                      package="BayesFactor")
     }else if(method=="importance"){
-      apx = gaussianApproxAOV(y,X,rscale,gMap)
+      apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
       returnList = .Call("RimportanceSamplerNwayAov", 
                          as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
                          as.integer(N), 
@@ -253,8 +255,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                          pbFun, new.env(), 
                          package="BayesFactor")
     }else if(method=="laplace"){
-      if(incCont) stop("Not implemented for GLM yet.")
-      bf = laplaceAOV(y,X,rscale,gMap)
+      #if(incCont) stop("Not implemented for GLM yet.")
+      bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont)
       properror=NA
       retVal = c(bf = bf, properror=properror)
       if(inherits(pb,"txtProgressBar")) close(pb);

@@ -2,6 +2,28 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+expString <- function(x){
+  doubleBase = .Machine$double.base
+  toBase10log = x / log(10)
+  toBaselog = x / log(doubleBase)
+  
+  numMax = .Machine$double.max.exp
+  numMin = .Machine$double.min.exp
+    
+  if(toBaselog>numMax){
+    first <- 10 ^ (toBase10log - floor(toBase10log)) 
+    second <- floor(toBase10log)
+    return( paste( first, "e+", second, sep="" ) )
+  }else if(toBaselog < numMin){
+    first <- 10 ^ (1 - (ceiling(toBase10log) - toBase10log)) 
+    second <- ceiling(toBase10log)-1
+    return( paste( first, "e", second, sep="" ) )    
+  }else{
+    return(exp(x))
+  }
+}
+
+
 alphabetizeTerms <- function(trms){
   splt = strsplit(trms,":",fixed=TRUE)
   sorted=lapply(splt, function(trm){

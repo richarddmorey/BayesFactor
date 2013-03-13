@@ -7,7 +7,7 @@ ddinvgamma1 <- function(x,a,b)
 dinvgamma1 <- function(x,a,b)
   a * log(b) - lgamma(a) - (a+1)*log(x) - b/x
 
-Qg <- function(q,y,Xm,rscale,gMap)
+Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0)
 {
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
@@ -20,6 +20,9 @@ Qg <- function(q,y,Xm,rscale,gMap)
     stop("not implemented for single g")  
   
   Ginv= diag(1/g[gMap])
+  if(incCont){
+    Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+  }
   
   Vg = t(XTilde)%*%XTilde + Ginv
   ybar = mean(y)
@@ -34,7 +37,7 @@ Qg <- function(q,y,Xm,rscale,gMap)
   return(as.numeric(ans))
 }
 
-dQg <- function(q,y,Xm,rscale,gMap){
+dQg <- function(q,y,Xm,rscale,gMap, priorX=NULL, incCont=0){
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
   N = dim(Xm)[1]
@@ -45,6 +48,9 @@ dQg <- function(q,y,Xm,rscale,gMap){
     stop("not implemented for single g")      
   
   Ginv= diag(1/g[gMap])
+  if(incCont){
+    Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+  }
   
   ni = table(gMap)
   Vg = t(XTilde)%*%XTilde + Ginv
@@ -74,7 +80,7 @@ dQg <- function(q,y,Xm,rscale,gMap){
 }
 
 
-d2Qg <- function(q,y,Xm,rscale,gMap){
+d2Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0){
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
   N = dim(Xm)[1]
@@ -84,7 +90,11 @@ d2Qg <- function(q,y,Xm,rscale,gMap){
   if(length(g)==1)
     stop("not implemented for single g")
   ni = table(gMap)
+  
   Ginv= diag(1/g[gMap])
+  if(incCont){
+    Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+  }
   
   Vg = t(XTilde)%*%XTilde + Ginv
   Vginv = solve(Vg)
@@ -134,11 +144,11 @@ d2Qg <- function(q,y,Xm,rscale,gMap){
 
 
 
-hessianQg <- function(g,y,Xm,rscale,gMap){
-  diag(d2Qg(g,y,Xm,rscale,gMap))
+hessianQg <- function(g,y,Xm,rscale,gMap,priorX=NULL,incCont=0){
+  diag(d2Qg(g,y,Xm,rscale,gMap,priorX,incCont))
 }
 
-Qg_nlm <- function(q,y,Xm,rscale,gMap){
+Qg_nlm <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0){
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
   N = dim(Xm)[1]
@@ -148,7 +158,12 @@ Qg_nlm <- function(q,y,Xm,rscale,gMap){
   if(length(g)==1)
     stop("not implemented for single g")
   ni = table(gMap)
+  
   Ginv= diag(1/g[gMap])
+  if(incCont){
+    Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+  }
+  
   
   Vg = t(XTilde)%*%XTilde + Ginv
   Vginv = solve(Vg)
@@ -209,19 +224,19 @@ Qg_nlm <- function(q,y,Xm,rscale,gMap){
 }
 
 
-gaussianApproxAOV <- function(y,X,rscale,gMap,method="nlm"){
+gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="optim"){
 
   # gMap is written for C indexing
   gMap = gMap + 1
   # dumb starting values
   qs = rscale * 0 
-  if(method=="optim"){
-    opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",y=y,Xm=X,rscale=rscale,gMap=gMap)
+  if(optMethod=="optim"){
+    opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",y=y,Xm=X,rscale=rscale,gMap=gMap,priorX=priorX,incCont=incCont)
     if(opt$convergence) stop("Convergence not achieved in optim: ",opt$convergence)
     mu = opt$par
     val = opt$value
-  }else if(method=="nlm"){
-    opt = nlm(Qg_nlm, qs, y=y,Xm=X,rscale=rscale,gMap=gMap, hessian=FALSE, check.analyticals=FALSE)
+  }else if(optMethod=="nlm"){
+    opt = nlm(Qg_nlm, qs, y=y,Xm=X,rscale=rscale,gMap=gMap, priorX=priorX,incCont=incCont, hessian=FALSE, check.analyticals=FALSE)
     if(opt$code>2) stop("Convergence not achieved in nlm: ",opt$code)
     val = -opt$minimum
     mu = opt$estimate
@@ -229,15 +244,15 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,method="nlm"){
     stop("unknown method in gaussianApproxAOV: ",method)
   }
   
-  hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap)  
+  hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap,priorX=priorX,incCont=incCont)  
   sig2 = -1/diag(hess)
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
 
-laplaceAOV <- function(y,X,rscale,gMap)
+laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
 {
 
-  apx = gaussianApproxAOV(y,X,rscale,gMap,method="nlm")
+  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont,optMethod="optim")
   
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   
@@ -245,9 +260,9 @@ laplaceAOV <- function(y,X,rscale,gMap)
   
 }
 
-importanceAOV <- function(y,X,rscale,gMap, iterations = 10000)
+importanceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,iterations = 10000)
 {
-  apx = gaussianApproxAOV(y,X,rscale,gMap)
+  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
   
   mu = apx$mu
   sig = apx$sig
@@ -255,9 +270,9 @@ importanceAOV <- function(y,X,rscale,gMap, iterations = 10000)
     rnorm(mu,mu,sig)
   })
 
-  sSamp = apply(qSamp,2,function(qs,y,Xm,rscale,gMap,mu,sig){
-    exp(Qg(qs,y=y,Xm=Xm,rscale=rscale,gMap=gMap) - sum(dnorm(qs,mu,sig,log=TRUE)))
-  },mu=mu,sig=sig,y=y,Xm=X,rscale=rscale,gMap=gMap)
+  sSamp = apply(qSamp,2,function(qs,y,Xm,rscale,gMap,mu,sig,priorX,incCont){
+    exp(Qg(qs,y=y,Xm=Xm,rscale=rscale,gMap=gMap,priorX=priorX,incCont=incCont) - sum(dnorm(qs,mu,sig,log=TRUE)))
+  },mu=mu,sig=sig,y=y,Xm=X,rscale=rscale,gMap=gMap,priorX=priorX,incCont=incCont)
 
   return(mean(sSamp))
 }
