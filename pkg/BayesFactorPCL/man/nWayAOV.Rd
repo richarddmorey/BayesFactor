@@ -4,7 +4,8 @@
 \usage{
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
     iterations = 10000, progress = TRUE, gibi = NULL,
-    gibbs = FALSE, method = "simple", continuous = FALSE)
+    gibbs = FALSE, method = "simple",
+    approxOptimizer = "optim", continuous = FALSE)
 }
 \arguments{
   \item{y}{vector of observations}
@@ -36,6 +37,10 @@
   \item{method}{the integration method (only valid if
   \code{gibbs=TRUE}); one of "simple", "importance",
   "laplace"}
+
+  \item{approxOptimizer}{for methods which involve
+  optimization, which function to use. Possible values are
+  "optim" and "nlm".}
 
   \item{continuous}{either FALSE is no continuous
   covariates are included, or a logical vector of length

@@ -241,7 +241,7 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="o
     val = -opt$minimum
     mu = opt$estimate
   }else{
-    stop("unknown method in gaussianApproxAOV: ",method)
+    stop("unknown method in gaussianApproxAOV: ",optMethod)
   }
   
   hess = hessianQg(mu,y=y,Xm=X,rscale=rscale,gMap=gMap,priorX=priorX,incCont=incCont)  
@@ -249,7 +249,7 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="o
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
 
-laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
+laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="optim")
 {
 
   apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont,optMethod="optim")

@@ -54,6 +54,8 @@
 ##'   Bayes factor
 ##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
 ##'   of "simple", "importance", "laplace"
+##' @param approxOptimizer for methods which involve optimization, which function to use. 
+##' Possible values are "optim" and "nlm".
 ##' @param continuous either FALSE is no continuous covariates are included, or a 
 ##' logical vector of length equal to number of columns of X indicating which
 ##' columns of the design matrix represent continuous covariates  
@@ -95,7 +97,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple", continuous=FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple", approxOptimizer="optim", continuous=FALSE)
 {
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
@@ -244,7 +246,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                      pbFun, new.env(), 
                      package="BayesFactor")
     }else if(method=="importance"){
-      apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
+      apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont,optMethod=approxOptimizer)
       returnList = .Call("RimportanceSamplerNwayAov", 
                          as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
                          as.integer(N), 
@@ -255,8 +257,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                          pbFun, new.env(), 
                          package="BayesFactor")
     }else if(method=="laplace"){
-      #if(incCont) stop("Not implemented for GLM yet.")
-      bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont)
+      bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont,optMethod=approxOptimizer)
       properror=NA
       retVal = c(bf = bf, properror=properror)
       if(inherits(pb,"txtProgressBar")) close(pb);
