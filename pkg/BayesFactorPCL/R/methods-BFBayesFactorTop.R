@@ -19,7 +19,8 @@ setValidity("BFBayesFactorTop", function(object){
 setMethod('show', "BFBayesFactorTop", function(object){
   omitted = unlist(lapply(object@numerator, whichOmitted, full = object@denominator))
   cat("Bayes factor top-down analysis\n--------------\n")
-  bfs = extractBF(object, logbf=FALSE)
+  bfs = extractBF(object, logbf=TRUE)
+  bfs$bf = sapply(bfs$bf, expString)
   indices = paste("[",1:nrow(bfs),"]",sep="")
   nms = omitted
   maxwidth = max(nchar(nms))
@@ -28,9 +29,9 @@ setMethod('show', "BFBayesFactorTop", function(object){
   for(i in 1:nrow(bfs)){
     cat("Omit ",nms[i]," : ",bfs$bf[i]," (",round(bfs$error[i]*100,2),"%)\n",sep="")
   }
-  cat("---\n Denominator:\n")
-  cat("Type: ",class(object@denominator)[1],", ",object@denominator@type,"\n",sep="")
-  cat(object@denominator@longName,"\n\n")
+  cat("\nAgainst denominator:\n")
+  cat(" ",object@denominator@longName,"\n")
+  cat("---\nBayes Factor type: ",class(object@denominator)[1],", ",object@denominator@type,"\n\n",sep="")
 })
 
 #' @rdname BFBayesFactor-class

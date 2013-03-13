@@ -37,6 +37,8 @@
   factors in a Bayes factor object. Error bars are added
   (though in many cases they may be too small to see) in
   red to show the error in estimation of the Bayes factor.
+  If a red question mark appears next to a bar, then that
+  Bayes factor has no error estimate available.
 }
 \examples{
 data(puzzles)
