@@ -143,7 +143,7 @@ we can divide the two Bayes factors in `bfInferval` to obtain the desired test:
 ```{r onesampledivide}
 bfInterval[1] / bfInterval[2]
 ```
-The Bayes factor is about 340.
+The Bayes factor is about 216.
 
 When we have multiple Bayes factors that all have the same denominator, we can concatenate them into one object using the `c` function. Since `bf` and `bfInterval` both share the point null denominator, we can do this:
 ```{r onesampcat}
