@@ -6,6 +6,7 @@ CHANGES
   *  Fixed display of very large and very small Bayes factors; no longer will display read something like "Inf (2%)" or the like
   *  Clearer labels on MCMC output
   *  Restricted to R 3.0.0 (due to vignette compilation)
+  *  When error is missing from the BayesFactor object, plot prints "?" next to the bar to indicate no error estimate is available
 
 
   CHANGES IN BayesFactor VERSION 0.9.1
