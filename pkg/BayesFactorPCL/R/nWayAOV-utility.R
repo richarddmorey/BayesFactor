@@ -201,7 +201,7 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   
   retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, continuous = continuous, ...)
   if(gibbs){
-    retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce))  
+    retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce, continuous))  
   }
   return(retVal)
 }  
@@ -245,21 +245,27 @@ ureduceChains = function(chains, formula, data, dataTypes, gMap){
   do.call(cbind, unreducedChains)
 }
 
-makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce){
+makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce, continuous){
   P = length(gMap)
   nGs = max(gMap) + 1
   factors = fmlaFactors(formula, data)[-1]
   dataTypes = dataTypes[ names(dataTypes) %in% factors ]
+  types = termTypes(formula, data, dataTypes)
+  
+  if(any(continuous)){
+    gNames = paste("g",c(names(types[types!="continuous"]),"continuous"),sep="_")
+  }else{
+    gNames = paste("g",names(types), sep="_")  
+  }
   
   if(!unreduce | !any(dataTypes == "fixed")) {
-    labels = c("mu", Xnames, "sig2", paste("g",1:nGs,sep="_"))
+    labels = c("mu", Xnames, "sig2", gNames)
     colnames(chains) = labels 
     return(chains)
   }
   
   labels = c("mu")  
   betaChains = chains[,1:P + 1, drop = FALSE]
-  types = termTypes(formula, data, dataTypes)
   
   # Make column names 
   parLabels = makeLabelList(formula, data, dataTypes, unreduce)
@@ -269,7 +275,7 @@ makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unre
   
   newChains = cbind(chains[,1],betaChains,chains[,-(1:(P + 1))])
   
-  labels = c(labels, "sig2",paste("g",1:nGs,sep="_"))
+  labels = c(labels, "sig2", gNames)
   colnames(newChains) = labels 
   return(newChains)
 }
