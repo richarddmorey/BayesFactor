@@ -169,11 +169,12 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
     sortX = order(!continuous)
     revSortX = order(sortX)
+    X = X[,sortX]
     CX = CX[,sortX]
     gMap = gMap[sortX]
     incCont = sum(continuous)
     if(incCont>1){
-      CX[,1:incCont]
+      X[,1:incCont] = CX[,1:incCont]
       priorX = (t(CX[,1:incCont]) %*% CX[,1:incCont])/N
     }else{
       priorX = sum(CX[,1]^2)/N
