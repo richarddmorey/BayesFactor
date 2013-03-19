@@ -218,7 +218,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   
   
   if(gibbs){ # Create chains
-    Z = cbind(1,CX)
+    Z = cbind(1,X)
     ZtZ = t(Z)%*%Z
     Zty = t(Z)%*%matrix(y,ncol=1)
     
