@@ -187,7 +187,8 @@ design.names.intList <- function(effects, data, dataTypes){
     if(type=="fixed") 
       return(rowPaste(0:(nLevs-2), design.names.intList(effects[-1], data, dataTypes) ))
     if(type=="continuous") 
-      return(rowPaste(0:(nLevs-2), design.names.intList(effects[-1], data, dataTypes) ))
+      return( design.names.intList(effects[-1], data, dataTypes) )
+      #return(rowPaste(0:(nLevs-2), design.names.intList(effects[-1], data, dataTypes) ))
   }    
 }
 
@@ -276,7 +277,7 @@ makeLabelList <- function(formula, data, dataTypes, unreduce){
                        return(paste(term,"-",my.names,sep=""))
                      },
                      data = data, dataTypes=dataTypes)
-  
+
   # join them all together in one cector
   unlist(labelList)
 }
