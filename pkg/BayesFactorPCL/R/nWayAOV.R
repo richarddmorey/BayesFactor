@@ -38,7 +38,8 @@
 ##' sample, but uses a Laplace approximation to the integral. It is expected to
 ##' be more accurate for large sample sizes, where MC sampling is slow. If 
 ##' \code{method="auto"}, then an initial run with both samplers is done, and
-##' the sampling method that yields the least-variable samples is chosen.
+##' the sampling method that yields the least-variable samples is chosen. The number 
+##' of initial test iterations is determined by \code{options(BFpretestIterations)}.
 ##' 
 ##' If posterior samples are requested, the posterior is sampled with a Gibbs sampler.
 ##' @title Use ANOVA design matrix to compute Bayes factors or sample posterior
@@ -56,7 +57,7 @@
 ##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
 ##'   Bayes factor
 ##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
-##'   of "simple", "importance", "laplace"
+##'   of "simple", "importance", "laplace", or "auto"
 ##' @param continuous either FALSE is no continuous covariates are included, or a 
 ##' logical vector of length equal to number of columns of X indicating which
 ##' columns of the design matrix represent continuous covariates  

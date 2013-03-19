@@ -35,7 +35,7 @@
 
   \item{method}{the integration method (only valid if
   \code{gibbs=TRUE}); one of "simple", "importance",
-  "laplace"}
+  "laplace", or "auto"}
 
   \item{continuous}{either FALSE is no continuous
   covariates are included, or a logical vector of length
@@ -100,7 +100,9 @@
   accurate for large sample sizes, where MC sampling is
   slow. If \code{method="auto"}, then an initial run with
   both samplers is done, and the sampling method that
-  yields the least-variable samples is chosen.
+  yields the least-variable samples is chosen. The number
+  of initial test iterations is determined by
+  \code{options(BFpretestIterations)}.
 
   If posterior samples are requested, the posterior is
   sampled with a Gibbs sampler.
