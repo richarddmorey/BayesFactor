@@ -3,7 +3,7 @@
 \title{Function to compute Bayes factors for regression designs}
 \usage{
   regressionBF(formula, data, whichModels = "all",
-    progress = TRUE, rscaleCont = 1)
+    progress = TRUE, rscaleCont = "medium")
 }
 \arguments{
   \item{formula}{a formula containing all covariates to
@@ -57,8 +57,15 @@
   An option is included to prevent analyzing too many
   models at once: \code{options('BFMaxModels')}, which
   defaults to 50,000, is the maximum number of models that
-  `anovaBF` will analyze at once. This can be increased by
-  increasing the option value.
+  `regressionBF` will analyze at once. This can be
+  increased by increasing the option value.
+
+  For the \code{rscaleCont} argument, several named values
+  are recongized: "medium", "wide", and "ultrawide", which
+  correspond \eqn{r} scales of \eqn{\sqrt{2}/4}{sqrt(2)/4},
+  1/2, and \eqn{\sqrt{2}/2}{sqrt(2)/2}, respectively. These
+  values were chosen to yield consistent Bayes factors with
+  \code{\link{anovaBF}}.
 }
 \examples{
 ## See help(attitude) for details about the data set

@@ -36,8 +36,11 @@
 ##' "importance" uses an importance sampling algorithm with an importance
 ##' distribution that is multivariate normal on log(g). "laplace" does not
 ##' sample, but uses a Laplace approximation to the integral. It is expected to
-##' be more accurate for large sample sizes, where MC sampling is slow. 
-##' integration, and the posterior is sampled with a Gibbs sampler.
+##' be more accurate for large sample sizes, where MC sampling is slow. If 
+##' \code{method="auto"}, then an initial run with both samplers is done, and
+##' the sampling method that yields the least-variable samples is chosen.
+##' 
+##' If posterior samples are requested, the posterior is sampled with a Gibbs sampler.
 ##' @title Use ANOVA design matrix to compute Bayes factors or sample posterior
 ##' @param y vector of observations
 ##' @param X design matrix whose number of rows match \code{length(y)}.
@@ -54,8 +57,6 @@
 ##'   Bayes factor
 ##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
 ##'   of "simple", "importance", "laplace"
-##' @param approxOptimizer for methods which involve optimization, which function to use. 
-##' Possible values are "optim" and "nlm".
 ##' @param continuous either FALSE is no continuous covariates are included, or a 
 ##' logical vector of length equal to number of columns of X indicating which
 ##' columns of the design matrix represent continuous covariates  
@@ -97,10 +98,12 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="simple", approxOptimizer="optim", continuous=FALSE)
-{
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="auto", continuous=FALSE)
+{  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
+  
+  apx = NULL
   
   N = length(y)
 	X = matrix( X, nrow=N )
@@ -235,29 +238,13 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     retVal = chains
  
   }else{ # Compute Bayes factor
-    if(method=="simple"){
-      returnList = .Call("RjeffSamplerNwayAov", 
-                     as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
-                     as.integer(N), 
-                     as.integer(P), 
-                     as.integer(nGs), 
-                     as.integer(gMap), a, b, as.integer(incCont),
-                     as.integer(iterations/100*progress), 
-                     pbFun, new.env(), 
-                     package="BayesFactor")
-    }else if(method=="importance"){
-      apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont,optMethod=approxOptimizer)
-      returnList = .Call("RimportanceSamplerNwayAov", 
-                         as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
-                         as.integer(N), 
-                         as.integer(P), 
-                         as.integer(nGs), 
-                         as.integer(gMap), a, b, apx$mu, apx$sig, as.integer(incCont),
-                         as.integer(iterations/100*progress), 
-                         pbFun, new.env(), 
-                         package="BayesFactor")
+    if(method %in% c("simple","importance","auto")){
+      retVal = doNwaySampling(method, y, X, rscale, nullLike, 
+                   as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
+                   as.integer(N), as.integer(P), as.integer(nGs), 
+                   as.integer(gMap), a, b, as.integer(incCont), progress, pbFun)
     }else if(method=="laplace"){
-      bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont,optMethod=approxOptimizer)
+      bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont)
       properror=NA
       retVal = c(bf = bf, properror=properror)
       if(inherits(pb,"txtProgressBar")) close(pb);
@@ -265,13 +252,6 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     }else{  
       stop("Unknown method specified.")
     }
-    bf = returnList[[1]] - nullLike
-    
-    # estimate error
-    bfSamp = returnList[[2]] - nullLike
-    properror = propErrorEst(bfSamp)
-    
-    retVal = c(bf = bf, properror=properror)
   }
   
   if(inherits(pb,"txtProgressBar")) close(pb);

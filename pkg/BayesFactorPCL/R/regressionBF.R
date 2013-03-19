@@ -22,11 +22,16 @@
 ##' test is conditional on all other covariates being in the model (and likewise
 ##' 'bottom' testing is conditional on no other covariates being in the model).
 ##' 
-##' An option is included to prevent analyzing too many models at once:
-##' \code{options('BFMaxModels')}, which defaults to 50,000, is the maximum
-##' number of models that `anovaBF` will analyze at once. This can be increased
-##' by increasing the option value.
+##' An option is included to prevent analyzing too many models at once: 
+##' \code{options('BFMaxModels')}, which defaults to 50,000, is the maximum 
+##' number of models that `regressionBF` will analyze at once. This can be
+##' increased by increasing the option value.
 ##' 
+##' For the \code{rscaleCont} argument, several named values are recongized: 
+##' "medium", "wide", and "ultrawide", which correspond \eqn{r} scales of 
+##' \eqn{\sqrt{2}/4}{sqrt(2)/4}, 1/2, and \eqn{\sqrt{2}/2}{sqrt(2)/2},
+##' respectively. These values were chosen to yield consistent Bayes factors
+##' with \code{\link{anovaBF}}.
 ##' @title Function to compute Bayes factors for regression designs
 ##' @param formula a formula containing all covariates to include in the 
 ##'   analysis (see Examples)
@@ -72,7 +77,7 @@
 ##'   \code{\link{anovaBF}} for the function similar to \code{regressionBF} for 
 ##'   ANOVA models.
 
-regressionBF <- function(formula, data, whichModels = "all", progress=TRUE, rscaleCont = 1)
+regressionBF <- function(formula, data, whichModels = "all", progress=TRUE, rscaleCont = "medium")
 {
   checkFormula(formula, data, analysis = "regression")
   dataTypes <- createDataTypes(formula, whichRandom=c(), data, analysis = "regression")

@@ -58,3 +58,4 @@ marginal.g.oneWay = function(g,F,N,J,rscale)
   m = log(rscale) - 0.5*log(2*pi) - 1.5*log(g) - rscale^2/(2*g) - (J-1)/2*log(N*g+1) - (N*J-1)/2*log(omega)
   exp(m)
 }
+

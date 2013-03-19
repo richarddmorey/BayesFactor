@@ -20,11 +20,11 @@ createDataTypes <- function(formula, whichRandom, data, analysis){
   
   ## ANOVA can only accept factors
   if( any(types=="continuous") & analysis == "anova" )
-    stop("ANOVA cannot be used with nonfactor independent variables.")
+    stop("anovaBF() cannot be used with nonfactor independent variables. Use lmBF() or regressionBF() instead.")
   
   ## regression can only accept nonfactors
   if( any(types %in% c("fixed", "random")) & analysis == "regression" )
-    stop("Regression cannot be used with factor independent variables.")
+    stop("regressionBF() cannot be used with factor independent variables. Use lmBF() or anovaBF() instead.")
   
   #### End checking analysis types
   return(types)

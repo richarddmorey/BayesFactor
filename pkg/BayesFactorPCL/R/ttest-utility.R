@@ -103,3 +103,4 @@ ttestAreaNull <- function(t, n1, n2=0, nullInterval=c(-.2,.2), rscale=1, safeInt
       properror = c(null=err,alt=errCompl)
     ))
 }
+

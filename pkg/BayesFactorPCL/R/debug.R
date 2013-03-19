@@ -15,3 +15,4 @@ testNwaymLike = function(g,y,Xm)
 		N, P, g, 
 		package="BayesFactor") - m0
 }
+

@@ -224,8 +224,10 @@ Qg_nlm <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0){
 }
 
 
-gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="optim"){
+gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0){
 
+  optMethod = options()$BFapproxOptimizer
+  
   # gMap is written for C indexing
   gMap = gMap + 1
   # dumb starting values
@@ -249,10 +251,10 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="o
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
 
-laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0,optMethod="optim")
+laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
 {
 
-  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont,optMethod="optim")
+  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
   
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   

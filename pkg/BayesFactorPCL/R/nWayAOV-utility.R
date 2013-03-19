@@ -1,3 +1,58 @@
+
+doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun)
+{
+  simpSamples = NULL
+  impSamples = NULL
+  apx = NULL
+  optMethod = options()$BFapproxOptimizer
+  testNsamples = options()$BFpretestIterations
+  
+  if(method=="auto"){
+    simpSamples = .Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
+                        P, nGs, gMap, a, b, incCont,
+                        as.integer(0), pbFun, new.env(), 
+                        package="BayesFactor")
+    simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
+    logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
+     
+    apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
+    impSamples = .Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
+                         P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
+                         as.integer(0), pbFun, new.env(), 
+                         package="BayesFactor")
+    impErr = propErrorEst(impSamples[[2]] - nullLike)
+    logAbsImpErr = impSamples[[1]] - nullLike + log(impErr) 
+    
+    method = ifelse(impErr>simpleErr,"simple","importance")
+  
+  }
+  
+  if(method=="importance"){
+
+    if(is.null(apx))  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
+    returnList = .Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
+                       P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
+                       as.integer(iters/100*progress), pbFun, new.env(), 
+                       package="BayesFactor")
+    
+  }else if(method=="simple"){
+    returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
+                        P, nGs, gMap, a, b, incCont,
+                        as.integer(iters/100*progress), pbFun, new.env(), 
+                        package="BayesFactor")
+    
+  }else{
+    stop("Unknown sampling method requested in for nWayAOV.")
+  }
+  bf = returnList[[1]] - nullLike
+  
+  # estimate error
+  bfSamp = returnList[[2]] - nullLike
+  properror = propErrorEst(bfSamp)
+    
+  return(c(bf = bf, properror=properror))
+}
+
 createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL){
   
   rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
@@ -279,3 +334,4 @@ makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unre
   colnames(newChains) = labels 
   return(newChains)
 }
+

@@ -22,16 +22,23 @@ setMethod('show', "BFBayesFactorTop", function(object){
   bfs = extractBF(object, logbf=TRUE)
   bfs$bf = sapply(bfs$bf, expString)
   indices = paste("[",1:nrow(bfs),"]",sep="")
+  
+  # pad model names
   nms = omitted
   maxwidth = max(nchar(nms))
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
-  cat("When effect is omitted from ",object@denominator@shortName,", BF is...\n")
+  
+  # pad Bayes factors
+  maxwidth = max(nchar(bfs$bf))
+  bfString = str_pad(bfs$bf,maxwidth,side="right",pad=" ")
+  
+  cat("When effect is omitted from",object@denominator@shortName,", BF is...\n")
   for(i in 1:nrow(bfs)){
-    cat("Omit ",nms[i]," : ",bfs$bf[i]," (",round(bfs$error[i]*100,2),"%)\n",sep="")
+    cat(indices[i]," Omit ",nms[i]," : ",bfString[i]," \u00B1",round(bfs$error[i]*100,2),"%\n",sep="")
   }
   cat("\nAgainst denominator:\n")
   cat(" ",object@denominator@longName,"\n")
-  cat("---\nBayes Factor type: ",class(object@denominator)[1],", ",object@denominator@type,"\n\n",sep="")
+  cat("---\nBayes factor type: ",class(object@denominator)[1],", ",object@denominator@type,"\n\n",sep="")
 })
 
 #' @rdname BFBayesFactor-class

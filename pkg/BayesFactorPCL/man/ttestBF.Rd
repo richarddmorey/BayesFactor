@@ -74,9 +74,12 @@
   See the references below for more details.
 
   For the \code{rscale} argument, several named values are
-  recognized: "medium" corresponds to
-  \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}; "wide" corresponds to
-  \eqn{r=1}{r=1}.
+  recognized: "medium", "wide", and "ultrawide". For the
+  one-sample test, these correspond to \eqn{r} scale values
+  of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1, respectively.
+  For the two-sample test, they correspond to
+  \eqn{\sqrt{2}/2}{sqrt(2)/2}, 1, and
+  \eqn{\sqrt{2}/2}{sqrt(2)} respectively.
 
   The Bayes factor is computed via Gaussian quadrature.
 }

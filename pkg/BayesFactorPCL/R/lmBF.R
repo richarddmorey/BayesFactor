@@ -4,9 +4,10 @@
 ##' This function provides an interface for computing Bayes factors  for
 ##' specific linear models against the intercept-only null; other tests may be
 ##' obtained by computing two models and dividing their Bayes factors. Specifics
-##' about the priors for regression models can be found in the help for
-##' \code{\link{regressionBF}}; likewise, details for ANOVA models can be found
-##' in the help for \code{\link{anovaBF}}.
+##' about the priors for regression models -- and possible settings for 
+##' \code{rscaleCont} -- can be found in the help for \code{\link{regressionBF}}; 
+##' likewise, details for ANOVA models -- and settings for \code{rscaleFixed} 
+##' and \code{rscaleRandom} -- can be found in the help for \code{\link{anovaBF}}. 
 ##' 
 ##' Currently, the function does not allow for general linear models, containing
 ##' both continuous and categorical predcitors, but this support will be added
@@ -19,7 +20,8 @@
 ##' @param rscaleFixed prior scale for standardized, reduced fixed effects. A 
 ##'   number of preset values can be given as strings; see Details.
 ##' @param rscaleRandom prior scale for standardized random effects
-##' @param rscaleCont prior scale for standardized slopes
+##' @param rscaleCont prior scale for standardized slopes. A 
+##'   number of preset values can be given as strings; see Details.
 ##' @param posterior if \code{TRUE}, return samples from the posterior
 ##'   distribution instead of the Bayes factor
 ##' @param ... further arguments to be passed to or from methods.
@@ -51,7 +53,7 @@
 ##' testing many regression or ANOVA models simultaneously.
 
 lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
-                 rscaleRandom=1, rscaleCont=1, posterior=FALSE, ...)
+                 rscaleRandom="nuisance", rscaleCont="medium", posterior=FALSE, ...)
 {    
   checkFormula(formula, data, analysis="lm")
   dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")

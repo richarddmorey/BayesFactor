@@ -11,6 +11,12 @@
 #'@keywords misc
 #'@export
 BFManual <- function(){
-  browseURL(paste0('http://127.0.0.1:', tools:::httpdPort,'/library/BayesFactor/doc/index.html'))
+  myPort <- tools:::httpdPort
+  
+  # myPort will be 0 if dynamic help has not been started
+  if(!myPort) myPort <- tools::startDynamicHelp()
+  
+  browseURL(paste0('http://127.0.0.1:', myPort,'/library/BayesFactor/doc/index.html'))
   invisible(NULL)
 }
+

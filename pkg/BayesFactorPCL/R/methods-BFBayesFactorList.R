@@ -118,3 +118,4 @@ as.matrix.BFBayesFactorList <- function(x,...){
   dimnames(matr) = list(numerator=numNames, denominator=denNames)
   return(as.matrix(matr))
 }
+

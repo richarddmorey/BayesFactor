@@ -5,8 +5,15 @@ CHANGES
   *  Minor changes to the BayesFactor output to make it clearer
   *  Fixed display of very large and very small Bayes factors; no longer will display read something like "Inf (2%)" or the like
   *  Clearer labels on MCMC output
-  *  Restricted to R 3.0.0 (due to vignette compilation)
+  *  Restricted to R 3.0.0 (due to vignette compilation). (there will be a version of 0.9.2 uploaded to CRAN, but this will be the last version supported on R 2.x)
   *  When error is missing from the BayesFactor object, plot prints "?" next to the bar to indicate no error estimate is available
+  *  Default prior scale setting changed for continuous covariates; scale now defaults to sqrt(2)/4, which corresponds to the ANOVA "medium" setting (and will give the same Bayes factor in special cases where they should)
+  *  Default prior scale setting in one-sample t changed to 1/2 (it was erroneously changed to sqrt(2)/2). Two-sample t test default setting remains the same, at sqrt(2)/2
+  *  Added new prior scale settings for random effects; default to "nuisance", which is the same as the old default (r=1)  
+  *  New prior scale setting: "ultrawide"
+  *  Fixed bug with BFManual() which caused it not to start if dynamic help had not been started yet
+  *  When doing an Bayes factor analysis that requires sampling, the new default setting (method="auto") will automatically try to select the best sampler for you so that you get the most efficient samples.
+
 
 
   CHANGES IN BayesFactor VERSION 0.9.1

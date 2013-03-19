@@ -62,7 +62,7 @@ SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR
 
 double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int incCont, int progress, SEXP pBar, SEXP rho)
 {
-	int i=0,j=0;
+  int i=0,j=0;
 	double avg = 0, *g1, g2[P], *W;
   double logDetPrX=0;
   
@@ -77,17 +77,20 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
     logDetPrX = matrixDet(priorX, incCont, incCont, 1);
   }
   
+  
 	for(i=0;i<iters;i++)
 	{
-		R_CheckUserInterrupt();
+    R_CheckUserInterrupt();
 		
 		//Check progress
-		if(progress && !((i+1)%progress)){
-			pSampCounter[0]=i+1;
-			SETCADR(R_fcall, sampCounter);
-			eval(R_fcall, rho); //Update the progress bar
+		if(progress){
+      if(!((i+1)%progress)){
+			  pSampCounter[0]=i+1;
+			  SETCADR(R_fcall, sampCounter);
+			  eval(R_fcall, rho); //Update the progress bar
+		  }
 		}
-
+    
 		g1 = gsamples + i*nGs;
 	
 		for(j=0;j<nGs;j++)
@@ -95,12 +98,11 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 			g1[j]  = 1/rgamma(a[j],1/b[j]);
 		}
 	
-	
 		for(j=0;j<P;j++)
 		{
 			g2[j] = g1[gMap[j]];
 		}
-	
+	  
 		samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, logDetPrX);
 		if(i==0)
 		{
@@ -109,7 +111,7 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 			avg = LogOnePlusExpX(samples[i]-avg)+avg;
 			//avg = LogOnePlusX(exp(avg-samples[i]))+samples[i];
 		}
-	}
+	} 
 	
 	UNPROTECT(2);
   

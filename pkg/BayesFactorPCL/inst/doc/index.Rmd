@@ -1,8 +1,20 @@
-Using the `BayesFactor` package, version 0.9.0+
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Using the BayesFactor package, version 0.9.2+}
+\usepackage[utf8]{inputenc}
+-->
+
+```{r echo=FALSE,message=FALSE,results='hide'}
+library(knitr)
+set.seed(1)
+```
+
+
+Using the 'BayesFactor' package, version 0.9.2+
 ===============================
 Richard D. Morey
 -----------------
-[Development website](https://r-forge.r-project.org/projects/bayesfactorpcl/) - [CRAN page](http://cran.r-project.org/package=BayesFactor)
+[Development website](https://r-forge.r-project.org/projects/bayesfactorpcl/) - [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS)
 
 
 ### Table of Contents
@@ -18,6 +30,7 @@ Richard D. Morey
   * [ANOVA, fixed-effects](#fixed)
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
+  * [General linear models: mixing continuous and categorical covariates](#glm)
 * [References](#references)
   
 ### Getting help <a id="help"></a>
@@ -36,7 +49,7 @@ require(graphics)
 ### Introduction
 The `BayesFactor` package enables the computation of Bayes factors in standard designs, such as one- and two- sample designs, ANOVA designs, and regression. The Bayes factors are based on  work spread across several papers. This document is designed to show users how to compute Bayes factors using the package by example. It is not designed to present the models used in the comparisons in detail; for that, see the `BayesFactor` help and especially the references listed in this manual. Complete references are given at the [end of this document](#references).
 
-If you need help or think you've found a bug, please use the links at the top of this document to contact the developers. When asking a question or reporting a bug, please send example code and data, the exact errors you're seeing (a cut-and-paste from the R console best) and instructions for reproducing it. Also, report the output of `BFInfo()` and `sessionInfo()`, and let us know what operating system you're running.
+If you need help or think you've found a bug, please use the links at the top of this document to contact the developers. When asking a question or reporting a bug, please send example code and data, the exact errors you're seeing (a cut-and-paste from the R console will work) and instructions for reproducing it. Also, report the output of `BFInfo()` and `sessionInfo()`, and let us know what operating system you're running.
 
 <a id="loading"></a>
 ### Loading the package 
@@ -110,7 +123,7 @@ bf = ttestBF(x = diffScores)
 bf
 ```
 
-The `bf` object contains the Bayes factor, and shows the numerator and denominator models for the Bayes factor comparison. In our case, the Bayes factor for the comparison of the alternative versus the null is `r as.vector(bf)`. In parentheses after the Bayes factor is a proportional error estimate on the Bayes factor.
+The `bf` object contains the Bayes factor, and shows the numerator and denominator models for the Bayes factor comparison. In our case, the Bayes factor for the comparison of the alternative versus the null is `r as.vector(bf)`. After the Bayes factor is a proportional error estimate on the Bayes factor.
 
 There are a number of operations we can perform on our Bayes factor, such as taking the reciprocal:
 ```{r recip}
@@ -418,6 +431,139 @@ summary(lm(rating ~ complaints + learning, data = attitude))
 ```
 The results are quite similar.
 
+<a id="glm"></a>
+General linear models: mixing continuous and categorical covariates
+--------
+The `anovaBF` and `regressionBF` functions are convenience functions designed to test several hypotheses of a particular type at once. Neither function allows the mixing of continuous and categorical covariates. If it is desired to test a model including both kinds of covariates, `lmBF` function must be used. We will continue the `ToothGrowth` example, this time without converting `dose` to a categorical variable. Instead, we will model the logarithm of the dose.
+
+```{r echo=FALSE,results='hide'}
+rm(ToothGrowth)
+```
+
+```{r GLMdata}
+data(ToothGrowth)
+
+# model log2 of dose instead of dose directly
+ToothGrowth$dose = log2(ToothGrowth$dose)
+
+# Classical analysis for comparison
+lmToothGrowth <- lm(len ~ supp + dose + supp:dose, data=ToothGrowth)
+summary(lmToothGrowth)
+```
+
+The classical analysis, presented for comparison, reveals extremely low p values for the effects of the supplement type and of the dose, but the interaction p value is more moderate, at about 0.03. We can use the `lmBF` function to compute the Bayes factors for all models of interest against the null model, which in this case is the intercept-only model. We then concatenate them into a single Bayes factor object for convenience. 
+
+```{r GLMs}
+full <- lmBF(len ~ supp + dose + supp:dose, data=ToothGrowth, progress=FALSE)
+noInteraction <- lmBF(len ~ supp + dose, data=ToothGrowth, progress=FALSE)
+onlyDose <- lmBF(len ~ dose, data=ToothGrowth, progress=FALSE)
+onlySupp <- lmBF(len ~ supp, data=ToothGrowth, progress=FALSE)
+
+allBFs <- c(full, noInteraction, onlyDose, onlySupp)
+allBFs
+```
+
+The highest two Bayes factors belong to the full model and the model with no interaction. We can directly compute the Bayes factor for the simpler model with no interaction against the full model:
+
+```{r GLMs2}
+full / noInteraction
+```
+
+The full model is *slightly* favored, but the evidence is equivocal. We can also use the `posterior` function to compute parameter estimates. 
+
+```{r GLMposterior1}
+chainsFull <- posterior(full, iterations = 10000, progress=FALSE)
+
+# summary of the "interesting" parameters
+summary(chainsFull[,1:7])
+```
+
+The left panel of the figure below shows the data and linear fits. The green points represent guinea pigs given the orange juice supplement (OJ); red points represent guinea pigs given the vitamin C supplement. The solid lines show the posterior means from the Bayesian model; the dashed lines show the classical least-squares fit when applied to each supplement separately. The fits are quite close.
+
+```{r GLMposterior2,results='hide',echo=FALSE}
+chainsNoInt <- posterior(noInteraction, iterations = 10000, progress=FALSE)
+```
+
+```{r GLMplot,echo=FALSE,fig.width=10, fig.height=5}
+ToothGrowth$dose <- ToothGrowth$dose - mean(ToothGrowth$dose)
+
+cmeans <- colMeans(chainsFull)[1:6]
+ints <- cmeans[1] + c(-1, 1) * cmeans[2]
+slps <- cmeans[4] + c(-1, 1) * cmeans[5]
+
+
+par(cex=1.8, mfrow=c(1,2))
+plot(len ~ dose, data=ToothGrowth, pch=as.integer(ToothGrowth$supp)+20, bg = rgb(as.integer(ToothGrowth$supp)-1,2-as.integer(ToothGrowth$supp),0,.5),col=NULL,xaxt="n",ylab="Tooth length",xlab="Vitamin C dose (mg)")
+abline(a=ints[1],b=slps[1],col=2)
+abline(a=ints[2],b=slps[2],col=3)
+
+axis(1,at=-1:1,lab=2^(-1:1))
+
+dataVC <- ToothGrowth[ToothGrowth$supp=="VC",]
+dataOJ <- ToothGrowth[ToothGrowth$supp=="OJ",]
+lmVC <- lm(len ~ dose, data=dataVC)
+lmOJ <- lm(len ~ dose, data=dataOJ)
+abline(lmVC,col=2,lty=2)
+abline(lmOJ,col=3,lty=2)
+
+mtext("Interaction",3,.1,adj=1,cex=1.3)
+
+
+# Do single slope
+
+cmeans <- colMeans(chainsNoInt)[1:4]
+ints <- cmeans[1] + c(-1, 1) * cmeans[2]
+slps <- cmeans[4] 
+
+
+plot(len ~ dose, data=ToothGrowth, pch=as.integer(ToothGrowth$supp)+20, bg = rgb(as.integer(ToothGrowth$supp)-1,2-as.integer(ToothGrowth$supp),0,.5),col=NULL,xaxt="n",ylab="Tooth length",xlab="Vitamin C dose (mg)")
+abline(a=ints[1],b=slps,col=2)
+abline(a=ints[2],b=slps,col=3)
+
+axis(1,at=-1:1,lab=2^(-1:1))
+
+mtext("No interaction",3,.1,adj=1,cex=1.3)
+```
+
+Because the no-interaction model fares so well against the interaction model, it may be instructive to examine the fit of the no-interaction model. We sample from the no-interaction model with the `posterior` function:
+```{r eval=FALSE}
+chainsNoInt <- posterior(noInteraction, iterations = 10000, progress=FALSE)
+
+# summary of the "interesting" parameters
+summary(chainsNoInt[,1:5])
+```
+
+```{r echo=FALSE}
+summary(chainsNoInt[,1:5])
+```
+
+The right panel of the figure above shows the fit of the no-interaction model to the data. This model appears to account for the data satisfactorily. Though the moderate p value of the classical result might lead us to reject the no-interaction model, the Bayes factor and the visual fit appear to agree that the evidence is equivocal at best.
+
+We have now analyzed the `ToothGrowth` data using both ANOVA (with `dose` as a factor) and regression (with `dose` as a continuous covariate). We may wish to compare the two approaches. We first create a column of the data with `dose` as a factor, then use `anovaBF`:
+```{r}
+ToothGrowth$doseAsFactor <- factor(ToothGrowth$dose)
+levels(ToothGrowth$doseAsFactor) <- c(.5,1,2)
+
+aovBFs <- anovaBF(len ~ doseAsFactor + supp + doseAsFactor:supp, data = ToothGrowth, progress=FALSE)
+```
+Because all models we've considered are compared to the null intercept-only model, we can concatenate the `aovBFs` object with the Bayes factors we previously computed in this section:
+
+```{r}
+allBFs <- c(aovBFs, full, noInteraction, onlyDose)
+
+## eliminate the supp-only model, since it performs so badly
+allBFs <- allBFs[-1]
+
+## Compare to best model
+allBFs / max(allBFs)
+```
+
+The model with the highest Bayes factor is the no-interaction model, where the logarithm of the dose is included as a continuous covariate. In fact, the Bayes factors where dose is treated as a factor are all worse than when dose is treated as a continuous covariate. This is likely due to a  the added flexibility allowed by including more parameters. Plotting the Bayes factors shows how large the differences are:
+
+```{r GLMplot2,echo=FALSE,fig.width=10, fig.height=5}
+plot(allBFs / max(allBFs))
+```
+
 <a id="references"></a>
 References 
 ---------
@@ -432,7 +578,7 @@ Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Inter
 Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([PDF](http://drsmorey.org/bibtex/upload/Morey:etal:2011a.pdf))
 
 <a id="Rouderregression"></a>
-Rouder, J. N. and Morey, R. D. (in press) Default Bayes Factors for Model Selection in Regression, Multivariate Behavioral Research (contact authors for PDF)
+Rouder, J. N. and Morey, R. D. (2013) Default Bayes Factors for Model Selection in Regression, Multivariate Behavioral Research, 47, pp. 877-903 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.Morey_.MBR_.2012.pdf))
 
 <a id="RouderANOVA"></a>
 Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology, 56, pp. 356–374 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.JMP_.2012.pdf))

@@ -3,8 +3,8 @@
 \title{Function to compute Bayes factors for specific linear models}
 \usage{
   lmBF(formula, data, whichRandom = NULL,
-    rscaleFixed = "medium", rscaleRandom = 1,
-    rscaleCont = 1, posterior = FALSE, ...)
+    rscaleFixed = "medium", rscaleRandom = "nuisance",
+    rscaleCont = "medium", posterior = FALSE, ...)
 }
 \arguments{
   \item{formula}{a formula containing all factors to
@@ -23,7 +23,9 @@
   \item{rscaleRandom}{prior scale for standardized random
   effects}
 
-  \item{rscaleCont}{prior scale for standardized slopes}
+  \item{rscaleCont}{prior scale for standardized slopes. A
+  number of preset values can be given as strings; see
+  Details.}
 
   \item{posterior}{if \code{TRUE}, return samples from the
   posterior distribution instead of the Bayes factor}
@@ -48,10 +50,12 @@
   factors for specific linear models against the
   intercept-only null; other tests may be obtained by
   computing two models and dividing their Bayes factors.
-  Specifics about the priors for regression models can be
-  found in the help for \code{\link{regressionBF}};
-  likewise, details for ANOVA models can be found in the
-  help for \code{\link{anovaBF}}.
+  Specifics about the priors for regression models -- and
+  possible settings for \code{rscaleCont} -- can be found
+  in the help for \code{\link{regressionBF}}; likewise,
+  details for ANOVA models -- and settings for
+  \code{rscaleFixed} and \code{rscaleRandom} -- can be
+  found in the help for \code{\link{anovaBF}}.
 
   Currently, the function does not allow for general linear
   models, containing both continuous and categorical

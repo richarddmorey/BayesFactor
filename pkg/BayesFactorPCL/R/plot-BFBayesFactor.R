@@ -85,7 +85,7 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
 
 
   cols = c("wheat","lightslateblue")[(bfs$bf>0) + 1]
-  pars = c(pars, list(mar=c(4,leftMargin,4,1),las=1))
+  pars = c(pars, list(oma=c(5,leftMargin,0,1),las=1,mar=c(0,0,2,0)))
   par(pars)
   yloc <- barplot( bfs$bf/log(logBase), 
            names.arg=rownames(bfs), 

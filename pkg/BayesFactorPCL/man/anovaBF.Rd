@@ -5,7 +5,8 @@
   anovaBF(formula, data, whichRandom = NULL,
     whichModels = "withmain", iterations = 10000,
     progress = TRUE, rscaleFixed = "medium",
-    rscaleRandom = 1, multicore = FALSE, method = "simple")
+    rscaleRandom = "nuisance", multicore = FALSE,
+    method = "auto")
 }
 \arguments{
   \item{formula}{a formula containing all factors to
@@ -109,10 +110,16 @@
   included, the corresponding main effects are also
   included.
 
-  For the \code{rscaleFixed} argument, several named values
-  are recongized: "medium" corresponds to
-  \eqn{r=1/2}{r=1/2}; "wide" corresponds to
-  \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}.
+  For the \code{rscaleFixed} and \code{rscaleRandom}
+  arguments, several named values are recognized: "medium",
+  "wide", and "ultrawide", corresponding to \eqn{r} scale
+  values of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1,
+  respectively. In addition, \code{rscaleRandom} can be set
+  to the "nuisance", which sets \eqn{r=1} (and is thus
+  equivalent to "ultrawide"). The "nuisance" setting is for
+  medium-to-large-sized effects assumed to be in the data
+  but typically not of interest, such as variance due to
+  participants.
 }
 \note{
   The function \code{anovaBF} will compute Bayes factors

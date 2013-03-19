@@ -52,9 +52,13 @@
 ##' models, with the constraint that if an interaction is included, the 
 ##' corresponding main effects are also included.
 ##' 
-##' For the \code{rscaleFixed} argument, several named values are recongized: 
-##' "medium" corresponds to \eqn{r=1/2}{r=1/2}; "wide" corresponds to 
-##' \eqn{r=\sqrt{2}/2}{r=sqrt(2)/2}.
+##' For the \code{rscaleFixed} and \code{rscaleRandom} arguments, several named
+##' values are recognized: "medium", "wide", and "ultrawide", corresponding to
+##' \eqn{r} scale values of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1,
+##' respectively. In addition, \code{rscaleRandom} can be set to the "nuisance",
+##' which sets \eqn{r=1} (and is thus equivalent to "ultrawide"). The "nuisance"
+##' setting is for medium-to-large-sized effects assumed to be in the data but 
+##' typically not of interest, such as variance due to participants.
 ##' @title Function to compute Bayes factors for ANOVA designs
 ##' @param formula a formula containing all factors to include in the analysis 
 ##'   (see Examples)
@@ -68,7 +72,8 @@
 ##' @param rscaleRandom prior scale for standardized random effects
 ##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC} 
 ##'   package. Unavailable on Windows.
-##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for details.
+##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
+##'   details.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -93,10 +98,10 @@
 ##'   This number increases very quickly with the number of factors. For 
 ##'   instance, for a five-way ANOVA, the total number of tests exceeds two 
 ##'   billion. Even though each test takes a fraction of a second, the time 
-##'   taken for all tests could exceed your lifetime. An option is included 
-##'   to prevent this: \code{options('BFMaxModels')}, which defaults to 50,000,
-##'   is the maximum number of models that `anovaBF` will analyze at once. This 
-##'   can be increased by increasing the option value.
+##'   taken for all tests could exceed your lifetime. An option is included to
+##'   prevent this: \code{options('BFMaxModels')}, which defaults to 50,000, is
+##'   the maximum number of models that `anovaBF` will analyze at once. This can
+##'   be increased by increasing the option value.
 ##'   
 ##'   It is possible to reduce the number of models tested by only testing the 
 ##'   most complex model and every restriction that can be formed by removing 
@@ -138,7 +143,7 @@
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", iterations = 10000, progress = TRUE,
-           rscaleFixed = "medium", rscaleRandom = 1, multicore = FALSE, method="simple")
+           rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto")
   {
     checkFormula(formula, data, analysis = "anova")
     # pare whichRandom down to terms that appear in the formula

@@ -161,3 +161,5 @@ as.matrix.BFmcmc <- function(x,...){
 as.data.frame.BFmcmc <- function(x, row.names=NULL,optional=FALSE,...){
   return(as.data.frame(S3Part(x)))
 }
+
+
