@@ -8,7 +8,7 @@ CHANGES
 
 CHANGES
   *  Fixed bug in sampling of posteriors in linear models
-
+  *  Fixed bug computing the Bayes factor of unbalanced one-way ANOVA with two levels
 
   CHANGES IN BayesFactor VERSION 0.9.3
 
