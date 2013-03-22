@@ -9,6 +9,12 @@ dinvgamma1 <- function(x,a,b)
 
 Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0)
 {
+  
+  qLimits = options()$BFapproxLimits
+  # Check to make sure values don't get too small or large, otherwise algorithm might fail
+  if( any(q< qLimits[1]) | any(q > qLimits[2]) ) return(-Inf)
+  
+  
   g = exp(q)
   if(length(q) != length(rscale)) stop("length mismatch: q and r")
   N = nrow(Xm)
