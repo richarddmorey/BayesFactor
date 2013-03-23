@@ -238,7 +238,7 @@ fixedFromRandomProjection <- function(nlevRandom){
 }
 
 
-nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, unreduce=TRUE, ...){
+nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
   
   checkFormula(formula, data, analysis = "lm")
   y = data[,stringFromFormula(formula[[2]])]
@@ -255,17 +255,27 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
     continuous = FALSE
   }
   
-  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, continuous = continuous, ...)
+  ## Determine which columns we will ignore
+  if(is.null(columnFilter)){
+    ignoreCols = NULL
+  }else{
+    ignoreCols = filterVectorLogical(columnFilter, names(gMap))
+  }
+  if(all(ignoreCols) & !is.null(ignoreCols)) stop("Filtering out all chain columns of interest is not allowed.")
+  
+  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, continuous = continuous, ignoreCols=ignoreCols,...)
   if(gibbs){
-    retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce, continuous))  
+    retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce, continuous, columnFilter))  
   }
   return(retVal)
 }  
 
 
-makeLabelList <- function(formula, data, dataTypes, unreduce){
+makeLabelList <- function(formula, data, dataTypes, unreduce, columnFilter){
   
   terms = attr(terms(formula, data = data), "term.labels")
+  if(!is.null(columnFilter))
+    terms = terms[!filterVectorLogical(columnFilter,terms)]
   
   if(unreduce) 
     dataTypes[dataTypes == "fixed"] = "random"
@@ -282,9 +292,15 @@ makeLabelList <- function(formula, data, dataTypes, unreduce){
   unlist(labelList)
 }
 
-unreduceChainPart = function(term, chains, data, dataTypes, gMap){
+unreduceChainPart = function(term, chains, data, dataTypes, gMap, ignoreCols){
   effects = strsplit(term,":", fixed = TRUE)[[1]]
-  chains = chains[, names(gMap)==term, drop = FALSE ]
+  myCols = names(gMap)==term
+  if(ignoreCols[myCols][1]) return(NULL)
+  
+  # Figure out which columns we need to look at, given that some are missing
+  cumulativeIgnored = sum(ignoreCols[1:which(myCols)[1]]) # How many are ignored up to the one of interest?
+  remappedCols = which(myCols) - cumulativeIgnored
+  chains = chains[, remappedCols, drop = FALSE ]
   if(any(dataTypes[effects]=="fixed")){
     S = design.projection.intList(effects, data, dataTypes)
     return(chains%*%t(S))
@@ -293,43 +309,61 @@ unreduceChainPart = function(term, chains, data, dataTypes, gMap){
   }
 }
 
-ureduceChains = function(chains, formula, data, dataTypes, gMap){
+ureduceChains = function(chains, formula, data, dataTypes, gMap, ignoreCols){
   
   terms = attr(terms(formula, data = data), "term.labels")
   
-  unreducedChains = lapply(terms, unreduceChainPart, chains=chains, data = data, dataTypes = dataTypes, gMap = gMap)  
+  unreducedChains = lapply(terms, unreduceChainPart, chains=chains, data = data, dataTypes = dataTypes, gMap = gMap, ignoreCols=ignoreCols)  
   do.call(cbind, unreducedChains)
 }
 
-makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce, continuous){
+filterVectorLogical <- function(columnFilter,myNames){
+  if(!is.null(columnFilter)){
+    ignoreMatrix = sapply(columnFilter, function(el,namedCols){
+      grepl(el,namedCols)
+    },namedCols=myNames)
+    ignoreCols = apply(ignoreMatrix,1,any) 
+  }
+  ignoreCols
+}
+
+
+makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce, continuous, columnFilter){
   P = length(gMap)
   nGs = max(gMap) + 1
   factors = fmlaFactors(formula, data)[-1]
   dataTypes = dataTypes[ names(dataTypes) %in% factors ]
   types = termTypes(formula, data, dataTypes)
+   
+  lastPars = ncol(chains) + (-nGs):0
   
   if(any(continuous)){
     gNames = paste("g",c(names(types[types!="continuous"]),"continuous"),sep="_")
   }else{
     gNames = paste("g",names(types), sep="_")  
   }
+    
+  if(is.null(columnFilter)){
+    ignoreCols = ignoreCols = rep(0,P)
+  }else{
+    ignoreCols=filterVectorLogical(columnFilter, names(gMap))
+  }
   
   if(!unreduce | !any(dataTypes == "fixed")) {
-    labels = c("mu", Xnames, "sig2", gNames)
+    labels = c("mu", Xnames[!ignoreCols], "sig2", gNames)
     colnames(chains) = labels 
     return(chains)
   }
   
-  labels = c("mu")  
-  betaChains = chains[,1:P + 1, drop = FALSE]
-  
   # Make column names 
-  parLabels = makeLabelList(formula, data, dataTypes, unreduce)
-  labels = c(labels, parLabels)
+  parLabels = makeLabelList(formula, data, dataTypes, unreduce, columnFilter)
+    
+  labels = c("mu", parLabels)
+
+  betaChains = chains[,1:(ncol(chains)-2-nGs) + 1, drop = FALSE]  
+  betaChains = ureduceChains(betaChains, formula, data, dataTypes, gMap, ignoreCols)
   
-  betaChains = ureduceChains(betaChains, formula, data, dataTypes, gMap)
-  
-  newChains = cbind(chains[,1],betaChains,chains[,-(1:(P + 1))])
+  newChains = cbind(chains[,1],betaChains,chains[,lastPars])
   
   labels = c(labels, "sig2", gNames)
   colnames(newChains) = labels 

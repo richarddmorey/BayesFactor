@@ -4,7 +4,8 @@
 \usage{
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
     iterations = 10000, progress = TRUE, gibi = NULL,
-    gibbs = FALSE, method = "auto", continuous = FALSE)
+    gibbs = FALSE, ignoreCols = NULL, thin = 1,
+    method = "auto", continuous = FALSE)
 }
 \arguments{
   \item{y}{vector of observations}
@@ -32,6 +33,16 @@
 
   \item{gibbs}{if \code{TRUE}, return samples from the
   posterior instead of a Bayes factor}
+
+  \item{ignoreCols}{if \code{NULL} and \code{gibbs=TRUE},
+  all parameter estimates are returned in the MCMC object.
+  If not \code{NULL}, a vector of length P-1 (where P is
+  number of columns in the design matrix) giving which
+  effect estimates to ignore in output}
+
+  \item{thin}{MCMC chain to every \code{thin} iterations.
+  Default of 1 means no thinning. Only used if
+  \code{gibbs=TRUE}}
 
   \item{method}{the integration method (only valid if
   \code{gibbs=TRUE}); one of "simple", "importance",

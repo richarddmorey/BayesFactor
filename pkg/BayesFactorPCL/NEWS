@@ -9,6 +9,8 @@ CHANGES
 CHANGES
   *  Fixed bug in sampling of posteriors in linear models
   *  Fixed bug computing the Bayes factor of unbalanced one-way ANOVA with two levels
+  *  Added MCMC chain thinning to nWayAOV - to use, pass "thin" argument to posterior() or lmBF()
+  *  Added MCMC chain column filtering, useful for low memory systems. To use, pass "columnFilter" argument to posterior() or lmBF(). See the help for posterior() for more details.
 
   CHANGES IN BayesFactor VERSION 0.9.3
 

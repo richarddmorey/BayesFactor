@@ -6,7 +6,7 @@
 
 ```{r echo=FALSE,message=FALSE,results='hide'}
 library(knitr)
-set.seed(1)
+set.seed(2)
 ```
 
 

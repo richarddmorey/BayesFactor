@@ -32,16 +32,18 @@
 ##' 
 ##' The method used to estimate the Bayes factor depends on the \code{method} 
 ##' argument. "simple" is most accurate for small to moderate sample sizes, and 
-##' uses the Monte Carlo sampling method described in Rouder et al. (2012).
-##' "importance" uses an importance sampling algorithm with an importance
-##' distribution that is multivariate normal on log(g). "laplace" does not
-##' sample, but uses a Laplace approximation to the integral. It is expected to
+##' uses the Monte Carlo sampling method described in Rouder et al. (2012). 
+##' "importance" uses an importance sampling algorithm with an importance 
+##' distribution that is multivariate normal on log(g). "laplace" does not 
+##' sample, but uses a Laplace approximation to the integral. It is expected to 
 ##' be more accurate for large sample sizes, where MC sampling is slow. If 
-##' \code{method="auto"}, then an initial run with both samplers is done, and
-##' the sampling method that yields the least-variable samples is chosen. The number 
-##' of initial test iterations is determined by \code{options(BFpretestIterations)}.
+##' \code{method="auto"}, then an initial run with both samplers is done, and 
+##' the sampling method that yields the least-variable samples is chosen. The 
+##' number of initial test iterations is determined by 
+##' \code{options(BFpretestIterations)}.
 ##' 
-##' If posterior samples are requested, the posterior is sampled with a Gibbs sampler.
+##' If posterior samples are requested, the posterior is sampled with a Gibbs 
+##' sampler.
 ##' @title Use ANOVA design matrix to compute Bayes factors or sample posterior
 ##' @param y vector of observations
 ##' @param X design matrix whose number of rows match \code{length(y)}.
@@ -56,11 +58,17 @@
 ##'   for use by end users)
 ##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
 ##'   Bayes factor
+##' @param ignoreCols if \code{NULL} and \code{gibbs=TRUE}, all parameter
+##'   estimates are returned in the MCMC object. If not \code{NULL}, a vector of
+##'   length P-1 (where P is number of columns in the design matrix) giving which
+##'   effect estimates to ignore in output
+##' @param thin MCMC chain to every \code{thin} iterations. Default of 1 means 
+##'   no thinning. Only used if \code{gibbs=TRUE}
 ##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
 ##'   of "simple", "importance", "laplace", or "auto"
-##' @param continuous either FALSE is no continuous covariates are included, or a 
-##' logical vector of length equal to number of columns of X indicating which
-##' columns of the design matrix represent continuous covariates  
+##' @param continuous either FALSE is no continuous covariates are included, or 
+##'   a logical vector of length equal to number of columns of X indicating 
+##'   which columns of the design matrix represent continuous covariates
 ##' @return If \code{posterior} is \code{FALSE}, a vector of length 2 containing
 ##'   the computed log(e) Bayes factor (against the intercept-only null), along 
 ##'   with a proportional error estimate on the Bayes factor. Otherwise, an 
@@ -99,13 +107,14 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, method="auto", continuous=FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = TRUE, gibi = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE)
 {  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
   
-  apx = NULL
-  
+  # Check thinning to make sure number is reasonable
+  if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
+    
   N = length(y)
 	X = matrix( X, nrow=N )
   
@@ -135,6 +144,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     stop("One of gMap or struc must be defined.")
   }
   
+  if(is.null(ignoreCols)) ignoreCols = rep(0,P)
+  
   a = rep(0.5,nGs)
   if(length(rscale)==nGs){
     b = rscale^2/2
@@ -143,9 +154,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   }
   
   
-  #C = diag(N) - matrix(1/N,N,N)
   Cy = y - mean(y)
-  #CX = C %*% X
   CX = apply(X,2,function(v) v - mean(v))
   
   # Rearrange design matrix if continuous columns are included
@@ -172,6 +181,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     X = X[,sortX]
     CX = CX[,sortX]
     gMap = gMap[sortX]
+    ignoreCols = ignoreCols[sortX]
     incCont = sum(continuous)
     if(incCont>1){
       X[,1:incCont] = CX[,1:incCont]
@@ -223,19 +233,28 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     ZtZ = t(Z)%*%Z
     Zty = t(Z)%*%matrix(y,ncol=1)
     
+    # set up for not outputing some parameters
+    nOutputPars = sum(1-ignoreCols)
+    ignoreColsExtend = c(0,ignoreCols,0,rep(0,nGs))
+      
     chains = .Call("RGibbsNwayAov", 
                    as.integer(iterations), y, Z, ZtZ, priorX, Zty, as.integer(N), 
                    as.integer(P), as.integer(nGs), as.integer(gMap), rscale, as.integer(incCont),
+                   as.integer(ignoreColsExtend), as.integer(thin),
                    as.integer(iterations/100*progress), pbFun, new.env(), 
                    package="BayesFactor")
     
-    dim(chains) <- c(2 + P + nGs, iterations)
+    dim(chains) <- c(nOutputPars + 2 + nGs, as.integer(iterations) %/% as.integer(thin))
     chains = mcmc(t(chains))  
     # Unsort the chains if we had continuous covariates
     if(incCont){
-      chains[,1 + 1:P] = chains[,1+revSortX]
-    }  
-    labels = c("mu",paste("beta",1:P,sep="_"),"sig2",paste("g",1:nGs,sep="_"))
+      # Account for ignored columns when resorting
+      revSort = 1+order(sortX[!ignoreCols])
+      chains[,1 + 1:nOutputPars] = chains[,revSort]
+      labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols[revSortX]],"sig2",paste("g",1:nGs,sep="_"))
+    }else{
+      labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols],"sig2",paste("g",1:nGs,sep="_"))
+    }
     colnames(chains) = labels
     retVal = chains
  

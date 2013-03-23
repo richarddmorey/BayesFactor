@@ -11,7 +11,7 @@ and hypotheses.}
 }
 \details{
   \tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab
-  Package\cr Version: \tab 0.9.0\cr Date: \tab 2013-1-10\cr
+  Package\cr Version: \tab 0.9.5\cr Date: \tab 2013-3-20\cr
   License: \tab GPL 2.0\cr LazyLoad: \tab yes\cr } The
   following methods are currently implemented, with more to
   follow:

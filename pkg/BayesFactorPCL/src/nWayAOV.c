@@ -268,11 +268,12 @@ SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy
 	return(returnList);
 }
 
-SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP RignoreCols, SEXP Rthin, SEXP progressR, SEXP pBar, SEXP rho)
 {
 	double *a,*b,*Xty,*XtX,*samples,*X, *y, *r,*priorX;
-	int iters,nGs,*gMap,N,P,progress,incCont;
-
+	int iters,nGs,*gMap,N,P,progress,incCont,*ignoreCols, nOutputPars=0,thin,i;
+  int effectiveIterations;
+  
 	SEXP Rsamples;
 	
 	iters = INTEGER_VALUE(Riters);
@@ -287,14 +288,22 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP 
 	N = INTEGER_VALUE(RN);
 	P = INTEGER_VALUE(RP);
 	progress = INTEGER_VALUE(progressR);
-  incCont = INTEGER_VALUE(RincCont);
-	
-	PROTECT(Rsamples = allocMatrix(REALSXP,iters, 2 + P + nGs));
-
+  incCont = INTEGER_VALUE(RincCont); 
+  ignoreCols = INTEGER_POINTER(RignoreCols);  
+  thin = INTEGER_VALUE(Rthin); 
+  
+  effectiveIterations = iters / thin;
+  
+  for(i=0;i<(2 + P + nGs);i++){
+    if(!ignoreCols[i]) nOutputPars++;
+  }
+  
+	PROTECT(Rsamples = allocMatrix(REALSXP,effectiveIterations, nOutputPars));
+  
 	samples = REAL(Rsamples);
 	  
 	GetRNGstate();
-	GibbsNwayAov(samples, iters, y, X, XtX, priorX, Xty, N, P, nGs, gMap, r, incCont, progress, pBar, rho);
+	GibbsNwayAov(samples, iters, y, X, XtX, priorX, Xty, N, P, nGs, gMap, r, incCont, ignoreCols, nOutputPars, thin, progress, pBar, rho);
 	PutRNGstate();
 	
 	UNPROTECT(1);
@@ -302,11 +311,12 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP 
 	return(Rsamples);
 }
 
-void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int progress, SEXP pBar, SEXP rho)
+void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int *ignoreCols, int nOutputPars, int thin, int progress, SEXP pBar, SEXP rho)
 {
 	int i=0,j=0,k=0, nPars=2+P+nGs, P1Sq=(P+1)*(P+1), P1=P+1, iOne=1,nParG[nGs];
 	double *g1, Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
-	
+	double oneChainCol[nPars];
+  
 	double g[nGs], beta[P+1], sig2, yTemp[N], SSqG[nGs],bTemp;
 	
 	// progress stuff
@@ -405,12 +415,19 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
       g[j]  = 1/rgamma( (nParG[j]+1)/2.0, 2.0/bTemp);
     }
 	
-		Memcpy(chains + nPars*i,beta,P+1);	
-		chains[nPars*i+P+1] = sig2;	
-		Memcpy(chains + nPars*i + P + 2,g,nGs);	
-	
-		
-	}
+  	Memcpy(oneChainCol, beta,P+1);	
+		oneChainCol[P+1] = sig2;	
+		Memcpy(oneChainCol + P + 2,g,nGs);	
+    
+    // Copy only requested columns to the final answer
+    if(!(i % thin)){
+      k=0;
+      for(j=0;j<(2+P+nGs);j++){
+        if(!ignoreCols[j]) chains[k++ + nOutputPars* (i/thin)] = oneChainCol[j];
+      }
+    } 	
+	 
+   } // end MCMC iterations
 	
 	UNPROTECT(2);
 		

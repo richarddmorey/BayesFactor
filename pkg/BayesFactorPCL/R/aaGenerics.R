@@ -68,17 +68,27 @@ setGeneric("recompute", function(x, progress=FALSE, ...) standardGeneric("recomp
 #' Sample from the posterior distribution of one of several models.
 #' 
 #' This function samples from the posterior distribution of a \code{BFmodel}, 
-#' which can be obtained from a \code{BFBayesFactor} object. If is are more than
-#' one numerator in the \code{BFBayesFactor} object, the \code{index} argument 
-#' can be passed to select one numerator.
+#' which can be obtained from a \code{BFBayesFactor} object. If there is more 
+#' than one numerator in the \code{BFBayesFactor} object, the \code{index} 
+#' argument can be passed to select one numerator.
 #' 
 #' The data argument is used internally, and will typically not be needed by 
 #' end-users.
 #' 
 #' Note that if there are fixed effects in the model, the reduced 
 #' parameterzation used internally (see help for \code{\link{anovaBF}}) is 
-#' unreduced. For a factor with two levels, the chain will contain two effect
+#' unreduced. For a factor with two levels, the chain will contain two effect 
 #' estimates that sum to 0.
+#' 
+#' Two useful arguments that can be passed to related methods are \code{thin} 
+#' and \code{columnFilter}, currently implemented for methods using 
+#' \code{nWayAOV} (models with more than one categorical covariate, or a mix of 
+#' categorical and continuous covariates). \code{thin}, an integer, will keep 
+#' only every \code{thin} iterations. The default is \code{thin=1}, which keeps 
+#' all iterations. Argument \code{columnFilter} is either \code{NULL} (for no 
+#' filtering) or a character vector of extended regular expressions (see
+#' \link{regex} help for details). Any column from an effect that matches one of
+#' the filters will not be saved.
 #' @param model or set of models from which to sample
 #' @param index the index within the set of models giving the desired model
 #' @param data the data to be conditioned on
@@ -100,6 +110,12 @@ setGeneric("recompute", function(x, progress=FALSE, ...) standardGeneric("recomp
 #' chains = posterior(bf, iterations = 1000, progress = FALSE)
 #' 
 #' plot(chains)
+#' 
+#' ## demonstrate column filtering by filtering out participant effects
+#' data(puzzles)
+#' bf = lmBF(RT ~ shape + color + shape:color + ID, data=puzzles)
+#' chains = posterior(bf, iterations = 1000, progress = FALSE, columnFilter="^ID$")
+#' colnames(chains) # Contains no participant effects
 setGeneric("posterior", function(model, index, data, iterations, ...) standardGeneric("posterior"))
 
 #' Extract the Bayes factor from an object
