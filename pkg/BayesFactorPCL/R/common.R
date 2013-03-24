@@ -53,6 +53,7 @@ whichOmitted <- function(numerator, full){
 
 
 propErrorEst = function(logX){
+  logX = logX[!is.na(logX)]
   n = length(logX)
   logSumX = logMeanExpLogs(logX) + log(n)
   logSumX2 = logMeanExpLogs(2*logX) + log(n)

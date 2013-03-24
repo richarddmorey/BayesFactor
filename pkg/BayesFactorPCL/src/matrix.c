@@ -2,11 +2,11 @@
 
 
 
-// Compute determinant of an N by N matrix A
-double matrixDet(double *A, int N, int LDA, int doLog)
+// Compute determinant of an N by N positive definite matrix A
+double matrixDet(double *A, int N, int LDA, int doLog, int *info)
 {
 //SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
-	int i=0, info=0;
+	int i=0;
 	double B[N*N], logDet=0;
 	
 	//Memcpy(B,A,N*N);
@@ -14,8 +14,8 @@ double matrixDet(double *A, int N, int LDA, int doLog)
 		Memcpy(&B[i*N],&A[i*LDA],N);
 	}
 	
-	F77_CALL(dpotrf)("U", &N, B, &N, &info);
-	if(info){
+	F77_CALL(dpotrf)("U", &N, B, &N, info);
+	if(*info){
 		Rprintf("Cholesky decomposition in matrixDet() returned nonzero info %d.\n",info);
 	}
 	

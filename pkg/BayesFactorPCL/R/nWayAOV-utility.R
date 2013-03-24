@@ -15,16 +15,20 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
     simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
     logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
      
-    apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
-    impSamples = .Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
+    
+    apx = try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont))
+    if(inherits(apx,"try-error")){
+      method="simple"
+    }else{
+      impSamples = .Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
                          P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
                          as.integer(0), pbFun, new.env(), 
                          package="BayesFactor")
-    impErr = propErrorEst(impSamples[[2]] - nullLike)
-    logAbsImpErr = impSamples[[1]] - nullLike + log(impErr) 
+      impErr = propErrorEst(impSamples[[2]] - nullLike)
+      logAbsImpErr = impSamples[[1]] - nullLike + log(impErr) 
     
-    method = ifelse(impErr>simpleErr,"simple","importance")
-  
+      method = ifelse(impErr>simpleErr,"simple","importance")
+    }
   }
   
   if(method=="importance"){

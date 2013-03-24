@@ -74,7 +74,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	double kahanCSingle=0,kahanCDouble=0;
 	double kahanTempT=0, kahanTempY=0;
 	
-	int iOne=1;
+	int iOne=1, info;
 	double dZero=0;
 		
 
@@ -164,7 +164,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 		}
 		InvMatrixUpper(B2temp, J);
 		internal_symmetrize(B2temp,J);
-		logDet = matrixDet(B2temp,J,J,1);
+		logDet = matrixDet(B2temp,J,J,1, &info);
 		densDelta += -0.5*quadform(muTemp, B2temp, J, 1, J);
 		densDelta += -0.5*logDet;
 		if(m==0){
