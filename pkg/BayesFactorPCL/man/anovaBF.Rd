@@ -4,9 +4,9 @@
 \usage{
   anovaBF(formula, data, whichRandom = NULL,
     whichModels = "withmain", iterations = 10000,
-    progress = TRUE, rscaleFixed = "medium",
-    rscaleRandom = "nuisance", multicore = FALSE,
-    method = "auto")
+    progress = options()$BFprogress,
+    rscaleFixed = "medium", rscaleRandom = "nuisance",
+    multicore = FALSE, method = "auto")
 }
 \arguments{
   \item{formula}{a formula containing all factors to

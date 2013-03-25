@@ -3,6 +3,7 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
 expString <- function(x){
+  if(is.na(x)) return("NA")
   doubleBase = .Machine$double.base
   toBase10log = x / log(10)
   toBaselog = x / log(doubleBase)

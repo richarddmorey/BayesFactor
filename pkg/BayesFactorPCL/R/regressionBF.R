@@ -77,7 +77,7 @@
 ##'   \code{\link{anovaBF}} for the function similar to \code{regressionBF} for 
 ##'   ANOVA models.
 
-regressionBF <- function(formula, data, whichModels = "all", progress=TRUE, rscaleCont = "medium")
+regressionBF <- function(formula, data, whichModels = "all", progress=options()$BFprogress, rscaleCont = "medium")
 {
   checkFormula(formula, data, analysis = "regression")
   dataTypes <- createDataTypes(formula, whichRandom=c(), data, analysis = "regression")

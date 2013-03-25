@@ -46,7 +46,7 @@ setValidity("BFBayesFactor", function(object){
 
 #' @rdname recompute-methods
 #' @aliases recompute,BFBayesFactor-method
-setMethod("recompute", "BFBayesFactor", function(x, progress = FALSE, ...){
+setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogress, ...){
   if(progress) lapply = pblapply 
   bfs = lapply(x@numerator, function(num, data, ...)
     compare(numerator = num, data = data, ...),

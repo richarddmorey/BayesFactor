@@ -3,9 +3,9 @@
 \title{Use ANOVA design matrix to compute Bayes factors or sample posterior}
 \usage{
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
-    iterations = 10000, progress = TRUE, gibi = NULL,
-    gibbs = FALSE, ignoreCols = NULL, thin = 1,
-    method = "auto", continuous = FALSE)
+    iterations = 10000, progress = options()$BFprogress,
+    gibi = NULL, gibbs = FALSE, ignoreCols = NULL,
+    thin = 1, method = "auto", continuous = FALSE)
 }
 \arguments{
   \item{y}{vector of observations}

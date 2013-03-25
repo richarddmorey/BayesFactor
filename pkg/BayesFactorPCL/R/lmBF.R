@@ -24,6 +24,7 @@
 ##'   number of preset values can be given as strings; see Details.
 ##' @param posterior if \code{TRUE}, return samples from the posterior
 ##'   distribution instead of the Bayes factor
+##' @param progress if \code{TRUE}, show progress with a text progress bar
 ##' @param ... further arguments to be passed to or from methods.
 ##' @return If \code{posterior} is \code{FALSE}, an object of class
 ##'   \code{BFBayesFactor}, containing the computed model comparisons is
@@ -53,7 +54,7 @@
 ##' testing many regression or ANOVA models simultaneously.
 
 lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
-                 rscaleRandom="nuisance", rscaleCont="medium", posterior=FALSE, ...)
+                 rscaleRandom="nuisance", rscaleCont="medium", posterior=FALSE,progress=options()$BFprogress, ...)
 {    
   checkFormula(formula, data, analysis="lm")
   dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")
@@ -70,10 +71,10 @@ lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
   )
   
   if(posterior){
-    chains = posterior(numerator, data = data, ...)
+    chains = posterior(numerator, data = data, progress=progress, ...)
     return(chains)
   }else{
-    bf = compare(numerator = numerator, data = data,...)
+    bf = compare(numerator = numerator, data = data, progress=progress, ...)
     return(bf)    
   }
 }

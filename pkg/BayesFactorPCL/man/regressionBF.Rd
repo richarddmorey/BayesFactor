@@ -3,7 +3,7 @@
 \title{Function to compute Bayes factors for regression designs}
 \usage{
   regressionBF(formula, data, whichModels = "all",
-    progress = TRUE, rscaleCont = "medium")
+    progress = options()$BFprogress, rscaleCont = "medium")
 }
 \arguments{
   \item{formula}{a formula containing all covariates to

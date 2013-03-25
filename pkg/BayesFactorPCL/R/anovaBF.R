@@ -142,7 +142,7 @@
 ##'   linear regression models.
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
-           whichModels = "withmain", iterations = 10000, progress = TRUE,
+           whichModels = "withmain", iterations = 10000, progress = options()$BFprogress,
            rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto")
   {
     checkFormula(formula, data, analysis = "anova")
@@ -150,7 +150,7 @@ anovaBF <-
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
     if(all(fmlaFactors(formula, data)[-1] %in% whichRandom)){
       # No fixed factors!
-      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom)  
+      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom, progress=progress)  
       return(bf)
     }
     
@@ -183,7 +183,7 @@ anovaBF <-
       bfs <- foreach(gIndex=models, .options.multicore=mcoptions) %dopar% 
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-             iterations = iterations, method=method)
+             iterations = iterations, method=method,progress=FALSE)
       
     }else{ # Single core
       

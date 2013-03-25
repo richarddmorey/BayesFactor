@@ -4,7 +4,8 @@
 \usage{
   lmBF(formula, data, whichRandom = NULL,
     rscaleFixed = "medium", rscaleRandom = "nuisance",
-    rscaleCont = "medium", posterior = FALSE, ...)
+    rscaleCont = "medium", posterior = FALSE,
+    progress = options()$BFprogress, ...)
 }
 \arguments{
   \item{formula}{a formula containing all factors to
@@ -29,6 +30,9 @@
 
   \item{posterior}{if \code{TRUE}, return samples from the
   posterior distribution instead of the Bayes factor}
+
+  \item{progress}{if \code{TRUE}, show progress with a text
+  progress bar}
 
   \item{...}{further arguments to be passed to or from
   methods.}

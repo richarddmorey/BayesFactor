@@ -63,7 +63,7 @@ setGeneric("compare", function(numerator, denominator, data, ...) standardGeneri
 #' ## Sample from posterior distribution of model above, and recompute:
 #' chains = posterior(bf, iterations = 1000, progress = FALSE)
 #' newChains = recompute(chains, iterations = 1000, progress=FALSE)     
-setGeneric("recompute", function(x, progress=FALSE, ...) standardGeneric("recompute"))
+setGeneric("recompute", function(x, progress=options()$BFprogress, ...) standardGeneric("recompute"))
 
 #' Sample from the posterior distribution of one of several models.
 #' 

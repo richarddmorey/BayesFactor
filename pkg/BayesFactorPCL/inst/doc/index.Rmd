@@ -7,6 +7,7 @@
 ```{r echo=FALSE,message=FALSE,results='hide'}
 library(knitr)
 set.seed(2)
+options(BFprogress = FALSE)
 ```
 
 
@@ -14,7 +15,10 @@ Using the 'BayesFactor' package, version 0.9.2+
 ===============================
 Richard D. Morey
 -----------------
-[Development website](https://r-forge.r-project.org/projects/bayesfactorpcl/) - [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS)
+
+Stable version: [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS) 
+
+Development version: [Development page](https://r-forge.r-project.org/projects/bayesfactorpcl/) - [Development package NEWS](https://r-forge.r-project.org/scm/viewvc.php/pkg/BayesFactorPCL/NEWS?view=markup&root=bayesfactorpcl) 
 
 
 ### Table of Contents
@@ -59,9 +63,12 @@ The `BayesFactor` package must be installed and loaded before it can be used. In
 library(BayesFactor)
 ```
 
-This command will make the `BayesFactor` package ready to use.
+```{r echo=FALSE,message=FALSE,results='hide'}
+options(BFprogress = FALSE)
+```
 
-__Note:__ throughout this document, when we call functions we set `progress=FALSE`. This is because this document is built by actually running the code. To avoid the progress bars showing up in this document, we've turned them off. We recommend you run your own code with the default `progress=TRUE` so you can see the progress of the functions.
+
+This command will make the `BayesFactor` package ready to use.
 
 <a id="functions"></a>
 ### Some useful functions 
@@ -131,7 +138,7 @@ There are a number of operations we can perform on our Bayes factor, such as tak
 ```
 or sampling from the posterior of the numerator model:
 ```{r tsamp}
-chains = posterior(bf, iterations = 1000, progress = FALSE)
+chains = posterior(bf, iterations = 1000)
 summary(chains)
 ```
 The `posterior` function returns a object of type `BFmcmc`, which inherits the methods of the `mcmc` class from the [`coda` package](http://cran.r-project.org/package=coda). We can thus use `summary`, `plot`, and other useful methods on the result of `posterior`. If we were unhappy with the number of iterations we sampled for `chains`, we can `recompute` with more iterations, and then `plot` the results: 
@@ -216,7 +223,7 @@ bf
 ```
 As before, we can sample from the posterior distribution for the numerator model:
 ```{r twosampletsamp,fig.width=10}
-chains = posterior(bf, iterations = 10000, progress = FALSE)
+chains = posterior(bf, iterations = 10000)
 plot(chains[,1:4])
 ```
 Note that the samples through assuming the equivalent ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
@@ -246,7 +253,7 @@ summary(aov(len ~ supp*dose, data=ToothGrowth))
 ```
 There appears to be a large effect of the dosage, a small effect of the supplement type, and perhaps a hint of an interaction. The `anovaBF` function will compute the Bayes factors of all models against the intercept-only model; by default, it will choose the subset of all models in which which an interaction can only be included if all constituent effects or interactions are included (argument `whichModels` is set to `withmain`, indicating that interactions can only enter in with their main effects). However, this setting can be changed, as we will demonstrate. First, we show the default behavior.
 ```{r }
-bf = anovaBF(len ~ supp*dose, data=ToothGrowth, progress = FALSE)
+bf = anovaBF(len ~ supp*dose, data=ToothGrowth)
 bf
 ```
 The function will build the requested models from the terms included in the right-hand side of the formula; we could have specified the sum of the two terms, and we would have gotten the same models.
@@ -264,15 +271,15 @@ The argument `whichModels='all'` should be used with caution: a three-way ANOVA 
 One alternative is `whichModels='top'`, which reduces the number of comparisons to \(2^k-1\), where \(k\) is the number of factors, which is manageable. In orthogonal designs, one can construct tests of each main effect or interaction by comparing the full model to the model with all effects except the one of interest: 
 
 ```{r }
-bf = anovaBF(len ~ supp*dose, data=ToothGrowth, whichModels="top", progress = FALSE)
+bf = anovaBF(len ~ supp*dose, data=ToothGrowth, whichModels="top")
 bf
 ```
 Note that all of the Bayes factors are less than 1, indicating that removing any effect from the full model is deleterious.
 
 Another way we can reduce the number of models tested is simply to test only specific models of interest. In the example above, for instance, we might want to compare the model with the interaction to the model with only the main effects, if our effect of interest was the interaction. We can do this with the `lmBF` function.
 ```{r}
-bfMainEffects = lmBF(len ~ supp + dose, data = ToothGrowth, progress=FALSE)
-bfInteraction = lmBF(len ~ supp + dose + supp:dose, data = ToothGrowth, progress=FALSE)
+bfMainEffects = lmBF(len ~ supp + dose, data = ToothGrowth)
+bfInteraction = lmBF(len ~ supp + dose + supp:dose, data = ToothGrowth)
 ## Compare the two models
 bf = bfInteraction / bfMainEffects
 bf
@@ -281,7 +288,7 @@ The model with the interaction effect is preferred by a factor of about 3.
 
 Suppose that we were unhappy with the ~2.5% proportional error on the Bayes factor `bf`. `anovaBF` and `lmBF` use Monte Carlo integration to estimate the Bayes factors. The default number of Monte Carlo samples is 10,000 but this can be increased. We could use the `recompute` to reduce the error. The `recompute` function performs the sampling required to build the Bayes factor object again:
 ```{r}
-newbf = recompute(bf, iterations = 100000, progress = FALSE)
+newbf = recompute(bf, iterations = 100000)
 newbf
 ```
 The proportional error is now below 1%.
@@ -289,7 +296,7 @@ The proportional error is now below 1%.
 As before, we can use MCMC methods to estimate parameters through the `posterior` function:
 ```{r}
 ## Sample from the posterior of the full model
-chains = posterior(bfInteraction, iterations = 10000, progress=FALSE)
+chains = posterior(bfInteraction, iterations = 10000)
 ## 1:13 are the only "interesting" parameters
 summary(chains[,1:13])
 ```
@@ -326,7 +333,7 @@ summary(aov(RT ~ shape*color + Error(ID/(shape*color)), data=puzzles))
 The classical ANOVA appears to corroborate the impression from the plot. In order to compute the Bayes factor, we must tell `anovaBF` that `ID` is an additive effect on top of the other effects (as is typically assumed) and is a random factor. The `anovaBF` call below shows how this is done:
 ```{r tidy=FALSE}
 bf = anovaBF(RT ~ shape*color + ID, data = puzzles, 
-             whichRandom="ID", progress=FALSE)
+             whichRandom="ID")
 ```
 We alert `anovaBF` to the random factor using the `whichRandom` argument. `whichRandom` should contain a character vector with the names of all random factors in it. All other factors are assumed to be fixed. The `anovaBF` will find all the fixed effects in the formula, and compute the Bayes factor for the subset of combinations determined by the `whichModels` argument (see the previous section). Note that `anovaBF` does not test random factors; they are assumed to be nuisance factors. The null model in a test with random factors is not the intercept-only model; it is the model containing the random effects. The Bayes factor object `bf` thus now contains Bayes factors comparing various combinations of the fixed effects and an additive effect of `ID` against a numerator containing only `ID`:
 ```{r}
@@ -339,12 +346,12 @@ plot(bf)
 
 Because the `anovaBF` function does not test random factors, we must use `lmBF` to build such tests. Doing so is straightforward. Suppose that we wished to test the random effect `ID` in the `puzzles` example. We might compare the full model `shape + color + shape:color + ID` to the same model without `ID`:
 ```{r}
-bfWithoutID = lmBF(RT ~ shape*color, data = puzzles, progress=FALSE)
+bfWithoutID = lmBF(RT ~ shape*color, data = puzzles)
 bfWithoutID
 ```
 But notice that the denominator model is the intercept-only model; the denominator in the previous analysis was the `ID` only model. We need to compare the model with no `ID` effect to the model with only `ID`:
 ```{r}
-bfOnlyID = lmBF(RT ~ ID, whichRandom="ID",data = puzzles, progress=FALSE)
+bfOnlyID = lmBF(RT ~ ID, whichRandom="ID",data = puzzles)
 bf2 = bfWithoutID / bfOnlyID
 bf2
 ```
@@ -373,7 +380,7 @@ summary(lmObj)
 ```
 The period (`.`) is shorthand for all remaining columns, besides `rating`. The predictors `complaints` and `learning` appear most stongly related to the dependent variable, especially `complaints`. In order to compute the Bayes factors for many model comparisons at onces, we use the `regressionBF` function. The most obvious set of all model comparisons is all possible additive models, which is returned by default:
 ```{r regressAll}
-bf = regressionBF(rating ~ ., data = attitude, progress= FALSE)
+bf = regressionBF(rating ~ ., data = attitude)
 length(bf)
 ```
 The object `bf` now contains \(2^p-1\), or `r length(bf)`, model comparisons. Large numbers of comparisons can get unweildy, so we can use the functions built into R to manipulate the Bayes factor object.
@@ -396,7 +403,7 @@ The model preferred by Bayes factor is the `complaints`-only model, followed by 
 We might also be interested in comparing the most complex model to all models that can be formed by removing a single covariate, or, similarly, comparing the intercept-only model to all models that can be formed by added a covariate. These comparisons can be done by setting the `whichModels` argument to `'top'` and `'bottom'`, respectively. For example, for testing against the most complex model:
 
 ```{r regresstop, fig.width=10, fig.height=5}
-bf = regressionBF(rating ~ ., data = attitude, whichModels = "top", progress= FALSE)
+bf = regressionBF(rating ~ ., data = attitude, whichModels = "top")
 ## The seventh model is the most complex
 bf
 plot(bf)
@@ -405,7 +412,7 @@ With all other covariates in the model, the model containing `complaints` is pre
 
 A similar "bottom-up" test can be done, by setting `whichModels` to `'bottom'`.
 ```{r regressbottom, fig.width=10, fig.height=5}
-bf = regressionBF(rating ~ ., data = attitude, whichModels = "bottom", progress= FALSE)
+bf = regressionBF(rating ~ ., data = attitude, whichModels = "bottom")
 plot(bf)
 ```
 The mismatch between the tests of all models, the "top-down" test, and the "bottom-up" test shows that the covariates share variance with one another. As always, whether these tests are interpretable or useful will depend on the data at hand.
@@ -422,7 +429,7 @@ The `complaints`-only model is slightly preferred.
 
 As with the other Bayes factors, it is possible to sample from the posterior distribution of a particular model under consideration. If we wanted to sample from the posterior distribution of the `complaints + learning` model, we could use the `posterior` function:
 ```{r lmposterior}
-chains = posterior(complaintsLearningBf, iterations = 10000, progress=FALSE)
+chains = posterior(complaintsLearningBf, iterations = 10000)
 summary(chains)
 ```
 Compare these to the corresponding results from the classical regression analysis:
@@ -454,10 +461,10 @@ summary(lmToothGrowth)
 The classical analysis, presented for comparison, reveals extremely low p values for the effects of the supplement type and of the dose, but the interaction p value is more moderate, at about 0.03. We can use the `lmBF` function to compute the Bayes factors for all models of interest against the null model, which in this case is the intercept-only model. We then concatenate them into a single Bayes factor object for convenience. 
 
 ```{r GLMs}
-full <- lmBF(len ~ supp + dose + supp:dose, data=ToothGrowth, progress=FALSE)
-noInteraction <- lmBF(len ~ supp + dose, data=ToothGrowth, progress=FALSE)
-onlyDose <- lmBF(len ~ dose, data=ToothGrowth, progress=FALSE)
-onlySupp <- lmBF(len ~ supp, data=ToothGrowth, progress=FALSE)
+full <- lmBF(len ~ supp + dose + supp:dose, data=ToothGrowth)
+noInteraction <- lmBF(len ~ supp + dose, data=ToothGrowth)
+onlyDose <- lmBF(len ~ dose, data=ToothGrowth)
+onlySupp <- lmBF(len ~ supp, data=ToothGrowth)
 
 allBFs <- c(full, noInteraction, onlyDose, onlySupp)
 allBFs
@@ -472,7 +479,7 @@ full / noInteraction
 The full model is *slightly* favored, but the evidence is equivocal. We can also use the `posterior` function to compute parameter estimates. 
 
 ```{r GLMposterior1}
-chainsFull <- posterior(full, iterations = 10000, progress=FALSE)
+chainsFull <- posterior(full, iterations = 10000)
 
 # summary of the "interesting" parameters
 summary(chainsFull[,1:7])
@@ -481,7 +488,7 @@ summary(chainsFull[,1:7])
 The left panel of the figure below shows the data and linear fits. The green points represent guinea pigs given the orange juice supplement (OJ); red points represent guinea pigs given the vitamin C supplement. The solid lines show the posterior means from the Bayesian model; the dashed lines show the classical least-squares fit when applied to each supplement separately. The fits are quite close.
 
 ```{r GLMposterior2,results='hide',echo=FALSE}
-chainsNoInt <- posterior(noInteraction, iterations = 10000, progress=FALSE)
+chainsNoInt <- posterior(noInteraction, iterations = 10000)
 ```
 
 ```{r GLMplot,echo=FALSE,fig.width=10, fig.height=5}
@@ -527,7 +534,7 @@ mtext("No interaction",3,.1,adj=1,cex=1.3)
 
 Because the no-interaction model fares so well against the interaction model, it may be instructive to examine the fit of the no-interaction model. We sample from the no-interaction model with the `posterior` function:
 ```{r eval=FALSE}
-chainsNoInt <- posterior(noInteraction, iterations = 10000, progress=FALSE)
+chainsNoInt <- posterior(noInteraction, iterations = 10000)
 
 # summary of the "interesting" parameters
 summary(chainsNoInt[,1:5])
@@ -544,7 +551,7 @@ We have now analyzed the `ToothGrowth` data using both ANOVA (with `dose` as a f
 ToothGrowth$doseAsFactor <- factor(ToothGrowth$dose)
 levels(ToothGrowth$doseAsFactor) <- c(.5,1,2)
 
-aovBFs <- anovaBF(len ~ doseAsFactor + supp + doseAsFactor:supp, data = ToothGrowth, progress=FALSE)
+aovBFs <- anovaBF(len ~ doseAsFactor + supp + doseAsFactor:supp, data = ToothGrowth)
 ```
 Because all models we've considered are compared to the null intercept-only model, we can concatenate the `aovBFs` object with the Bayes factors we previously computed in this section:
 

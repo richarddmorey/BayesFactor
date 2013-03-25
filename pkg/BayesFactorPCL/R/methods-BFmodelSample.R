@@ -74,7 +74,7 @@ setMethod('posterior', signature(model = "BFBayesFactor", index = "numeric", dat
 setMethod('posterior', signature(model = "BFBayesFactor", index = "missing", data = "missing", iterations = "numeric"), 
   function(model, index=NULL, data, iterations, ...){
     if(length(model)>1) stop("Index argument required for posterior with multiple numerators.")
-    posterior(model = model@numerator[[1]], data = model@data, iterations = iterations, ...)        
+     posterior(model = model@numerator[[1]], data = model@data, iterations = iterations, ...)        
   }
 ) 
 
