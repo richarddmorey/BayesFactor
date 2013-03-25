@@ -8,7 +8,7 @@ CHANGES
 
 CHANGES
   *  Fixed bug in sampling of posteriors in linear models
-  *  Fixed bug computing the Bayes factor of unbalanced one-way ANOVA with two levels
+  *  Fixed bug computing the Bayes factor of unbalanced one-way ANOVA with two levels - caused function to fail
   *  Fixed occasional problem where optimization for the importance sampler would fail, giving a numerically singular matrix
   *  Fixed problem where extremely rare large or small g values from the sampler would cause the Bayes factor to be NA (again, creating a singular numerically singular matrix). These very rare samples are now disregarded.
   *  Added global option to turn progress bars on or off; use options(BFprogress = TRUE) or options(BFprogress = FALSE) 
