@@ -121,7 +121,7 @@ diffScores = sleep$extra[1:10] - sleep$extra[11:20]
 t.test(diffScores)
 ```
 
-We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference \(\delta=(\mu-\mu_0)/\sigma_\epsilon\) is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(\sqrt{2}/2\). See `?ttestBF` for more details.
+We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference \(\delta=(\mu-\mu_0)/\sigma_\epsilon\) is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(1/2\) for one-sample tests and \(\sqrt{2}/2\) for two-sample tests. See `?ttestBF` for more details.
 
 ```{r onesampt}
 bf = ttestBF(x = diffScores)
