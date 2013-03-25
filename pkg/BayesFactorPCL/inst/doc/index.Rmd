@@ -83,7 +83,7 @@ Function                 | Description
 `lmBF`                   | Bayes factors for specific linear models (ANOVA or regression)
 `posterior`              | Sample from the posterior distribution of the numerator of a Bayes factor object
 `recompute`              | Recompute a Bayes factor or MCMC chain, possibly increasing the precision of the estimate
-`compare`                | Compore two models; typically used to compare two models in `BayesFactor` MCMC objects
+`compare`                | Compare two models; typically used to compare two models in `BayesFactor` MCMC objects
 
 #### Functions to manipulate Bayes factor objects
 
