@@ -38,7 +38,7 @@ integrand.regression=function(g,N,p,R2,rscaleSqr=1)
   exp(a)*dinvgamma(g,shape=.5,scale=rscaleSqr*N/2)
 }
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = 1, progress = TRUE, gibi=NULL, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, gibi=NULL, ...){
   rscale = rpriorValues("regression",,rscale)
   X <- apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
