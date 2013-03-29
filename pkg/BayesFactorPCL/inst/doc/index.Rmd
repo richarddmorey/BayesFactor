@@ -80,6 +80,7 @@ Function                 | Description
 `ttestBF`                | Bayes factors for one- and two- sample designs
 `anovaBF`                | Bayes factors comparing many ANOVA models 
 `regressionBF`           | Bayes factors comparing many linear regression models
+`generalTestBF`          | Bayes factors for all restrictions on a full model (0.9.4+)
 `lmBF`                   | Bayes factors for specific linear models (ANOVA or regression)
 `posterior`              | Sample from the posterior distribution of the numerator of a Bayes factor object
 `recompute`              | Recompute a Bayes factor or MCMC chain, possibly increasing the precision of the estimate
