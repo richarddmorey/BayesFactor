@@ -7,12 +7,12 @@ ddinvgamma1 <- function(x,a,b)
 dinvgamma1 <- function(x,a,b)
   a * log(b) - lgamma(a) - (a+1)*log(x) - b/x
 
-Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0)
+Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0,limit=TRUE)
 {
   
   qLimits = options()$BFapproxLimits
   # Check to make sure values don't get too small or large, otherwise algorithm might fail
-  if( any(q< qLimits[1]) | any(q > qLimits[2]) ) return(-Inf)
+  if( (any(q< qLimits[1]) | any(q > qLimits[2])) & limit ) return(-Inf)
   
   
   g = exp(q)
@@ -22,21 +22,27 @@ Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0)
   
   yTilde = matrix(y - mean(y),N)
   XTilde = t(t(Xm) - colMeans(Xm))
-  if(length(g)==1)
-    stop("Importance sampler not implemented for single g.")  
+  ybar = mean(y)
   
-  Ginv= diag(1/g[gMap])
-  if(incCont){
-    Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+  if(ncol(Xm)==1){
+    if(incCont) stop("Inappropriate use of Gaussian approximation with single column, continuous X.")
+    Ginv= 1/g[gMap]
+    Vg = sum(XTilde^2) + Ginv
+    logDetVg = log(Vg)
+    yXVXy = sum(y*XTilde)^2/Vg
+  }else{
+    Ginv= diag(1/g[gMap])
+    if(incCont) Ginv[1:incCont,1:incCont] = priorX / g[gMap[1]]
+    Vg = t(XTilde)%*%XTilde + Ginv
+    logDetVg = determinant(Vg)$modulus
+    yXVXy = t(yTilde)%*%XTilde%*%solve(Vg)%*%t(XTilde)%*%yTilde
   }
   
-  Vg = t(XTilde)%*%XTilde + Ginv
-  ybar = mean(y)
   ans = 
     -0.5 * sum(log(g[gMap])) +
-    - 0.5 * determinant(Vg)$modulus + 
+    - 0.5 * logDetVg + 
     0.5*(N-1) * log(sum(y^2) - N * ybar^2) - 
-    0.5*(N-1)*log(sum(yTilde^2) - t(yTilde)%*%XTilde%*%solve(Vg)%*%t(XTilde)%*%yTilde) + 
+    0.5*(N-1)*log(sum(yTilde^2) - yXVXy) + 
     sum(dinvgamma1(g, .5, rscale^2/2)) +
     sum(log(g))
   

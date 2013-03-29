@@ -289,7 +289,7 @@ The model with the interaction effect is preferred by a factor of about 3.
 
 Suppose that we were unhappy with the ~2.5% proportional error on the Bayes factor `bf`. `anovaBF` and `lmBF` use Monte Carlo integration to estimate the Bayes factors. The default number of Monte Carlo samples is 10,000 but this can be increased. We could use the `recompute` to reduce the error. The `recompute` function performs the sampling required to build the Bayes factor object again:
 ```{r}
-newbf = recompute(bf, iterations = 100000)
+newbf = recompute(bf, iterations = 500000)
 newbf
 ```
 The proportional error is now below 1%.

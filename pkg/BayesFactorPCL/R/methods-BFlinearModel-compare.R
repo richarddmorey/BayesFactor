@@ -50,7 +50,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
         # independent groups t
         t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
         bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
-      }else if( (nFactors==1) & (nLvls>2) ){          
+      }else if( (nFactors==1) & (nLvls>2) & all(freqs==freqs[1])){          
         # Balanced one-way
         Fstat = summary(aov(formula, data=data))[[1]]["F value"][1,] 
         J = length(freqs)

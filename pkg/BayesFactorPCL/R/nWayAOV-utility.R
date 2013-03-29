@@ -1,9 +1,25 @@
-singleGBayesFactor <- function(y,X,rscale){
-  dat = data.frame(y=y,x=as.factor(X[,1])) 
-  freqs = table(dat$x)
-  t = t.test(y~x,data=dat, var.eq=TRUE)$statistic
-  bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
-  return(bf)
+singleGBayesFactor <- function(y,X,rscale,gMap){
+  if(ncol(X)==1){
+    dat = data.frame(y=y,x=as.factor(X[,1])) 
+    freqs = table(dat$x)
+    t = t.test(y~x,data=dat, var.eq=TRUE)$statistic
+    bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
+    return(bf)
+  }else{
+    # change from C indexing to R indexing
+    gMap = gMap + 1
+    integral = integrate(
+      Vectorize(
+        function(g,y,Xm,rscale,gMap){
+          exp(Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g))
+        },"g")
+      ,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap)
+    
+    marg.like.1 = integral$value
+    prop.error = integral$abs.error / marg.like.1
+    lbf = log(marg.like.1)
+    return(list(bf = lbf, properror=prop.error))
+  }
 }
 
 
@@ -15,7 +31,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   optMethod = options()$BFapproxOptimizer
   testNsamples = options()$BFpretestIterations
   
-  if(nGs==1) method="simple"
+  if(ncol(X)==1) method="simple"
   
   if(method=="auto"){
     simpSamples = .Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
@@ -35,8 +51,8 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
                          as.integer(0), pbFun, new.env(), 
                          package="BayesFactor")
       impErr = propErrorEst(impSamples[[2]] - nullLike)
-      logAbsImpErr = impSamples[[1]] - nullLike + log(impErr) 
-    
+      logAbsImpErr = impSamples[[1]] + log(impErr) - nullLike   
+      
       method = ifelse(impErr>simpleErr,"simple","importance")
     }
   }
