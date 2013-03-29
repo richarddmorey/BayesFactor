@@ -14,6 +14,7 @@ CHANGES
   *  Added global option to turn progress bars on or off; use options(BFprogress = TRUE) or options(BFprogress = FALSE) 
   *  Added MCMC chain thinning to nWayAOV - to use, pass "thin" argument to posterior() or lmBF()
   *  Added MCMC chain column filtering, useful for low memory systems. To use, pass "columnFilter" argument to posterior() or lmBF(). See the help for posterior() for more details.
+  *  Added function generalTestBF(), which allows testing of restrictions on a full model in a manner similar to regressionBF() and anovaBF().
 
   CHANGES IN BayesFactor VERSION 0.9.3
 
