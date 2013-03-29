@@ -150,7 +150,7 @@ anovaBF <-
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
     if(all(fmlaFactors(formula, data)[-1] %in% whichRandom)){
       # No fixed factors!
-      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom, progress=progress)  
+      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom, progress=progress, method=method)  
       return(bf)
     }
     

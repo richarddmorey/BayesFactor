@@ -12,7 +12,8 @@ export(logMeanExpLogs,
     regressionBF,
     anovaBF,
     BFManual,
-    as.BFBayesFactor)
+    as.BFBayesFactor,
+    generalTestBF)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)

@@ -23,7 +23,7 @@ Qg <- function(q,y,Xm,rscale,gMap,priorX=NULL,incCont=0)
   yTilde = matrix(y - mean(y),N)
   XTilde = t(t(Xm) - colMeans(Xm))
   if(length(g)==1)
-    stop("not implemented for single g")  
+    stop("Importance sampler not implemented for single g.")  
   
   Ginv= diag(1/g[gMap])
   if(incCont){

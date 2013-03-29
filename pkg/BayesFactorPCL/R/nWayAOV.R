@@ -153,6 +153,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     stop("Length of rscale vector wrong. Was ", length(rscale), " and should be ", nGs,".")
   }
   
+  # What if we really only need a t test?
+  if(nGs==1 & !gibbs & all(!continuous) & P==1) return(singleGBayesFactor(y,X,rscale))
   
   Cy = y - mean(y)
   CX = apply(X,2,function(v) v - mean(v))

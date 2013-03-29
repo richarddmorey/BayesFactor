@@ -2,6 +2,23 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+filterVectorLogical <- function(columnFilter,myNames){
+  if(!is.null(columnFilter)){
+    ignoreMatrix = sapply(columnFilter, function(el,namedCols){
+      grepl(el,namedCols)
+    },namedCols=myNames)
+    if(length(myNames)==1){
+      ignoreCols = any(ignoreMatrix)
+    }else{
+      ignoreCols = apply(ignoreMatrix,1,any)
+    }
+    return(ignoreCols)
+  }else{
+    return(rep(FALSE,length(myNames)))    
+  }
+}
+
+
 expString <- function(x){
   if(is.na(x)) return("NA")
   doubleBase = .Machine$double.base

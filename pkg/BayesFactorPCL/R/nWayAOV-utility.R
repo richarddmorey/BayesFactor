@@ -1,3 +1,11 @@
+singleGBayesFactor <- function(y,X,rscale){
+  dat = data.frame(y=y,x=as.factor(X[,1])) 
+  freqs = table(dat$x)
+  t = t.test(y~x,data=dat, var.eq=TRUE)$statistic
+  bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
+  return(bf)
+}
+
 
 doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun)
 {
@@ -6,6 +14,8 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   apx = NULL
   optMethod = options()$BFapproxOptimizer
   testNsamples = options()$BFpretestIterations
+  
+  if(nGs==1) method="simple"
   
   if(method=="auto"){
     simpSamples = .Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
@@ -241,12 +251,24 @@ fixedFromRandomProjection <- function(nlevRandom){
   return(matrix(S,nrow=nlevRandom))
 }
 
+centerContinuousColumns <- function(data){
+  mycols = lapply(data,function(colmn){
+    if(is.factor(colmn)){
+      return(colmn)
+    }else{
+      return(colmn - mean(colmn))
+    }
+  })
+  return(data.frame(mycols))
+}
 
 nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
   
   checkFormula(formula, data, analysis = "lm")
-  y = data[,stringFromFormula(formula[[2]])]
   
+  
+  y = data[,stringFromFormula(formula[[2]])]
+  data <- centerContinuousColumns(data)
   X = fullDesignMatrix(formula, data, dataTypes)
   
   rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
@@ -320,17 +342,6 @@ ureduceChains = function(chains, formula, data, dataTypes, gMap, ignoreCols){
   unreducedChains = lapply(terms, unreduceChainPart, chains=chains, data = data, dataTypes = dataTypes, gMap = gMap, ignoreCols=ignoreCols)  
   do.call(cbind, unreducedChains)
 }
-
-filterVectorLogical <- function(columnFilter,myNames){
-  if(!is.null(columnFilter)){
-    ignoreMatrix = sapply(columnFilter, function(el,namedCols){
-      grepl(el,namedCols)
-    },namedCols=myNames)
-    ignoreCols = apply(ignoreMatrix,1,any) 
-  }
-  ignoreCols
-}
-
 
 makeChainNeater <- function(chains, Xnames, formula, data, dataTypes, gMap, unreduce, continuous, columnFilter){
   P = length(gMap)
