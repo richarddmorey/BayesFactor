@@ -74,6 +74,7 @@
 ##'   package. Unavailable on Windows.
 ##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
 ##'   details.
+##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -143,14 +144,14 @@
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", iterations = 10000, progress = options()$BFprogress,
-           rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto")
+           rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto", noSample=FALSE)
   {
     checkFormula(formula, data, analysis = "anova")
     # pare whichRandom down to terms that appear in the formula
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
     if(all(fmlaFactors(formula, data)[-1] %in% whichRandom)){
       # No fixed factors!
-      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom, progress=progress, method=method)  
+      bf = lmBF(formula, data, whichRandom,rscaleFixed,rscaleRandom, progress=progress, method=method,noSample=noSample)  
       return(bf)
     }
     
@@ -183,14 +184,14 @@ anovaBF <-
       bfs <- foreach(gIndex=models, .options.multicore=mcoptions) %dopar% 
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-             iterations = iterations, method=method,progress=FALSE)
+             iterations = iterations, method=method,progress=FALSE,noSample=noSample)
       
     }else{ # Single core
       
       if(progress) myapply = pblapply else myapply = lapply
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-                    iterations = iterations, progress = FALSE, method = method)
+                    iterations = iterations, progress = FALSE, method = method,noSample=noSample)
       
     }
     

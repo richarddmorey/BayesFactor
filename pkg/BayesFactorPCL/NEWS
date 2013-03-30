@@ -15,6 +15,8 @@ CHANGES
   *  Added MCMC chain thinning to nWayAOV - to use, pass "thin" argument to posterior() or lmBF()
   *  Added MCMC chain column filtering, useful for low memory systems. To use, pass "columnFilter" argument to posterior() or lmBF(). See the help for posterior() for more details.
   *  Added function generalTestBF(), which allows testing of restrictions on a full model in a manner similar to regressionBF() and anovaBF().
+  *  Added "noSample" argument to many functions. These will disable time-consuming sampling, and return an object of the same structure as if sampling had been done. This allows for the culling of BayesFactor objects and preplanning chain analyses before sampling
+  *  Added is.na() method for BFBayesFactor objects. When combined with recompute() and noSample (see above), this allows one to create lists of models with missing Bayes factors, remove uninteresting models, then recompute only the missing ones
 
   CHANGES IN BayesFactor VERSION 0.9.3
 

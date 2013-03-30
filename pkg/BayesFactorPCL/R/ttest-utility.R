@@ -1,4 +1,4 @@
-ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE){
+ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE){
   if( (is.null(t) | is.null(n)) & !is.null(y) ){
     n = as.integer(length(y))
   }else if(!is.null(t) & !is.null(n)){
@@ -12,7 +12,7 @@ ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nul
   }
   rscale = rpriorValues("ttest",,rscale)
   iterations = as.integer(iterations)
-  if(progress){
+  if(progress & !noSample){
     progress = round(iterations/100)
     pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
   }else{ 
@@ -32,10 +32,14 @@ ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nul
   
   pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
   
-  chains = .Call("RgibbsOneSample", y, n, rscale, iterations, do.interval, interval,
+  if(noSample){
+    chains = matrix(NA,6,2)
+  }else{
+    chains = .Call("RgibbsOneSample", y, n, rscale, iterations, do.interval, interval,
                  progress, pbFun, new.env(), package="BayesFactor")
+  }
   
-  if(progress) close(pb);
+  if(inherits(pb,"txtProgressBar")) close(pb);
   priorDens = 1/(pi*rscale)
   postDens = mean(chains[5,])
   lbf = log(postDens) - log(priorDens)

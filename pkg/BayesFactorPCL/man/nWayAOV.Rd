@@ -5,7 +5,8 @@
   nWayAOV(y, X, struc = NULL, gMap = NULL, rscale,
     iterations = 10000, progress = options()$BFprogress,
     gibi = NULL, gibbs = FALSE, ignoreCols = NULL,
-    thin = 1, method = "auto", continuous = FALSE)
+    thin = 1, method = "auto", continuous = FALSE,
+    noSample = FALSE)
 }
 \arguments{
   \item{y}{vector of observations}
@@ -52,6 +53,11 @@
   covariates are included, or a logical vector of length
   equal to number of columns of X indicating which columns
   of the design matrix represent continuous covariates}
+
+  \item{noSample}{if \code{TRUE}, do not sample, instead
+  returning NA. This is intended to be used with functions
+  generating and testing many models at one time, such as
+  \code{\link{anovaBF}}}
 }
 \value{
   If \code{posterior} is \code{FALSE}, a vector of length 2

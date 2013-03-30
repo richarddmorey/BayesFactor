@@ -213,6 +213,11 @@ setMethod("which.max", "BFBayesFactor", function(x)
 setMethod("which.min", "BFBayesFactor", function(x)
   which.min.BFBayesFactor(x) )
 
+#' @rdname BFBayesFactor-class
+#' @name is.na,BFBayesFactor-method
+setMethod("is.na", "BFBayesFactor", function(x)
+  is.na.BFBayesFactor(x) )
+
 
 # 
 # setMethod("head", "BFBayesFactor", function(x, n=6L)
@@ -254,6 +259,12 @@ setMethod("which.min", "BFBayesFactor", function(x)
 ##'   appropriate for use with this function when \code{whichModels='top'}
 as.BFBayesFactor <- function(object)
   UseMethod("as.BFBayesFactor")
+
+
+is.na.BFBayesFactor <- function(x){
+  return(is.na(x@bayesFactor$bf))
+}
+
 
 names.BFBayesFactor <- function(x) {
   num <- sapply(x@numerator, function(el) el@shortName)

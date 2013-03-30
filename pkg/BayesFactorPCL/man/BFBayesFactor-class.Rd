@@ -5,6 +5,7 @@
 \alias{/,numeric,BFBayesFactor-method}
 \alias{BFBayesFactor-class}
 \alias{BFBayesFactorTop-class}
+\alias{is.na,BFBayesFactor-method}
 \alias{t,BFBayesFactor-method}
 \alias{which.max,BFBayesFactor-method}
 \alias{which.min,BFBayesFactor-method}

@@ -24,6 +24,7 @@
 ##'   package. Unavailable on Windows.
 ##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
 ##'   details.
+##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -69,7 +70,7 @@
 generalTestBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = options()$BFprogress,
-           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto")
+           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto",noSample=FALSE)
   {
     checkFormula(formula, data, analysis = "lm")
     # pare whichRandom down to terms that appear in the formula
@@ -100,7 +101,7 @@ generalTestBF <-
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
              rscaleCont = rscaleCont, iterations = iterations, method=method,
-             progress=FALSE)
+             progress=FALSE,noSample=noSample)
       
     }else{ # Single core
       
@@ -108,7 +109,7 @@ generalTestBF <-
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                      rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
                      rscaleCont = rscaleCont, iterations = iterations, 
-                     progress = FALSE, method = method)
+                     progress = FALSE, method = method,noSample=noSample)
       
     }
     

@@ -7,7 +7,7 @@
     iterations = 10000, progress = options()$BFprogress,
     rscaleFixed = "medium", rscaleRandom = "nuisance",
     rscaleCont = "medium", multicore = FALSE,
-    method = "auto")
+    method = "auto", noSample = FALSE)
 }
 \arguments{
   \item{formula}{a formula containing the full model for
@@ -47,6 +47,9 @@
 
   \item{method}{approximation method, if needed. See
   \code{\link{nWayAOV}} for details.}
+
+  \item{noSample}{if \code{TRUE}, do not sample, instead
+  returning NA.}
 }
 \value{
   An object of class \code{BFBayesFactor}, containing the

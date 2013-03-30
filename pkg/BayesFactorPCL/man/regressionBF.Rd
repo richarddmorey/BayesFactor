@@ -3,7 +3,8 @@
 \title{Function to compute Bayes factors for regression designs}
 \usage{
   regressionBF(formula, data, whichModels = "all",
-    progress = options()$BFprogress, rscaleCont = "medium")
+    progress = options()$BFprogress, rscaleCont = "medium",
+    noSample = FALSE)
 }
 \arguments{
   \item{formula}{a formula containing all covariates to
@@ -19,6 +20,9 @@
   progress bar}
 
   \item{rscaleCont}{prior scale on all standardized slopes}
+
+  \item{noSample}{if \code{TRUE}, do not sample, instead
+  returning NA.}
 }
 \value{
   An object of class \code{BFBayesFactor}, containing the

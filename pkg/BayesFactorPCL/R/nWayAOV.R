@@ -1,5 +1,4 @@
 
-
 ##' Computes a single Bayes factor, or samples from the posterior, for an ANOVA 
 ##' model defined by a design matrix
 ##' 
@@ -69,6 +68,9 @@
 ##' @param continuous either FALSE is no continuous covariates are included, or 
 ##'   a logical vector of length equal to number of columns of X indicating 
 ##'   which columns of the design matrix represent continuous covariates
+##' @param noSample if \code{TRUE}, do not sample, instead returning NA. This is 
+##'   intended to be used with functions generating and testing many models at one time, 
+##'   such as \code{\link{anovaBF}}
 ##' @return If \code{posterior} is \code{FALSE}, a vector of length 2 containing
 ##'   the computed log(e) Bayes factor (against the intercept-only null), along 
 ##'   with a proportional error estimate on the Bayes factor. Otherwise, an 
@@ -107,7 +109,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = options()$BFprogress, gibi = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = options()$BFprogress, gibi = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE, noSample = FALSE)
 {  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
@@ -213,7 +215,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
 		if(!is.function(gibi))
 			stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
 	}
-	if(progress & is.null(gibi)){
+	if(progress & is.null(gibi) & !noSample){
 		pb = txtProgressBar(min = 0, max = 100, style = 3) 
 	}else{ 
 		pb=NULL 
@@ -241,14 +243,20 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     nOutputPars = sum(1-ignoreCols)
     ignoreColsExtend = c(0,ignoreCols,0,rep(0,nGs))
       
-    chains = .Call("RGibbsNwayAov", 
+    # should we sample?
+    
+    if(noSample){
+      chains = matrix(NA,nOutputPars + 2 + nGs,2)
+    }else{  
+      chains = .Call("RGibbsNwayAov", 
                    as.integer(iterations), y, Z, ZtZ, priorX, Zty, as.integer(N), 
                    as.integer(P), as.integer(nGs), as.integer(gMap), rscale, as.integer(incCont),
                    as.integer(ignoreColsExtend), as.integer(thin),
                    as.integer(iterations/100*progress), pbFun, new.env(), 
                    package="BayesFactor")
     
-    dim(chains) <- c(nOutputPars + 2 + nGs, as.integer(iterations) %/% as.integer(thin))
+      dim(chains) <- c(nOutputPars + 2 + nGs, as.integer(iterations) %/% as.integer(thin))
+    }
     chains = mcmc(t(chains))  
     # Unsort the chains if we had continuous covariates
     if(incCont){
@@ -262,7 +270,9 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
     colnames(chains) = labels
     retVal = chains
  
-  }else{ # Compute Bayes factor
+  }else if(noSample){
+    retVal = c(bf = NA, properror=NA)
+  }else{# Compute Bayes factor
     if(method %in% c("simple","importance","auto")){
       retVal = doNwaySampling(method, y, X, rscale, nullLike, 
                    as.integer(iterations), XtCX, priorX, XtCy, ytCy, 

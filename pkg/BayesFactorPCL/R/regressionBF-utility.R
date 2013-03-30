@@ -38,7 +38,7 @@ integrand.regression=function(g,N,p,R2,rscaleSqr=1)
   exp(a)*dinvgamma(g,shape=.5,scale=rscaleSqr*N/2)
 }
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, gibi=NULL, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, gibi=NULL, noSample=FALSE, ...){
   rscale = rpriorValues("regression",,rscale)
   X <- apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
@@ -57,7 +57,7 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
     if(!is.function(gibi))
       stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
   }
-  if(progress & is.null(gibi)){
+  if(progress & is.null(gibi) & !noSample){
     pb = txtProgressBar(min = 0, max = 100, style = 3) 
   }else{ 
     pb=NULL 
@@ -74,7 +74,10 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
     }
   }
   
-  chains = .Call("RGibbsLinearReg", 
+  if(noSample){
+    chains = matrix(NA,ncol(covariates)+2,2)
+  }else{
+    chains = .Call("RGibbsLinearReg", 
                  as.integer(iterations), 
                  Cny,
                  X,
@@ -89,8 +92,8 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
                  pbFun,
                  new.env(),
                  package="BayesFactor")
-  
-  if(progress & is.null(gibi)) close(pb);
+  }
+  if(inherits(pb,"txtProgressBar")) close(pb);
   chains = t(chains)
   
   colnames(chains) = c(colnames(covariates),"sig2","g")
