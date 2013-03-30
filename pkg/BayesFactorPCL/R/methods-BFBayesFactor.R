@@ -48,12 +48,14 @@ setValidity("BFBayesFactor", function(object){
 #' @aliases recompute,BFBayesFactor-method
 setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogress, ...){
   if(progress) lapply = pblapply 
-  bfs = lapply(x@numerator, function(num, data, ...)
+  modelList = c(x@numerator,x@denominator)
+  bfs = lapply(modelList, function(num, data, ...)
     compare(numerator = num, data = data, ...),
-          data = x@data, progress = progress, ...)
+          data = x@data, progress = FALSE, ...)
   joined = do.call("c", bfs)
-  denbf = compare(numerator = x@denominator, data = x@data, progress = progress, ...) 
-  return(joined / denbf)
+  numerators = joined[ 1:(length(joined)-1) ]
+  denominator = joined[ length(joined) ]
+  return(numerators / denominator)
 })
 
 
