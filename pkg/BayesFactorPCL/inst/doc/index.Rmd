@@ -4,7 +4,7 @@
 \usepackage[utf8]{inputenc}
 -->
 
-![alt text](img/logo.png)
+![alt text](extra/logo.png)
 
 <hr>
 
