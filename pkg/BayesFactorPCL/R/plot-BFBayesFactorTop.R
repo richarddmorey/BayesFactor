@@ -41,6 +41,9 @@
 #' plot(bfs)
 plot.BFBayesFactorTop <- function(x, include1=TRUE, addDenom = FALSE, sortbf=FALSE, logbase = c("log10", "log2","ln"), marginExpand = .4, pars=NULL, ...){
 
+  # eliminate NAs
+  x = x[!is.na(x)]
+  
   oldPar <- par()
   on.exit(par(oldPar[c("mfrow","las",names(pars))]))
   textLogBase = logbase[1]
