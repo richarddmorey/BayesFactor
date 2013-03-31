@@ -35,6 +35,10 @@ Development version: [Development page](https://r-forge.r-project.org/projects/b
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
   * [General linear models: mixing continuous and categorical covariates](#glm)
+* Additional tips and tricks (0.9.4+)
+  * [Testing restrictions on linear models: generalTestBF()](#generalTestBF)
+  * [Saving time: Pre-culling Bayes factor objects](#preculltricks)
+  * [Saving memory: Thinning and filtering MCMC chains](#mcmctricks)
 * [References](#references)
   
 ### Getting help <a id="help"></a>
@@ -98,6 +102,7 @@ Function                 | Description
 `[`                      | Use indexing to select a subset of the Bayes factors
 `plot`                   | plot a Bayes factor object
 `sort`                   | Sort a Bayes factor object 
+`is.na`                  | Determine whether a Bayes factor object contains missing values
 `head`,`tail`            | Return the `n` highest or lowest Bayes factor in an object
 `max`, `min`             | Return the highest or lowest Bayes factor in an object
 `which.max`,`which.min`  | Return the index of the highest or lowest Bayes factor
@@ -570,6 +575,165 @@ The model with the highest Bayes factor is the no-interaction model, where the l
 
 ```{r GLMplot2,echo=FALSE,fig.width=10, fig.height=5}
 plot(allBFs / max(allBFs))
+```
+
+<a id="tricks"></a>
+Additional tips and tricks (0.9.4+)
+---------
+In this section, tricks to help save time and memory are described. These tricks work with version BayesFactor version 0.9.4+, unless otherwise indicated.
+
+<a id="generalTestBF"></a>
+### Testing restrictions on linear models: generalTestBF
+
+The convienience functions  `anovaBF` and `regressionBF` are specifically designed for cetagorical and continuous covariates respectively, and have limitations that make those functions easier to use. For instance, `anovaBF` cannot incorporate continuous covariates, and treats random effects as untested nuissance parameters. The `regressionBF` on the other hand, being strictly for multiple regression, cannot incorporate categorical covariates. These functions exist for particular purposes, since guessing what model comparisons a user wants in general is difficult. The `lmBF` function, on the other hand, can handle any model but is limited to a single model comparison: the specified model against the intercept-only model.
+
+The `generalTestBF` function allows the testing of groups of models (like `anovaBF` and `regressionBF`) but can handle any kind of model (like `lmBF`). Users specify a full model, and `generalTestBF` successively removes terms from that model and tests the resulting submodels. For example, using the `puzzles` data set described above:
+
+```{r}
+data(puzzles)
+
+puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + ID, data=puzzles, whichRandom="ID")
+
+puzzleGenBF
+```
+
+The resulting 9 models are the full model, plus the models that can be built by removing a single term at a time from the full model. By default, the `generalTestBF` function will not eliminate a term that is involved in a higher-order interaction (for instance, we will not remove `shape` unless the `shape:color` interaction is also removed); this behavior can be modified through the `whichModels` argument.
+
+It is often the case that some terms are nuisance terms that we would like to always keep in the model. For instance, `ID` in the `puzzles` data set is a participant effect; we would not generally consider models without a participant effect to be plausible. We can use the `neverExclude` argument to the function to specify a set of search terms (technically, [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html)) that, if matched, will specify that the term is always to be kept, and never excluded. To keep the `ID` term:
+```{r}
+puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + ID, data=puzzles, whichRandom="ID", neverExclude="ID")
+
+puzzleGenBF
+```
+The function now only considers models that contain `ID`. In some cases &mdash; especially when variable names are short, or a term to be kept is part of an interaction term that can be eliminated &mdash; we need to be careful in specifying search terms using `neverExclude`. For instance, suppose we are interested in testing the `ID:shape` interaction 
+```{r}
+puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, data=puzzles, whichRandom="ID", neverExclude="ID")
+
+puzzleGenBF
+```
+The `shape:ID` interaction is never eliminated, because it matches the `ID` search term from `neverExclude`. [Regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html) are useful here. There are special characters representing the beginning and ending of a string (`^` and `$`, respectively) that we can use to construct a regular expression that will match `ID` but not `shape:ID`:
+```{r}
+puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, data=puzzles, whichRandom="ID", neverExclude="^ID$")
+
+puzzleGenBF
+```
+The `shape:ID` interaction term is now eliminated in some models, because it does not match `"^ID$"`. Multiple terms may be provided to `neverExclude` by providing a character vector; terms which match any element in the vector will always be included in model comparisons.
+
+<a id="preculltricks"></a>
+### Saving time: Pre-culling Bayes factor objects
+In cases where the default analysis produces many models to compare, the sampling approach to computing Bayes factors can be time consuming. The `BayesFactor` package identifies situations where sampling is not needed and thus saves time, but any model in which there is more than one categorical factor or a mix of categorical and continuous predictors will require sampling. When a default analysis produces many models that are not of interest, much of the time spent sampling may be wasted.
+
+The main functions in the `BayesFactor` package include the `noSample` argument which, if true, will prevent sampling. If a Bayes factor can be computed without sampling, the package will compute it, returning `NA` for Bayes factors that would require sampling. Continuing using the `puzzles` dataset:
+```{r}
+puzzleCullBF <- generalTestBF(RT ~ shape + color + shape:color + ID, data=puzzles, whichRandom="ID", noSample=TRUE,whichModels='all')
+
+puzzleCullBF
+```
+Here we use `whichModels='all'` for demonstration, in order to obtain more possible model comparisons. Notice that several of the Bayes factors were computable without sampling, and are reported. The others have missing values, because the Bayes factor would have required sampling to compute.
+
+For now, we can separate the missing and non-missing Bayes factors in separate variables. This is made easy by the `is.na` method for BayesFactor objects:
+```{r}
+missing = puzzleCullBF[ is.na(puzzleCullBF) ]
+done = puzzleCullBF[ !is.na(puzzleCullBF) ]
+
+missing
+```
+The variable `missing` now contains all models for which we lack a Bayes factor. At this point, we decide which of the Bayes factors we would like to compute. We can do this in any way we like: we could simple specify a subset, like `missing[1:3]` or we could do something more complicated. Here, we will include based on the model formula, using the R function `grepl` ([?grepl](http://stat.ethz.ch/R-manual/R-devel/library/base/html/grep.html)). Suppose we only wanted models that did not include *both* `shape` and `color`. First, we obtain the names of the models in `missing`, and then test the names to see if they match our restriction with `grepl`. We can use the result to restrict the models to compare to only those of interest.
+
+```{r}
+# get the names of the numerator models
+missingModels = names(missing)$numerator
+
+# search them to see if they contain "shape" or "color" - 
+# results are logical vectors
+containsShape = grepl("shape",missingModels)
+containsColor = grepl("color",missingModels)
+
+# anything that does not contain "shape" and "color"
+containsOnlyOne = !(containsShape & containsColor)
+
+# restrict missing to only those of interest
+missingOfInterest = missing[containsOnlyOne]
+
+missingOfInterest
+```
+We have restricted our set down to `r length(missingOfInterest)` items from `r length(missing)` items. We can now use `recompute` to compute the missing Bayes factors:
+```{r}
+# recompute the Bayes factors for the missing models of interest
+sampledBayesFactors = recompute(missingOfInterest)
+
+sampledBayesFactors
+
+# Add them together with our other Bayes factors, already computed:
+completeBayesFactors = c(done, sampledBayesFactors)
+
+completeBayesFactors
+```
+Note that we're still left with one model that contains both `shape` and `color`, because it was computed without sampling. Assuming that we were not interested in any model containing both `shape` and `color`, however, we may have saved considerable time by not sampling to estimate their Bayes factors.
+
+The `noSample` argument will also work with the sampling of posteriors. This is especially useful, for instance, if one would like to know what order the MCMC chain results will be output in before sampling.
+
+<a id="mcmctricks"></a>
+### Saving memory: Thinning and filtering MCMC chains
+
+Modern computer systems, which have many gigabytes of RAM, contain sufficient memory to perform analyses of moderate scale using the `BayesFactor` package. Some systems &mdash; particularly older 32-bit systems &mdash; are limited in the amount of memory that can address. Posterior sampling can create output that is hundreds of megabytes in size. If a user conducts several of these analyses, R may not have sufficient memory to store the results.
+
+Consider, for instance, an analysis with 100 participants, 100 items, and two fixed effects with 3 levels each. We include all main effects in the model, as well as all two-way interactions (excluding the participant by item interaction). This results in 619 parameters. Because each number stored in an MCMC chain uses 8 bytes of memory, each iterations of the chain uses 8*619=4952 bytes. If a user then requests a 100,000 iteration MCMC chain &mdash; a large, but not unreasonably, sized MCMC chain &mdash; the resulting object will use about 500Mb of memory. This is most of the memory available to the default installation of R on a 32-bit Windows system. Even if a computer has a lot of memory, many of the parameters may not be interesting to the analyst. The participant and item effects, for instance, may be nuisance variation. If a user is not interested in the estimates, it is a waste of memory to include them in the MCMC chain.
+
+The `BayesFactor` package includes several methods for reducing the size of MCMC chains: column filtering and chain thinning. Column filtering ensures that certain parameters do not appear in the output; thinning reduces the length of MCMC chains by only keeping some of the iterations.
+
+#### Column filtering
+
+Consider again the `puzzles` data set. We begin by sampling from the MCMC chain of the model with the main effect of `shape` and `color`, along with their interaction, plus a participant effect:
+```{r}
+data(puzzles)
+
+# Get MCMC chains corresponding to "full" model
+# We prevent sampling so we can see the parameter names
+# iterations argument is necessary, but not used
+fullModel = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, noSample=TRUE, posterior = TRUE, iterations=3)
+
+fullModel
+```
+Notice that the participant effects, which are often regarded as nuisance, are included in the chain. These parameters double the size of the MCMC object; if we are not interested in the parameter values, we could eliminate them from the output for a considerable savings. This does not mean, however, that the parameters are not estimated; they will still be used by `BayesFactor`, but will not be reported.
+
+To do this, we pass the `columnFilter` argument to the sampler, which surpresses output of any columns that arise from a term matched by an element in `columnFilter.`
+```{r}
+fullModelFiltered = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, noSample=TRUE, posterior = TRUE, iterations=3,columnFilter="ID")
+
+fullModelFiltered
+```
+Like the `neverExclude` argument discussed [above](#generalTestBF), the `columnFilter` argument is a character vector of [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html). If a model term is matched by a search term in `columnFilter`, then all columns for term are eliminated from the MCMC output. Remember that `"ID"` will match anything containing letters `ID`; it would, for instance, also eliminate terms `GID` and `ID:shape`, if they existed. See the [manual section on `generalTestBF`](#generalTestBF) for details about how to use specific regular expressions to avoid eliminating columns by accident.
+
+#### Chain thinning
+MCMC chains are characterized by the fact that successive iterations are correlated with one another: that is, they are not indepenedent samples from the posterior distribution. To see this, we sample from the posterior of the full model and plot the results:
+
+```{r}
+# Sample 10000 iterations, eliminating ID columns
+chains = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, posterior = TRUE, iterations=10000,columnFilter="ID")
+```
+The figure below shows the first 1000 iterations of the MCMC chain for a selected parameter (left), and the *autocorrelation function* [[CRAN](http://stat.ethz.ch/R-manual/R-patched/library/stats/html/acf.html) / [Wikipedia](http://en.wikipedia.org/wiki/Autocorrelation)] for the same parameter (right).
+
+```{r acfplot,fig.width=10,fig.height=5,echo=FALSE}
+par(mfrow=c(1,2))
+plot(as.vector(chains[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
+acf(chains[,"shape-round"])
+```
+The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every \(k\) iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
+
+The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every \(k=2\) iterations using the `thin` argument:
+```{r}
+chainsThinned = recompute(chains, iterations=20000, thin=2)
+
+# check size of MCMC chain
+dim(chainsThinned)
+```
+Notice that we are left with 10,000 iterations, instead of the 20,000 we sampled, because half were thinned. The figure below shows the resulting MCMC chain and autocorrelation functions. The MCMC chain does not visually look very different, because the autocorrelation was minimal in the first place. However, the autocorrelation function no longer shows autocorrelation from one iteration to the next, implying that we have obtained 10,000 nearly independent samples.
+
+```{r acfplot2,fig.width=10,fig.height=5,echo=FALSE}
+par(mfrow=c(1,2))
+plot(as.vector(chainsThinned[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
+acf(chainsThinned[,"shape-round"])
 ```
 
 <a id="references"></a>
