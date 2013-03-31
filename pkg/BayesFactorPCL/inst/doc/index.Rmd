@@ -4,17 +4,16 @@
 \usepackage[utf8]{inputenc}
 -->
 
-```{r echo=FALSE,message=FALSE,results='hide'}
-library(knitr)
-set.seed(2)
-options(BFprogress = FALSE)
-```
+![alt text](img/logo.png)
 
+<hr>
 
 Using the 'BayesFactor' package, version 0.9.2+
 ===============================
+
 Richard D. Morey
 -----------------
+
 
 Stable version: [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS) 
 
@@ -48,9 +47,10 @@ Development version: [Development page](https://r-forge.r-project.org/projects/b
 * [Developer email (richarddmorey at gmail.com)](mailto:richarddmorey@gmail.com)
 
 ```{r echo=FALSE,message=FALSE,results='hide'}
-opts_chunk$set(concordance=TRUE)
+library(knitr)
 options(digits=3)
 require(graphics)
+set.seed(2)
 ```
 
 <a id="intro"></a>
@@ -144,6 +144,7 @@ There are a number of operations we can perform on our Bayes factor, such as tak
 ```
 or sampling from the posterior of the numerator model:
 ```{r tsamp}
+options()$BFprogress
 chains = posterior(bf, iterations = 1000)
 summary(chains)
 ```
