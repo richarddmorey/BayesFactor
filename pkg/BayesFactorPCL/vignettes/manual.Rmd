@@ -402,7 +402,10 @@ head(bf, n=6)
 ## Worst 4 models
 tail(bf, n=4)
 ## which model index is the best?
+BayesFactor::which.max(bf)
+BayesFactor::which.min(bf)
 which.max(bf)
+which.min(bf)
 ## Compare the 5 best models to the best
 bf2 = head(bf) / max(bf)
 bf2

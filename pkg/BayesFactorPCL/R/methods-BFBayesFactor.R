@@ -169,7 +169,7 @@ setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALS
 #' @rdname BFBayesFactor-class
 #' @name t,BFBayesFactor-method
 setMethod('t', "BFBayesFactor", function(x){
-  return(1/x)
+  return(t.BFBayesFactor(x))
 })
 
 setAs("BFBayesFactor", "data.frame",
@@ -191,20 +191,6 @@ setAs("BFBayesFactor", "vector",
       })
 
 
-#####
-# Are these needed? I have S3 methods for these, anyway.
-#####
-#
-# setMethod("sort", "BFBayesFactor", function(x, decreasing = FALSE, ...)
-#   sort.BFBayesFactor(x, decreasing, ...) )
-# 
-# setMethod("max", "BFBayesFactor", function(x)
-#   max.BFBayesFactor(x) )
-# 
-#setMethod("min", "BFBayesFactor", function(x)
-#   min.BFBayesFactor(x) )
- 
-
 #' @rdname BFBayesFactor-class
 #' @name which.max,BFBayesFactor-method
 setMethod("which.max", "BFBayesFactor", function(x)
@@ -219,24 +205,6 @@ setMethod("which.min", "BFBayesFactor", function(x)
 #' @name is.na,BFBayesFactor-method
 setMethod("is.na", "BFBayesFactor", function(x)
   is.na.BFBayesFactor(x) )
-
-
-# 
-# setMethod("head", "BFBayesFactor", function(x, n=6L)
-#   head.BFBayesFactor(x, n) )
-# 
-# setMethod("tail", "BFBayesFactor", function(x, n=6L)
-#   tail.BFBayesFactor(x, n) )
-
-#setMethod("length", "BFBayesFactor", function(x) nrow(x@bayesFactor))
-
-# setMethod("names", "BFBayesFactor", function(x){ 
-#   num <- sapply(x@numerator, function(el) el@shortName)
-#   den <- x@denominator@shortName
-#   return(list(numerator=num,denominator=den))
-# })
-
-
 
 
 ######
@@ -306,6 +274,11 @@ which.min.BFBayesFactor <- function(x){
   names(index) = rownames(x@bayesFactor)[index]
   return(index)
 }
+
+t.BFBayesFactor <- function(x){
+  1/x
+}
+
 
 head.BFBayesFactor <- function(x, n=6L, ...){
   n = ifelse(n>length(x),length(x),n)
