@@ -6,7 +6,7 @@
 
 ![alt text](extra/logo.png)
 
-<hr>
+------
 
 Using the 'BayesFactor' package, version 0.9.2+
 ===============================
@@ -69,6 +69,9 @@ library(BayesFactor)
 
 ```{r echo=FALSE,message=FALSE,results='hide'}
 options(BFprogress = FALSE)
+bfversion = BFInfo()
+session = sessionInfo()[[1]]
+rversion = paste(session$version.string," on ",session$platform,sep="")
 ```
 
 
@@ -758,3 +761,7 @@ Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), D
 
 <a id="Rouderttest"></a>
 Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.bf_.pdf))
+
+-------
+
+*This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*
