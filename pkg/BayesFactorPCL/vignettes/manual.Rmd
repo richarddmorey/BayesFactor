@@ -47,6 +47,7 @@ Development version: [Development page](https://r-forge.r-project.org/projects/b
 * [Developer email (richarddmorey at gmail.com)](mailto:richarddmorey@gmail.com)
 
 ```{r echo=FALSE,message=FALSE,results='hide'}
+options(markdown.HTML.stylesheet = 'extra/manual.css')
 library(knitr)
 options(digits=3)
 require(graphics)
@@ -130,7 +131,7 @@ diffScores = sleep$extra[1:10] - sleep$extra[11:20]
 t.test(diffScores)
 ```
 
-We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference \(\delta=(\mu-\mu_0)/\sigma_\epsilon\) is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(1/2\) for one-sample tests and \(\sqrt{2}/2\) for two-sample tests. See `?ttestBF` for more details.
+We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference $latex \delta=(\mu-\mu_0)/\sigma_\epsilon$ is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(1/2\) for one-sample tests and \(\sqrt{2}/2\) for two-sample tests. See `?ttestBF` for more details.
 
 ```{r onesampt}
 bf = ttestBF(x = diffScores)
@@ -186,7 +187,7 @@ When you have a Bayes factor object with several numerators, there are several i
 ```{r plotonesamp,fig.width=10,fig.height=5}
 plot(allbf)
 ```
-We can also divide a Bayes factor object by itself &mdash& or by a subset of itself &mdash to obtain pairwise comparisons:
+We can also divide a Bayes factor object by itself &mdash; or by a subset of itself &mdash; to obtain pairwise comparisons:
 ```{r onesamplist}
 bfmat = allbf / allbf
 bfmat
@@ -401,12 +402,21 @@ bf["privileges + learning + raises + critical + advance"]
 head(bf, n=6)
 ## Worst 4 models
 tail(bf, n=4)
+```
+
+```{r regressSelectwhichmax,eval=FALSE}
 ## which model index is the best?
-is(bf,"BFBayesFactor")
-BayesFactor::which.max(bf)
-BayesFactor::which.min(bf)
 which.max(bf)
-which.min(bf)
+```
+
+```{r regressSelectwhichmaxFake,echo=FALSE}
+## which model index is the best?
+BayesFactor::which.max(bf)
+```
+
+
+```{r regressSelect2}
+
 ## Compare the 5 best models to the best
 bf2 = head(bf) / max(bf)
 bf2

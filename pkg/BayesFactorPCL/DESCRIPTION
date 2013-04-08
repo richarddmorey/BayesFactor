@@ -1,14 +1,14 @@
 Package: BayesFactor
 Type: Package
 Title: Computation of Bayes factors for common designs
-Version: 0.9.5
-Date: 2013-3-20
+Version: 0.9.4
+Date: 2013-4-12
 Author: Richard D. Morey, Jeffrey N. Rouder
 Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactor package is a suite of functions for computing various Bayes factors for simple designs, including the one- and two-sample designs, one-way designs, general ANOVA designs, and linear regression.
 License: GPL-2
 VignetteBuilder: knitr
-Depends:  R (>= 3.0.0), coda, knitr, markdown
+Depends:  coda, knitr, markdown
 Imports:  pbapply, mvtnorm, stringr, methods, utils, graphics, tools
 Suggests: doMC, testthat
 URL:  http://bayesfactorpcl.r-forge.r-project.org/
