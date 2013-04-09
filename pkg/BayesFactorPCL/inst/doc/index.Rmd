@@ -1,0 +1,20 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Using the BayesFactor package, version 0.9.2+}
+\usepackage[utf8]{inputenc}
+-->
+
+![alt text](extra/logo.png)
+
+------
+
+
+BayesFactor manual files
+------
+
+```{r echo=FALSE,message=FALSE,results='hide'}
+options(markdown.HTML.stylesheet = 'extra/manual.css')
+library(knitr)
+```
+
+* [Main manual](manual.html)

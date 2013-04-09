@@ -1,0 +1,4 @@
+\documentclass{article}
+\begin{document}
+This is a dummy vignette to get R CHECK to compile the real one with the make file.
+\end{document}
