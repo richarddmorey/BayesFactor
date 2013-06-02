@@ -15,7 +15,7 @@ To install the latest development version, you can use `install_github` from the
 ## install devtools if necessary
 install.packages('devtools')
 ## get BayesFactor from github
-install_github('BayesFactor','richarddmorey')
+install_github('BayesFactor','richarddmorey', subdir='pkg/BayesFactor')
 ```
 
 Under Linux, you'll need standard build tools installed (`gcc`, etc).
