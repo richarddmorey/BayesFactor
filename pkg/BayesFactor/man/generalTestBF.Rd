@@ -3,8 +3,9 @@
 \title{Function to compute Bayes factors for general designs}
 \usage{
   generalTestBF(formula, data, whichRandom = NULL,
-    whichModels = "withmain", neverExclude = NULL,
-    iterations = 10000, progress = options()$BFprogress,
+    denominator = NULL, whichModels = "withmain",
+    neverExclude = NULL, iterations = 10000,
+    progress = options()$BFprogress,
     rscaleFixed = "medium", rscaleRandom = "nuisance",
     rscaleCont = "medium", multicore = FALSE,
     method = "auto", noSample = FALSE)
@@ -18,6 +19,10 @@
 
   \item{whichRandom}{a character vector specifying which
   factors are random}
+
+  \item{denominator}{a (one-sided) formula containing the
+  (optional) denominator for the analysis.  If present,
+  will be added to each model. (see Note and Examples)}
 
   \item{whichModels}{which set of models to compare; see
   Details}
@@ -85,6 +90,16 @@
   that can be formed by removing one factor or interaction
   using the \code{whichModels} argument. See the help for
   \code{\link{anovaBF}} for details.
+
+  To test the model against a specific \code{denominator},
+  a (one-sided) formula can be specified which will be
+  added to each model. These effects do not need to be
+  specified in the \code{formula} argument. Most
+  importantly, selection of models to be tested (which is
+  controlled by arguments \code{whichModels} and
+  \code{neverExclude}) is only performed on \code{formula}.
+  Random effects can be specified for both \code{formula}
+  and \code{denominator}. See Examples.
 }
 \examples{
 ## Puzzles example: see ?puzzles and ?anovaBF
@@ -94,9 +109,16 @@ data(puzzles)
 result = generalTestBF(RT ~ shape*color + ID, data = puzzles, whichRandom = "ID",
 neverExclude="ID", progress=FALSE)
 result
+
+## A more reasonable model could include random slopes in addition
+## to the random intercept for ID
+result2 = generalTestBF(RT ~ shape*color, data = puzzles, whichRandom = "ID",
+denominator = ~ ID+ID:shape+ID:color, progress=FALSE)
+result2
 }
 \author{
-  Richard D. Morey (\email{richarddmorey@gmail.com})
+  Richard D. Morey (\email{richarddmorey@gmail.com}).
+  Denominator argument added by Henrik Singmann.
 }
 \references{
   Rouder, J. N., Morey, R. D., Speckman, P. L., Province,

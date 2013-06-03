@@ -1,11 +1,13 @@
 \name{BFBayesFactor-class}
 \alias{/,BFBayesFactor,BFBayesFactor-method}
 \alias{/,numeric,BFBayesFactor-method}
-\alias{BFBayesFactor-class}
-\alias{BFBayesFactorTop-class}
 \alias{[,BFBayesFactor,index,missing,missing-method}
 \alias{[,BFBayesFactorTop,index,missing,missing-method}
+\alias{BFBayesFactor-class}
+\alias{BFBayesFactorTop-class}
 \alias{is.na,BFBayesFactor-method}
+\alias{names,BFBayesFactor-method}
+\alias{names<-,BFBayesFactor-method}
 \alias{t,BFBayesFactor-method}
 \alias{which.max,BFBayesFactor-method}
 \alias{which.min,BFBayesFactor-method}

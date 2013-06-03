@@ -10,6 +10,8 @@
 ##'   (see Examples)
 ##' @param data a data frame containing data for all factors in the formula
 ##' @param whichRandom a character vector specifying which factors are random
+##' @param denominator a (one-sided) formula containing the (optional) denominator for the analysis.
+##'   If present, will be added to each model. (see Note and Examples)
 ##' @param whichModels which set of models to compare; see Details
 ##' @param neverExclude a character vector containing a regular expression (see
 ##' help for \link{regex} for details) that indicates which terms to always keep 
@@ -27,7 +29,7 @@
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
-##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
+##' @author Richard D. Morey (\email{richarddmorey@@gmail.com}). Denominator argument added by Henrik Singmann.
 ##' @export
 ##' @references
 ##'   Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) 
@@ -54,6 +56,12 @@
 ##'   one factor or interaction using the \code{whichModels} argument. See the 
 ##'   help for \code{\link{anovaBF}} for details.
 ##'   
+##'   To test the model against a specific \code{denominator}, a (one-sided) formula can be specified 
+##'   which will be added to each model. These effects do not need to be specified in the \code{formula} 
+##'   argument. Most importantly, selection of models to be tested (which is controlled by arguments 
+##'   \code{whichModels} and \code{neverExclude}) is only performed on \code{formula}. Random effects can 
+##'   be specified for both \code{formula} and \code{denominator}. See Examples.
+##'
 ##' @examples
 ##' ## Puzzles example: see ?puzzles and ?anovaBF
 ##' data(puzzles)
@@ -63,23 +71,44 @@
 ##' neverExclude="ID", progress=FALSE)
 ##' result
 ##' 
+##' ## A more reasonable model could include random slopes in addition 
+##' ## to the random intercept for ID
+##' result2 = generalTestBF(RT ~ shape*color, data = puzzles, whichRandom = "ID", 
+##' denominator = ~ ID+ID:shape+ID:color, progress=FALSE)
+##' result2
+##' 
 ##' @keywords htest
 ##' @seealso \code{\link{lmBF}}, for testing specific models, and 
 ##'   \code{\link{regressionBF}} and \code{anovaBF} for other functions for
 ##'   testing multiple models simultaneously.
 generalTestBF <- 
-  function(formula, data, whichRandom = NULL, 
+  function(formula, data, whichRandom = NULL, denominator = NULL, 
            whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = options()$BFprogress,
            rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto",noSample=FALSE)
   {
     checkFormula(formula, data, analysis = "lm")
-    # pare whichRandom down to terms that appear in the formula
-    whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
+    # check denominator:
+    if (!is.null(denominator)) {
+      # check if denominator was entered without dv:
+      if (denominator[[2]] != formula[[2]]) {
+        if (length(denominator) > 2) stop("denominator formula should have no left hand side.")
+        denominator[[3]] <- denominator[[2]]
+        denominator[[2]]  <- formula[[2]]
+      }
+      checkFormula(denominator, data, analysis = "lm")
+      # compare whichRandom down to terms that appear in the formula
+      whichRandom <- whichRandom[whichRandom %in% c(fmlaFactors(formula, data)[-1], fmlaFactors(denominator, data)[-1])]
+    } else whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
+
     
     dataTypes <- createDataTypes(formula, whichRandom, data, analysis = "lm")
 
-    models = enumerateGeneralModels(formula, whichModels, neverExclude, 
-                                    includeBottom = whichModels!="top")
+    models <- enumerateGeneralModels(formula, whichModels, neverExclude, includeBottom = whichModels!="top")
+    
+    if (!is.null(denominator)) {
+      models <- lapply(models, combine.formulas, with = denominator)
+      models <- c(models, denominator)
+    }
     
     if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
                                                   length(models), " > ",options()$BFMaxModels ,"). ",
@@ -114,7 +143,11 @@ generalTestBF <-
     }
     
     # combine all the Bayes factors into one BFBayesFactor object
-    bfObj = do.call("c", bfs)
+    if (is.null(denominator)) bfObj = do.call("c", bfs)
+    else {
+      bfObj <- do.call("c", bfs[-length(bfs)])
+      bfObj <- bfObj/bfs[[length(bfs)]]
+    }
     
     if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)
     

@@ -77,3 +77,8 @@ possibleRestrictionsWithMainGeneral <- function( trms, alwaysKept=NULL ){
   return(unique(bothLevelRestrictions))                                                                  
 }
 
+combine.formulas <- function(formula, with) {
+  rh.formula <- paste(attr(terms(formula), "term.labels"), collapse = "+")
+  rh.with <- paste(attr(terms(with), "term.labels"), collapse = "+")
+  as.formula(paste(formula[[2]], "~", rh.formula, "+", rh.with))
+}

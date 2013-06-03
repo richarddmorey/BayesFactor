@@ -24,7 +24,7 @@ importFrom(utils, packageDescription)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
-exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na")
+exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na", "names", "names<-")
               
 S3method("is.na","BFBayesFactor")
 S3method("c","BFBayesFactor")
@@ -38,7 +38,6 @@ S3method("which.max","BFBayesFactor")
 S3method("sort","BFBayesFactor")
 S3method("as.data.frame","BFBayesFactor")
 S3method("as.vector","BFBayesFactor")
-S3method("names","BFBayesFactor")
 S3method("length","BFBayesFactor")
 S3method("t","BFBayesFactor")
 
