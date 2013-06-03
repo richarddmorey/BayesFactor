@@ -1,9 +1,9 @@
 \name{BFBayesFactorList-class}
 \alias{/,numeric,BFBayesFactorList-method}
-\alias{BFBayesFactorList-class}
 \alias{[,BFBayesFactorList,index,index,missing-method}
 \alias{[,BFBayesFactorList,index,missing,missing-method}
 \alias{[,BFBayesFactorList,missing,index,missing-method}
+\alias{BFBayesFactorList-class}
 \alias{t,BFBayesFactorList-method}
 \title{General S4 class for representing a collection of Bayes factor model
 comprisons, each against a different denominator}

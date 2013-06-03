@@ -1,4 +1,9 @@
 
+/pkg/BayesFactor/BayesFactor.Rproj
+/pkg/BayesFactor/.Rproj.user/
+/pkg/BayesFactor.Rcheck/
+/pkg/*.tar.gz
+
 # /
 /.Rproj.user
 /.Rhistory
