@@ -3,6 +3,8 @@
 /pkg/BayesFactor/.Rproj.user/
 /pkg/BayesFactor.Rcheck/
 /pkg/*.tar.gz
+/pkg/BayesFactor/src/*.o
+/pkg/BayesFactor/src/*.dll
 
 # /
 /.Rproj.user
@@ -44,3 +46,4 @@
 /www/workshop.md
 /www/glmtest.html
 /www/glmtest.md
+.Rproj.user

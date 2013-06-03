@@ -206,6 +206,29 @@ setMethod("which.min", "BFBayesFactor", function(x)
 setMethod("is.na", "BFBayesFactor", function(x)
   is.na.BFBayesFactor(x) )
 
+#' @rdname BFBayesFactor-class
+#' @name names,BFBayesFactor-method
+setMethod("names", "BFBayesFactor", 
+          function(x) {
+            num <- vapply(x@numerator, function(el) el@shortName, "", USE.NAMES=FALSE)
+            den <- x@denominator@shortName
+            return(list(numerator=num,denominator=den))  
+})
+ 
+#' @rdname BFBayesFactor-class
+#' @name names<-,BFBayesFactor-method
+setMethod("names<-", c("BFBayesFactor"),
+          function(x, value) {
+            if (length(x) != length(value[["numerator"]])) stop("Numerator names need to be of same length as object.")
+            for (i in 1:length(x)) {
+              x@numerator[[i]]@shortName <- value[["numerator"]][i]
+              
+            }
+            rownames(x@bayesFactor) <- value[["numerator"]]
+            x@denominator@shortName <- value[["denominator"]]
+            x@denominator@longName <- value[["denominator"]]
+            return(x)  
+          })
 
 ######
 # S3
@@ -233,13 +256,6 @@ as.BFBayesFactor <- function(object)
 
 is.na.BFBayesFactor <- function(x){
   return(is.na(x@bayesFactor$bf))
-}
-
-
-names.BFBayesFactor <- function(x) {
-  num <- sapply(x@numerator, function(el) el@shortName)
-  den <- x@denominator@shortName
-  return(list(numerator=num,denominator=den))  
 }
 
 length.BFBayesFactor <- function(x) 
