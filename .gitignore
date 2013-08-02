@@ -1,3 +1,12 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.rds
 
 # /
 /.Rproj.user
