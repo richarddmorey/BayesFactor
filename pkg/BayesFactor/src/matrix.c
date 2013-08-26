@@ -16,7 +16,7 @@ double matrixDet(double *A, int N, int LDA, int doLog, int *info)
 	
 	F77_CALL(dpotrf)("U", &N, B, &N, info);
 	if(*info){
-		Rprintf("Cholesky decomposition in matrixDet() returned nonzero info %d.\n",info);
+		Rprintf("Cholesky decomposition in matrixDet() returned nonzero info %d.\n",*info);
 	}
 	
 	for(i=0;i<N;i++)
