@@ -1,4 +1,3 @@
-
 ##' Computes a single Bayes factor, or samples from the posterior, for an ANOVA 
 ##' model defined by a design matrix
 ##' 
@@ -113,6 +112,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
 {  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
+  
+  y <- as.numeric(y)
   
   # Check thinning to make sure number is reasonable
   if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
