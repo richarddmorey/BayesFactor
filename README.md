@@ -14,6 +14,8 @@ To install the latest development version, you can use `install_github` from the
 ```R
 ## install devtools if necessary
 install.packages('devtools')
+## Load devtools package for install_github()
+library(devtools)
 ## get BayesFactor from github
 install_github('BayesFactor','richarddmorey', subdir='pkg/BayesFactor')
 ```
