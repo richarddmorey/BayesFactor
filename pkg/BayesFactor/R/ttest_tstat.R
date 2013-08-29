@@ -59,12 +59,12 @@ ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium")
   nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
   n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
   r2=rscale^2
-  marg.like.0=(1+t^2/(nu))^(-(nu+1)/2)
+  log.marg.like.0= -(nu+1)/2 * log(1+t^2/(nu))
   if(is.null(nullInterval)){
     integral = integrate(t.joint,lower=0,upper=Inf,t=t,n=n,nu=nu,r2=r2)  
     marg.like.1 = integral$value
     prop.error = integral$abs.error / marg.like.1
-    lbf = log(marg.like.1) - log(marg.like.0)
+    lbf = log(marg.like.1) - log.marg.like.0
   }else{
     areabf = ttestAreaNull(t, n1, n2, nullInterval=nullInterval, rscale=rscale)
     lbf = areabf$bf
