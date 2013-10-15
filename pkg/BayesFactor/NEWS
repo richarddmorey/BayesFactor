@@ -2,7 +2,8 @@
 
 CHANGES
   *  Minor bug fixes
-  *  Changed to new R 3.0 vignette building (and moved files to vignettes directory)
+  *  Changed back to new R 3.0 vignette building (and moved files to vignettes directory)
+  *  Restricted to R >= 3.0.0
 
   CHANGES IN BayesFactor VERSION 0.9.4
 
