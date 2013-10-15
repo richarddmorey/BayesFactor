@@ -8,11 +8,11 @@ Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactor package is a suite of functions for computing various Bayes factors for simple designs, including the one- and two-sample designs, one-way designs, general ANOVA designs, and linear regression.
 License: GPL-2
 VignetteBuilder: knitr
-Depends:  coda, knitr, markdown
+Depends:  R (>= 3.0.0), coda, knitr, markdown
 Imports:  pbapply, mvtnorm, stringr, methods, utils, graphics, tools
 Suggests: doMC, testthat
 URL:  http://bayesfactorpcl.r-forge.r-project.org/
-BugReports:  https://r-forge.r-project.org/tracker/?group_id=554
+BugReports:  https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
 
 
