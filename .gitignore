@@ -49,3 +49,5 @@
 /www/glmtest.html
 /www/glmtest.md
 .Rproj.user
+
+*.Rproj
