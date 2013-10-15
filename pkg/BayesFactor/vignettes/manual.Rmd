@@ -148,7 +148,6 @@ There are a number of operations we can perform on our Bayes factor, such as tak
 ```
 or sampling from the posterior of the numerator model:
 ```{r tsamp}
-options()$BFprogress
 chains = posterior(bf, iterations = 1000)
 summary(chains)
 ```
