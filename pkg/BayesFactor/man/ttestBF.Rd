@@ -103,7 +103,9 @@ plot(extra ~ group, data = sleep)
 ttestBF(x = sleep$extra[sleep$group==1], y = sleep$extra[sleep$group==2], paired=TRUE)
 
 ## Sample from the corresponding posterior distribution
-samples = ttestBF(x = sleep$extra[sleep$group==1], y = sleep$extra[sleep$group==2], paired=TRUE, posterior = TRUE, iterations = 1000)
+samples = ttestBF(x = sleep$extra[sleep$group==1],
+           y = sleep$extra[sleep$group==2], paired=TRUE,
+           posterior = TRUE, iterations = 1000)
 plot(samples[,"mu"])
 }
 \author{

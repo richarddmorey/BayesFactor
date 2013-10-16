@@ -30,7 +30,9 @@
 ##' @examples
 ##' ## Example data "InsectSprays" - see ?InsectSprays
 ##' require(stats); require(graphics)
-##' boxplot(count ~ spray, data = InsectSprays, xlab = "Type of spray", ylab = "Insect count", main = "InsectSprays data", varwidth = TRUE, col = "lightgray")
+##' boxplot(count ~ spray, data = InsectSprays, xlab = "Type of spray", 
+##'         ylab = "Insect count", main = "InsectSprays data", varwidth = TRUE, 
+##'         col = "lightgray")
 ##' 
 ##' ## Classical analysis (with transformation)
 ##' classical <- aov(sqrt(count) ~ spray, data = InsectSprays)

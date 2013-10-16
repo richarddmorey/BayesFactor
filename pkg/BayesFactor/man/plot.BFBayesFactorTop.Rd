@@ -43,7 +43,8 @@
 \examples{
 data(puzzles)
 
-bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", whichModels='top', progress=FALSE)
+bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID",
+        whichModels='top', progress=FALSE)
 plot(bfs)
 }
 \author{

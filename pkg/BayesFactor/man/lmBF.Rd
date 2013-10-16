@@ -78,7 +78,9 @@ bfMain = lmBF(RT ~ shape + color + ID, data = puzzles, whichRandom = "ID")
 bfMain / bfFull
 
 ## sample from the posterior of the full model
-samples = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, whichRandom = "ID", posterior = TRUE, iterations = 1000)
+samples = lmBF(RT ~ shape + color + shape:color + ID,
+           data = puzzles, whichRandom = "ID", posterior = TRUE,
+           iterations = 1000)
 
 ## Aother way to sample from the posterior of the full model
 samples2 = posterior(bfFull, iterations = 1000)

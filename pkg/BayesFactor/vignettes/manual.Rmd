@@ -43,7 +43,7 @@ Development version: [Development page](https://r-forge.r-project.org/projects/b
 ### Getting help <a id="help"></a>
 
 * [Help forums](https://r-forge.r-project.org/forum/?group_id=554)
-* [Bug reports](https://r-forge.r-project.org/tracker/?group_id=554)
+* [Bug reports](https://github.com/richarddmorey/BayesFactor/issues?state=open)
 * [Developer email (richarddmorey at gmail.com)](mailto:richarddmorey@gmail.com)
 
 ```{r echo=FALSE,message=FALSE,results='hide'}

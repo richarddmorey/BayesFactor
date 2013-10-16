@@ -37,7 +37,8 @@
 #' @examples
 #' data(puzzles)
 #' 
-#' bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", whichModels='top', progress=FALSE)
+#' bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", 
+#'         whichModels='top', progress=FALSE)
 #' plot(bfs)
 plot.BFBayesFactorTop <- function(x, include1=TRUE, addDenom = FALSE, sortbf=FALSE, logbase = c("log10", "log2","ln"), marginExpand = .4, pars=NULL, ...){
 
