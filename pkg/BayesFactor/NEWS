@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.6
+
+CHANGES
+  *  Data frame for linear model analyses now get modified: character columns are converted to factors, and factors are re-factor()ed to get rid of levels with no observations
+
   CHANGES IN BayesFactor VERSION 0.9.5
 
 CHANGES

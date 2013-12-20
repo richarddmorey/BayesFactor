@@ -58,6 +58,7 @@
 lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
                  rscaleRandom="nuisance", rscaleCont="medium", posterior=FALSE,progress=options()$BFprogress, ...)
 {    
+  data <- reFactorData(data)
   checkFormula(formula, data, analysis="lm")
   dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")
   rscales = list(fixed=rpriorValues("allNways","fixed",rscaleFixed), 

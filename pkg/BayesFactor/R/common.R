@@ -2,6 +2,18 @@ if(getRversion() >= '2.15.1') globalVariables("gIndex")
 
 mcoptions <- list(preschedule=FALSE, set.seed=TRUE)
 
+# Create (new) factors out of factor and character columns
+reFactorData <- function(data){
+  if(is.data.frame(data)){
+    indChar <- sapply(data, is.character)
+    indFac <- sapply(data, is.factor)
+    data[indChar | indFac] <- lapply(data[indChar | indFac], factor)
+    return(data)
+  }else{
+    stop("Data must be in data.frame format.")
+  }
+}
+
 filterVectorLogical <- function(columnFilter,myNames){
   if(!is.null(columnFilter)){
     ignoreMatrix = sapply(columnFilter, function(el,namedCols){
