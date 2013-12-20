@@ -64,8 +64,7 @@
 ##'   
 ##'   Perception and Cognition Lab (University of Missouri): Bayes factor 
 ##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
-##' @note The default priors have scale has changed from 1 to \eqn{\sqrt{2}/2} for the 
-##'   two-sample t test, and 1/2 for the one-sample t test. The 
+##' @note The default priors have scale has changed from 1 to \eqn{\sqrt{2}/2}. The 
 ##'   factor of \eqn{\sqrt{2}} in the two-sample t test is to be consistent 
 ##'   with Morey et al. (2011) and 
 ##'   Rouder et al. (2012), and the factor of \eqn{1/2} in both is to better scale the 

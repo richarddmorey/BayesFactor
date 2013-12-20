@@ -2,7 +2,7 @@
 \alias{linearReg.R2stat}
 \title{Use R^2 statistic to compute Bayes factor for regression designs}
 \usage{
-  linearReg.R2stat(N, p, R2, rscale = 1)
+  linearReg.R2stat(N, p, R2, rscale = "medium")
 }
 \arguments{
   \item{N}{number of observations}

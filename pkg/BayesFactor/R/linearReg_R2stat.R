@@ -54,7 +54,7 @@
 ##' result = linearReg.R2stat(30,1,0.6813)
 ##' exp(result[['bf']])
 
-linearReg.R2stat=function(N,p,R2,rscale=1) {
+linearReg.R2stat=function(N,p,R2,rscale="medium") {
   rscale = rpriorValues("regression",,rscale)
   h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
   properror = exp(log(h[[2]]) - log(h[[1]]))

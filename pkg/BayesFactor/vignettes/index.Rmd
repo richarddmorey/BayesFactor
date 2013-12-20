@@ -18,3 +18,4 @@ library(knitr)
 ```
 
 * [Main manual](manual.html)
+* [Prior checks](priors.html)

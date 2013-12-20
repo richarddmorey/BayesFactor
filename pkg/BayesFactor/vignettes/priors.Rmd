@@ -1,0 +1,120 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Using the BayesFactor package, version 0.9.2+}
+\usepackage[utf8]{inputenc}
+-->
+
+![alt text](extra/logo.png)
+
+------
+
+
+Prior checks
+===========
+
+```{r echo=FALSE,message=FALSE,results='hide'}
+options(markdown.HTML.stylesheet = 'extra/manual.css')
+library(knitr)
+library(BayesFactor)
+set.seed(2)
+```
+
+The BayesFactor has a number of prior settings that should provide for a consistent Bayes factor. In this document, Bayes factors are checked for consistency.
+
+Independent-samples t test and ANOVA
+------
+The independent samples $t$ test and ANOVA functions should provide the same answers with the default prior settings.
+
+```{r}
+# Create data
+x <- rnorm(20)
+x[1:10] = x[1:10] + .2
+grp = factor(rep(1:2,each=10))
+
+dat = data.frame(x=x,grp=grp)
+
+t.test(x ~ grp, data=dat)
+```
+
+If the prior settings are consistent, then all three of these numbers should be the same.
+
+```{r}
+as.vector(ttestBF(formula = x ~ grp, data=dat))
+as.vector(anovaBF(x~grp, data=dat,progress=FALSE))
+as.vector(generalTestBF(x~grp, data=dat,progress=FALSE))
+```
+
+Regression and ANOVA
+------
+In a paired design with an additive random factor and and a fixed effect with two levels, the Bayes factors should be the same, regardless of whether we treat the fixed factor as a factor or as a dummy-coded covariate.
+
+```{r}
+# create some data
+id = rnorm(10)
+eff = c(-1,1)*1
+effCross = outer(id,eff,'+')+rnorm(length(id)*2)
+dat = data.frame(x=as.vector(effCross),id=factor(1:10), grp=factor(rep(1:2,each=length(id))))
+dat$forReg = as.numeric(dat$grp)-1.5
+idOnly = lmBF(x~id, data=dat, whichRandom="id", progress=FALSE)
+
+summary(lm(x~id+grp,data=dat))
+
+```
+
+If the prior settings are consistent, these two numbers should be almost the same (within MC estimation error).
+```{r}
+as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
+as.vector(lmBF(x ~ forReg+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
+```
+
+Independent t test and paired t test
+-------
+Given the effect size $\hat{delta}=t\sqrt{N_{eff}}$, where the effective sample size $N_{eff}$ is the sample size in the one-sample case, and
+\[
+N_{eff} = \frac{N_1N_2}{N_1+N_2}
+\]
+in the two-sample case, the Bayes factors should be the same for the one-sample and two sample case, given the same observed effect size, save for the difference from the degrees of freedom that affects the shape of the noncentral $t$ likelihood. The difference from the degrees of freedom should get smaller for a given $t$ as $N_{eff}\rightarrow\infty$.
+
+```{r}
+# create some data
+tstat = 3
+NTwoSample = 500
+effSampleSize = (NTwoSample^2)/(2*NTwoSample)
+effSize = tstat/sqrt(effSampleSize)
+
+# One sample
+x0 = rnorm(effSampleSize)
+x0 = (x0 - mean(x0))/sd(x0) + effSize
+
+t.test(x0)
+
+# Two sample
+x1 = rnorm(NTwoSample)
+x1 = (x1 - mean(x1))/sd(x1)
+x2 = x1 + effSize
+
+t.test(x2,x1)
+
+```
+
+These (log) Bayes factors should be approximately the same. 
+```{r}
+log(as.vector(ttestBF(x0)))
+log(as.vector(ttestBF(x=x1,y=x2)))
+```
+
+
+Paired samples and ANOVA
+------
+A paired sample $t$ test and a linear mixed effects model should broadly agree. The two are based on different models &mdash; the paired t test has the participant effects substracted out, while the linear mixed effects model has a prior on the participant effects &mdash; but we'd expect them to lead to the same conclusions. 
+
+These two Bayes factors should be lead to similar conclusions.
+
+```{r}
+# using the data previously defined
+t.test(x~grp,data=dat,paired=TRUE)
+
+as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
+as.vector(ttestBF(x=dat$x[dat$grp==1],y=dat$x[dat$grp==2],paired=TRUE))
+```
+

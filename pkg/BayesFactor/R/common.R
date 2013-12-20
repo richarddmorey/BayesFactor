@@ -155,9 +155,9 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
   if(modelType=="ttestOne"){
     return(
       switch(priorType, 
-             ultrawide=1,
-             wide=sqrt(2)/2, 
-             medium=1/2, 
+             ultrawide=sqrt(2),
+             wide=1, 
+             medium=sqrt(2)/2, 
              stop("Unknown prior type."))  
     )
   }
