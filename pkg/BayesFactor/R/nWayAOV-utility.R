@@ -25,6 +25,7 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
 
 doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun)
 {
+  returnList = NULL
   simpSamples = NULL
   impSamples = NULL
   apx = NULL
@@ -34,45 +35,65 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   if(ncol(X)==1) method="simple"
   
   if(method=="auto"){
-    simpSamples = .Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
+    simpSamples = suppressWarnings(.Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
                         P, nGs, gMap, a, b, incCont,
                         as.integer(0), pbFun, new.env(), 
-                        package="BayesFactor")
+                        package="BayesFactor"))
     simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
     logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
      
     
-    apx = try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont))
+    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)))
     if(inherits(apx,"try-error")){
       method="simple"
     }else{
-      impSamples = .Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
+      impSamples = suppressWarnings(try(.Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
                          P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
                          as.integer(0), pbFun, new.env(), 
-                         package="BayesFactor")
-      impErr = propErrorEst(impSamples[[2]] - nullLike)
-      logAbsImpErr = impSamples[[1]] + log(impErr) - nullLike   
-      
-      method = ifelse(impErr>simpleErr,"simple","importance")
+                         package="BayesFactor")))
+      if(inherits(impSamples, "try-error")){
+        method="simple"
+      }else{
+        impErr = propErrorEst(impSamples[[2]] - nullLike)
+        logAbsImpErr = impSamples[[1]] + log(impErr) - nullLike   
+        if(is.na(impErr)){
+          method="simple"
+        }else if(is.na(simpleErr)){
+          method="importance"
+        }else{
+          method = ifelse(impErr>simpleErr,"simple","importance")
+        }
+      }  
     }
   }
   
   if(method=="importance"){
 
-    if(is.null(apx))  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
-    returnList = .Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
+    if(is.null(apx) | inherits(apx,"try-error"))  
+      apx = try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont))
+    if(inherits(apx, "try-error")){
+      method="simple"   
+    }else{
+      returnList = try(.Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
                        P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
                        as.integer(iters/100*progress), pbFun, new.env(), 
-                       package="BayesFactor")
-    
-  }else if(method=="simple"){
+                       package="BayesFactor"))
+      if(inherits(returnList,"try-error")){
+        method="simple"
+        returnList = NULL
+      }
+    }
+  }  
+  if(method=="simple" | is.null(returnList)){
     returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
                         P, nGs, gMap, a, b, incCont,
                         as.integer(iters/100*progress), pbFun, new.env(), 
                         package="BayesFactor")
     
-  }else{
-    stop("Unknown sampling method requested in for nWayAOV.")
+  }
+  if(is.null(returnList)){  
+    warning("Unknown sampling method requested (or sampling failed) for nWayAOV")
+    return(c(bf=NA,properror=NA))
   }
   bf = returnList[[1]] - nullLike
   
