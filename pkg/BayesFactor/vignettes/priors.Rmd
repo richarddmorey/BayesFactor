@@ -8,6 +8,9 @@
 
 ------
 
+```{r echo=FALSE,message=FALSE,results='hide'}
+
+```
 
 Prior checks
 ===========
@@ -16,6 +19,10 @@ Prior checks
 options(markdown.HTML.stylesheet = 'extra/manual.css')
 library(knitr)
 library(BayesFactor)
+options(BFprogress = FALSE)
+bfversion = BFInfo()
+session = sessionInfo()[[1]]
+rversion = paste(session$version.string," on ",session$platform,sep="")
 set.seed(2)
 ```
 
@@ -40,8 +47,8 @@ If the prior settings are consistent, then all three of these numbers should be 
 
 ```{r}
 as.vector(ttestBF(formula = x ~ grp, data=dat))
-as.vector(anovaBF(x~grp, data=dat,progress=FALSE))
-as.vector(generalTestBF(x~grp, data=dat,progress=FALSE))
+as.vector(anovaBF(x~grp, data=dat))
+as.vector(generalTestBF(x~grp, data=dat))
 ```
 
 Regression and ANOVA
@@ -55,16 +62,16 @@ eff = c(-1,1)*1
 effCross = outer(id,eff,'+')+rnorm(length(id)*2)
 dat = data.frame(x=as.vector(effCross),id=factor(1:10), grp=factor(rep(1:2,each=length(id))))
 dat$forReg = as.numeric(dat$grp)-1.5
-idOnly = lmBF(x~id, data=dat, whichRandom="id", progress=FALSE)
+idOnly = lmBF(x~id, data=dat, whichRandom="id")
 
-summary(lm(x~id+grp,data=dat))
+summary(aov(x~grp+Error(id/grp),data=dat))
 
 ```
 
 If the prior settings are consistent, these two numbers should be almost the same (within MC estimation error).
 ```{r}
-as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
-as.vector(lmBF(x ~ forReg+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
+as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id")/idOnly)
+as.vector(lmBF(x ~ forReg+id, data=dat, whichRandom="id")/idOnly)
 ```
 
 Independent t test and paired t test
@@ -114,7 +121,10 @@ These two Bayes factors should be lead to similar conclusions.
 # using the data previously defined
 t.test(x~grp,data=dat,paired=TRUE)
 
-as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id", progress=FALSE)/idOnly)
+as.vector(lmBF(x ~ grp+id, data=dat, whichRandom="id")/idOnly)
 as.vector(ttestBF(x=dat$x[dat$grp==1],y=dat$x[dat$grp==2],paired=TRUE))
 ```
 
+-------
+
+*This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*

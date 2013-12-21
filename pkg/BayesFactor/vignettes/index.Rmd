@@ -19,3 +19,4 @@ library(knitr)
 
 * [Main manual](manual.html)
 * [Prior checks](priors.html)
+* [Comparison to arm/lmer](compare_lme4.html)
