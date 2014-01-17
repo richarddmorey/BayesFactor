@@ -1,7 +1,8 @@
   CHANGES IN BayesFactor VERSION 0.9.6
 
 CHANGES
-  *  Fixed a bug causing computation to fail if importance sampling fails in nWayAOV. Uses method="simple" is a fallback.
+  *  Fixed a bug causing computation to fail if importance sampling fails in nWayAOV. Uses method="simple" as a fallback.
+  *  Fixed a bug where quadrature failed for large F values in unbalanced one-way ANOVA designs
   *  Data frame for linear model analyses now get modified: character columns are converted to factors, and factors are re-factor()ed to get rid of levels with no observations
   * Increased prior scales in one-sample t test by a factor of sqrt(2), in order to be consistent with the two-sample t test for the same effect size and effective sample size
   * Added vignette with prior checks to show consistency across methods

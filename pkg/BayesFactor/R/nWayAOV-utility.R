@@ -1,4 +1,4 @@
-singleGBayesFactor <- function(y,X,rscale,gMap){
+singleGBayesFactor <- function(y,X,rscale,gMap,optimLimitFactor=2){
   if(ncol(X)==1){
     dat = data.frame(y=y,x=as.factor(X[,1])) 
     freqs = table(dat$x)
@@ -8,16 +8,21 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
   }else{
     # change from C indexing to R indexing
     gMap = gMap + 1
-    integral = integrate(
-      Vectorize(
-        function(g,y,Xm,rscale,gMap){
-          exp(Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g))
-        },"g")
-      ,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap)
+    f1 = Vectorize(
+      function(g,y,Xm,rscale,gMap,const){
+        Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g) - const
+      },"g")
+    f2 = function(...) exp(f1(...))
     
-    marg.like.1 = integral$value
-    prop.error = integral$abs.error / marg.like.1
-    lbf = log(marg.like.1)
+    beta = solve(t(X)%*%X)%*%t(X)%*%y
+    resid = y - X%*%beta
+    
+    g.est = var(beta)/var(resid)
+    const = optimize(f1,c(0,optimLimitFactor*g.est),y=y,Xm=X,rscale=rscale,gMap=gMap,const=0,maximum=TRUE)$objective
+    integral = integrate(f2,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
+    
+    lbf = log(integral$value) + const
+    prop.error = exp(log(integral$abs.error) - lbf)
     return(list(bf = lbf, properror=prop.error))
   }
 }

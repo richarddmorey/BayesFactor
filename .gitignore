@@ -51,3 +51,5 @@
 .Rproj.user
 
 *.Rproj
+
+pkg/BayesFactor_0.9.6.tar.gz
