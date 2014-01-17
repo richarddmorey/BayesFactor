@@ -17,13 +17,21 @@ singleGBayesFactor <- function(y,X,rscale,gMap,optimLimitFactor=2){
     beta = solve(t(X)%*%X)%*%t(X)%*%y
     resid = y - X%*%beta
     
+    # Use estimate of g so that we can find a value near the 
+    # maximum of the function to help us renormalize it 
     g.est = var(beta)/var(resid)
-    const = optimize(f1,c(0,optimLimitFactor*g.est),y=y,Xm=X,rscale=rscale,gMap=gMap,const=0,maximum=TRUE)$objective
-    integral = integrate(f2,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
-    
+    integral = try({
+      const = optimize(f1, c(0,optimLimitFactor*g.est), y=y, 
+                       Xm=X, rscale=rscale, gMap=gMap, 
+                       const=0, maximum=TRUE)$objective
+      integrate(f2,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
+    })
+    if(inherits(integral,"try-error")){
+      return(list(bf = NA, properror = NA))
+    }
     lbf = log(integral$value) + const
     prop.error = exp(log(integral$abs.error) - lbf)
-    return(list(bf = lbf, properror=prop.error))
+    return(list(bf = lbf, properror = prop.error))
   }
 }
 
