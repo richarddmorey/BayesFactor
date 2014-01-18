@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr}
-%\VignetteIndexEntry{Using the BayesFactor package, version 0.9.2+}
+%\VignetteIndexEntry{Demos and comparisons}
 \usepackage[utf8]{inputenc}
 -->
 
