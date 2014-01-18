@@ -76,7 +76,7 @@ as.vector(lmBF(x ~ forReg+id, data=dat, whichRandom="id")/idOnly)
 
 Independent t test and paired t test
 -------
-Given the effect size $\hat{delta}=t\sqrt{N_{eff}}$, where the effective sample size $N_{eff}$ is the sample size in the one-sample case, and
+Given the effect size $\hat{\delta}=t\sqrt{N_{eff}}$, where the effective sample size $N_{eff}$ is the sample size in the one-sample case, and
 \[
 N_{eff} = \frac{N_1N_2}{N_1+N_2}
 \]
