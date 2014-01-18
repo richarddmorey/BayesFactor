@@ -218,7 +218,7 @@ lr4b <- lmer(  RT ~ Condition + ResponseToPrime +  (1|Word)+ (1|Subject) + lRTmi
 # BayesFactor
 B5out <- lmBF( RT ~ Condition + ResponseToPrime +     Word +    Subject  + lRTmin1 + RTtoPrime + ResponseToPrime*RTtoPrime + BaseFrequency  , primHeidOL , whichRandom = c("Word", "Subject"),  posterior = TRUE, iteration = 50000,columnFilter=c("Word","Subject"))
 
-lmerEff <- lr4b@fixef
+lmerEff <- fixef(lr4b)
 bfEff <- colMeans(B5out[,1:10])
 ```
 
