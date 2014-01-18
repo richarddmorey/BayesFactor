@@ -1,6 +1,7 @@
   CHANGES IN BayesFactor VERSION 0.9.6
 
 CHANGES
+  *  Fixed a bug causing Bayes factors to evaluate to NA when matrix inversion fails (very rare)
   *  Fixed a bug causing computation to fail if importance sampling fails in nWayAOV. Uses method="simple" as a fallback.
   *  Fixed a bug where quadrature failed for large F values in unbalanced one-way ANOVA designs
   *  Data frame for linear model analyses now get modified: character columns are converted to factors, and factors are re-factor()ed to get rid of levels with no observations

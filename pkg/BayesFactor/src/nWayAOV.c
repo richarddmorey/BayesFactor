@@ -1,10 +1,10 @@
 #include "BFPCL.h"
 
 
-double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P, double *g, int incCont, double logDetPrX, int *colInfo)
+double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P, double *g, int incCont, double logDetPrX, int *cholInfo)
 {
 	double *W,ldetS=0,ldetW,top,bottom1,bottom2,q;
-	int i,j, Psqr=P*P, info=0;
+	int i,j, Psqr=P*P;
   
 	W = Memcpy(Calloc(Psqr,double),XtCX,Psqr);
 	
@@ -22,7 +22,7 @@ double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy,
 		W[i + P*i] = W[i + P*i] + 1/g[i];
 	}
 
-  ldetW = -matrixDet(W, P, P, 1, &info);
+  ldetW = -matrixDet(W, P, P, 1, cholInfo);
   InvMatrixUpper(W, P);
 	internal_symmetrize(W, P);
 	
@@ -108,7 +108,7 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 	  
     samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, logDetPrX,&cholInfo);
     if(cholInfo){
-      *badSamples++;
+      (*badSamples)++;
 		}else{
       if(isFirst)
 		  {
@@ -151,7 +151,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP
 	PROTECT(Rsamples = allocVector(REALSXP,iters));
 	PROTECT(Ravg = allocVector(REALSXP,1));
   PROTECT(RbadSamples = allocVector(REALSXP,1));
-	PROTECT(returnList = allocVector(VECSXP,3));
+	PROTECT(returnList = allocVector(VECSXP,4));
 	PROTECT(Rgsamples = allocMatrix(REALSXP,nGs,iters));	
 
 	samples = REAL(Rsamples);
@@ -223,7 +223,7 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 	
     samples[i] = jeffmlikeNWayAov(XtCX, priorX, XtCy, ytCy, N, P, g2, incCont, logDetPrX, &cholInfo) + sumq + sumdinvgamma - sumdnorm;;
 		if(cholInfo){
-      *badSamples++;
+      (*badSamples)++;
 		}else{
     	if(isFirst)
   		{
@@ -269,7 +269,7 @@ SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy
 	PROTECT(Rsamples = allocVector(REALSXP,iters));
 	PROTECT(Ravg = allocVector(REALSXP,1));
   PROTECT(RbadSamples = allocVector(REALSXP,1));
-  PROTECT(returnList = allocVector(VECSXP,3));
+  PROTECT(returnList = allocVector(VECSXP,4));
 	PROTECT(Rgsamples = allocMatrix(REALSXP,nGs,iters));	
 
 	samples = REAL(Rsamples);
