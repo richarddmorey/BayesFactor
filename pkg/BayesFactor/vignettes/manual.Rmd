@@ -4,7 +4,9 @@
 \usepackage[utf8]{inputenc}
 -->
 
-![alt text](extra/logo.png)
+<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
+
+![BayesFactor logo](extra/logo.png)
 
 ------
 
@@ -15,7 +17,7 @@ Richard D. Morey
 -----------------
 
 <div class="social">
-<a href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
+<a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
 </div>
 
 <div class="socialsep"></div>
@@ -28,7 +30,11 @@ Share via<br/>
 
 Stable version: [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS) 
 
-Development version: [Development page](https://r-forge.r-project.org/projects/bayesfactorpcl/) - [Development package NEWS](https://r-forge.r-project.org/scm/viewvc.php/pkg/BayesFactorPCL/NEWS?view=markup&root=bayesfactorpcl) 
+Development version: [Development page](https://github.com/richarddmorey/BayesFactor) - [Development package NEWS](https://github.com/richarddmorey/BayesFactor/blob/master/pkg/BayesFactor/NEWS) 
+<div class="social">
+<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img src="extra/github.png" alt="fork on github" border="0"/><span class="socialtext">&nbsp;on github</span></a>
+</div>
+
 
 
 ### Table of Contents
