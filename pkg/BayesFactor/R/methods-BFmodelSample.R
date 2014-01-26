@@ -29,8 +29,6 @@ setMethod('recompute', signature(x = "BFmcmc", progress="ANY"),
   }
 )
 
-#' @rdname compare-methods
-#' @aliases compare,BFmcmc,BFmcmc,ANY-method
 setMethod('compare', signature(numerator = "BFmcmc", denominator = "BFmcmc"), 
   function(numerator, denominator, ...){
     compare(numerator = numerator@model, data = numerator@data, ...) / 
@@ -38,8 +36,6 @@ setMethod('compare', signature(numerator = "BFmcmc", denominator = "BFmcmc"),
   }
 )    
 
-#' @rdname compare-methods
-#' @aliases compare,BFmcmc,missing,ANY-method
 setMethod('compare', signature(numerator = "BFmcmc", denominator = "missing"), 
           function(numerator, denominator, ...){
             compare(numerator = numerator@model, data = numerator@data, ...)

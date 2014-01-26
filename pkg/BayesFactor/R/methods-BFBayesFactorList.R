@@ -20,12 +20,15 @@ setMethod('show', "BFBayesFactorList", function(object){
 
 #' @rdname BFBayesFactorList-class
 #' @name t,BFBayesFactorList-method
+#' @param x a BFBayesFactorList object
 setMethod('t', "BFBayesFactorList", function(x){
   return(1/x)
 })
 
 #' @rdname BFBayesFactorList-class
 #' @name /,numeric,BFBayesFactorList-method
+#' @param e1 Numerator of the ratio
+#' @param e2 Denominator of the ratio
 setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
   if( (e1 == 1) & (length(e2[[1]])==1) ){
     bflist = lapply(e2,function(el) 1/el)
@@ -45,6 +48,8 @@ setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
 
 #' @rdname BFBayesFactorList-class
 #' @name [,BFBayesFactorList,index,index,missing-method
+#' @param j indices specifying elements to extract
+#' @param ... further arguments passed to related methods
 setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "index",
                          drop = "missing"),
           function (x, i, j, ..., drop) {

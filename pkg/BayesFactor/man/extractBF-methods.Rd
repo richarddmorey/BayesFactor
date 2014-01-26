@@ -4,14 +4,16 @@
 \alias{extractBF,BFBayesFactor-method}
 \title{Extract the Bayes factor from an object}
 \usage{
-extractBF(x, ...)
+extractBF(x, logbf = FALSE, onlybf = FALSE)
 
 \S4method{extractBF}{BFBayesFactor}(x, logbf = FALSE, onlybf = FALSE)
 }
 \arguments{
-  \item{x}{object from which to extract the Bayes factor}
+  \item{x}{object from which to extract the Bayes factors}
 
-  \item{...}{arguments passed to and from related methods}
+  \item{logbf}{return the logarithm of the Bayes factors}
+
+  \item{onlybf}{return a vector of only the Bayes factors}
 }
 \value{
 Returns an object containing Bayes factors extracted from

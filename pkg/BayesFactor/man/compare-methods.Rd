@@ -10,24 +10,12 @@
 \title{Compare two models, with respect to some data}
 \usage{
 compare(numerator, denominator, data, ...)
-
-\S4method{compare}{BFlinearModel,missing,data.frame}(numerator, data, ...)
-
-\S4method{compare}{BFlinearModel,BFlinearModel,data.frame}(numerator,
-  denominator, data, ...)
-
-\S4method{compare}{BFoneSample,missing,data.frame}(numerator, data, ...)
-
-\S4method{compare}{BFindepSample,missing,data.frame}(numerator, data, ...)
-
-\S4method{compare}{BFmcmc,BFmcmc,ANY}(numerator, denominator, ...)
-
-\S4method{compare}{BFmcmc,missing,ANY}(numerator, denominator, ...)
 }
 \arguments{
   \item{numerator}{first model}
 
-  \item{denominator}{second model}
+  \item{denominator}{second model (if omitted, compare to
+  predefined null)}
 
   \item{data}{data for the comparison}
 

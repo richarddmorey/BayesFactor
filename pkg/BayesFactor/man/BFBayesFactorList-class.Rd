@@ -20,7 +20,15 @@ comprisons, each against a different denominator}
 \S4method{[}{BFBayesFactorList,missing,index,missing}(x, i, j, ..., drop)
 }
 \arguments{
-  \item{x}{a matrix or data frame, typically.}
+  \item{x}{a BFBayesFactorList object}
+
+  \item{e1}{Numerator of the ratio}
+
+  \item{e2}{Denominator of the ratio}
+
+  \item{j}{indices specifying elements to extract}
+
+  \item{...}{further arguments passed to related methods}
 
   \item{i}{ indices specifying elements to extract or
   replace.  Indices are \code{numeric} or \code{character}

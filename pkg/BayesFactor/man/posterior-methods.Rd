@@ -58,8 +58,8 @@ numerator in the \code{BFBayesFactor} object, the
 numerator.
 }
 \details{
-The data argument is used internally, and will typically
-not be needed by end-users.
+The data argument is used internally, and will y not be
+needed by end-users.
 
 Note that if there are fixed effects in the model, the
 reduced parameterzation used internally (see help for

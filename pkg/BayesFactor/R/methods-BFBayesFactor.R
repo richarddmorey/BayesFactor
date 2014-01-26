@@ -61,6 +61,8 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogr
 
 #' @rdname BFBayesFactor-class
 #' @name /,numeric,BFBayesFactor-method
+#' @param e1 Numerator of the ratio
+#' @param e2 Denominator of the ratio
 setMethod('/', signature("numeric", "BFBayesFactor"), function(e1, e2){
   if( (e1 == 1) & (length(e2)==1) ){
     numer = e2@numerator[[1]]
@@ -145,6 +147,8 @@ setMethod('summary', "BFBayesFactor", function(object){
 
 #' @rdname BFBayesFactor-class
 #' @name [,BFBayesFactor,index,missing,missing-method
+#' @param j unused for BFBayesFactor objects
+#' @param ... further arguments passed to related methods
 setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
                          drop = "missing"),
           function (x, i, j, ..., drop) {

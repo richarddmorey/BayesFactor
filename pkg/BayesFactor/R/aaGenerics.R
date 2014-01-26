@@ -10,7 +10,7 @@ setGeneric("%same%", function(x, y) standardGeneric("%same%"))
 #' This method is used primarily in the backend, and will only rarely be called
 #' by the end user. But see the examples below for a demonstration.
 #' @param numerator first model
-#' @param denominator second model
+#' @param denominator second model (if omitted, compare to predefined null)
 #' @param data data for the comparison
 #' @param ... arguments passed to and from related methods
 #' @return The compare function will return a model comparison object, typically
@@ -18,6 +18,12 @@ setGeneric("%same%", function(x, y) standardGeneric("%same%"))
 #' @export
 #' @docType methods
 #' @rdname compare-methods
+#' @aliases compare,BFoneSample,missing,data.frame-method 
+#'  compare,BFlinearModel,BFlinearModel,data.frame-method
+#'  compare,BFindepSample,missing,data.frame-method
+#'  compare,BFlinearModel,missing,data.frame-method
+#'  compare,BFmcmc,BFmcmc,ANY-method
+#'  compare,BFmcmc,missing,ANY-method
 #' @examples
 #' ## Sample from the posteriors for two models
 #' data(puzzles)
@@ -36,8 +42,7 @@ setGeneric("%same%", function(x, y) standardGeneric("%same%"))
 #' ## Each BFmcmc object contains the model used to generate it, so we
 #' ## can compare them (data is not needed, it is contained in the objects):
 #' 
-#' compare(mod1, mod2)
- 
+#' compare(mod1, mod2) 
 setGeneric("compare", function(numerator, denominator, data, ...) standardGeneric("compare"))
 
 #' Take an object and redo the computation (useful for sampling)
@@ -72,7 +77,7 @@ setGeneric("recompute", function(x, progress=options()$BFprogress, ...) standard
 #' than one numerator in the \code{BFBayesFactor} object, the \code{index} 
 #' argument can be passed to select one numerator.
 #' 
-#' The data argument is used internally, and will typically not be needed by 
+#' The data argument is used internally, and will y not be needed by 
 #' end-users.
 #' 
 #' Note that if there are fixed effects in the model, the reduced 
@@ -119,8 +124,9 @@ setGeneric("recompute", function(x, progress=options()$BFprogress, ...) standard
 setGeneric("posterior", function(model, index, data, iterations, ...) standardGeneric("posterior"))
 
 #' Extract the Bayes factor from an object
-#' @param x object from which to extract the Bayes factor
-#' @param ... arguments passed to and from related methods
+#' @param x object from which to extract the Bayes factors
+#' @param logbf return the logarithm of the Bayes factors
+#' @param onlybf return a vector of only the Bayes factors
 #' @return Returns an object containing Bayes factors extracted from the object
 #' @export
 #' @docType methods
@@ -132,4 +138,4 @@ setGeneric("posterior", function(model, index, data, iterations, ...) standardGe
 #' bf = lmBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", progress=FALSE)  
 #'    
 #' extractBF(bf)  
-setGeneric("extractBF", function(x, ...) standardGeneric("extractBF"))
+setGeneric("extractBF", function(x, logbf=FALSE, onlybf=FALSE) standardGeneric("extractBF"))

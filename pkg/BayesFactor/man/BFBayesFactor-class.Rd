@@ -29,6 +29,14 @@
 \S4method{[}{BFBayesFactorTop,index,missing,missing}(x, i, j, ..., drop)
 }
 \arguments{
+  \item{e1}{Numerator of the ratio}
+
+  \item{e2}{Denominator of the ratio}
+
+  \item{j}{unused for BFBayesFactor objects}
+
+  \item{...}{further arguments passed to related methods}
+
   \item{x}{numeric or complex vectors or objects which can
   be coerced to such, or other objects for which methods
   have been written.}

@@ -2,8 +2,6 @@
 
 ############### Linear models
 
-#' @rdname compare-methods
-#' @aliases compare,BFlinearModel,missing,data.frame-method
 setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missing", data = "data.frame"), 
   function(numerator, data, ...){
 
