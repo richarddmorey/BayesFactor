@@ -2,10 +2,9 @@
 \alias{plot.BFBayesFactorTop}
 \title{Plot a Bayes factor top-down object}
 \usage{
-  \method{plot}{BFBayesFactorTop} (x, include1 = TRUE,
-    addDenom = FALSE, sortbf = FALSE,
-    logbase = c("log10", "log2", "ln"), marginExpand = 0.4,
-    pars = NULL, ...)
+\method{plot}{BFBayesFactorTop}(x, include1 = TRUE, addDenom = FALSE,
+  sortbf = FALSE, logbase = c("log10", "log2", "ln"), marginExpand = 0.4,
+  pars = NULL, ...)
 }
 \arguments{
   \item{x}{a BFBayesFactorTop object}
@@ -30,15 +29,15 @@
   \item{...}{additional arguments to pass to barplot()}
 }
 \description{
-  Plot a Bayes factor top-down object
+Plot a Bayes factor top-down object
 }
 \details{
-  This function creates a barplot of the (log) Bayes
-  factors in a Bayes factor object. Error bars are added
-  (though in many cases they may be too small to see) in
-  red to show the error in estimation of the Bayes factor.
-  If a red question mark appears next to a bar, then that
-  Bayes factor has no error estimate available.
+This function creates a barplot of the (log) Bayes factors
+in a Bayes factor object. Error bars are added (though in
+many cases they may be too small to see) in red to show the
+error in estimation of the Bayes factor. If a red question
+mark appears next to a bar, then that Bayes factor has no
+error estimate available.
 }
 \examples{
 data(puzzles)
@@ -48,6 +47,6 @@ bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID",
 plot(bfs)
 }
 \author{
-  Richard D. Morey (\email{richarddmorey@gmail.com})
+Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 

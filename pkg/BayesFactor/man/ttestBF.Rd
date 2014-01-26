@@ -2,9 +2,9 @@
 \alias{ttestBF}
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
-  ttestBF(x, y = NULL, formula = NULL, mu = 0,
-    nullInterval = NULL, paired = FALSE, data = NULL,
-    rscale = "medium", posterior = FALSE, ...)
+ttestBF(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
+  paired = FALSE, data = NULL, rscale = "medium", posterior = FALSE,
+  ...)
 }
 \arguments{
   \item{x}{a vector of observations for the first (or only)
@@ -38,60 +38,60 @@
   methods.}
 }
 \value{
-  If \code{posterior} is \code{FALSE}, an object of class
-  \code{BFBayesFactor} containing the computed model
-  comparisons is returned. If \code{nullInterval} is
-  defined, then two Bayes factors will be computed: The
-  Bayes factor for the interval against the null hypothesis
-  that the standardized effect is 0, and the corresponding
-  Bayes factor for the compliment of the interval.
+If \code{posterior} is \code{FALSE}, an object of class
+\code{BFBayesFactor} containing the computed model
+comparisons is returned. If \code{nullInterval} is defined,
+then two Bayes factors will be computed: The Bayes factor
+for the interval against the null hypothesis that the
+standardized effect is 0, and the corresponding Bayes
+factor for the compliment of the interval.
 
-  If \code{posterior} is \code{TRUE}, an object of class
-  \code{BFmcmc}, containing MCMC samples from the posterior
-  is returned.
+If \code{posterior} is \code{TRUE}, an object of class
+\code{BFmcmc}, containing MCMC samples from the posterior
+is returned.
 }
 \description{
-  This function computes Bayes factors, or samples from the
-  posterior, for one- and two-sample designs.
+This function computes Bayes factors, or samples from the
+posterior, for one- and two-sample designs.
 }
 \details{
-  The Bayes factor provided by \code{ttestBF} tests the
-  null hypothesis that the mean (or mean difference) of a
-  normal population is \eqn{\mu_0}{mu0} (argument
-  \code{mu}). Specifically, the Bayes factor compares two
-  hypotheses: that the standardized effect size is 0, or
-  that the standardized effect size is not 0. For
-  one-sample tests, the standardized effect size is
-  \eqn{(\mu-\mu_0)/\sigma}{(mu-mu0)/sigma}; for two sample
-  tests, the standardized effect size is
-  \eqn{(\mu_2-\mu_1)/\sigma}{(mu2-mu1)/sigma}.
+The Bayes factor provided by \code{ttestBF} tests the null
+hypothesis that the mean (or mean difference) of a normal
+population is \eqn{\mu_0}{mu0} (argument \code{mu}).
+Specifically, the Bayes factor compares two hypotheses:
+that the standardized effect size is 0, or that the
+standardized effect size is not 0. For one-sample tests,
+the standardized effect size is
+\eqn{(\mu-\mu_0)/\sigma}{(mu-mu0)/sigma}; for two sample
+tests, the standardized effect size is
+\eqn{(\mu_2-\mu_1)/\sigma}{(mu2-mu1)/sigma}.
 
-  A noninformative Jeffreys prior is placed on the variance
-  of the normal population, while a Cauchy prior is placed
-  on the standardized effect size. The \code{rscale}
-  argument controls the scale of the prior distribution,
-  with \code{rscale=1} yielding a standard Cauchy prior.
-  See the references below for more details.
+A noninformative Jeffreys prior is placed on the variance
+of the normal population, while a Cauchy prior is placed on
+the standardized effect size. The \code{rscale} argument
+controls the scale of the prior distribution, with
+\code{rscale=1} yielding a standard Cauchy prior. See the
+references below for more details.
 
-  For the \code{rscale} argument, several named values are
-  recognized: "medium", "wide", and "ultrawide". For the
-  one-sample test, these correspond to \eqn{r} scale values
-  of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1, respectively.
-  For the two-sample test, they correspond to
-  \eqn{\sqrt{2}/2}{sqrt(2)/2}, 1, and
-  \eqn{\sqrt{2}/2}{sqrt(2)} respectively.
+For the \code{rscale} argument, several named values are
+recognized: "medium", "wide", and "ultrawide". For the
+one-sample test, these correspond to \eqn{r} scale values
+of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1, respectively.
+For the two-sample test, they correspond to
+\eqn{\sqrt{2}/2}{sqrt(2)/2}, 1, and
+\eqn{\sqrt{2}/2}{sqrt(2)} respectively.
 
-  The Bayes factor is computed via Gaussian quadrature.
+The Bayes factor is computed via Gaussian quadrature.
 }
 \note{
-  The default priors have scale has changed from 1 to
-  \eqn{\sqrt{2}/2}. The factor of \eqn{\sqrt{2}} in the
-  two-sample t test is to be consistent with Morey et al.
-  (2011) and Rouder et al. (2012), and the factor of
-  \eqn{1/2} in both is to better scale the expected effect
-  sizes; the previous scaling put more weight on larger
-  effect sizes. To obtain the same Bayes factors as Rouder
-  et al. (2009), change the prior scale to 1.
+The default priors have scale has changed from 1 to
+\eqn{\sqrt{2}/2}. The factor of \eqn{\sqrt{2}} in the
+two-sample t test is to be consistent with Morey et al.
+(2011) and Rouder et al. (2012), and the factor of
+\eqn{1/2} in both is to better scale the expected effect
+sizes; the previous scaling put more weight on larger
+effect sizes. To obtain the same Bayes factors as Rouder et
+al. (2009), change the prior scale to 1.
 }
 \examples{
 ## Sleep data from t test example
@@ -108,29 +108,29 @@ samples = ttestBF(x = sleep$extra[sleep$group==1],
 plot(samples[,"mu"])
 }
 \author{
-  Richard D. Morey (\email{richarddmorey@gmail.com})
+Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \references{
-  Morey, R. D., Rouder, J. N., Pratte, M. S., & Speckman,
-  P. L.  (2011). Using MCMC chain outputs to efficiently
-  estimate Bayes factors.  Journal of Mathematical
-  Psychology, 55, 368-378
+Morey, R. D., Rouder, J. N., Pratte, M. S., & Speckman, P.
+L.  (2011). Using MCMC chain outputs to efficiently
+estimate Bayes factors.  Journal of Mathematical
+Psychology, 55, 368-378
 
-  Morey, R. D. \& Rouder, J. N. (2011). Bayes Factor
-  Approaches for Testing Interval Null Hypotheses.
-  Psychological Methods, 16, 406-419
+Morey, R. D. \& Rouder, J. N. (2011). Bayes Factor
+Approaches for Testing Interval Null Hypotheses.
+Psychological Methods, 16, 406-419
 
-  Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., &
-  Iverson, G.  (2009). Bayesian t-tests for accepting and
-  rejecting the null hypothesis.  Psychonomic Bulletin &
-  Review, 16, 752-760
+Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., &
+Iverson, G.  (2009). Bayesian t-tests for accepting and
+rejecting the null hypothesis.  Psychonomic Bulletin &
+Review, 16, 752-760
 
-  Perception and Cognition Lab (University of Missouri):
-  Bayes factor calculators.
-  \url{http://pcl.missouri.edu/bayesfactor}
+Perception and Cognition Lab (University of Missouri):
+Bayes factor calculators.
+\url{http://pcl.missouri.edu/bayesfactor}
 }
 \seealso{
-  \code{\link{integrate}}, \code{\link{t.test}}
+\code{\link{integrate}}, \code{\link{t.test}}
 }
 \keyword{htest}
 

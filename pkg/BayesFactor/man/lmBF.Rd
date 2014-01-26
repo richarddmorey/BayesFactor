@@ -2,10 +2,9 @@
 \alias{lmBF}
 \title{Function to compute Bayes factors for specific linear models}
 \usage{
-  lmBF(formula, data, whichRandom = NULL,
-    rscaleFixed = "medium", rscaleRandom = "nuisance",
-    rscaleCont = "medium", posterior = FALSE,
-    progress = options()$BFprogress, ...)
+lmBF(formula, data, whichRandom = NULL, rscaleFixed = "medium",
+  rscaleRandom = "nuisance", rscaleCont = "medium", posterior = FALSE,
+  progress = options()$BFprogress, ...)
 }
 \arguments{
   \item{formula}{a formula containing all factors to
@@ -38,32 +37,32 @@
   methods.}
 }
 \value{
-  If \code{posterior} is \code{FALSE}, an object of class
-  \code{BFBayesFactor}, containing the computed model
-  comparisons is returned. Otherwise, an object of class
-  \code{BFmcmc}, containing MCMC samples from the posterior
-  is returned.
+If \code{posterior} is \code{FALSE}, an object of class
+\code{BFBayesFactor}, containing the computed model
+comparisons is returned. Otherwise, an object of class
+\code{BFmcmc}, containing MCMC samples from the posterior
+is returned.
 }
 \description{
-  This function computes Bayes factors, or samples from the
-  posterior, of specific linear models (either ANOVA or
-  regression).
+This function computes Bayes factors, or samples from the
+posterior, of specific linear models (either ANOVA or
+regression).
 }
 \details{
-  This function provides an interface for computing Bayes
-  factors for specific linear models against the
-  intercept-only null; other tests may be obtained by
-  computing two models and dividing their Bayes factors.
-  Specifics about the priors for regression models -- and
-  possible settings for \code{rscaleCont} -- can be found
-  in the help for \code{\link{regressionBF}}; likewise,
-  details for ANOVA models -- and settings for
-  \code{rscaleFixed} and \code{rscaleRandom} -- can be
-  found in the help for \code{\link{anovaBF}}.
+This function provides an interface for computing Bayes
+factors for specific linear models against the
+intercept-only null; other tests may be obtained by
+computing two models and dividing their Bayes factors.
+Specifics about the priors for regression models -- and
+possible settings for \code{rscaleCont} -- can be found in
+the help for \code{\link{regressionBF}}; likewise, details
+for ANOVA models -- and settings for \code{rscaleFixed} and
+\code{rscaleRandom} -- can be found in the help for
+\code{\link{anovaBF}}.
 
-  Currently, the function does not allow for general linear
-  models, containing both continuous and categorical
-  predcitors, but this support will be added in the future.
+Currently, the function does not allow for general linear
+models, containing both continuous and categorical
+predcitors, but this support will be added in the future.
 }
 \examples{
 ## Puzzles data; see ?puzzles for details
@@ -86,11 +85,11 @@ samples = lmBF(RT ~ shape + color + shape:color + ID,
 samples2 = posterior(bfFull, iterations = 1000)
 }
 \author{
-  Richard D. Morey (\email{richarddmorey@gmail.com})
+Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \seealso{
-  \code{\link{regressionBF}} and \code{anovaBF} for testing
-  many regression or ANOVA models simultaneously.
+\code{\link{regressionBF}} and \code{anovaBF} for testing
+many regression or ANOVA models simultaneously.
 }
 \keyword{htest}
 

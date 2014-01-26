@@ -8,6 +8,22 @@
 \alias{compare,BFmcmc,missing,ANY-method}
 \alias{compare,BFoneSample,missing,data.frame-method}
 \title{Compare two models, with respect to some data}
+\usage{
+compare(numerator, denominator, data, ...)
+
+\S4method{compare}{BFlinearModel,missing,data.frame}(numerator, data, ...)
+
+\S4method{compare}{BFlinearModel,BFlinearModel,data.frame}(numerator,
+  denominator, data, ...)
+
+\S4method{compare}{BFoneSample,missing,data.frame}(numerator, data, ...)
+
+\S4method{compare}{BFindepSample,missing,data.frame}(numerator, data, ...)
+
+\S4method{compare}{BFmcmc,BFmcmc,ANY}(numerator, denominator, ...)
+
+\S4method{compare}{BFmcmc,missing,ANY}(numerator, denominator, ...)
+}
 \arguments{
   \item{numerator}{first model}
 
@@ -18,13 +34,13 @@
   \item{...}{arguments passed to and from related methods}
 }
 \value{
-  The compare function will return a model comparison
-  object, typically a Bayes factor
+The compare function will return a model comparison object,
+typically a Bayes factor
 }
 \description{
-  This method is used primarily in the backend, and will
-  only rarely be called by the end user. But see the
-  examples below for a demonstration.
+This method is used primarily in the backend, and will only
+rarely be called by the end user. But see the examples
+below for a demonstration.
 }
 \examples{
 ## Sample from the posteriors for two models

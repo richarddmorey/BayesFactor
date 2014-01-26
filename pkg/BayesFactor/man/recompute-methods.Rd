@@ -4,6 +4,13 @@
 \alias{recompute,BFBayesFactor-method}
 \alias{recompute,BFmcmc-method}
 \title{Take an object and redo the computation (useful for sampling)}
+\usage{
+recompute(x, progress = options()$BFprogress, ...)
+
+\S4method{recompute}{BFBayesFactor}(x, progress = options()$BFprogress, ...)
+
+\S4method{recompute}{BFmcmc}(x, progress, ...)
+}
 \arguments{
   \item{x}{object to recompute}
 
@@ -12,12 +19,12 @@
   \item{...}{arguments passed to and from related methods}
 }
 \value{
-  Returns an object of the same type, after repeating the
-  sampling (perhaps with more iterations)
+Returns an object of the same type, after repeating the
+sampling (perhaps with more iterations)
 }
 \description{
-  Take an object and redo the computation (useful for
-  sampling)
+Take an object and redo the computation (useful for
+sampling)
 }
 \examples{
 ## Sample from the posteriors for two models

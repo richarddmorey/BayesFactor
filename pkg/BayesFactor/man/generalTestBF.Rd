@@ -2,12 +2,11 @@
 \alias{generalTestBF}
 \title{Function to compute Bayes factors for general designs}
 \usage{
-  generalTestBF(formula, data, whichRandom = NULL,
-    whichModels = "withmain", neverExclude = NULL,
-    iterations = 10000, progress = options()$BFprogress,
-    rscaleFixed = "medium", rscaleRandom = "nuisance",
-    rscaleCont = "medium", multicore = FALSE,
-    method = "auto", noSample = FALSE)
+generalTestBF(formula, data, whichRandom = NULL, whichModels = "withmain",
+  neverExclude = NULL, iterations = 10000,
+  progress = options()$BFprogress, rscaleFixed = "medium",
+  rscaleRandom = "nuisance", rscaleCont = "medium", multicore = FALSE,
+  method = "auto", noSample = FALSE)
 }
 \arguments{
   \item{formula}{a formula containing the full model for
@@ -52,39 +51,38 @@
   returning NA.}
 }
 \value{
-  An object of class \code{BFBayesFactor}, containing the
-  computed model comparisons
+An object of class \code{BFBayesFactor}, containing the
+computed model comparisons
 }
 \description{
-  This function computes Bayes factors corresponding to
-  restrictions on a full model.
+This function computes Bayes factors corresponding to
+restrictions on a full model.
 }
 \details{
-  See the help for \code{\link{anovaBF}} and
-  \code{\link{anovaBF}} or details.
+See the help for \code{\link{anovaBF}} and
+\code{\link{anovaBF}} or details.
 
-  Models, priors, and methods of computation are provided
-  in Rouder et al. (2012) and Liang et al (2008).
+Models, priors, and methods of computation are provided in
+Rouder et al. (2012) and Liang et al (2008).
 }
 \note{
-  The function \code{generalTestBF} can compute Bayes
-  factors for all restrictions of a full model against the
-  null hypothesis that all effects are 0. The total number
-  of tests computed -- if all tests are requested -- will
-  be \eqn{2^K-1}{2^K - 1} for \eqn{K} factors or
-  covariates.  This number increases very quickly with the
-  number of tested predictors. An option is included to
-  prevent testing too many models:
-  \code{options('BFMaxModels')}, which defaults to 50,000,
-  is the maximum number of models that will be analyzed at
-  once. This can be increased by increased using
-  \code{\link{options}}.
+The function \code{generalTestBF} can compute Bayes factors
+for all restrictions of a full model against the null
+hypothesis that all effects are 0. The total number of
+tests computed -- if all tests are requested -- will be
+\eqn{2^K-1}{2^K - 1} for \eqn{K} factors or covariates.
+This number increases very quickly with the number of
+tested predictors. An option is included to prevent testing
+too many models: \code{options('BFMaxModels')}, which
+defaults to 50,000, is the maximum number of models that
+will be analyzed at once. This can be increased by
+increased using \code{\link{options}}.
 
-  It is possible to reduce the number of models tested by
-  only testing the most complex model and every restriction
-  that can be formed by removing one factor or interaction
-  using the \code{whichModels} argument. See the help for
-  \code{\link{anovaBF}} for details.
+It is possible to reduce the number of models tested by
+only testing the most complex model and every restriction
+that can be formed by removing one factor or interaction
+using the \code{whichModels} argument. See the help for
+\code{\link{anovaBF}} for details.
 }
 \examples{
 ## Puzzles example: see ?puzzles and ?anovaBF
@@ -96,22 +94,22 @@ neverExclude="ID", progress=FALSE)
 result
 }
 \author{
-  Richard D. Morey (\email{richarddmorey@gmail.com})
+Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \references{
-  Rouder, J. N., Morey, R. D., Speckman, P. L., Province,
-  J. M., (2012) Default Bayes Factors for ANOVA Designs.
-  Journal of Mathematical Psychology.  56.  p. 356-374.
+Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J.
+M., (2012) Default Bayes Factors for ANOVA Designs. Journal
+of Mathematical Psychology.  56.  p. 356-374.
 
-  Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A.
-  and Berger, J. O. (2008). Mixtures of g-priors for
-  Bayesian Variable Selection. Journal of the American
-  Statistical Association, 103, pp.  410-423
+Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
+Berger, J. O. (2008). Mixtures of g-priors for Bayesian
+Variable Selection. Journal of the American Statistical
+Association, 103, pp.  410-423
 }
 \seealso{
-  \code{\link{lmBF}}, for testing specific models, and
-  \code{\link{regressionBF}} and \code{anovaBF} for other
-  functions for testing multiple models simultaneously.
+\code{\link{lmBF}}, for testing specific models, and
+\code{\link{regressionBF}} and \code{anovaBF} for other
+functions for testing multiple models simultaneously.
 }
 \keyword{htest}
 
