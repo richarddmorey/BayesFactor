@@ -5,6 +5,22 @@ body, td {
   margin: 8px;
 }
 
+span.socialtext {
+  position:absolute; 
+  top:50%; 
+  height:1em; 
+  margin-top:-.5em;
+  text-decoration:none;
+  color: black;
+}
+
+.social {
+    position:relative;
+}
+
+div.socialsep {
+  height:1em;
+}
 
 a:link {color: #3DA6CC;}
 a:visited {color: #CA17E6;}
