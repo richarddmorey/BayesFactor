@@ -219,4 +219,34 @@ binary <- function(x, dim) {
    return(list(binary=bin, dicotomy=dicotomy))
 }
 
+# Construct all monotone Boolean functions for m arguments
+monotoneBoolean <- function(m){
+  if(m==0){
+    return(list(FALSE,TRUE))
+  }else{
+    m0 = monotoneBoolean(m-1)
+    m1 = list()
+    for(i in 1:length(m0))
+      for(j in 1:length(m0)){
+        if(identical((m0[[i]] | m0[[j]]), m0[[j]])){
+          m1[[length(m1)+1]] = c(m0[[i]],m0[[j]])
+        }   
+      }
+    return(m1)
+  }
+}
 
+# Construct all monotone Boolean functions for m arguments
+# but output in nice format (matrix)
+monotoneBooleanNice = function(m){
+  mb = monotoneBoolean(m)
+  n = length(mb)
+  mb = unlist(mb)
+  dim(mb) = c(length(mb)/n,n)
+  t(mb)
+}
+
+makeTerm <- function(m,factors){
+  trms = factors[binary(m,length(factors))$dicotomy]
+  paste(trms,collapse=":")
+}
