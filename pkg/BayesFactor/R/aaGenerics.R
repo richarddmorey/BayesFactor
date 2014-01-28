@@ -5,6 +5,13 @@
 #' @return Returns \code{TRUE} or \code{FALSE}
 setGeneric("%same%", function(x, y) standardGeneric("%same%"))
 
+#' Find a model term in a vector of 
+#' @param x the terms to be matched
+#' @param table the terms to be matched against
+#' @return A logical vector of the same length as x, indicating if a 
+#' match was located for each element of x.
+setGeneric("%termin%", function(x, table) standardGeneric("%termin%"))
+
 #' Compare two models, with respect to some data
 #' 
 #' This method is used primarily in the backend, and will only rarely be called

@@ -250,3 +250,37 @@ makeTerm <- function(m,factors){
   trms = factors[binary(m,length(factors))$dicotomy]
   paste(trms,collapse=":")
 }
+
+setMethod("%termin%", signature = c(x="character",table="character"),
+          function(x,table){
+            table = strsplit(table,":",fixed=TRUE)
+            x = strsplit(x,":",fixed=TRUE)
+            returnVector = rep(FALSE,length(x))
+            for(i in 1:length(x))
+              for(j in 1:length(table)){
+                found = all(table[[j]] %in% x[[i]]) & all(x[[i]] %in% table[[j]])
+                returnVector[i] = returnVector[i] | found
+              }
+            return(returnVector)
+          })
+
+setMethod("%termin%", signature = c(x="character",table="NULL"),
+          function(x,table){
+            return(rep(FALSE,length(x)))
+           })
+
+
+termMatch <- function(x, table, nomatch = NA_integer_){
+  returnVector = rep(nomatch,length(x))
+  if(is.null(table)){
+    return(returnVector)
+  }
+  table = strsplit(table,":",fixed=TRUE)
+  x = strsplit(x,":",fixed=TRUE)
+  for(i in 1:length(x))
+    for(j in 1:length(table)){
+      found = all(table[[j]] %in% x[[i]]) & all(x[[i]] %in% table[[j]])
+      if(is.na(returnVector[i]) & found) returnVector[i] = j
+    }
+  return(returnVector)
+}
