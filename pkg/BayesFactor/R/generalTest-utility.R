@@ -87,26 +87,50 @@ possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
   if(length(trms)==1) return(list(trms))
   myFactors = unique(unlist(strsplit(trms,":",fixed=TRUE)))  
   nFactors = length(myFactors)
+  
+  # If there are more than 5 factors involved then the total number of models is 
+  # over 7 million; fall back to search-based method (becase there may not be
+  # that many)
   if(nFactors>options()$BFfactorsMax){
     warning("Falling back to slow recursive method of enumerating models due to many factors.")
     retList = possibleRestrictionsWithMainGeneralFallback(trms, alwaysKept)
     return(list(retList,trms))
   }
+  
   myTerms = sapply(1:(2^nFactors-1),makeTerm,factors=myFactors)
+  
+  # These terms MUST be in the model
   toKeep = rev(myTerms) %termin% alwaysKept
+  
+  # These terms should not be in the model, because they were not in the original
+  # specification
   toDiscard = !(rev(myTerms) %termin% c(trms, alwaysKept))
+  
+  # The specified full model, specified as TRUE/FALSE on the list of terms
   row = rep(FALSE,2^nFactors-1)
   row[termMatch(c(trms,alwaysKept),rev(myTerms))]=TRUE
+  
+  # Get all possible models with nFactors factors, as matrix
   mb = monotoneBooleanNice(nFactors)
   mb = mb[-c(1,2),-ncol(mb)]
+  
+  # Remove rows that have include
   invalidRows = apply(mb,1,function(v) any(v[toDiscard]))
   mb = mb[!invalidRows,]
+  
+  # Remove rows that do NOT include required terms
   validRows = apply(mb,1,function(v) all(v[toKeep]))
   mb = mb[validRows,]
+  
+  # Get all submodels of the specified model
   subMods = subModelsMatrix(row,mb)
+  
+  # Turn logicals into term numbers 
   myModels = apply(subMods,1,function(v) rev(((length(v):1))[v]))
+  
   if(nrow(subMods)==1){
     retVec = myTerms[myModels]
+    # eliminate anything that should be always kept, to be added in later
     retVec = retVec[!(retVec %termin% alwaysKept)]
     if(length(retVec)>0){
       return(list(retVec))
@@ -116,6 +140,7 @@ possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
   }else{
     retList = lapply(myModels, function(v){
       retVec = myTerms[v]
+      # eliminate anything that should be always kept, to be added in later
       retVec = retVec[!(retVec %termin% alwaysKept)]
       if(length(retVec)>0){
         return(retVec)
