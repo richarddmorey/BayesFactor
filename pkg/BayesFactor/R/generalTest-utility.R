@@ -1,3 +1,10 @@
+requiredFor = Vectorize(function(t1,t2){
+  t1 = unique(unlist(strsplit(t1,":",fixed=TRUE)))  
+  t2 = unique(unlist(strsplit(t2,":",fixed=TRUE)))  
+  return(all(t1 %in% t2))
+},c("t1","t2"))
+
+
 enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBottom=TRUE){
   trms <- attr(terms(fmla), "term.labels")
   
@@ -5,6 +12,10 @@ enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBo
   logicalToInclude = filterVectorLogical(neverExclude,trms)
   if(any(logicalToInclude)){
     alwaysIncluded = trms[logicalToInclude]
+    rq = matrix(outer(trms,alwaysIncluded,requiredFor),nrow=length(trms))
+    rq = apply(rq,1,any)
+    logicalToInclude[rq] = TRUE 
+    alwaysIncluded = unique(c(trms[rq], alwaysIncluded))
     alwaysIncludedString = paste(alwaysIncluded,collapse=" + ")
   }
   trms =  trms[!logicalToInclude]
@@ -43,25 +54,20 @@ enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBo
   fmlaOut <- lapply(strng, function(el){
     formula(paste(dv,"~", el))
   })
-  if(whichModels=="withmain"){
-    return(c(fmla,fmlaOut))
-  }else{
-    return(fmlaOut)
-  }
+  return(fmlaOut)
 }
 
 
-possibleRestrictionsWithMainGeneral <- function( trms, alwaysKept=NULL ){
+possibleRestrictionsWithMainGeneralFallback <- function(trms, alwaysKept){
   ntrms = length( trms )
   if(ntrms==1) return(NULL)
   thisLevelRestrictions = lapply(1:ntrms,function(i, trms, alwaysKept ){
-    removed = trms[i]
+    removed = unlist(strsplit(trms[i],":",fixed=TRUE))
     remaining = trms[-i]
-    searchTerms = c(paste("^",removed,":",sep=""),
-                    paste(":",removed,"$",sep=""),
-                    paste(":",removed,":",sep="")
-                    )
-    containsRemoved = filterVectorLogical(searchTerms, c(remaining,alwaysKept))
+    containsRemoved = sapply(remaining,function(el){
+      splt = unlist(strsplit(el,":",fixed=TRUE))
+      all(removed %in% splt)
+    })    
     if(any(containsRemoved)){
       return(NULL)
     }else{
@@ -70,10 +76,66 @@ possibleRestrictionsWithMainGeneral <- function( trms, alwaysKept=NULL ){
   },trms=trms,alwaysKept=alwaysKept)
   
   thisLevelRestrictions = thisLevelRestrictions[!sapply(thisLevelRestrictions, is.null)]
-  nextLevelRestrictions <- lapply(thisLevelRestrictions, possibleRestrictionsWithMainGeneral, alwaysKept=alwaysKept)
-
+  nextLevelRestrictions <- lapply(thisLevelRestrictions, possibleRestrictionsWithMainGeneralFallback, alwaysKept=alwaysKept)
+  
   bothLevelRestrictions = c(thisLevelRestrictions,unlist(nextLevelRestrictions,recursive=FALSE))
   bothLevelRestrictions = bothLevelRestrictions[!sapply(bothLevelRestrictions, is.null)]
   return(unique(bothLevelRestrictions))                                                                  
 }
 
+possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
+  if(length(trms)==1) return(list(trms))
+  myFactors = unique(unlist(strsplit(trms,":",fixed=TRUE)))  
+  nFactors = length(myFactors)
+  if(nFactors>options()$BFfactorsMax){
+    warning("Falling back to slow recursive method of enumerating models due to many factors.")
+    retList = possibleRestrictionsWithMainGeneralFallback(trms, alwaysKept)
+    return(list(retList,trms))
+  }
+  myTerms = sapply(1:(2^nFactors-1),makeTerm,factors=myFactors)
+  toKeep = rev(myTerms) %termin% alwaysKept
+  toDiscard = !(rev(myTerms) %termin% c(trms, alwaysKept))
+  row = rep(FALSE,2^nFactors-1)
+  row[termMatch(c(trms,alwaysKept),rev(myTerms))]=TRUE
+  mb = monotoneBooleanNice(nFactors)
+  mb = mb[-c(1,2),-ncol(mb)]
+  invalidRows = apply(mb,1,function(v) any(v[toDiscard]))
+  mb = mb[!invalidRows,]
+  validRows = apply(mb,1,function(v) all(v[toKeep]))
+  mb = mb[validRows,]
+  subMods = subModelsMatrix(row,mb)
+  myModels = apply(subMods,1,function(v) rev(((length(v):1))[v]))
+  if(nrow(subMods)==1){
+    retVec = myTerms[myModels]
+    retVec = retVec[!(retVec %termin% alwaysKept)]
+    if(length(retVec)>0){
+      return(list(retVec))
+    }else{
+      return(NULL)
+    }
+  }else{
+    retList = lapply(myModels, function(v){
+      retVec = myTerms[v]
+      retVec = retVec[!(retVec %termin% alwaysKept)]
+      if(length(retVec)>0){
+        return(retVec)
+      }else{
+        return(NULL)
+      }
+    })
+    return(retList[!sapply(retList, is.null)])
+  }
+}
+
+subModelsMatrix<-function(row,monoBool){
+  if(length(row) != ncol(monoBool)) stop("Invalid number of terms in submodel")
+  rows = apply(monoBool,1,function(v) all(row[v]))
+  rowNum = which(apply(monoBool,1,function(v) all(row==v)))
+  if(!any(rows)) return(matrix(row,nrow=1))
+  retMatrix = matrix(monoBool[rows,],nrow=sum(rows))
+  if(length(rowNum)>0){
+    return(retMatrix)
+  }else{
+    return(rbind(retMatrix,row))
+  }
+}

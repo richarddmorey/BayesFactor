@@ -219,4 +219,68 @@ binary <- function(x, dim) {
    return(list(binary=bin, dicotomy=dicotomy))
 }
 
+# Construct all monotone Boolean functions for m arguments
+monotoneBoolean <- function(m){
+  if(m==0){
+    return(list(FALSE,TRUE))
+  }else{
+    m0 = monotoneBoolean(m-1)
+    m1 = list()
+    for(i in 1:length(m0))
+      for(j in 1:length(m0)){
+        if(identical((m0[[i]] | m0[[j]]), m0[[j]])){
+          m1[[length(m1)+1]] = c(m0[[i]],m0[[j]])
+        }   
+      }
+    return(m1)
+  }
+}
 
+# Construct all monotone Boolean functions for m arguments
+# but output in nice format (matrix)
+monotoneBooleanNice = function(m){
+  mb = monotoneBoolean(m)
+  n = length(mb)
+  mb = unlist(mb)
+  dim(mb) = c(length(mb)/n,n)
+  t(mb)
+}
+
+makeTerm <- function(m,factors){
+  trms = factors[binary(m,length(factors))$dicotomy]
+  paste(trms,collapse=":")
+}
+
+setMethod("%termin%", signature = c(x="character",table="character"),
+          function(x,table){
+            table = strsplit(table,":",fixed=TRUE)
+            x = strsplit(x,":",fixed=TRUE)
+            returnVector = rep(FALSE,length(x))
+            for(i in 1:length(x))
+              for(j in 1:length(table)){
+                found = all(table[[j]] %in% x[[i]]) & all(x[[i]] %in% table[[j]])
+                returnVector[i] = returnVector[i] | found
+              }
+            return(returnVector)
+          })
+
+setMethod("%termin%", signature = c(x="character",table="NULL"),
+          function(x,table){
+            return(rep(FALSE,length(x)))
+           })
+
+
+termMatch <- function(x, table, nomatch = NA_integer_){
+  returnVector = rep(nomatch,length(x))
+  if(is.null(table)){
+    return(returnVector)
+  }
+  table = strsplit(table,":",fixed=TRUE)
+  x = strsplit(x,":",fixed=TRUE)
+  for(i in 1:length(x))
+    for(j in 1:length(table)){
+      found = all(table[[j]] %in% x[[i]]) & all(x[[i]] %in% table[[j]])
+      if(is.na(returnVector[i]) & found) returnVector[i] = j
+    }
+  return(returnVector)
+}

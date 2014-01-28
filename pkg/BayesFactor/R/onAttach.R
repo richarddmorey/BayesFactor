@@ -22,6 +22,7 @@
 #'\item{\code{BFapproxOptimizer}}{\code{"nlm"} or \code{"optim"}; changes the optimization function used for the importance sampler. If one fails, try the other.}
 #'\item{\code{BFapproxLimits}}{Vector of length two containing the lower and upper limits on 
 #'on \code{log(g)} before the the posterior returns \code{-Inf}. This only affects the initial optimization step for the importance sampler.}
+#'\item{\code{BFfactorsMax}}{Maximum number of factors to try to do enumeration with in generalTestBF.}
 #'}
 #'
 #'@name options-BayesFactor
@@ -38,6 +39,7 @@ setOptions <- function(){
   if(is.null(options()$BFapproxOptimizer)) options(BFapproxOptimizer = "optim")
   if(is.null(options()$BFapproxLimits)) options(BFapproxLimits = c(-15,15))
   if(is.null(options()$BFprogress)) options(BFprogress = TRUE)
+  if(is.null(options()$BFfactorsMax)) options(BFfactorsMax = 5)
   
 }
 
