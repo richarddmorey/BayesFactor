@@ -38,7 +38,7 @@ setOptions <- function(){
   if(is.null(options()$BFpretestIterations)) options(BFpretestIterations = 100)
   if(is.null(options()$BFapproxOptimizer)) options(BFapproxOptimizer = "optim")
   if(is.null(options()$BFapproxLimits)) options(BFapproxLimits = c(-15,15))
-  if(is.null(options()$BFprogress)) options(BFprogress = TRUE)
+  if(is.null(options()$BFprogress)) options(BFprogress = interactive())
   if(is.null(options()$BFfactorsMax)) options(BFfactorsMax = 5)
   
 }
