@@ -95,7 +95,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
     if(model@type != "JZS") stop("Unknown model type.")
     
     if( nFactors == 0 ){
-      stop("Sampling from intercept-only model not implemented (it's trivial!).")
+      stop("Sampling from intercept-only model not implemented.")
     }else if(all(relevantDataTypes == "continuous")){
       ## Regression
       chains = linearReg.Gibbs(y = data[[dv]],covariates = data[factors],iterations = iterations, rscale = rscaleCont, ...)
@@ -138,7 +138,9 @@ setMethod('posterior', signature(model = "BFoneSample", index = "missing", data 
   function(model, index = NULL, data, iterations, ...){
      mu = model@prior$mu
      rscale = model@prior$rscale
-     chains = ttest.Gibbs(y = data$y, iterations = iterations, rscale = rscale,...)[["chains"]]
+     interval = model@prior$nullInterval
+     chains = ttest.Gibbs(y = data$y, iterations = iterations, rscale = rscale,
+                          nullInterval = interval, ...)[["chains"]]
      new("BFmcmc",chains,model = model, data = data)         
 })
 

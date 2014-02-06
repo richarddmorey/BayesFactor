@@ -35,7 +35,7 @@ ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nul
   if(noSample){
     chains = matrix(NA,6,2)
   }else{
-    chains = .Call("RgibbsOneSample", y, n, rscale, iterations, do.interval, interval,
+    chains = .Call("RgibbsOneSample", as.numeric(y), n, rscale, iterations, do.interval, as.numeric(interval),
                  progress, pbFun, new.env(), package="BayesFactor")
   }
   
