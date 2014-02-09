@@ -20,6 +20,10 @@ Richard D. Morey
 <a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
 </div>
 
+<div class="social">
+<a target="_blank" href="http://bayesfactor.blogspot.nl/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
+</div>
+
 <div class="socialsep"></div>
 
 Share via<br/>
