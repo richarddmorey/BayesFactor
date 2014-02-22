@@ -8,7 +8,7 @@
 #'regression.
 #'
 #'\tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-#'0.9.7\cr Date: \tab 2014-2-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
+#'0.9.7\cr Date: \tab 2014-2-22\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
 #'yes\cr } The following methods are currently implemented, with more to follow:
 #'
 #'Linear regression: \code{\link{regressionBF}} \code{\link{lmBF}}, 

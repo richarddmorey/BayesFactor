@@ -609,7 +609,7 @@ allBFs <- allBFs[-1]
 allBFs / max(allBFs)
 ```
 
-The model with the highest Bayes factor is the no-interaction model, where the logarithm of the dose is included as a continuous covariate. In fact, the Bayes factors where dose is treated as a factor are all worse than when dose is treated as a continuous covariate. This is likely due to a  the added flexibility allowed by including more parameters. Plotting the Bayes factors shows how large the differences are:
+Two of the models score essentially equally well in terms of Bayes factors: `supp + dose + supp:dose` and `supp + dose`, suggesting that the interaction adds little. The Bayes factors where dose is treated as a factor are all worse than when dose is treated as a continuous covariate. This is likely due to a  the added flexibility allowed by including more parameters. Plotting the Bayes factors shows how large the differences are:
 
 ```{r GLMplot2,echo=FALSE,fig.width=10, fig.height=5}
 plot(allBFs / max(allBFs))

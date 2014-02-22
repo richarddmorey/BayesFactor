@@ -1,6 +1,7 @@
   CHANGES IN BayesFactor VERSION 0.9.7
 
 CHANGES
+  *  Fixed a bug causing posterior sampling of t test to fail when data was defined as integer type
   *  Fixed a bug causing a two-way interaction to sometimes not be included in 3-way ANOVA analyses
   *  Reworked model enumeration code to be more efficient and faster; 4-way analyses no longer take a long time to build
   *  Moved 'methods' to Depends so that Rscript will work without the user having to explicitly load the package methods
