@@ -5,7 +5,7 @@
 To install the latest stable version from CRAN, use `install.packages`:
 
 ```R
-install.packages('BayesFactor')
+install.packages('BayesFactor', dependencies = TRUE)
 ```
 or your R graphical user interface's install packages menu.
 
@@ -17,7 +17,7 @@ install.packages('devtools')
 ## Load devtools package for install_github()
 library(devtools)
 ## get BayesFactor from github
-install_github('BayesFactor','richarddmorey', subdir='pkg/BayesFactor')
+install_github('BayesFactor','richarddmorey', subdir='pkg/BayesFactor', dependencies = TRUE)
 ```
 
 Under Linux, you'll need standard build tools installed (`gcc`, etc).
