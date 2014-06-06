@@ -94,7 +94,7 @@ possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
   if(nFactors>options()$BFfactorsMax){
     warning("Falling back to slow recursive method of enumerating models due to many factors.")
     retList = possibleRestrictionsWithMainGeneralFallback(trms, alwaysKept)
-    return(list(retList,trms))
+    return(c(retList,list(trms)))
   }
   
   myTerms = sapply(1:(2^nFactors-1),makeTerm,factors=myFactors)
