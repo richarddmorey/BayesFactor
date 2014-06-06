@@ -12,17 +12,21 @@ enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBo
   logicalToInclude = filterVectorLogical(neverExclude,trms)
   if(any(logicalToInclude)){
     alwaysIncluded = trms[logicalToInclude]
-    rq = matrix(outer(trms,alwaysIncluded,requiredFor),nrow=length(trms))
-    rq = apply(rq,1,any)
-    logicalToInclude[rq] = TRUE 
-    alwaysIncluded = unique(c(trms[rq], alwaysIncluded))
+    if(whichModels=="withMain"){
+      rq = matrix(outer(trms,alwaysIncluded,requiredFor),nrow=length(trms))
+      rq = apply(rq,1,any)
+      logicalToInclude[rq] = TRUE 
+      alwaysIncluded = unique(c(trms[rq], alwaysIncluded))
+    }
     alwaysIncludedString = paste(alwaysIncluded,collapse=" + ")
   }
   trms =  trms[!logicalToInclude]
   
   ntrms <- length(trms)
   dv = stringFromFormula(fmla[[2]])
+  if(ntrms == 0 )  return(list(fmla))
   if(ntrms == 1 ) whichModels = "all"
+  
   
   if(whichModels=="top"){
     lst = combn2( trms, ntrms - 1 )
