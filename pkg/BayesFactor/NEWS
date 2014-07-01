@@ -2,6 +2,7 @@
 
 CHANGES
   *  Fixed bugs in model enumeration code
+  *  Added seqBFplot function
 
   CHANGES IN BayesFactor VERSION 0.9.7
 
