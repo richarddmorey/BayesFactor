@@ -7,7 +7,8 @@ double matrixDet(double *A, int N, int LDA, int doLog, int *info)
 {
 //SUBROUTINE DPOTRF( UPLO, N, A, LDA, INFO )
 	int i=0;
-	double B[N*N], logDet=0;
+  	double *B = Calloc(N*N, double);
+	double logDet=0;
 	
 	//Memcpy(B,A,N*N);
 	for(i=0;i<N;i++){
