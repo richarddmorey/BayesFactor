@@ -1,19 +1,20 @@
 useDynLib(BayesFactor)
 
 export(logMeanExpLogs, 
-		logCumMeanExpLogs,
+    logCumMeanExpLogs,
     BFInfo,
-		ttest.tstat,
-		oneWayAOV.Fstat, 
-		linearReg.R2stat, 
-		nWayAOV,
+    ttest.tstat,
+    oneWayAOV.Fstat, 
+    linearReg.R2stat, 
+    nWayAOV,
     ttestBF,
     lmBF,
     regressionBF,
     anovaBF,
     BFManual,
     as.BFBayesFactor,
-    generalTestBF)
+    generalTestBF,
+    contingencyTableBF)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
@@ -23,7 +24,7 @@ importFrom(graphics, plot)
 importFrom(utils, packageDescription)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
-exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample")
+exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
 exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na")
               
 S3method("is.na","BFBayesFactor")
