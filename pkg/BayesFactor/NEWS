@@ -2,6 +2,8 @@
 
 CHANGES
   *  Fixed bugs in model enumeration code
+  *  Fixed a memory allocation bug that affected computing Bayes factors with lots of data 
+  *  Added support for contingency table Bayes factors
 
   CHANGES IN BayesFactor VERSION 0.9.7
 
