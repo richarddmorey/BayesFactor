@@ -25,6 +25,8 @@ double matrixDet(double *A, int N, int LDA, int doLog, int *info)
 		logDet += 2 * log(B[i*N+i]);
 	}
 	
+	Free(B);
+	
 	if(doLog){
 		return(logDet);
 	}else{
