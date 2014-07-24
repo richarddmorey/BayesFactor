@@ -1,0 +1,19 @@
+\name{\%termin\%}
+\alias{\%termin\%}
+\title{Find a model term in a vector of}
+\usage{
+x \%termin\% table
+}
+\arguments{
+  \item{x}{the terms to be matched}
+
+  \item{table}{the terms to be matched against}
+}
+\value{
+A logical vector of the same length as x, indicating if a
+match was located for each element of x.
+}
+\description{
+Find a model term in a vector of
+}
+

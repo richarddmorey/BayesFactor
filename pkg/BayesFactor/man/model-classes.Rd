@@ -1,5 +1,6 @@
 \docType{class}
 \name{BFmodel-class}
+\alias{BFcontingencyTable-class}
 \alias{BFindepSample-class}
 \alias{BFlinearModel-class}
 \alias{BFmodel-class}

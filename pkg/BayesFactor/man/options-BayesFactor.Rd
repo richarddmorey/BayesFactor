@@ -26,7 +26,8 @@ the importance sampler. If one fails, try the other.}
 containing the lower and upper limits on on \code{log(g)}
 before the the posterior returns \code{-Inf}. This only
 affects the initial optimization step for the importance
-sampler.} }
+sampler.} \item{\code{BFfactorsMax}}{Maximum number of
+factors to try to do enumeration with in generalTestBF.} }
 }
 \seealso{
 \code{\link[base]{options}}

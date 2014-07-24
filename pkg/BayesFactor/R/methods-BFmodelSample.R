@@ -133,6 +133,16 @@ setMethod('posterior', signature(model = "BFindepSample", index = "missing", dat
 })
 
 #' @rdname posterior-methods
+#' @aliases posterior,BFcontingencyTable,missing,matrix,numeric-method
+setMethod('posterior', signature(model = "BFcontingencyTable", index = "missing", data = "matrix", iterations = "numeric"), 
+          function(model, index = NULL, data, iterations, ...){
+            model = formula(model@identifier)
+            type = model@type
+            prior = model@prior$a
+            sampleContingency(model, type, prior, data = data, iterations = iterations, ...)                
+          })
+
+#' @rdname posterior-methods
 #' @aliases posterior,BFoneSample,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFoneSample", index = "missing", data = "data.frame", iterations = "numeric"), 
   function(model, index = NULL, data, iterations, ...){

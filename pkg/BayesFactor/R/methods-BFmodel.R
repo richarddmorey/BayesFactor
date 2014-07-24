@@ -9,6 +9,15 @@ BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName){
       version = BFInfo(FALSE))
 }
 
+BFcontingencyTable <- function(type, identifier, prior, shortName, longName){
+  new("BFcontingencyTable", type = type,
+      identifier = identifier,
+      prior = prior,
+      shortName = shortName,
+      longName = longName,
+      version = BFInfo(FALSE))
+}
+
 BFlinearModel <- function(type, identifier, prior, dataTypes, shortName, longName){
   new("BFlinearModel", type = type,
       identifier = identifier,
@@ -203,5 +212,44 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
           })
           
 
+setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "matrix"), 
+          function(numerator, data, ...){
+            
+            type = numerator@type
+            a = numerator@prior$a
+            
+            if(any(data%%1 != 0)) stop("All elements of x must be integers.")
+            if(any(dim(data)<2) | (length(dim(data)) != 2)) stop("x must be m by n.")
+            
+            lbf = switch(type,
+                         "contingency table, poisson" = contingencyPoisson(data, a),
+                         "contingency table, joint multinomial" = contingencyJointMultinomial(data, a),
+                         "contingency table, independent multinomial" = contingencyIndepMultinomial(data, a),
+                         "contingency table, hypergeometric" =  contingencyHypergeometric(data, a),
+                         stop("Unknown value of sampleType (see help for contingencyBF).")
+            )
+            error = 0
+            
+            denominator = BFcontingencyTable(type = type, 
+                                             identifier = list(formula = "independence"), 
+                                             prior=list(),
+                                             shortName = "Indep.",
+                                             longName = "Null, independence")
+            
+            bf_df = data.frame(bf = lbf,
+                               error = error,
+                               time = date(),
+                               code = NA)
+            
+            rownames(bf_df) <- numerator@shortName
+            
+            newBF = BFBayesFactor(numerator = list(numerator),
+                                  denominator = denominator,
+                                  data = data,
+                                  bayesFactor = bf_df
+            )
+            return(newBF)
+
+})
 
 

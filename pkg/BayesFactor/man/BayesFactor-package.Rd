@@ -11,7 +11,7 @@ tests, ANOVA, and linear regression.
 }
 \details{
 \tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab
-Package\cr Version: \tab 0.9.7\cr Date: \tab 2014-2-20\cr
+Package\cr Version: \tab 0.9.8\cr Date: \tab 2014-3-22\cr
 License: \tab GPL 2.0\cr LazyLoad: \tab yes\cr } The
 following methods are currently implemented, with more to
 follow:

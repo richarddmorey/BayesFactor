@@ -4,6 +4,7 @@
 \alias{posterior,BFBayesFactor,missing,missing,missing-method}
 \alias{posterior,BFBayesFactor,missing,missing,numeric-method}
 \alias{posterior,BFBayesFactor,numeric,missing,numeric-method}
+\alias{posterior,BFcontingencyTable,missing,matrix,numeric-method}
 \alias{posterior,BFindepSample,missing,data.frame,numeric-method}
 \alias{posterior,BFlinearModel,missing,data.frame,missing-method}
 \alias{posterior,BFlinearModel,missing,data.frame,numeric-method}
@@ -28,6 +29,9 @@ posterior(model, index, data, iterations, ...)
   index = NULL, data, iterations, ...)
 
 \S4method{posterior}{BFindepSample,missing,data.frame,numeric}(model,
+  index = NULL, data, iterations, ...)
+
+\S4method{posterior}{BFcontingencyTable,missing,matrix,numeric}(model,
   index = NULL, data, iterations, ...)
 
 \S4method{posterior}{BFoneSample,missing,data.frame,numeric}(model,
