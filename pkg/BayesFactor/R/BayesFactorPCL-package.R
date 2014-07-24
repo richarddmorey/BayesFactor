@@ -19,6 +19,8 @@
 #'ANOVA: \code{\link{anovaBF}}, \code{\link{lmBF}}, 
 #'\code{\link{oneWayAOV.Fstat}};
 #'
+#'contingency tables: \code{\link{contingencyTableBF}};
+#'
 #'Other useful functions: \code{\link{posterior}}, for sampling from posterior 
 #'distributions; \code{\link{recompute}}, for re-estimating a Bayes factor or 
 #'posterior distribution; \code{\link{compare}}, to compare two model
