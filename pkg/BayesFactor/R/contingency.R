@@ -40,7 +40,7 @@
 ##' ## Fathers and Sons example
 ##' @seealso \code{\link{integrate}}, \code{\link{t.test}}
 
-contingencyTableBF(x, sampleType, priorConcentration = 1, posterior = FALSE, ...)
+contingencyTableBF <- function(x, sampleType, priorConcentration = 1, posterior = FALSE, ...)
 {
   
   x = as.matrix(as.integer(x))
