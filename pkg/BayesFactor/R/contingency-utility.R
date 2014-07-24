@@ -110,7 +110,7 @@ contingencyIndepMultinomial<-function (y, a){
 #########################################################################################
 contingencyHypergeometric<-function (y, a) {
   
-  if(identical(dim(y),as.integer(c(2,2)))) stop("hypergeometric contingency tables restricted to 2 x 2 tables; see help for contingencyTableBF()")
+  if(!identical(dim(y),as.integer(c(2,2)))) stop("hypergeometric contingency tables restricted to 2 x 2 tables; see help for contingencyTableBF()")
   
   a <- a + 0 * y
   ac <- colSums(a)

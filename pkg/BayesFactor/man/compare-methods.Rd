@@ -1,6 +1,8 @@
 \docType{methods}
 \name{compare}
 \alias{compare}
+\alias{compare,BFcontingencyTable,BFcontingencyTable,data.frame-method}
+\alias{compare,BFcontingencyTable,missing,data.frame-method}
 \alias{compare,BFindepSample,missing,data.frame-method}
 \alias{compare,BFlinearModel,BFlinearModel,data.frame-method}
 \alias{compare,BFlinearModel,missing,data.frame-method}

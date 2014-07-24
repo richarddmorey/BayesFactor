@@ -212,7 +212,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
           })
           
 
-setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "matrix"), 
+setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "data.frame"), 
           function(numerator, data, ...){
             
             type = numerator@type
@@ -222,10 +222,10 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
             if(any(dim(data)<2) | (length(dim(data)) != 2)) stop("x must be m by n.")
             
             lbf = switch(type,
-                         "contingency table, poisson" = contingencyPoisson(data, a),
-                         "contingency table, joint multinomial" = contingencyJointMultinomial(data, a),
-                         "contingency table, independent multinomial" = contingencyIndepMultinomial(data, a),
-                         "contingency table, hypergeometric" =  contingencyHypergeometric(data, a),
+                         "poisson" = contingencyPoisson(as.matrix(data), a),
+                         "joint multinomial" = contingencyJointMultinomial(as.matrix(data), a),
+                         "independent multinomial" = contingencyIndepMultinomial(as.matrix(data), a),
+                         "hypergeometric" =  contingencyHypergeometric(as.matrix(data), a),
                          stop("Unknown value of sampleType (see help for contingencyBF).")
             )
             error = 0
@@ -239,17 +239,26 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
             bf_df = data.frame(bf = lbf,
                                error = error,
                                time = date(),
-                               code = NA)
+                               code = randomString(1))
             
             rownames(bf_df) <- numerator@shortName
             
             newBF = BFBayesFactor(numerator = list(numerator),
                                   denominator = denominator,
-                                  data = data,
+                                  data = as.data.frame(data),
                                   bayesFactor = bf_df
             )
             return(newBF)
 
 })
 
+setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "BFcontingencyTable", data = "data.frame"), 
+          function(numerator, denominator, data, ...){
+            if(!identical(numerator@type, denominator@type)) stop("Models of different types cannot be currently be compared by compare().")
+            if(!identical(class(numerator), class(denominator))) stop("Models of different classes cannot be currently be compared by compare().")
+                        
+            BFnum = compare(numerator = numerator, data = data)              
+            BFden = compare(numerator = denominator, data = data)
+            return(BFnum / BFden)
+          })
 
