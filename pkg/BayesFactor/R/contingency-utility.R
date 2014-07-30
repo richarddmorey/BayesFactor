@@ -48,10 +48,10 @@ contingencyPoisson<-function (y, a){
   oc <- 1 + 0 * yc
   or <- 1 + 0 * yr
   
-  lbf<-lgamma(sum(a)-(I-1)*(J-1))-((I-1)*(J-1)*log(1+1/b))-
-    lgamma(sum(y)+sum(a)-(I-1)*(J-1))-ldirich(yr + ar-(J- 1)*or) +
-    ldirich( ar - (J - 1) * or)-ldirich(yc + ac - (I - 1) * oc)+
-    ldirich( ac - (I - 1) * oc)- ldirich1(y,a)
+  lbf<-lgamma(sum(a) - (I-1)*(J-1)) - ((I-1)*(J-1)*log(1 + 1/b)) -
+    lgamma(sum(y) + sum(a) - (I-1)*(J-1)) - ldirich(yr + ar-(J- 1)*or) +
+    ldirich( ar - (J - 1) * or) - ldirich(yc + ac - (I - 1) * oc) +
+    ldirich( ac - (I - 1) * oc) - ldirich1(y,a)
   return(lbf)
 }
 
@@ -74,8 +74,8 @@ contingencyJointMultinomial <-function (y, a){
   I <- d[1]
   J <- d[2]
   lbf <- ldirich(c(y) + c(a)) + ldirich(ar - (J - 1) * or) + 
-    ldirich(ac - (I - 1) * oc) - ldirich(c(a)) - ldirich(yr + 
-                                                           ar - (J - 1) * or) - ldirich(yc + ac - (I - 1) * oc)
+    ldirich(ac - (I - 1) * oc) - ldirich(c(a)) - 
+    ldirich(yr + ar - (J - 1) * or) - ldirich(yc + ac - (I - 1) * oc)
     
   return(lbf)
 }
@@ -98,8 +98,8 @@ contingencyIndepMultinomial<-function (y, a){
   or <- 1 + 0 * yr
   I <- d[1]
   J <- d[2]
-  lbf <- ldirich(ac - (I - 1) * oc) + ldirich(ar) + ldirich(c(y) + c(a))-
-    ldirich(yc + ac - (I - 1) * oc)- ldirich(yr + ar) - ldirich(c(a))
+  lbf <- ldirich(ac - (I - 1) * oc) + ldirich(ar) + ldirich(c(y) + c(a)) -
+    ldirich(yc + ac - (I - 1) * oc) - ldirich(yr + ar) - ldirich(c(a))
   
   return(lbf)
 }
@@ -146,7 +146,7 @@ contingencyHypergeometric<-function (y, a) {
   }
   
   sum.mar<- sumg(y,a)
-  lbf<-ldirich(c(y)+c(a))+pcomb(yc)+pcomb(yr)-ldirich(c(a))-sumg(y,a)
+  lbf<-ldirich(c(y) + c(a)) + pcomb(yc) + pcomb(yr) - ldirich(c(a)) - sumg(y,a)
   
   return(lbf)  
 }
