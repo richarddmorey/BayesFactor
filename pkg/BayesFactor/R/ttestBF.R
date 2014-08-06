@@ -16,9 +16,8 @@
 ##' below for more details.
 ##' 
 ##' For the \code{rscale} argument, several named values are recognized: 
-##' "medium", "wide", and "ultrawide". For the one-sample test, these correspond 
-##' to \eqn{r} scale values of 1/2, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1, respectively. For the two-sample 
-##' test, they correspond to \eqn{\sqrt{2}/2}{sqrt(2)/2}, 1, and \eqn{\sqrt{2}/2}{sqrt(2)}
+##' "medium", "wide", and "ultrawide". These correspond 
+##' to \eqn{r} scale values of \eqn{\sqrt{2}/2}{sqrt(2)/2}, 1, and \eqn{\sqrt{2}}{sqrt(2)} 
 ##' respectively.
 ##' 
 ##' The Bayes factor is computed via Gaussian quadrature.
@@ -65,7 +64,7 @@
 ##'   Perception and Cognition Lab (University of Missouri): Bayes factor 
 ##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
 ##' @note The default priors have scale has changed from 1 to \eqn{\sqrt{2}/2}. The 
-##'   factor of \eqn{\sqrt{2}} in the two-sample t test is to be consistent 
+##'   factor of \eqn{\sqrt{2}}  is to be consistent 
 ##'   with Morey et al. (2011) and 
 ##'   Rouder et al. (2012), and the factor of \eqn{1/2} in both is to better scale the 
 ##'   expected effect sizes; the previous scaling put more weight on larger 

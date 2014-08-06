@@ -74,15 +74,13 @@ ttestAreaNull <- function(t, n1, n2=0, nullInterval=c(-.2,.2), rscale=1, safeInt
   
   nullInterval[1] = max(nullInterval[1],safeRange[1]) 
   nullInterval[2] = min(nullInterval[2],safeRange[2]) 
-  
-  ifelse(nullInterval[1]<safeRange[1],safeRange[1],nullInterval[1])
-  
+    
   allIntegral = integrate(function(delta,tstat,n1,nu,rscale){
-    exp(dt(t,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE))
+    exp(dt(tstat,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE))
   }, safeRange[1], safeRange[2], tstat=t,n1=n,nu=nu, rscale=rscale)[[1]]
   
   areaIntegral = integrate(function(delta,tstat,n1,nu,rscale,const=1){
-    exp(dt(t,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE) - log(const))
+    exp(dt(tstat,df = nu, ncp = delta * sqrt(n1), log=TRUE) + dcauchy(delta, scale=rscale, log=TRUE) - log(const))
   }, nullInterval[1], nullInterval[2], tstat=t,n1=n,nu=nu,rscale=rscale,const=allIntegral)
   
   

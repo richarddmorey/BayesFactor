@@ -14,7 +14,8 @@ export(logMeanExpLogs,
     BFManual,
     as.BFBayesFactor,
     generalTestBF,
-    contingencyTableBF)
+    contingencyTableBF,
+    meta.ttest.tstat)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)

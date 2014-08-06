@@ -2,8 +2,10 @@
 
 CHANGES
   *  Fixed bugs in model enumeration code
+  *  Corrected typos/old information in the documentation 
   *  Fixed a memory allocation bug that affected computing Bayes factors with lots of data 
   *  Added support for contingency table Bayes factors (see function contingencyTableBF)
+  *  Added meta-analytic Bayes factor for t tests (see meta.ttest.tstat())
 
   CHANGES IN BayesFactor VERSION 0.9.7
 

@@ -51,6 +51,7 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
 * Performing analyses
   * [One-sample (and two-sample paired), and manipulating Bayes factor objects](#onesample) 
   * [Two independent samples](#twosample)
+  * [Meta-analytic t tests](#metat)
   * [ANOVA, fixed-effects](#fixed)
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
@@ -259,6 +260,9 @@ chains = posterior(bf, iterations = 10000)
 plot(chains[,1:4])
 ```
 Note that the samples through assuming the equivalent ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
+
+<a id="metat"></a>
+### Meta-analytic t tests
 
 
 
@@ -806,6 +810,10 @@ Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), D
 
 <a id="Rouderttest"></a>
 Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.bf_.pdf))
+
+<a id="RouderMetat"></a>
+Rouder, J. N. and Morey, R. D. (2011), A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([PDF](http://drsmorey.org/bibtex/upload/Rouder:Morey:2011a.pdf))
+
 
 -------
 <p>Social media icons by <a href="http://www.awicons.com/">Lokas Software</a>.</p>
