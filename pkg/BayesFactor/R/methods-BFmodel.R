@@ -46,6 +46,15 @@ BFindepSample <- function(type, identifier, prior, shortName, longName){
       version = BFInfo(FALSE))
 }
 
+BFmetat <- function(type, identifier, prior, shortName, longName){
+  new("BFmetat", type = type,
+      identifier = identifier,
+      prior = prior,
+      shortName = shortName,
+      longName = longName,
+      version = BFInfo(FALSE))
+}
+
 #######
 
 setMethod('show', signature = c("BFlinearModel"),
@@ -57,6 +66,15 @@ setMethod('show', signature = c("BFlinearModel"),
     lapply(names(object@dataTypes),function(el) cat(el,": ",object@dataTypes[el],"\n") )
     cat("\n\n")
   }
+)
+
+setMethod('show', signature = c("BFmetat"),
+          function(object){
+            cat("---\n Model:\n")
+            cat("Type: ",class(object)[1],", ",object@type,"\n",sep="")
+            cat(object@longName,"\n")
+            cat("\n\n")
+          }
 )
 
 setMethod("%same%", signature = c(x="BFmodel",y="BFmodel"),
@@ -211,6 +229,54 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
             
           })
           
+
+setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", data = "data.frame"), 
+          function(numerator, data, ...){
+            
+            nullInterval=numerator@prior$nullInterval
+
+            if( (numerator@type=="JZS") ){
+              
+                bf = meta.ttest.tstat(t=data$t, n1=data$n1, n2=data$n2, 
+                                      nullInterval=nullInterval, rscale=numerator@prior$rscale)
+                numBF = bf[['bf']]
+                errorEst = bf[['properror']]
+  
+              if(!is.null(nullInterval)){
+                
+                modComplement = numerator
+                modComplement@shortName = paste("Alt., r=",round(numerator@prior$rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+                modComplement@longName = paste("Alternative, r = ",numerator@prior$rscale," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+                
+                numList = list(numerator,modComplement)
+                nms = c(numerator@shortName,modComplement@shortName)
+              }else{
+                numList = list(numerator)
+                nms = numerator@shortName
+              }
+              modDenominator = BFmetat(type = "JZS", 
+                                           identifier = list(formula = "d = 0"), 
+                                           prior=list(),
+                                           shortName = "Null, d=0",
+                                           longName = "Null, d = 0")
+              
+              bf_df = data.frame(bf = numBF,
+                                 error = errorEst,
+                                 time = date(),
+                                 code = randomString(length(numBF)))
+              
+              rownames(bf_df) <- nms
+              
+              newBF = BFBayesFactor(numerator = numList,
+                                    denominator = modDenominator,
+                                    data = data,
+                                    bayesFactor = bf_df)
+              return(newBF)
+            }else{
+              stop("Unknown prior type: ", numerator@type)
+            }
+          })
+
 
 setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "data.frame"), 
           function(numerator, data, ...){

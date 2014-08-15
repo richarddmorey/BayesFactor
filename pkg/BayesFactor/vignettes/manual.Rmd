@@ -51,7 +51,7 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
 * Performing analyses
   * [One-sample (and two-sample paired), and manipulating Bayes factor objects](#onesample) 
   * [Two independent samples](#twosample)
-  * [Meta-analytic t tests](#metat)
+  * [Meta-analytic t tests (0.9.8+)](#metat)
   * [ANOVA, fixed-effects](#fixed)
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
@@ -209,6 +209,7 @@ When you have a Bayes factor object with several numerators, there are several i
 ```{r plotonesamp,fig.width=10,fig.height=5}
 plot(allbf)
 ```
+
 We can also divide a Bayes factor object by itself &mdash; or by a subset of itself &mdash; to obtain pairwise comparisons:
 ```{r onesamplist}
 bfmat = allbf / allbf
@@ -241,6 +242,7 @@ chickwts$feed = factor(chickwts$feed)
 ## Plot data
 plot(weight ~  feed, data = chickwts, main = "Chick weights")
 ```
+
 Chick weight appears to be affected by the feed type.
 
 ```{r}
@@ -259,12 +261,46 @@ As before, we can sample from the posterior distribution for the numerator model
 chains = posterior(bf, iterations = 10000)
 plot(chains[,1:4])
 ```
-Note that the samples through assuming the equivalent ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
+
+Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
 
 <a id="metat"></a>
-### Meta-analytic t tests
+### Meta-analytic t tests (0.9.8+)
 
+Rouder and Morey (2011; [link](#RouderMetat)) discuss a meta-analytic extension of the $t$ test, whereby multiple $t$ statistics, along with their corresponding sample sizes, are combined in a single meta-analytic analysis. The $t$ statistics are assumed to arise from a a common effect size $\delta$. The prior for the effect size $\delta$ is the same as that for the $t$ tests described above.
 
+The `meta.ttestBF` function is used to perform meta-analytic $t$ tests. It requires as input a vector of $t$ statistics, and one or two vectors of sample sizes (arguments `n1` and `n2`). For a set of one-sample $t$ statistics, `n1` should be provided; for two-sample analyses, both `n1` and `n2` should be provided.
+
+As an example, we will replicate the analysis of Rouder & Morey (2011), using $t$ statistics from Bem (2010; see Rouder & Morey for reference). We begin by defining the one-sample $t$ statistics and sample sizes:
+
+```{r bemdata}
+## Bem's t statistics from four selected experiments
+t = c(-.15, 2.39, 2.42, 2.43)
+N = c(100, 150, 97, 99)
+```
+
+Rouder and Morey opted for a one-sided analysis, and used an $r$ scale parameter of 1 (instead of the current default in `BayesFactor` of $\sqrt{2}/2$). 
+
+```{r bemanalysis1}
+bf = meta.ttestBF(t=t, n1=N, nullInterval=c(0,Inf), rscale=1)
+bf
+```
+Notice that as above, the analysis yields a Bayes factor for our selected interval against the null, as well as the Bayes factor for the complement of the interval against the null.
+
+We can also sample from the posterior distribution of the standardized effect size $\delta$, as above, using the `posterior` function:
+
+```{r bemposterior,fig.width=10}
+## Do analysis again, without nullInterval restriction
+bf = meta.ttestBF(t=t, n1=N, rscale=1)
+
+## Obtain posterior samples
+chains = posterior(bf, iterations = 10000)
+plot(chains)
+```
+
+Notice that the posterior samples will respect the `nullInterval` argument if given; in order to get unrestricted samples, perform an analysis with no interval restriction and pass it to the `posterior` function.
+
+See `?meta.ttestBF` for more information.
 
 ### ANOVA 
 The `BayesFactor` package has two main functions that allow the comparison of models with factors as predictors (ANOVA): `anovaBF`, which computes several model estimates at once, and `lmBF`, which computes one comparison at a time. We begin by demonstrating a 3x2 fixed-effect ANOVA using the `ToothGrowth` data set. For details about the data set, see `?ToothGrowth`.
@@ -287,6 +323,7 @@ levels(ToothGrowth$dose) = c("Low", "Medium", "High")
 
 summary(aov(len ~ supp*dose, data=ToothGrowth))
 ```
+
 There appears to be a large effect of the dosage, a small effect of the supplement type, and perhaps a hint of an interaction. The `anovaBF` function will compute the Bayes factors of all models against the intercept-only model; by default, it will choose the subset of all models in which which an interaction can only be included if all constituent effects or interactions are included (argument `whichModels` is set to `withmain`, indicating that interactions can only enter in with their main effects). However, this setting can be changed, as we will demonstrate. First, we show the default behavior.
 ```{r }
 bf = anovaBF(len ~ supp*dose, data=ToothGrowth)
@@ -298,6 +335,7 @@ The Bayes factor analysis is consistent with the classical ANOVA analysis; the f
 ```{r fixedbf,fig.width=10,fig.height=5}
 plot(bf[3:4] / bf[2])
 ```
+
 The model with the main effect of `supp` and the `supp:dose` interaction is preferred quite strongly over the `dose`-only model.
 
 There are a number of other options for how to select subsets of models to test. The `whichModels` argument to `anovaBF` controls which subsets are tested. As described previously, the default is `withmain`, where interactions are only allowed if all constituent sub-effects are included. The other three options currently available are `all`, which tests all models; `top`, which includes the full model and all models that can be formed by removing one interaction or main effect; and `bottom`, which adds single effects one at a time to the null model. 
@@ -362,6 +400,7 @@ points(1:4,mns,pch=22,col="red",bg=rgb(1,0,0,.6),cex=2)
 stderr = sqrt(sum(aovObj[[5]]$residuals^2)/11)/sqrt(12)
 segments(1:4,mns + stderr,1:4,mns - stderr,col="red")
 ```
+
 (Code for plot omitted) Individual circles joined by lines show participants; red squares/lines show the means and within-subject standard errors. From the plot, there appear to be main effects of `color` and shape, but no interaction. 
 ```{r}
 summary(aov(RT ~ shape*color + Error(ID/(shape*color)), data=puzzles))
@@ -457,6 +496,7 @@ bf = regressionBF(rating ~ ., data = attitude, whichModels = "top")
 bf
 plot(bf)
 ```
+
 With all other covariates in the model, the model containing `complaints` is preferred to the model not containing `complaints` by a factor of almost 80. The model containing `learning`, is only barely favored to the one without (a factor of about 1.3).
 
 A similar "bottom-up" test can be done, by setting `whichModels` to `'bottom'`.
@@ -464,6 +504,7 @@ A similar "bottom-up" test can be done, by setting `whichModels` to `'bottom'`.
 bf = regressionBF(rating ~ ., data = attitude, whichModels = "bottom")
 plot(bf)
 ```
+
 The mismatch between the tests of all models, the "top-down" test, and the "bottom-up" test shows that the covariates share variance with one another. As always, whether these tests are interpretable or useful will depend on the data at hand.
 
 In cases where it is desired to only compare a small number of models, the `lmBF` function can be used. Consider the case that we wish to compare the model containing only `complaints` to the model containing `complaints` and `learning`:
@@ -768,6 +809,7 @@ par(mfrow=c(1,2))
 plot(as.vector(chains[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
 acf(chains[,"shape-round"])
 ```
+
 The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every \(k\) iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
 
 The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every \(k=2\) iterations using the `thin` argument:

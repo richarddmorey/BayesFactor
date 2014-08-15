@@ -44,6 +44,10 @@ setClass("BFlinearModel", contains = "BFmodel")
 #' @rdname model-classes
 setClass("BFoneSample", contains = "BFlinearModel")
 
+#' @name BFoneSample-class
+#' @rdname model-classes
+setClass("BFmetat", contains = "BFmodel")
+
 #' @name BFindepSample-class
 #' @rdname model-classes
 setClass("BFindepSample", contains = "BFlinearModel")

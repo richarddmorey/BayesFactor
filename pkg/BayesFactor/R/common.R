@@ -284,3 +284,23 @@ termMatch <- function(x, table, nomatch = NA_integer_){
     }
   return(returnVector)
 }
+
+# Add two values for which the proportional error is known
+# and return the proportional error
+sumWithPropErr <- function(x1,x2,err1,err2){
+  # convert proportional error to abs err
+  logAbs1 = x1 + log(err1)
+  logAbs2 = x2 + log(err2)
+  # Compute the logarithms of sums of exponentiated logarithms, safely
+  logSum = logMeanExpLogs(c(x1, x2)) + log(2)
+  absSum = .5 * (logMeanExpLogs(2*c(logAbs1, logAbs2)) + log(2))
+  
+  propErr = exp(absSum - logSum)
+  return(c(logSum,propErr))
+}
+
+# Return log(exp(a) - exp(b)), without losing precision
+logExpAminusExpB <- function(a,b)
+  a + pexp(a-b,log.p=TRUE)
+
+

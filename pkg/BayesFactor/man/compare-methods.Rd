@@ -8,6 +8,7 @@
 \alias{compare,BFlinearModel,missing,data.frame-method}
 \alias{compare,BFmcmc,BFmcmc,ANY-method}
 \alias{compare,BFmcmc,missing,ANY-method}
+\alias{compare,BFmetat,missing,data.frame-method}
 \alias{compare,BFoneSample,missing,data.frame-method}
 \title{Compare two models, with respect to some data}
 \usage{
