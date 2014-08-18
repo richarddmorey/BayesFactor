@@ -87,7 +87,7 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
       
       bf = compare(numerator = modFull, data = data)
       if(posterior){
-        chains = posterior(bf,data = data, ...)
+        chains = posterior(bf,data = data, callback = callback, ...)
         return(chains)
       }else{
         return(bf)
