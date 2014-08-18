@@ -84,11 +84,11 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
                             longName = paste("Alternative, r = ",rscale,", delta =/= 0", sep="")
       )
       
+      bf = compare(numerator = modFull, data = data)
       if(posterior){
-        chains = posterior(modFull,data = data, ...)
+        chains = posterior(bf,data = data, ...)
         return(chains)
       }else{
-        bf = compare(numerator = modFull, data = data)
         return(bf)
       }
     }else{
@@ -99,11 +99,11 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                 longName = paste("Alternative, r = ",rscale,", ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )      
+      bf = compare(numerator = modInterval, data = data)
       if(posterior){
-        chains = posterior(modInterval, data = data, ...)
+        chains = posterior(bf, data = data, ...)
         return(chains)
       }else{
-        bf = compare(numerator = modInterval, data = data)
         return(bf)
       }
     }
