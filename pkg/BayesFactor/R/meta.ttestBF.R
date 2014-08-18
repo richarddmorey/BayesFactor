@@ -100,9 +100,10 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                 longName = paste("Alternative, r = ",rscale,", ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )      
-      bf = compare(numerator = modInterval, data = data)
+      
+      bf = compare(numerator = modInterval, data = data, callback = callback)
       if(posterior){
-        chains = posterior(bf, data = data, callback = callback, ...)
+        chains = posterior(bf, iterations = iterations, callback = callback, ...)
         return(chains)
       }else{
         return(bf)
