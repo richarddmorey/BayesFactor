@@ -56,8 +56,21 @@
 
 linearReg.R2stat=function(N,p,R2,rscale="medium") {
   rscale = rpriorValues("regression",,rscale)
-  h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2)
+  
+  ### Compute approximation to posterior mode of g
+  ### Liang et al Eq. A.3, assuming a=b=0
+  g3 = -(1 - R2) * (p + 3) #* g^3 
+  g2 = (N - p - 4 - 2 * (1 - R2)) #* g^2
+  g1 = (N * (2 - R2) - 3) #*g
+  g0 = N
+  
+  sol = polyroot(c(g0, g1, g2, g3))
+  ## Pick the real solution
+  modeg = Re(sol[which.min(Im(sol)^2)])
+  log.const = integrand.regression(modeg, N, p , R2, rscaleSqr=rscale^2, log=TRUE)
+  
+  h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2,log.const=log.const)
   properror = exp(log(h[[2]]) - log(h[[1]]))
-  bf = log(h$value)
+  bf = log(h$value) + log.const
   return(c(bf=bf, properror=properror))
 }

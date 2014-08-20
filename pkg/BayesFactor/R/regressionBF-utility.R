@@ -32,11 +32,15 @@ createFullRegressionModel <- function(formula, data){
   return(formula(strng))
 }
 
-integrand.regression=function(g,N,p,R2,rscaleSqr=1)
-{
-  a=.5*((N-p-1)*log(1+g)-(N-1)*log(1+g*(1-R2)))
-  exp(a)*dinvgamma(g,shape=.5,scale=rscaleSqr*N/2)
-}
+integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, log.const=0){
+  a = .5 * ((N - p -1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
+  shape=.5
+  scale=rscaleSqr*N/2
+  log.density.igam <- shape * log(scale) - lgamma(shape) - 
+    (shape + 1) * log(g) - (scale/g)
+  ans = a + log.density.igam - log.const
+  ifelse(log,ans,exp(ans))
+},"g")
 
 linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, gibi=NULL, noSample=FALSE, ...){
   rscale = rpriorValues("regression",,rscale)
