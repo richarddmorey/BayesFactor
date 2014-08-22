@@ -292,7 +292,7 @@ SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy
 	return(returnList);
 }
 
-SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP RignoreCols, SEXP Rthin, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP RignoreCols, SEXP Rthin, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
 	double *a,*b,*Xty,*XtX,*samples,*X, *y, *r,*priorX;
 	int iters,nGs,*gMap,N,P,progress,incCont,*ignoreCols, nOutputPars=0,thin,i;
@@ -327,7 +327,7 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP 
 	samples = REAL(Rsamples);
 	  
 	GetRNGstate();
-	GibbsNwayAov(samples, iters, y, X, XtX, priorX, Xty, N, P, nGs, gMap, r, incCont, ignoreCols, nOutputPars, thin, progress, pBar, rho);
+	GibbsNwayAov(samples, iters, y, X, XtX, priorX, Xty, N, P, nGs, gMap, r, incCont, ignoreCols, nOutputPars, thin, progress, pBar, callback, rho);
 	PutRNGstate();
 	
 	UNPROTECT(1);
@@ -335,7 +335,7 @@ SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP 
 	return(Rsamples);
 }
 
-void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int *ignoreCols, int nOutputPars, int thin, int progress, SEXP pBar, SEXP rho)
+void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int *ignoreCols, int nOutputPars, int thin, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
 	int i=0,j=0,k=0, nPars=2+P+nGs, P1Sq=(P+1)*(P+1), P1=P+1, iOne=1,nParG[nGs];
 	double *g1, Sigma[P1Sq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
@@ -346,9 +346,17 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 	// progress stuff
 	SEXP sampCounter, R_fcall;
 	int *pSampCounter;
-    PROTECT(R_fcall = lang2(pBar, R_NilValue));
+  PROTECT(R_fcall = lang2(pBar, R_NilValue));
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
+
+  // callback stuff
+  int callbackReturn=0;
+  SEXP callbackCounter, R_fcall_callback;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER_POINTER(callbackCounter);
+
 
 	AZERO(nParG,nGs);
 	sig2 = 1;
@@ -371,6 +379,17 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
+    // callback
+    if(!((i+1)%(iters/1000))){
+      pCallbackCounter[0] = (i*1.0)/iters*1000.0;
+      SETCADR(R_fcall_callback, callbackCounter);
+			callbackReturn = INTEGER(eval(R_fcall_callback, rho))[0];
+      if(callbackReturn){
+        UNPROTECT(4);
+        error("Operation cancelled.");
+      }
+    }
+    
     // Remember, continuous g is always last
 		// Sample beta
 		Memcpy(Sigma,XtX,P1Sq);
@@ -453,7 +472,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 	 
    } // end MCMC iterations
 	
-	UNPROTECT(2);
+	UNPROTECT(4);
 		
 }
 

@@ -13,9 +13,9 @@
 #include <R_ext/BLAS.h>
 
 
-void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP rho);
+void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho);
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
 double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double *SS, int *N, int sumN, int J, double sdMetrop, double *acc);
 
@@ -59,13 +59,13 @@ void debugPrintMatrix(double *X, int rows, int cols);
 
 void debugPrintVector(double *x, int len);
 
-void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int *ignoreCols, int nOutputPars, int thin, int progress, SEXP pBar, SEXP rho);
+void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, double *priorX, double *Xty, int N, int P, int nGs, int *gMap, double *r, int incCont, int *ignoreCols, int nOutputPars, int thin, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
-SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP RignoreCols, SEXP Rthin, SEXP progressR, SEXP pBar, SEXP rho);
+SEXP RGibbsNwayAov(SEXP Riters, SEXP Ry, SEXP RX, SEXP RXtX, SEXP RpriorX, SEXP RXty, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Rr, SEXP RincCont, SEXP RignoreCols, SEXP Rthin, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho);
 
-SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SEXP RXtCny, SEXP RN, SEXP RP, SEXP Rr, SEXP sig2start, SEXP progressR, SEXP pBar, SEXP rho);
+SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SEXP RXtCny, SEXP RN, SEXP RP, SEXP Rr, SEXP sig2start, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho);
 
-void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *XtX, double *XtCnX, double *XtCny, int N, int P, double r, double sig2start, int progress, SEXP pBar, SEXP rho);
+void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *XtX, double *XtCnX, double *XtCny, int N, int P, double r, double sig2start, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
 
 #define AZERO(x, n) {int _I_, _SZ_ = (n); for(_I_ = 0; _I_ < _SZ_; _I_++) (x)[_I_] = 0;}

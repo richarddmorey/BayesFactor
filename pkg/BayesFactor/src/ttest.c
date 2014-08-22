@@ -2,7 +2,7 @@
 
 
 
-SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP doIntervalR, SEXP intervalR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP doIntervalR, SEXP intervalR, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
 	
 	int npars = 6,iterations = INTEGER_VALUE(iterationsR);
@@ -15,14 +15,14 @@ SEXP RgibbsOneSample(SEXP yR, SEXP NR, SEXP rscaleR, SEXP iterationsR, SEXP doIn
 	SEXP chainsR;
 	PROTECT(chainsR = allocMatrix(REALSXP, npars, iterations));
 
-	gibbsOneSample(y, N, rscale, iterations, REAL(chainsR), doInterval, interval, progress, pBar, rho);
+	gibbsOneSample(y, N, rscale, iterations, REAL(chainsR), doInterval, interval, progress, pBar, callback, rho);
 	
 	UNPROTECT(1);
 	
 	return(chainsR);
 }
 
-void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP rho)
+void gibbsOneSample(double *y, int N, double rscale, int iterations, double *chains, int doInterval, double *interval, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
 	int i=0;
 	double yBar=0,sumy2=0,rscaleSq=pow(rscale,2),densDelta=0,meanDelta=0,varDelta=1;
