@@ -1,4 +1,4 @@
-ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE){
+ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE, callback=NULL){
   if( (is.null(t) | is.null(n)) & !is.null(y) ){
     n = as.integer(length(y))
   }else if(!is.null(t) & !is.null(n)){

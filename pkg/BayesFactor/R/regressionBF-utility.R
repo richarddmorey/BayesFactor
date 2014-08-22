@@ -41,7 +41,7 @@ integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, lo
   ifelse(log,ans,exp(ans))
 },"g")
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, gibi=NULL, noSample=FALSE, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=NULL, noSample=FALSE, ...){
   rscale = rpriorValues("regression",,rscale)
   X <- apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
@@ -93,6 +93,7 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
                  sig2start,
                  progress,
                  pbFun,
+                 callback,
                  new.env(),
                  package="BayesFactor")
   }

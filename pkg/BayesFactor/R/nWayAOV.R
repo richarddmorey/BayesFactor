@@ -52,8 +52,7 @@
 ##' @param iterations Number of Monte Carlo samples used to estimate Bayes 
 ##'   factor or posterior
 ##' @param progress  if \code{TRUE}, show progress with a text progress bar
-##' @param gibi interface for a future graphical user interface (not intended 
-##'   for use by end users)
+##' @param callback callback function for third-party interfaces 
 ##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
 ##'   Bayes factor
 ##' @param ignoreCols if \code{NULL} and \code{gibbs=TRUE}, all parameter
@@ -108,7 +107,7 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = options()$BFprogress, gibi = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE, noSample = FALSE)
+nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, progress = options()$BFprogress, callback = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE, noSample = FALSE)
 {  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
@@ -173,8 +172,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
       #warning("All covariates are continuous: using Gaussian quadrature.")
       if(gibbs){
         chains = linearReg.Gibbs(y, X, iterations = iterations, 
-                                 rscale = rscale, progress = progress, 
-                                 gibi=gibi)
+                                 rscale = rscale, progress = progress)
         return(chains)
       }else{
         R2 = t(y)%*%X%*%solve(t(X)%*%X)%*%t(X)%*%y / (t(y)%*%y)
@@ -211,12 +209,12 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
 	
   
   ####### Progress bar stuff
-	if(!is.null(gibi)) {
-		progress=TRUE;
-		if(!is.function(gibi))
-			stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
+	if(is.null(callback) | !is.function(callback)) {
+    callback = function(...){
+      return(0)
+    }
 	}
-	if(progress & is.null(gibi) & !noSample){
+	if(progress & !noSample){
 		pb = txtProgressBar(min = 0, max = 100, style = 3) 
 	}else{ 
 		pb=NULL 
@@ -225,11 +223,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   pbFun = function(samps){ 
     if(progress){
     	percent = as.integer(round(samps / iterations * 100))
-    	if(is.null(gibi)){
-    		setTxtProgressBar(pb, percent)
-    	}else{
-    		gibi(percent)
-    	}
+    	setTxtProgressBar(pb, percent)
     }
   }
   ############ End progress bar stuff
@@ -253,7 +247,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                    as.integer(iterations), y, Z, ZtZ, priorX, Zty, as.integer(N), 
                    as.integer(P), as.integer(nGs), as.integer(gMap), rscale, as.integer(incCont),
                    as.integer(ignoreColsExtend), as.integer(thin),
-                   as.integer(iterations/100*progress), pbFun, new.env(), 
+                   as.integer(iterations/100*progress), pbFun, callback, new.env(), 
                    package="BayesFactor")
     
       dim(chains) <- c(nOutputPars + 2 + nGs, as.integer(iterations) %/% as.integer(thin))
