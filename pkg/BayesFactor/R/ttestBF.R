@@ -85,9 +85,13 @@
 ##' plot(samples[,"mu"])
 ##' @seealso \code{\link{integrate}}, \code{\link{t.test}}
 
-ttestBF <- function(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
+ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
                     paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, ...){
   
+  if(!is.null(x) & !is.null(formula)) stop("Only one of x or formula should be defined.")
+  
+  if(!is.null(x) | !is.null(y))
+    if(any(is.na(c(x,y)))) stop("x or y must not contain missing values.")
   
   if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){
     if(paired){

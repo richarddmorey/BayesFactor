@@ -2,9 +2,9 @@
 \alias{ttestBF}
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
-ttestBF(x, y = NULL, formula = NULL, mu = 0, nullInterval = NULL,
-  paired = FALSE, data = NULL, rscale = "medium", posterior = FALSE,
-  ...)
+ttestBF(x = NULL, y = NULL, formula = NULL, mu = 0,
+  nullInterval = NULL, paired = FALSE, data = NULL, rscale = "medium",
+  posterior = FALSE, ...)
 }
 \arguments{
   \item{x}{a vector of observations for the first (or only)
