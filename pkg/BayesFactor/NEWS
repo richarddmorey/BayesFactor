@@ -8,6 +8,7 @@ CHANGES
   *  Added meta-analytic Bayes factor for t tests (see meta.ttestBF)
   *  Fixed bug in ttestBF that yielded Bayes factor of NaN for very extreme posterior interval probabilities
   *  Fixed bug causing infinite integral in linear regression contexts
+  *  Added check to ensure no missing data before analyses
 
   CHANGES IN BayesFactor VERSION 0.9.7
 

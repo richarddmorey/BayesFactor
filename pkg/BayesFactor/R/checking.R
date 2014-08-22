@@ -39,8 +39,12 @@ checkFormula <- function(formula, data, analysis){
   dv = stringFromFormula(formula[[2]])
   
   if(!is.numeric(data[,dv])) stop("Dependent variable must be numeric.")
+  if(any(is.na(data[,dv]))) stop("Dependent variable must not contain missing values.")
   factors = fmlaFactors(formula, data)
   terms = colnames(attr(terms(formula, data = data),"factors"))  
+  
+  vars = rownames(attr(terms(formula, data = data),"factors")) 
+  if(any(is.na(data[,vars]))) stop("Predictors must not contain missing values.")
   
   if(is.null(factors)) return()
   if(factors[1] %in% terms) stop("Dependent variable cannot be a predictor.")
