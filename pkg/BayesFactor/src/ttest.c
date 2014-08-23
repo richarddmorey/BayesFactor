@@ -38,6 +38,14 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 	
+  //callback stuff
+  SEXP callbackCounter, R_fcall2, callbackResult;
+	int *pCallbackCounter;
+    PROTECT(R_fcall2 = lang2(callback, R_NilValue));
+	PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackResult = NEW_INTEGER(1));
+	pCallbackCounter = INTEGER_POINTER(callbackCounter);
+  
 	GetRNGstate();
 	
 	for(i=0;i<N;i++)
@@ -58,8 +66,14 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
-	
-	
+	  //Do callback
+    pCallbackCounter[0] = ( 1000 * (i+1) ) / iterations;
+	  SETCADR(R_fcall2, callbackCounter);
+    callbackResult = eval(R_fcall2, rho);
+    if(INTEGER(callbackResult)[0]){
+        error("Operation cancelled: code %d",INTEGER(callbackResult)[0]);
+    }
+    
 		// sample mu
 		meanMu = yBar * N/(1.0*N+1/g);
 		meanDelta = meanMu/sqrt(sig2);
@@ -93,7 +107,7 @@ void gibbsOneSample(double *y, int N, double rscale, int iterations, double *cha
 		
 	}
 
-	UNPROTECT(2);
+	UNPROTECT(5);
 	PutRNGstate();
 	
 }

@@ -3,7 +3,7 @@
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
 meta.ttestBF(t, n1, n2 = NULL, nullInterval = NULL, rscale = "medium",
-  posterior = FALSE, callback = function(...) 0, ...)
+  posterior = FALSE, callback = function(...) as.integer(0), ...)
 }
 \arguments{
   \item{t}{a vector of t statistics}

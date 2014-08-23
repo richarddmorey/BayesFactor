@@ -351,11 +351,12 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
   // callback stuff
-  int callbackReturn=0;
-  SEXP callbackCounter, R_fcall_callback;
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
   PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
   int *pCallbackCounter;
-  pCallbackCounter= INTEGER_POINTER(callbackCounter);
+  pCallbackCounter= INTEGER(callbackCounter);
 
 
 	AZERO(nParG,nGs);
@@ -380,14 +381,11 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 			eval(R_fcall, rho); //Update the progress bar
 		}
     // callback
-    if(!((i+1)%(iters/1000))){
-      pCallbackCounter[0] = (i*1.0)/iters*1000.0;
-      SETCADR(R_fcall_callback, callbackCounter);
-			callbackReturn = INTEGER(eval(R_fcall_callback, rho))[0];
-      if(callbackReturn){
-        UNPROTECT(4);
-        error("Operation cancelled.");
-      }
+    pCallbackCounter[0] = ((i+1)*1000)/iters;
+    SETCADR(R_fcall_callback, callbackCounter);
+		callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
     }
     
     // Remember, continuous g is always last
@@ -472,7 +470,7 @@ void GibbsNwayAov(double *chains, int iters, double *y, double *X, double *XtX, 
 	 
    } // end MCMC iterations
 	
-	UNPROTECT(4);
+	UNPROTECT(5);
 		
 }
 

@@ -71,7 +71,7 @@
 ##' @seealso \code{\link{ttestBF}}
 
 meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium", 
-                         posterior=FALSE, callback = function(...) 0, ...)
+                         posterior=FALSE, callback = function(...) as.integer(0), ...)
 {
   rscale = rpriorValues(ifelse(is.null(n2),"ttestOne","ttestTwo"),,rscale)
   data = data.frame(t=t,n1=n1)
