@@ -360,7 +360,7 @@ bf
 ```
 The model with the interaction effect is preferred by a factor of about 3.
 
-Suppose that we were unhappy with the ~2.5% proportional error on the Bayes factor `bf`. `anovaBF` and `lmBF` use Monte Carlo integration to estimate the Bayes factors. The default number of Monte Carlo samples is 10,000 but this can be increased. We could use the `recompute` to reduce the error. The `recompute` function performs the sampling required to build the Bayes factor object again:
+Suppose that we were unhappy with the ~`r round(extractBF(bf)$error*100,1)`% proportional error on the Bayes factor `bf`. `anovaBF` and `lmBF` use Monte Carlo integration to estimate the Bayes factors. The default number of Monte Carlo samples is 10,000 but this can be increased. We could use the `recompute` to reduce the error. The `recompute` function performs the sampling required to build the Bayes factor object again:
 ```{r}
 newbf = recompute(bf, iterations = 500000)
 newbf
@@ -486,6 +486,7 @@ bf2 = head(bf) / max(bf)
 bf2
 plot(bf2)
 ```
+
 The model preferred by Bayes factor is the `complaints`-only model, followed by the `complaints + learning` model, as might have been expected by the classical analysis.
 
 We might also be interested in comparing the most complex model to all models that can be formed by removing a single covariate, or, similarly, comparing the intercept-only model to all models that can be formed by added a covariate. These comparisons can be done by setting the `whichModels` argument to `'top'` and `'bottom'`, respectively. For example, for testing against the most complex model:

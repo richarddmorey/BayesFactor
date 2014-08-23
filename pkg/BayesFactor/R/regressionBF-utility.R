@@ -36,8 +36,7 @@ integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, lo
   a = .5 * ((N - p -1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
   shape=.5
   scale=rscaleSqr*N/2
-  log.density.igam <- shape * log(scale) - lgamma(shape) - 
-    (shape + 1) * log(g) - (scale/g)
+  log.density.igam <- dinvgamma1(g, shape, scale)
   ans = a + log.density.igam - log.const
   ifelse(log,ans,exp(ans))
 },"g")

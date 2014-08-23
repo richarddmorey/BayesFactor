@@ -1,4 +1,4 @@
-singleGBayesFactor <- function(y,X,rscale,gMap,optimLimitFactor=2){
+singleGBayesFactor <- function(y,X,rscale,gMap){
   if(ncol(X)==1){
     dat = data.frame(y=y,x=as.factor(X[,1])) 
     freqs = table(dat$x)
@@ -10,28 +10,21 @@ singleGBayesFactor <- function(y,X,rscale,gMap,optimLimitFactor=2){
     gMap = gMap + 1
     f1 = Vectorize(
       function(g,y,Xm,rscale,gMap,const){
-        Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g) - const
+        exp(Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g) - const)
       },"g")
-    f2 = function(...) exp(f1(...))
     
-    beta = solve(t(X)%*%X)%*%t(X)%*%y
-    resid = y - X%*%beta
-    
-    # Use estimate of g so that we can find a value near the 
-    # maximum of the function to help us renormalize it 
-    g.est = var(beta)/var(resid)
     integral = try({
-      const = optimize(f1, c(0,optimLimitFactor*g.est), y=y, 
-                       Xm=X, rscale=rscale, gMap=gMap, 
-                       const=0, maximum=TRUE)$objective
-      integrate(f2,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
+      op = optim(1, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
+                 y=y, Xm=X, rscale=rscale, gMap=gMap)
+      const = op$value - op$par
+      integrate(f1,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
     })
     if(inherits(integral,"try-error")){
       return(list(bf = NA, properror = NA))
     }
-    lbf = log(integral$value) + const
+    lbf = log(integral$value)
     prop.error = exp(log(integral$abs.error) - lbf)
-    return(list(bf = lbf, properror = prop.error))
+    return(list(bf = lbf + const, properror = prop.error))
   }
 }
 

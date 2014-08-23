@@ -56,8 +56,8 @@ dQg <- function(q,y,Xm,rscale,gMap, priorX=NULL, incCont=0){
   nGs = max(gMap)
   yTilde = matrix(y - mean(y),N)
   XTilde = t(t(Xm) - colMeans(Xm))
-  if(length(g)==1)
-    stop("not implemented for single g")      
+  if(ncol(Xm)==1)
+    stop("not implemented for one-column design matrices")      
   
   Ginv= diag(1/g[gMap])
   if(incCont){
@@ -78,7 +78,7 @@ dQg <- function(q,y,Xm,rscale,gMap, priorX=NULL, incCont=0){
     sum(diag(Vginv)[gMap==index])
   }, gMap = gMap, Vginv = Vginv) 
   
-  yXVXy = yTildeXtildeVginv %*% t(yTildeXtilde)
+  yXVXy = as.vector(yTildeXtildeVginv %*% t(yTildeXtilde))
   
   ans = 
     -0.5 * ni / g +
