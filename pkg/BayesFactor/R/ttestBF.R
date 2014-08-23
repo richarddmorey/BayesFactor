@@ -86,6 +86,7 @@
 ##' plot(samples[,"mu"])
 ##' @seealso \code{\link{integrate}}, \code{\link{t.test}}
 
+
 ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
                     paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, callback = function(...) 0, ...){
   
