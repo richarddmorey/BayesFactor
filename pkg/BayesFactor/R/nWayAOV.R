@@ -211,7 +211,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   ####### Progress bar stuff
 	if(is.null(callback) | !is.function(callback)) {
     callback = function(...){
-      return(0)
+      return(as.integer(0))
     }
 	}
 	if(progress & !noSample){

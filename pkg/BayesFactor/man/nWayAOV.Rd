@@ -3,7 +3,7 @@
 \title{Use ANOVA design matrix to compute Bayes factors or sample posterior}
 \usage{
 nWayAOV(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000,
-  progress = options()$BFprogress, gibi = NULL, gibbs = FALSE,
+  progress = options()$BFprogress, callback = NULL, gibbs = FALSE,
   ignoreCols = NULL, thin = 1, method = "auto", continuous = FALSE,
   noSample = FALSE)
 }
@@ -28,8 +28,8 @@ nWayAOV(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000,
   \item{progress}{if \code{TRUE}, show progress with a text
   progress bar}
 
-  \item{gibi}{interface for a future graphical user
-  interface (not intended for use by end users)}
+  \item{callback}{callback function for third-party
+  interfaces}
 
   \item{gibbs}{if \code{TRUE}, return samples from the
   posterior instead of a Bayes factor}
