@@ -58,9 +58,11 @@ checkFormula <- function(formula, data, analysis){
   if(analysis=="lm" | analysis=="anova" | analysis == "regression" | analysis == "indept")
     if(attr(terms(formula, data = data),"intercept") == 0) stop("Formula must include intercept.")            
   
-  if(analysis=="indept")
-    if( length(factors)>2 ) stop("Indep. groups t test can only support 1 factor as predictor.")  
-  
+  if(analysis=="indept"){
+    if( length(terms) > 1 ) stop("Indep. groups t test can only support 1 factor as predictor.")  
+    if(length(grep(":",terms,fixed=TRUE))) stop("Interaction terms are not allowed in t test.")
+    if(nlevels(factor(data[,terms])) > 2) stop("Indep. groups t test requires a factor with exactly 2 levels.")
+  }
   invisible()
 }
 

@@ -140,11 +140,10 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
   if(!is.null(formula)){ # formula
     if(paired) stop("Cannot use 'paired' with formula.")
     if(is.null(data)) stop("'data' needed for formula.")
-    
-    ivs = attr(terms(formula, data = data),"term.labels")
-    if(length(ivs) > 1) stop("Only one independent variable allowed for t test.")
+    checkFormula(formula, data, analysis = "indept")
+
     dataTypes = "fixed"
-    names(dataTypes) = ivs
+    names(dataTypes) =  attr(terms(formula, data = data),"term.labels")
     if(mu != 0) stop("Use of nonzero null hypothesis not implemented for independent samples test.")
     
     rscale = rpriorValues("ttestTwo",,rscale)
