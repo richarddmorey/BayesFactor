@@ -29,7 +29,7 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
 }
 
 
-doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun)
+doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun, callback = function(...) as.integer(0))
 {
   returnList = NULL
   simpSamples = NULL
@@ -43,7 +43,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   if(method=="auto"){
     simpSamples = suppressWarnings(.Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
                         P, nGs, gMap, a, b, incCont,
-                        as.integer(0), pbFun, new.env(), 
+                        as.integer(0), pbFun, callback, new.env(), 
                         package="BayesFactor"))
     simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
     logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
@@ -55,7 +55,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
     }else{
       impSamples = suppressWarnings(try(.Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
                          P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                         as.integer(0), pbFun, new.env(), 
+                         as.integer(0), pbFun, callback, new.env(), 
                          package="BayesFactor")))
       if(inherits(impSamples, "try-error")){
         method="simple"
@@ -82,7 +82,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
     }else{
       returnList = try(.Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
                        P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                       as.integer(iters/100*progress), pbFun, new.env(), 
+                       as.integer(iters/100*progress), pbFun, callback, new.env(), 
                        package="BayesFactor"))
       if(inherits(returnList,"try-error")){
         method="simple"
@@ -93,7 +93,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   if(method=="simple" | is.null(returnList)){
     returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
                         P, nGs, gMap, a, b, incCont,
-                        as.integer(iters/100*progress), pbFun, new.env(), 
+                        as.integer(iters/100*progress), pbFun, callback, new.env(), 
                         package="BayesFactor")
     
   }

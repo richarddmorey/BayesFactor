@@ -172,7 +172,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
       #warning("All covariates are continuous: using Gaussian quadrature.")
       if(gibbs){
         chains = linearReg.Gibbs(y, X, iterations = iterations, 
-                                 rscale = rscale, progress = progress)
+                                 rscale = rscale, progress = progress, callback = callback)
         return(chains)
       }else{
         R2 = t(y)%*%X%*%solve(t(X)%*%X)%*%t(X)%*%y / (t(y)%*%y)
@@ -272,7 +272,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
       retVal = doNwaySampling(method, y, X, rscale, nullLike, 
                    as.integer(iterations), XtCX, priorX, XtCy, ytCy, 
                    as.integer(N), as.integer(P), as.integer(nGs), 
-                   as.integer(gMap), a, b, as.integer(incCont), progress, pbFun)
+                   as.integer(gMap), a, b, as.integer(incCont), progress, pbFun, callback)
     }else if(method=="laplace"){
       bf = laplaceAOV(y,X,rscale,gMap,priorX,incCont)
       properror=NA

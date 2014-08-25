@@ -48,6 +48,15 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
+
+
 	Memcpy(XtXoN,XtX,PSq);
 	for(i=0;i<PSq;i++){
 		XtXoN[i] = XtXoN[i] / (N*1.0); 
@@ -63,7 +72,16 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
-		
+		//Check callback
+    pCallbackCounter[0] = ((i+1)*1000)/iters;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
+
+    
+    
 		// Sample beta
 		
     Memcpy(Sigma,XtX,PSq);
@@ -102,7 +120,7 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
 		chains[nPars*i + P + 1] = g;	
 	}
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 		
 }
 

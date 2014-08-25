@@ -85,6 +85,14 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 	
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
+
 	npars=J+5;
 	
 	GetRNGstate();
@@ -134,6 +142,13 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
+  	//Check callback
+    pCallbackCounter[0] = ((i+1)*1000)/iterations;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
 		
 
 		// sample beta
@@ -220,7 +235,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	CMDE[2] = log(kahanSumSingle) - log(iterations);
 	CMDE[3] = log(kahanSumDouble) - log(iterations);
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 	PutRNGstate();
 	
 }

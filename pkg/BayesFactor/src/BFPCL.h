@@ -22,11 +22,11 @@ double sampleSig2EqVar(double sig2, double *mu, double tau, double *yBar, double
 double jeffmlikeNWayAov(double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P, double *g, int incCont, double logDetPrX, int *cholInfo);
 SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR, SEXP PR, SEXP gR, SEXP incContR, SEXP logDetPrX);
 
-SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP rho);
-double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int incCont, int *badSamples, int progress, SEXP pBar, SEXP rho);
+SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho);
+double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int incCont, int *badSamples, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
-SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP Rmu, SEXP Rsig, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP rho);
-double importanceSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, double *mu, double *sig, int incCont, int *badSamples, int progress, SEXP pBar, SEXP rho);
+SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP Rmu, SEXP Rsig, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho);
+double importanceSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, double *mu, double *sig, int incCont, int *badSamples, int progress, SEXP pBar, SEXP callback, SEXP rho);
 
 
 SEXP RLogMeanExpLogs(SEXP Rv, SEXP Rlen);

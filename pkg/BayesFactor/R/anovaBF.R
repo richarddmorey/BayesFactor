@@ -77,6 +77,7 @@
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
+##' @param callback callback function for third-party interfaces 
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @export
 ##' @references Gelman, A. (2005) Analysis of Variance---why it is more 
@@ -144,7 +145,7 @@
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", iterations = 10000, progress = options()$BFprogress,
-           rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto", noSample=FALSE)
+           rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE, method="auto", noSample=FALSE, callback=function(...) as.integer(0))
   {
     checkFormula(formula, data, analysis = "anova")
     # pare whichRandom down to terms that appear in the formula
@@ -171,7 +172,7 @@ anovaBF <-
     }
     
     if(multicore){
-      if(progress) warning("Progress bars are suppressed when running multicore.")
+      warning("Progress bars and callbacks are suppressed when running multicore.")
       if(!require(doMC)){
         stop("Required package (doMC) missing for multicore functionality.")
       } 
@@ -191,7 +192,7 @@ anovaBF <-
       if(progress) myapply = pblapply else myapply = lapply
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                     rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-                    iterations = iterations, progress = FALSE, method = method,noSample=noSample)
+                    iterations = iterations, progress = FALSE, method = method,noSample=noSample,callback=callback)
       
     }
     

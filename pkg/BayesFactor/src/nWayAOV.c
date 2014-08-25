@@ -61,7 +61,7 @@ SEXP RjeffmlikeNWayAov(SEXP XtCXR, SEXP priorXR, SEXP XtCyR, SEXP ytCyR, SEXP NR
 	return(ans);
 }
 
-double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int incCont, int *badSamples, int progress, SEXP pBar, SEXP rho)
+double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, int incCont, int *badSamples, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
   int i=0,j=0, info=0, cholInfo=0,isFirst=1;
 	double avg = 0, *g1, g2[P], *W;
@@ -75,6 +75,13 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
     PROTECT(R_fcall = lang2(pBar, R_NilValue));
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
 
   if(incCont){
     logDetPrX = matrixDet(priorX, incCont, incCont, 1, &info);
@@ -93,7 +100,14 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 			  eval(R_fcall, rho); //Update the progress bar
 		  }
 		}
-    
+    // callback
+    pCallbackCounter[0] = ((i+1)*1000)/iters;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
+
 		g1 = gsamples + i*nGs;
 	
 		for(j=0;j<nGs;j++)
@@ -122,12 +136,12 @@ double jeffSamplerNwayAov(double *samples, double *gsamples, int iters, double *
 
  } 
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 	return(avg-log(iters - *badSamples));
 	
 }
 
-SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
   double *a,*b,*XtCy,*XtCX,ytCy,*samples,*avg, *priorX;
 	int iters,nGs,*gMap,N,P,progress,incCont, badSamples=0;
@@ -158,7 +172,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP
 	avg = REAL(Ravg);
 	
 	GetRNGstate();
-	avg[0] = jeffSamplerNwayAov(samples, REAL(Rgsamples), iters, XtCX, priorX,XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, &badSamples, progress, pBar, rho);
+	avg[0] = jeffSamplerNwayAov(samples, REAL(Rgsamples), iters, XtCX, priorX,XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, &badSamples, progress, pBar, callback, rho);
 	PutRNGstate();
 	
   REAL(RbadSamples)[0] = badSamples * 1.0;
@@ -174,7 +188,7 @@ SEXP RjeffSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP
 }
 
 
-double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, double *mu, double *sig, int incCont, int *badSamples, int progress, SEXP pBar, SEXP rho)
+double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, double *XtCX, double *priorX, double *XtCy, double ytCy, int N, int P,int nGs, int *gMap, double *a, double *b, double *mu, double *sig, int incCont, int *badSamples, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
   int i=0,j=0, info=0, cholInfo=0, isFirst=1;
 	double avg = 0, *q1, g2[P], sumq=0, sumdinvgamma=0, sumdnorm=0;
@@ -189,6 +203,15 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
+
+
   if(incCont){
     logDetPrX = matrixDet(priorX, incCont, incCont, 1, &info);
   }
@@ -202,6 +225,13 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
+    // callback
+    pCallbackCounter[0] = ((i+1)*1000)/iters;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
 
 		q1 = qsamples + i*nGs;
     
@@ -236,13 +266,13 @@ double importanceSamplerNwayAov(double *samples, double *qsamples, int iters, do
 		}
 	}
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 	
 	return(avg-log(iters-*badSamples));
 	
 }
 
-SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP Rmu, SEXP Rsig, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy, SEXP RytCy, SEXP RN, SEXP RP, SEXP RnGs, SEXP RgMap, SEXP Ra, SEXP Rb, SEXP Rmu, SEXP Rsig, SEXP RincCont, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
 	double *a,*b,*XtCy,*XtCX,ytCy,*samples,*avg, *mu, *sig, *priorX;
 	int iters,nGs,*gMap,N,P,progress,incCont,badSamples=0;
@@ -276,7 +306,7 @@ SEXP RimportanceSamplerNwayAov(SEXP Riters, SEXP RXtCX, SEXP RpriorX, SEXP RXtCy
 	avg = REAL(Ravg);
 	
 	GetRNGstate();
-	avg[0] = importanceSamplerNwayAov(samples, REAL(Rgsamples), iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, mu, sig, incCont, &badSamples, progress, pBar, rho);
+	avg[0] = importanceSamplerNwayAov(samples, REAL(Rgsamples), iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, mu, sig, incCont, &badSamples, progress, pBar, callback, rho);
 	PutRNGstate();
 	
   REAL(RbadSamples)[0] = badSamples * 1.0;

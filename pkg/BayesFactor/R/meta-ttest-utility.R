@@ -148,11 +148,11 @@ meta.t.Metrop <- function(t,n1,n2=NULL,iterations=10000,nullInterval=NULL,rscale
     for(m in 2:(iterations+1)){
       
       # Cancel the analysis if the callback returns null
-      if(is.function(callback))
+      if(is.function(callback)){
         rtn = callback(progress =  m / (iterations + 1) * 1000)
         if(rtn)
           stop("Operation cancelled: code ",rtn)
-      
+      }
       candidate = qnorm(runif(1,Ubounds[1],Ubounds[2]),mean.delta,sqrt(1/sum(n)))
     
     ## Metropolis-Hastings acceptance
