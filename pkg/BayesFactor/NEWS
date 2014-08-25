@@ -9,6 +9,7 @@ CHANGES
   *  Fixed bug in ttestBF that yielded Bayes factor of NaN for very extreme posterior interval probabilities
   *  Fixed several bugs causing infinite integrals
   *  Added check to ensure no missing data before analyses
+  *  Added callbacks for access by third-party interfaces
 
   CHANGES IN BayesFactor VERSION 0.9.7
 
