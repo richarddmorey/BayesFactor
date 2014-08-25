@@ -103,7 +103,7 @@ meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE){
 },"delta")
 
 
-meta.t.Metrop <- function(t,n1,n2=NULL,iterations=10000,nullInterval=NULL,rscale,progress=options()$BFprogress, noSample=FALSE){
+meta.t.Metrop <- function(t,n1,n2=NULL,iterations=10000,nullInterval=NULL,rscale,progress=options()$BFprogress, noSample=FALSE, callback = NULL){
   if(length(t)!=length(n1)) stop("lengths of t and n1 must be equal.")
   if(!is.null(n2)){
     if(length(t) != length(n2)) stop("If n2 is defined, it must have the same length as t.")
@@ -143,19 +143,27 @@ meta.t.Metrop <- function(t,n1,n2=NULL,iterations=10000,nullInterval=NULL,rscale
     chains = 1:(iterations+1)
     chains[1] = mean.delta
     
+    
     ## Independence Metropolis-Hastings
     for(m in 2:(iterations+1)){
-    candidate = qnorm(runif(1,Ubounds[1],Ubounds[2]),mean.delta,sqrt(1/sum(n)))
+      
+      # Cancel the analysis if the callback returns null
+      if(is.function(callback)){
+        rtn = callback(progress =  m / (iterations + 1) * 1000)
+        if(rtn)
+          stop("Operation cancelled: code ",rtn)
+      }
+      candidate = qnorm(runif(1,Ubounds[1],Ubounds[2]),mean.delta,sqrt(1/sum(n)))
     
     ## Metropolis-Hastings acceptance
-    z = meta.t.like(candidate,t,n,nu,rscale,log=TRUE) - 
-      meta.t.like(chains[m-1],t,n,nu,rscale,log=TRUE) +
-      dnorm(chains[m-1],mean.delta,sqrt(1/sum(n)),log=TRUE) - 
-      dnorm(candidate,mean.delta,sqrt(1/sum(n)),log=TRUE)
+      z = meta.t.like(candidate,t,n,nu,rscale,log=TRUE) - 
+        meta.t.like(chains[m-1],t,n,nu,rscale,log=TRUE) +
+        dnorm(chains[m-1],mean.delta,sqrt(1/sum(n)),log=TRUE) - 
+        dnorm(candidate,mean.delta,sqrt(1/sum(n)),log=TRUE)
     
-    chains[m] = ifelse(rexp(1)>(-z), candidate, chains[m-1])
+      chains[m] = ifelse(rexp(1)>(-z), candidate, chains[m-1])
 
-    if(!(m%%(iterations%/%100))) pbFun(m)
+      if(!(m%%(iterations%/%100))) pbFun(m)
     }
     chains = matrix(chains[-1],iterations)
   }

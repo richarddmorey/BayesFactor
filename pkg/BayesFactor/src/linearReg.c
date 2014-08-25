@@ -1,7 +1,7 @@
 #include "BFPCL.h"
 
 
-SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SEXP RXtCny, SEXP RN, SEXP RP, SEXP Rr, SEXP Rsig2start, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SEXP RXtCny, SEXP RN, SEXP RP, SEXP Rr, SEXP Rsig2start, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
 	double *XtX,*XtCnX,*XtCny,*Cny,*samples,*X, r, sig2start;
 	int iters,N,P,progress;
@@ -25,7 +25,7 @@ SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SE
 	samples = REAL(Rsamples);
 	
 	GetRNGstate();
-	GibbsLinearReg(samples, iters, Cny, X, XtX, XtCnX, XtCny, N, P, r, sig2start, progress, pBar, rho);
+	GibbsLinearReg(samples, iters, Cny, X, XtX, XtCnX, XtCny, N, P, r, sig2start, progress, pBar, callback, rho);
 	PutRNGstate();
 	
 	
@@ -34,7 +34,7 @@ SEXP RGibbsLinearReg(SEXP Riters, SEXP RCny, SEXP RX, SEXP RXtX, SEXP RXtCnX, SE
 	return(Rsamples);
 }
 
-void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *XtX, double *XtCnX, double *XtCny, int N, int P, double r, double sig2start, int progress, SEXP pBar, SEXP rho)
+void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *XtX, double *XtCnX, double *XtCny, int N, int P, double r, double sig2start, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
 	int i=0,j=0,k=0, nPars=P+2, PSq=P*P, iOne=1;
 	double g=1, Sigma[PSq], SSq, oneOverSig2,dZero=0,dOne=1,dnegOne=-1;
@@ -47,6 +47,15 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
     PROTECT(R_fcall = lang2(pBar, R_NilValue));
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
+
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
+
 
 	Memcpy(XtXoN,XtX,PSq);
 	for(i=0;i<PSq;i++){
@@ -63,7 +72,16 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
-		
+		//Check callback
+    pCallbackCounter[0] = ((i+1)*1000)/iters;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
+
+    
+    
 		// Sample beta
 		
     Memcpy(Sigma,XtX,PSq);
@@ -102,7 +120,7 @@ void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *X
 		chains[nPars*i + P + 1] = g;	
 	}
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 		
 }
 

@@ -4,7 +4,7 @@
 \usage{
 ttestBF(x = NULL, y = NULL, formula = NULL, mu = 0,
   nullInterval = NULL, paired = FALSE, data = NULL, rscale = "medium",
-  posterior = FALSE, ...)
+  posterior = FALSE, callback = function(...) as.integer(0), ...)
 }
 \arguments{
   \item{x}{a vector of observations for the first (or only)
@@ -33,6 +33,9 @@ ttestBF(x = NULL, y = NULL, formula = NULL, mu = 0,
 
   \item{posterior}{if \code{TRUE}, return samples from the
   posterior instead of Bayes factor}
+
+  \item{callback}{callback function for third-party
+  interfaces}
 
   \item{...}{further arguments to be passed to or from
   methods.}

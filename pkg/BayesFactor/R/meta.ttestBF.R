@@ -27,6 +27,7 @@
 ##'   strings; see Details.
 ##' @param posterior if \code{TRUE}, return samples from the posterior instead 
 ##'   of Bayes factor
+##' @param callback callback function for third-party interfaces
 ##' @param ... further arguments to be passed to or from methods.
 ##' @return If \code{posterior} is \code{FALSE}, an object of class 
 ##'   \code{BFBayesFactor} containing the computed model comparisons is 
@@ -70,7 +71,7 @@
 ##' @seealso \code{\link{ttestBF}}
 
 meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium", 
-                         posterior=FALSE, ...)
+                         posterior=FALSE, callback = function(...) as.integer(0), ...)
 {
   rscale = rpriorValues(ifelse(is.null(n2),"ttestOne","ttestTwo"),,rscale)
   data = data.frame(t=t,n1=n1)
@@ -86,7 +87,7 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
       
       bf = compare(numerator = modFull, data = data)
       if(posterior){
-        chains = posterior(bf,data = data, ...)
+        chains = posterior(bf, callback = callback, ...)
         return(chains)
       }else{
         return(bf)
@@ -99,9 +100,10 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
                                 longName = paste("Alternative, r = ",rscale,", ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )      
+      
       bf = compare(numerator = modInterval, data = data)
       if(posterior){
-        chains = posterior(bf, data = data, ...)
+        chains = posterior(bf, callback = callback, ...)
         return(chains)
       }else{
         return(bf)

@@ -1,4 +1,4 @@
-ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE){
+ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE, callback=NULL){
   if( (is.null(t) | is.null(n)) & !is.null(y) ){
     n = as.integer(length(y))
   }else if(!is.null(t) & !is.null(n)){
@@ -32,12 +32,13 @@ ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nul
   }
   
   pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
-  
+  if(is.null(callback)) callback=function(...) as.integer(0)
+
   if(noSample){
     chains = matrix(NA,6,2)
   }else{
     chains = .Call("RgibbsOneSample", as.numeric(y), n, rscale, iterations, do.interval, as.numeric(interval),
-                 progress, pbFun, new.env(), package="BayesFactor")
+                 progress, pbFun, callback, new.env(), package="BayesFactor")
   }
   
   if(inherits(pb,"txtProgressBar")) close(pb);

@@ -37,6 +37,7 @@
 ##'   strings; see Details.
 ##' @param posterior if \code{TRUE}, return samples from the posterior instead 
 ##'   of Bayes factor
+##' @param callback callback function for third-party interfaces 
 ##' @param ... further arguments to be passed to or from methods.
 ##' @return If \code{posterior} is \code{FALSE}, an object of class 
 ##'   \code{BFBayesFactor} containing the computed model comparisons is 
@@ -85,8 +86,9 @@
 ##' plot(samples[,"mu"])
 ##' @seealso \code{\link{integrate}}, \code{\link{t.test}}
 
+
 ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
-                    paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, ...){
+                    paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, callback = function(...) as.integer(0), ...){
   
   if(!is.null(x) & !is.null(formula)) stop("Only one of x or formula should be defined.")
   
@@ -109,7 +111,7 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
       )
       
       if(posterior){
-        chains = posterior(modFull,data = data.frame(y=x), ...)
+        chains = posterior(modFull,data = data.frame(y=x), callback = callback, ...)
         return(chains)
       }else{
         bf = compare(numerator = modFull, data = data.frame(y=x))
@@ -124,7 +126,7 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
                                  longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
       )      
       if(posterior){
-        chains = posterior(modInterval, data = data.frame(y=x), ...)
+        chains = posterior(modInterval, data = data.frame(y=x), callback = callback, ...)
         return(chains)
       }else{
         bf = compare(numerator = modInterval, data = data.frame(y=x))
@@ -166,7 +168,7 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
     }
 
     if(posterior){
-      chains = posterior(numerator, data = data, ...)
+      chains = posterior(numerator, data = data, callback = callback, ...)
       return(chains)
     }else{
       bf = compare(numerator = numerator, data = data)

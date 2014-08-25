@@ -1,16 +1,11 @@
-oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, gibi=NULL, logbf=FALSE){
+oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, callback=function(...) as.integer(0), logbf=FALSE){
   
   rscale = rpriorValues("allNways","fixed",rscale)
   N = as.integer(colSums(!is.na(y)))
   J=as.integer(dim(y)[2])
   I=as.integer(dim(y)[1])
   iterations = as.integer(iterations)
-  if(!is.null(gibi)) {
-    progress=TRUE;
-    if(!is.function(gibi))
-      stop("Malformed GIBI argument (not a function). You should not set this argument if running oneWayAOV.Gibbs from the console.")
-  }
-  if(progress & is.null(gibi)){
+  if(progress){
     pb = txtProgressBar(min = 0, max = 100, style = 3) 
   }else{ 
     pb=NULL 
@@ -20,18 +15,14 @@ oneWayAOV.Gibbs = function(y,iterations=10000,rscale="medium", progress=TRUE, gi
   pbFun = function(samps){ 
     if(progress){
       percent = as.integer(round(samps / iterations * 100))
-      if(is.null(gibi)){
-        setTxtProgressBar(pb, percent)
-      }else{
-        gibi(percent)
-      }
+      setTxtProgressBar(pb, percent)
     }
   }
   
   output = .Call("RgibbsOneWayAnova", y, N, J, I, rscale, iterations,
-                 progress, pbFun, new.env(), package="BayesFactor")
+                 progress, pbFun, callback, new.env(), package="BayesFactor")
   
-  if(progress & is.null(gibi)) close(pb);
+  if(progress) close(pb);
   rownames(output[[1]]) = c("mu",paste("beta",1:J,sep=""),"CMDESingle","CMDEDouble","sig2","g")			
   names(output[[2]])=c("logCMDESingle","logCMDEDouble","logCMDESingleKahan","logCMDEDoubleKahan")
   

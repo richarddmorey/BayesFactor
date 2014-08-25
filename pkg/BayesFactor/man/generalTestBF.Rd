@@ -6,7 +6,8 @@ generalTestBF(formula, data, whichRandom = NULL, whichModels = "withmain",
   neverExclude = NULL, iterations = 10000,
   progress = options()$BFprogress, rscaleFixed = "medium",
   rscaleRandom = "nuisance", rscaleCont = "medium", multicore = FALSE,
-  method = "auto", noSample = FALSE)
+  method = "auto", noSample = FALSE, callback = function(...)
+  as.integer(0))
 }
 \arguments{
   \item{formula}{a formula containing the full model for
@@ -49,6 +50,9 @@ generalTestBF(formula, data, whichRandom = NULL, whichModels = "withmain",
 
   \item{noSample}{if \code{TRUE}, do not sample, instead
   returning NA.}
+
+  \item{callback}{callback function for third-party
+  interfaces}
 }
 \value{
 An object of class \code{BFBayesFactor}, containing the

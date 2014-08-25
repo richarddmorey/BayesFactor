@@ -27,6 +27,7 @@
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
+##' @param callback callback function for third-party interfaces 
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @export
 ##' @references
@@ -70,7 +71,7 @@
 generalTestBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = options()$BFprogress,
-           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto",noSample=FALSE)
+           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto",noSample=FALSE, callback=function(...) as.integer(0))
   {
     checkFormula(formula, data, analysis = "lm")
     # pare whichRandom down to terms that appear in the formula
@@ -87,7 +88,7 @@ generalTestBF <-
                                                   "options('BFMaxModels').")
     
     if(multicore){
-      if(progress) warning("Progress bars are suppressed when running multicore.")
+      warning("Progress bars and callbacks are suppressed when running multicore.")
       if(!require(doMC)){
         stop("Required package (doMC) missing for multicore functionality.")
       } 
@@ -109,7 +110,7 @@ generalTestBF <-
       bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
                      rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
                      rscaleCont = rscaleCont, iterations = iterations, 
-                     progress = FALSE, method = method,noSample=noSample)
+                     progress = FALSE, method = method,noSample=noSample,callback=callback)
       
     }
     

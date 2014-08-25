@@ -3,7 +3,7 @@
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
 meta.ttestBF(t, n1, n2 = NULL, nullInterval = NULL, rscale = "medium",
-  posterior = FALSE, ...)
+  posterior = FALSE, callback = function(...) as.integer(0), ...)
 }
 \arguments{
   \item{t}{a vector of t statistics}
@@ -23,6 +23,9 @@ meta.ttestBF(t, n1, n2 = NULL, nullInterval = NULL, rscale = "medium",
 
   \item{posterior}{if \code{TRUE}, return samples from the
   posterior instead of Bayes factor}
+
+  \item{callback}{callback function for third-party
+  interfaces}
 
   \item{...}{further arguments to be passed to or from
   methods.}

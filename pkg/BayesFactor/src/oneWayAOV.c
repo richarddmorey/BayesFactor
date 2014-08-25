@@ -2,7 +2,7 @@
 
 
 
-SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP rho)
+SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP iterationsR, SEXP progressR, SEXP pBar, SEXP callback, SEXP rho)
 {
 	int iterations = INTEGER_VALUE(iterationsR);
 	int *N = INTEGER_POINTER(NR), progress = INTEGER_VALUE(progressR);
@@ -39,7 +39,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 	PROTECT(CMDER = allocVector(REALSXP,4));
 	PROTECT(debug = allocVector(VECSXP,2));
 	
-	gibbsOneWayAnova(yVec, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), debug, progress, pBar, rho);
+	gibbsOneWayAnova(yVec, N, J, sumN, whichJ, rscale, iterations, REAL(chainsR), REAL(CMDER), debug, progress, pBar, callback, rho);
 	
 	SET_VECTOR_ELT(returnListR, 0, chainsR);
     SET_VECTOR_ELT(returnListR, 1, CMDER);
@@ -52,7 +52,7 @@ SEXP RgibbsOneWayAnova(SEXP yR, SEXP NR, SEXP JR, SEXP IR, SEXP rscaleR, SEXP it
 
 
 
-void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP rho)
+void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rscale, int iterations, double *chains, double *CMDE, SEXP debug, int progress, SEXP pBar, SEXP callback, SEXP rho)
 {
 	int i=0,j=0,m=0,Jp1sq = (J+1)*(J+1),Jsq=J*J,Jp1=J+1,npars=0;
 	double ySum[J],yBar[J],sumy2[J],densDelta=0;
@@ -85,6 +85,14 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	PROTECT(sampCounter = NEW_INTEGER(1));
 	pSampCounter = INTEGER_POINTER(sampCounter);
 	
+  // callback stuff
+  SEXP callbackCounter, R_fcall_callback, callbackReturn;
+  PROTECT(R_fcall_callback = lang2(callback, R_NilValue));
+  PROTECT(callbackCounter = NEW_INTEGER(1));
+  PROTECT(callbackReturn = NEW_INTEGER(1));
+  int *pCallbackCounter;
+  pCallbackCounter= INTEGER(callbackCounter);
+
 	npars=J+5;
 	
 	GetRNGstate();
@@ -134,6 +142,13 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 			SETCADR(R_fcall, sampCounter);
 			eval(R_fcall, rho); //Update the progress bar
 		}
+  	//Check callback
+    pCallbackCounter[0] = ((i+1)*1000)/iterations;
+    SETCADR(R_fcall_callback, callbackCounter);
+  	callbackReturn = eval(R_fcall_callback, rho);
+    if(INTEGER(callbackReturn)[0]){
+      error("Operation cancelled: code %d",INTEGER(callbackReturn)[0]);
+    }
 		
 
 		// sample beta
@@ -220,7 +235,7 @@ void gibbsOneWayAnova(double *y, int *N, int J, int sumN, int *whichJ, double rs
 	CMDE[2] = log(kahanSumSingle) - log(iterations);
 	CMDE[3] = log(kahanSumDouble) - log(iterations);
 	
-	UNPROTECT(2);
+	UNPROTECT(5);
 	PutRNGstate();
 	
 }
