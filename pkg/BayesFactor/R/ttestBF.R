@@ -95,6 +95,12 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
   if(!is.null(x) | !is.null(y))
     if(any(is.na(c(x,y)))) stop("x or y must not contain missing values.")
   
+  if(!is.null(nullInterval)){
+    if(identical(nullInterval,c(-Inf,Inf))){
+      nullInterval = NULL
+    }
+  }
+  
   if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){
     if(paired){
       # check that the two vectors have same length
