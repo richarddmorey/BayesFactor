@@ -188,11 +188,27 @@ anovaBF <-
              iterations = iterations, method=method,progress=FALSE,noSample=noSample)
       
     }else{ # Single core
-      
-      if(progress) myapply = pblapply else myapply = lapply
-      bfs <- myapply(models, lmBF, data = data, whichRandom = whichRandom,
-                    rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-                    iterations = iterations, progress = FALSE, method = method,noSample=noSample,callback=callback)
+
+      bfs = NULL
+      myCallback <- function(prgs){
+        frac <- (i - 1 + prgs/1000)/length(models)
+        ret <- callback(frac*1000)
+        return(as.integer(ret))
+      }
+      if(progress){
+        pb = txtProgressBar(min = 0, max = length(models), style = 3)
+      }else{
+        pb = NULL
+      }
+      for(i in 1:length(models)){
+        oneModel <- lmBF(models[[i]],data = data, whichRandom = whichRandom,
+                         rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
+                         iterations = iterations, progress = FALSE, method = method,
+                         noSample=noSample,callback=myCallback)
+        if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
+        bfs = c(bfs,oneModel)
+      }
+      if(inherits(pb,"txtProgressBar")) close(pb)      
       
     }
     

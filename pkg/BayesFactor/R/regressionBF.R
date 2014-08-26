@@ -40,6 +40,7 @@
 ##' @param progress if \code{TRUE}, show progress with a text progress bar
 ##' @param rscaleCont prior scale on all standardized slopes
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
+##' @param callback callback function for third-party interfaces 
 ##' @return An object of class \code{BFBayesFactor}, containing the computed 
 ##'   model comparisons
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -78,7 +79,7 @@
 ##'   \code{\link{anovaBF}} for the function similar to \code{regressionBF} for 
 ##'   ANOVA models.
 
-regressionBF <- function(formula, data, whichModels = "all", progress=options()$BFprogress, rscaleCont = "medium",noSample=FALSE)
+regressionBF <- function(formula, data, whichModels = "all", progress=options()$BFprogress, rscaleCont = "medium", callback = function(...) as.integer(0), noSample=FALSE)
 {
   checkFormula(formula, data, analysis = "regression")
   dataTypes <- createDataTypes(formula, whichRandom=c(), data, analysis = "regression")
@@ -91,9 +92,21 @@ regressionBF <- function(formula, data, whichModels = "all", progress=options()$
                                                 "The maximum can be increased by changing ",
                                                 "options('BFMaxModels').")
   
-  if(progress) myapply = pblapply else myapply = lapply
-  bfs <- myapply(models, lmBF, data = data, dataTypes = dataTypes,
-                rscaleCont = rscaleCont,noSample=noSample)
+  bfs = NULL
+  if(progress){
+    pb = txtProgressBar(min = 0, max = length(models), style = 3)
+  }else{
+    pb = NULL
+  }
+  for(i in 1:length(models)){
+    oneModel <- lmBF(models[[i]],data = data, dataTypes = dataTypes,
+                     rscaleCont = rscaleCont,noSample=noSample)
+    if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
+    cb = callback( (i - 1)/length(models) * 1000 )
+    if(cb != 0) stop("Operation cancelled: code ", cb)
+    bfs = c(bfs,oneModel)
+  }
+  if(inherits(pb,"txtProgressBar")) close(pb)
 
   bfObj = do.call("c", bfs)
   if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)

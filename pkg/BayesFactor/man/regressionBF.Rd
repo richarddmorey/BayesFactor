@@ -4,7 +4,7 @@
 \usage{
 regressionBF(formula, data, whichModels = "all",
   progress = options()$BFprogress, rscaleCont = "medium",
-  noSample = FALSE)
+  callback = function(...) as.integer(0), noSample = FALSE)
 }
 \arguments{
   \item{formula}{a formula containing all covariates to
@@ -23,6 +23,9 @@ regressionBF(formula, data, whichModels = "all",
 
   \item{noSample}{if \code{TRUE}, do not sample, instead
   returning NA.}
+
+  \item{callback}{callback function for third-party
+  interfaces}
 }
 \value{
 An object of class \code{BFBayesFactor}, containing the
