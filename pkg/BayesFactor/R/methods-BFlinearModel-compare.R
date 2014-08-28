@@ -36,7 +36,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
       reg = summary(lm(formula,data=data))
       R2 = reg[[8]]
       N = nrow(data)
-      p = length(factors)
+      p = length(attr(terms(formula),"term.labels"))
       bf = linearReg.R2stat(N,p,R2,rscale=rscaleCont)
     }else if(all(relevantDataTypes != "continuous")){
       # ANOVA or t test
