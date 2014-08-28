@@ -2,9 +2,9 @@
 
 CHANGES
   *  Fixed bugs in model enumeration code
+  *  Fixed bug leading to wrong computation of number of covariate when interactions between continuous variables were included
   *  Corrected typos/old information in the documentation 
   *  Fixed a memory allocation bug that affected computing Bayes factors with lots of data 
-  *  Added support for contingency table Bayes factors (see function contingencyTableBF)
   *  Added meta-analytic Bayes factor for t tests (see meta.ttestBF)
   *  Fixed bug in ttestBF that yielded Bayes factor of NaN for very extreme posterior interval probabilities
   *  Fixed several bugs causing infinite integrals; generally improved integration
