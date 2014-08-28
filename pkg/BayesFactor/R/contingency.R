@@ -1,6 +1,7 @@
 ##' This function computes Bayes factors for contingency tables.
 ##' 
-##' The Bayes factor provided by \code{contingencyTableBF}...
+##' The Bayes factor provided by \code{contingencyTableBF} tests the independence assumption in 
+##' contingency tables under various sampling plans.
 ##' 
 ##' @title Function for Bayesian analysis of one- and two-sample designs
 ##' @param x an m by n matrix of counts (integers m,n > 1)
@@ -16,20 +17,21 @@
 ##'   If \code{posterior} is \code{TRUE}, an object of class \code{BFmcmc},
 ##'   containing MCMC samples from the posterior is returned.
 ##' @export
-##' @keywords htest
+##' @keywords internal htest
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @author Tahira Jamil (\email{tahjamil@@gmail.com})
 ##' @references Gunel, E. and Dickey, J., (1974) 
 ##' Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557
 ##' 
-##' @note This is a note.
+##' @note This will be implemented in a future version.
 ##' @examples
-##' ## What example?
+##' \dontrun{
 ##' 
 ##' data<-matrix(c(10,3,2,15),c(2,2))
 ##' 
 ##' ## Assume poisson sampling scheme
 ##' contingencyTableBF(data, "poisson")
+##' }
 
 contingencyTableBF <- function(x, sampleType, priorConcentration = 1, posterior = FALSE, ...)
 {

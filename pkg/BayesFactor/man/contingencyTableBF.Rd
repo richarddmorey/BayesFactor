@@ -33,18 +33,21 @@ This function computes Bayes factors for contingency
 tables.
 }
 \details{
-The Bayes factor provided by \code{contingencyTableBF}...
+The Bayes factor provided by \code{contingencyTableBF}
+tests the independence assumption in contingency tables
+under various sampling plans.
 }
 \note{
-This is a note.
+This will be implemented in a future version.
 }
 \examples{
-## What example?
+\dontrun{
 
 data<-matrix(c(10,3,2,15),c(2,2))
 
 ## Assume poisson sampling scheme
 contingencyTableBF(data, "poisson")
+}
 }
 \author{
 Richard D. Morey (\email{richarddmorey@gmail.com})
@@ -56,4 +59,5 @@ Gunel, E. and Dickey, J., (1974) Bayes Factors for
 Independence in Contingency Tables. Biometrika, 61, 545-557
 }
 \keyword{htest}
+\keyword{internal}
 
