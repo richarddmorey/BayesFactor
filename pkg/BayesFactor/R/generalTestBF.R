@@ -88,22 +88,23 @@ generalTestBF <-
                                                   "options('BFMaxModels').")
     
     if(multicore){
-      warning("Progress bars and callbacks are suppressed when running multicore.")
-      if(!require(doMC)){
+      message("Progress bars and callbacks are suppressed when running multicore.")
+      if(!require(doMC, quietly = TRUE)){
         stop("Required package (doMC) missing for multicore functionality.")
       } 
       
-      registerDoMC()
-      if(getDoParWorkers()==1){
+      doMC::registerDoMC()
+      if(foreach::getDoParWorkers()==1){
         warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
       }
       
-      bfs <- foreach(gIndex=models, .options.multicore=mcoptions) %dopar% 
+      bfs <- foreach::"%dopar%"(
+        foreach::foreach(gIndex=models, .options.multicore=mcoptions),
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
              rscaleCont = rscaleCont, iterations = iterations, method=method,
              progress=FALSE,noSample=noSample)
-      
+        )
     }else{ # Single core
       
       bfs = NULL

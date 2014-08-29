@@ -10,7 +10,7 @@ License: GPL-2
 VignetteBuilder: knitr
 Depends:  R (>= 3.0.0), coda, methods
 Imports:  pbapply, mvtnorm, stringr, utils, graphics
-Suggests: doMC, testthat, knitr, markdown, arm, lme4, xtable, languageR
+Suggests: doMC, foreach, testthat, knitr, markdown, arm, lme4, xtable, languageR
 URL:  http://bayesfactorpcl.r-forge.r-project.org/
 BugReports:  https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
