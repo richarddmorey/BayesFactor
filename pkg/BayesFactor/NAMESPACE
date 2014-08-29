@@ -14,7 +14,8 @@ export(logMeanExpLogs,
     BFManual,
     as.BFBayesFactor,
     generalTestBF,
-    meta.ttestBF)
+    meta.ttestBF,
+    enumerateGeneralModels)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
