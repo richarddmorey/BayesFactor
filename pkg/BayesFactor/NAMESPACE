@@ -23,6 +23,8 @@ importFrom(utils, head)
 importFrom(utils, tail)
 importFrom(graphics, plot)
 importFrom(utils, packageDescription)
+importFrom(Rcpp, evalCpp)
+
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
