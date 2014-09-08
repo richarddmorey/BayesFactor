@@ -77,47 +77,32 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
   hypNames = makeMetaTtestHypothesisNames(rscale, nullInterval)
   data = data.frame(t=t,n1=n1)
   if(!is.null(n2)) data$n2 = n2
+  if(!is.null(nullInterval)) nullInterval = range(nullInterval)
   
-  if(is.null(nullInterval)){
-      modFull = BFmetat(type = "JZS", 
-                            identifier = list(formula = "delta =/= 0"), 
-                            prior=list(rscale=rscale),
-                            shortName = hypNames$shortName,
-                            longName = hypNames$longName
-                )
-      
-      bf = compare(numerator = modFull, data = data)
-      if(posterior){
-        chains = posterior(bf, callback = callback, ...)
-        return(chains)
-      }else{
-        return(bf)
-      }
-    }else{
-      nullInterval = range(nullInterval)
-      modInterval = BFmetat(type = "JZS", 
-                                identifier = list(formula = "delta =/= 0", nullInterval = nullInterval), 
-                                prior=list(rscale=rscale, nullInterval = nullInterval),
-                                shortName = hypNames$shortName,
-                                longName = hypNames$longName
-                    )      
-      
-      if(posterior){
-        chains = posterior(modInterval, data = data, callback = callback, ...)
-        return(chains)
-      }else{
-        modIntervalCompl = modInterval
-        attr(modIntervalCompl@identifier$nullInterval, "complement") = TRUE
-        attr(modIntervalCompl@prior$nullInterval, "complement") = TRUE
-        hypNames = makeMetaTtestHypothesisNames(rscale, modIntervalCompl@identifier$nullInterval)
-        modIntervalCompl@shortName = hypNames$shortName
-        modIntervalCompl@longName = hypNames$longName
-        
-        bf1 = compare(numerator = modInterval, data = data)
-        bf2 = compare(numerator = modIntervalCompl, data = data)      
-        
-        return(c(bf1, bf2))
-      }
-    }
+  mod1 = BFmetat(type = "JZS", 
+                        identifier = list(formula = "delta =/= 0", nullInterval = nullInterval), 
+                        prior=list(rscale=rscale, nullInterval = nullInterval),
+                        shortName = hypNames$shortName,
+                        longName = hypNames$longName
+  )      
+  
+  if(posterior)
+    return(posterior(mod1, data = data, callback = callback, ...))
+  
+  bf1 = compare(numerator = mod1, data = data)
+    
+  if(!is.null(nullInterval)){
+    mod2 = mod1
+    attr(mod2@identifier$nullInterval, "complement") = TRUE
+    attr(mod2@prior$nullInterval, "complement") = TRUE
+    hypNames = makeMetaTtestHypothesisNames(rscale, mod2@identifier$nullInterval)
+    mod2@shortName = hypNames$shortName
+    mod2@longName = hypNames$longName
+    
+    bf2 = compare(numerator = mod2, data = data)
+    return(c(bf1, bf2))
+  }else{
+    return(c(bf1))
+  }  
 }
 
