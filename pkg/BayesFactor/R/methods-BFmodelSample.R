@@ -129,7 +129,10 @@ setMethod('posterior', signature(model = "BFindepSample", index = "missing", dat
   function(model, index = NULL, data, iterations, ...){
     formula = formula(model@identifier$formula)
     rscale = model@prior$rscale
-    lmBF(formula, data = data, rscaleFixed = rscale / sqrt(2), posterior = TRUE, iterations = iterations, ...)                
+    interval = model@prior$nullInterval
+    nullModel = ( formula[[3]] == 1 )
+    chains = ttestIndepSample.Gibbs(formula, data, nullModel, iterations,rscale, interval,...)
+    new("BFmcmc",chains,model = model, data = data)         
 })
 
 #' @rdname posterior-methods
@@ -149,8 +152,9 @@ setMethod('posterior', signature(model = "BFoneSample", index = "missing", data 
      mu = model@prior$mu
      rscale = model@prior$rscale
      interval = model@prior$nullInterval
-     chains = ttest.Gibbs(y = data$y, iterations = iterations, rscale = rscale,
-                          nullInterval = interval, ...)[["chains"]]
+     nullModel = ( model@identifier$formula == "y ~ 0" )
+     chains = ttestOneSample.Gibbs(y = data$y, nullModel, iterations = iterations, rscale = rscale,
+                          nullInterval = interval, ...)
      new("BFmcmc",chains,model = model, data = data)         
 })
 

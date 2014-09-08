@@ -187,8 +187,10 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
               numList = list(numerator)
               nms = numerator@shortName
       
+              nullFormula = paste(formula[[2]],"1",sep=" ~ ")
+              
               modDenominator = BFindepSample(type = "JZS", 
-                                             identifier = list(formula = "y ~ 1"), 
+                                             identifier = list(formula = nullFormula), 
                                              prior=list(mu=mu),
                                              shortName = paste("Null, mu1-mu2=",mu,sep=""),
                                              longName = paste("Null, mu1-mu2 = ",mu, sep="")

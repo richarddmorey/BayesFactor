@@ -10,7 +10,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, int iterations, bool doInterval, 
-                      NumericVector interval, bool intervalCompl, int progress, Function callback, double callbackInterval) 
+                      NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval) 
 {
     // setting last_cb to the beginning of the epoch 
     // ensures that the callback is called once, first
@@ -35,8 +35,10 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     }
 
     // starting values
-    double mu = ybar, sig2 = s2, g = pow(ybar, 2) / s2;
-
+    double mu = ybar, sig2 = s2, g = pow(ybar, 2) / s2 + 1;
+    
+    if(nullModel) mu = 0;
+    
     // create progress bar
     //Progress p(iterations, (bool) progress);
 
@@ -62,7 +64,7 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
   	  varMu  = sig2 / ( 1.0 * N + 1/g );
       meanMu = ybar * N * varMu / sig2;
       
-      if(doInterval){
+      if(doInterval && !nullModel){
         if( !intervalCompl ){
           // Interval as given
           intLower = Rf_pnorm5( sqrt(sig2) * interval[0], meanMu, sqrt(varMu), 1, 0 );
@@ -86,7 +88,11 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
         mu = Rf_qnorm5( mu, meanMu, sqrt(varMu), 1, 0 );
       }else{
         // no interval
-        mu = Rf_rnorm( meanMu, sqrt(varMu) );
+        if(nullModel){
+          mu = 0; 
+        }else{
+          mu = Rf_rnorm( meanMu, sqrt(varMu) );
+        }
       }
       
       // sample sig2

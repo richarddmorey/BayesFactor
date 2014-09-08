@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // gibbsTwoSampleRcpp
-NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_gibbsTwoSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
+RcppExport SEXP BayesFactor_gibbsTwoSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -20,10 +20,11 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< bool >::type doInterval(doIntervalSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type interval(intervalSEXP );
         Rcpp::traits::input_parameter< bool >::type intervalCompl(intervalComplSEXP );
+        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
         Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
         Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
         Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
-        NumericMatrix __result = gibbsTwoSampleRcpp(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, progress, callback, callbackInterval);
+        NumericMatrix __result = gibbsTwoSampleRcpp(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -31,8 +32,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // gibbsOneSampleRcpp
-NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_gibbsOneSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
+RcppExport SEXP BayesFactor_gibbsOneSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -45,10 +46,11 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< bool >::type doInterval(doIntervalSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type interval(intervalSEXP );
         Rcpp::traits::input_parameter< bool >::type intervalCompl(intervalComplSEXP );
+        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
         Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
         Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
         Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
-        NumericMatrix __result = gibbsOneSampleRcpp(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, progress, callback, callbackInterval);
+        NumericMatrix __result = gibbsOneSampleRcpp(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

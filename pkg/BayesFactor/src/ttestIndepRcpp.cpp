@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, 
-                      NumericVector interval, bool intervalCompl, int progress, Function callback, double callbackInterval) 
+                      NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval) 
 {
     
     // setting last_cb to the beginning of the epoch 
@@ -45,7 +45,10 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
     double mu = sumy / sum(N);
     double beta = ybar[1] - ybar[0];
     double sig2 = ( s2[0] * (N[0] - 1) + s2[1] * (N[1] - 1) ) / ( sum(N) - 2 );
-    double g = pow(beta, 2) / sig2;
+    double g = pow(beta, 2) / sig2 + 1;
+    
+    if(nullModel) beta = 0;
+
     
     // create progress bar
     Progress p(iterations, (bool) progress);
@@ -77,7 +80,7 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
   	  varBeta  = sig2 / ( sumN/4 + 1/g );
       meanBeta = varBeta / sig2 * ( (sumy2 - sumy1) + mu * ( diffN ) ) / 2;
       
-      if(doInterval){
+      if(doInterval && !nullModel){
         if( !intervalCompl ){
           // Interval as given
           intLower = Rf_pnorm5( sqrt(sig2) * interval[0], meanBeta, sqrt(varBeta), 1, 0 );
@@ -101,8 +104,13 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
         beta = Rf_qnorm5( beta, meanBeta, sqrt(varBeta), 1, 0 );
       }else{
         // no interval
-        beta = Rf_rnorm( meanBeta, sqrt(varBeta) );
+        if(nullModel){
+          beta = 0;
+        }else{
+          beta = Rf_rnorm( meanBeta, sqrt(varBeta) );
+        }
       } // end sample beta
+      
       
       // sample sig2
 		  scaleSig2 = 0.5 * ( sumySq - 2.0 * mu * sumy - beta * diffy +
