@@ -48,7 +48,9 @@ setMethod('/', signature("numeric", "BFBayesFactorList"), function(e1, e2){
 
 #' @rdname BFBayesFactorList-class
 #' @name [,BFBayesFactorList,index,index,missing-method
-#' @param j indices specifying elements to extract
+#' @param i indices specifying rows to extract
+#' @param j indices specifying columns to extract
+#' @param drop unused
 #' @param ... further arguments passed to related methods
 setMethod("[", signature(x = "BFBayesFactorList", i = "index", j = "index",
                          drop = "missing"),

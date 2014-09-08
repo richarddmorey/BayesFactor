@@ -1,4 +1,21 @@
-meta.ttest.tstat <- function(t,n1,n2=NULL,nullInterval=NULL,rscale)
+makeMetaTtestHypothesisNames = function(rscale, nullInterval=NULL){
+  if(is.null(nullInterval)){
+    shortName = paste("Alt., r=",round(rscale,3),sep="")
+    longName = paste("Alternative, r = ",rscale,", delta =/= 0", sep="")
+  }else{
+    if(!is.null(attr(nullInterval,"complement"))){
+      shortName = paste("Alt., r=",round(rscale,3)," (",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+      longName = paste("Alternative, r = ",rscale,", delta =/= 0 !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+    }else{
+      shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep="")
+      longName = paste("Alternative, r = ",rscale,", delta =/= 0 ",nullInterval[1],"<d<",nullInterval[2],sep="")
+    }
+  }
+  return(list(shortName=shortName,longName=longName))
+}
+
+
+meta.ttest.tstat <- function(t,n1,n2=NULL,nullInterval=NULL,rscale, complement = FALSE)
 {
   
   if( ((length(n1) != length(n2)) & !is.null(n2)) | (length(n1) != length(t))){
@@ -20,12 +37,12 @@ meta.ttest.tstat <- function(t,n1,n2=NULL,nullInterval=NULL,rscale)
   if(is.null(nullInterval)){
     return(meta.t.bf(t,n,nu,rscale=rscale))
   }else{
-    return(meta.t.bf(t,n,nu,interval=nullInterval,rscale=rscale))
+    return(meta.t.bf(t,n,nu,interval=nullInterval,rscale=rscale, complement = complement))
   }
 }
 
 
-meta.t.bf <- function(t,N,df,interval=NULL,rscale){
+meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   if(length(interval)!=2 & !is.null(interval))
     stop("argument interval must have two elements.")
   
@@ -63,11 +80,20 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale){
                               bf3$properror)
     bf.compl[1] = bf.compl[1] - prior.interval.1.3
   }
-  return(
-    list(
-      bf = c(null=bf$bf,alt=bf.compl[[1]]),
-      properror = c(null=bf$properr,alt=bf.compl[[2]])
-    ))
+  
+  if(complement){
+    return(
+      list(
+        bf = bf.compl[[1]],
+        properror = bf.compl[[2]]
+      ))
+  }else{
+    return(
+      list(
+        bf = bf$bf,
+        properror = bf$properr
+      ))
+  }
 }
 
 

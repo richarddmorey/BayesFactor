@@ -1,7 +1,7 @@
 // [[Rcpp::depends(RcppProgress)]]
 //#include <progress.hpp>
 #include <time.h>
-#include "bfcommon.hpp"
+#include "bfcommon.h"
 
 /* NOTE: RcppProgress code is disabled until
    I can fix the header issue. */

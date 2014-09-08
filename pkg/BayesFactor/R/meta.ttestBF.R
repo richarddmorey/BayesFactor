@@ -74,6 +74,7 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
                          posterior=FALSE, callback = function(...) as.integer(0), ...)
 {
   rscale = rpriorValues(ifelse(is.null(n2),"ttestOne","ttestTwo"),,rscale)
+  hypNames = makeMetaTtestHypothesisNames(rscale, nullInterval)
   data = data.frame(t=t,n1=n1)
   if(!is.null(n2)) data$n2 = n2
   
@@ -81,9 +82,9 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
       modFull = BFmetat(type = "JZS", 
                             identifier = list(formula = "delta =/= 0"), 
                             prior=list(rscale=rscale),
-                            shortName = paste("Alt., r=",round(rscale,3),sep=""),
-                            longName = paste("Alternative, r = ",rscale,", delta =/= 0", sep="")
-      )
+                            shortName = hypNames$shortName,
+                            longName = hypNames$longName
+                )
       
       bf = compare(numerator = modFull, data = data)
       if(posterior){
@@ -95,18 +96,27 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
     }else{
       nullInterval = range(nullInterval)
       modInterval = BFmetat(type = "JZS", 
-                                identifier = list(formula = "y ~ 1", nullInterval = nullInterval), 
+                                identifier = list(formula = "delta =/= 0", nullInterval = nullInterval), 
                                 prior=list(rscale=rscale, nullInterval = nullInterval),
-                                shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
-                                longName = paste("Alternative, r = ",rscale,", ",nullInterval[1],"<d<",nullInterval[2],sep="")
-      )      
+                                shortName = hypNames$shortName,
+                                longName = hypNames$longName
+                    )      
       
-      bf = compare(numerator = modInterval, data = data)
       if(posterior){
-        chains = posterior(bf, callback = callback, ...)
+        chains = posterior(modInterval, data = data, callback = callback, ...)
         return(chains)
       }else{
-        return(bf)
+        modIntervalCompl = modInterval
+        attr(modIntervalCompl@identifier$nullInterval, "complement") = TRUE
+        attr(modIntervalCompl@prior$nullInterval, "complement") = TRUE
+        hypNames = makeMetaTtestHypothesisNames(rscale, modIntervalCompl@identifier$nullInterval)
+        modIntervalCompl@shortName = hypNames$shortName
+        modIntervalCompl@longName = hypNames$longName
+        
+        bf1 = compare(numerator = modInterval, data = data)
+        bf2 = compare(numerator = modIntervalCompl, data = data)      
+        
+        return(c(bf1, bf2))
       }
     }
 }

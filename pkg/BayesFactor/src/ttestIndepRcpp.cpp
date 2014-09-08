@@ -1,7 +1,7 @@
 // [[Rcpp::depends(RcppProgress)]]
 #include <progress.hpp>
 #include <time.h>
-#include "bfcommon.hpp"
+#include "bfcommon.h"
 
 using namespace Rcpp;
 

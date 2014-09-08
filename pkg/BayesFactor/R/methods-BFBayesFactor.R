@@ -147,7 +147,10 @@ setMethod('summary', "BFBayesFactor", function(object){
 
 #' @rdname BFBayesFactor-class
 #' @name [,BFBayesFactor,index,missing,missing-method
+#' @param x BFBayesFactor object
+#' @param i indices indicating elements to extract
 #' @param j unused for BFBayesFactor objects
+#' @param drop unused
 #' @param ... further arguments passed to related methods
 setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
                          drop = "missing"),

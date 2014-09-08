@@ -1,3 +1,87 @@
+
+makeTtestHypothesisNames = function(rscale, nullInterval=NULL, mu = 0){
+  if(is.null(nullInterval)){
+    shortName = paste("Alt., r=",round(rscale,3),sep="")
+    longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, sep="")
+  }else{
+    if(!is.null(attr(nullInterval,"complement"))){
+      shortName = paste("Alt., r=",round(rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2], ")",sep="")
+      longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+    }else{
+      shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep="")
+      longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
+    }
+  }
+  return(list(shortName=shortName,longName=longName))
+}
+
+
+ttestBF_oneSample = function(x, mu, nullInterval, rscale, posterior, callback, ... ){
+  rscale = rpriorValues("ttestOne",,rscale)
+  hypNames = makeTtestHypothesisNames(rscale, nullInterval, mu = mu)
+  
+  mod1 = BFoneSample(type = "JZS", 
+                        identifier = list(formula = "y ~ 1", nullInterval = nullInterval), 
+                        prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
+                        shortName = hypNames$shortName,
+                        longName = hypNames$longName)
+  if(posterior)
+    return(posterior(mod1, data = data.frame(y=x), callback = callback, ...))
+  
+  bf1 = compare(numerator = mod1, data = data.frame(y=x))
+  
+  if(!is.null(nullInterval)){
+    mod2 = mod1
+    attr(mod2@identifier$nullInterval, "complement") = TRUE
+    attr(mod2@prior$nullInterval, "complement") = TRUE
+    hypNames = makeTtestHypothesisNames(rscale, mod2@identifier$nullInterval, mu = mu)
+    mod2@shortName = hypNames$shortName
+    mod2@longName = hypNames$longName
+    
+    bf2 = compare(numerator = mod2, data = data.frame(y=x))    
+    return(c(bf1,bf2))
+  }else{
+    return(bf1)
+  }    
+  
+}
+
+ttestBF_indepSample = function(formula, data, mu, nullInterval, rscale, posterior, callback, ... ){
+  checkFormula(formula, data, analysis = "indept")
+  
+  rscale = rpriorValues("ttestTwo",,rscale)
+  hypNames = makeTtestHypothesisNames(rscale, nullInterval, mu = mu)
+  
+  mod1 = BFindepSample(type = "JZS", 
+                          identifier = list(formula = stringFromFormula(formula), nullInterval = nullInterval), 
+                          prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
+                          shortName = hypNames$shortName,
+                          longName = hypNames$longName
+  )
+  
+  if(posterior)
+    return(posterior(mod1, data = data, callback = callback, ...))
+  
+  bf1 = compare(numerator = mod1, data = data)
+  
+  if(!is.null(nullInterval)){
+    mod2 = mod1
+    attr(mod2@identifier$nullInterval, "complement") = TRUE
+    attr(mod2@prior$nullInterval, "complement") = TRUE
+    hypNames = makeTtestHypothesisNames(rscale, mod2@identifier$nullInterval, mu = mu)
+    mod2@shortName = hypNames$shortName
+    mod2@longName = hypNames$longName
+    
+    bf2 = compare(numerator = mod2, data = data)
+    return(c(bf1, bf2))
+  }else{
+    return(bf1)
+  }  
+  
+  
+}  
+
+
 ttest.Gibbs = function(y=NULL,t=NULL,n=NULL,iterations=10000,rscale="medium",nullInterval=NULL,progress=options()$BFprogress,logbf=FALSE,noSample=FALSE, callback=NULL){
   if( (is.null(t) | is.null(n)) & !is.null(y) ){
     n = as.integer(length(y))

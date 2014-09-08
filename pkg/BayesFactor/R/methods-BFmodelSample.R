@@ -43,8 +43,8 @@ setMethod('compare', signature(numerator = "BFmcmc", denominator = "missing"),
 )    
 
 #' @rdname posterior-methods
-#' @aliases posterior,BFlinearModel,missing,data.frame,missing-method
-setMethod("posterior", signature(model="BFlinearModel", index="missing", data="data.frame", iterations="missing"),
+#' @aliases posterior,BFmodel,missing,data.frame,missing-method
+setMethod("posterior", signature(model="BFmodel", index="missing", data="data.frame", iterations="missing"),
   function(model, index, data, iterations, ...)
     stop("Iterations must be specified for posterior sampling.")
   )
@@ -155,7 +155,7 @@ setMethod('posterior', signature(model = "BFoneSample", index = "missing", data 
 })
 
 #' @rdname posterior-methods
-#' @aliases posterior,BFoneSample,missing,data.frame,numeric-method
+#' @aliases posterior,BFmetat,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFmetat", index = "missing", data = "data.frame", iterations = "numeric"), 
           function(model, index = NULL, data, iterations, ...){
             rscale = model@prior$rscale

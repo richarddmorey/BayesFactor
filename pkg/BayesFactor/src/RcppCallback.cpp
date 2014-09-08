@@ -1,6 +1,6 @@
 #include <Rcpp.h>
 #include <time.h>
-#include "bfcommon.hpp"
+#include "bfcommon.h"
 
 using namespace Rcpp;
 

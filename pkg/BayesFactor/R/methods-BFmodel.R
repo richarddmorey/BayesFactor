@@ -122,22 +122,14 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
                 errorEst = 0
               }else{
                 t = (mean(y) - mu) / sd(y) * sqrt(N)
-                bf = ttest.tstat(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale)
+                complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
+                bf = ttest.tstat(t=t, n1=N,nullInterval=nullInterval,rscale=numerator@prior$rscale,complement=complement)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
-              if(!is.null(nullInterval)){
-
-                modComplement = numerator
-                modComplement@shortName = paste("Alt., r=",round(numerator@prior$rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
-                modComplement@longName = paste("Alternative, r = ",numerator@prior$rscale,", mu =/= ",mu, " !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+              numList = list(numerator)
+              nms = numerator@shortName
               
-                numList = list(numerator,modComplement)
-                nms = c(numerator@shortName,modComplement@shortName)
-              }else{
-                numList = list(numerator)
-                nms = numerator@shortName
-              }
               modDenominator = BFoneSample(type = "JZS", 
                                    identifier = list(formula = "y ~ 0"), 
                                    prior=list(mu=mu),
@@ -187,22 +179,14 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
                 errorEst = 0
               }else{
                 t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
-                bf = ttest.tstat(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale)
+                complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
+                bf = ttest.tstat(t=t, n1=ns[1], n2=ns[2], nullInterval=nullInterval,rscale=numerator@prior$rscale, complement = complement)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
-              if(!is.null(nullInterval)){
-                
-                modComplement = numerator
-                modComplement@shortName = paste("Alt., r=",round(numerator@prior$rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
-                modComplement@longName = paste("Alternative, r = ",numerator@prior$rscale,", mu1-mu2 =/= ",mu, " !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
-                
-                numList = list(numerator,modComplement)
-                nms = c(numerator@shortName,modComplement@shortName)
-              }else{
-                numList = list(numerator)
-                nms = numerator@shortName
-              }
+              numList = list(numerator)
+              nms = numerator@shortName
+      
               modDenominator = BFindepSample(type = "JZS", 
                                              identifier = list(formula = "y ~ 1"), 
                                              prior=list(mu=mu),
@@ -236,24 +220,19 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
             nullInterval=numerator@prior$nullInterval
 
             if( (numerator@type=="JZS") ){
-              
+              if( numerator@identifier$formula=="d = 0" ){
+                numBF = 0
+                errorEst = 0
+              }else{
+                complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
                 bf = meta.ttest.tstat(t=data$t, n1=data$n1, n2=data$n2, 
-                                      nullInterval=nullInterval, rscale=numerator@prior$rscale)
+                                    nullInterval=nullInterval, rscale=numerator@prior$rscale,complement=complement)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
-  
-              if(!is.null(nullInterval)){
-                
-                modComplement = numerator
-                modComplement@shortName = paste("Alt., r=",round(numerator@prior$rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
-                modComplement@longName = paste("Alternative, r = ",numerator@prior$rscale," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
-                
-                numList = list(numerator,modComplement)
-                nms = c(numerator@shortName,modComplement@shortName)
-              }else{
-                numList = list(numerator)
-                nms = numerator@shortName
               }
+              numList = list(numerator)
+              nms = numerator@shortName
+              
               modDenominator = BFmetat(type = "JZS", 
                                            identifier = list(formula = "d = 0"), 
                                            prior=list(),
@@ -261,21 +240,21 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
                                            longName = "Null, d = 0")
               
               bf_df = data.frame(bf = numBF,
-                                 error = errorEst,
-                                 time = date(),
-                                 code = randomString(length(numBF)))
+                               error = errorEst,
+                               time = date(),
+                               code = randomString(length(numBF)))
               
-              rownames(bf_df) <- nms
+            rownames(bf_df) <- nms
               
-              newBF = BFBayesFactor(numerator = numList,
-                                    denominator = modDenominator,
-                                    data = data,
-                                    bayesFactor = bf_df)
-              return(newBF)
-            }else{
-              stop("Unknown prior type: ", numerator@type)
-            }
-          })
+            newBF = BFBayesFactor(numerator = numList,
+                                  denominator = modDenominator,
+                                  data = data,
+                                  bayesFactor = bf_df)
+            return(newBF)
+          }else{
+            stop("Unknown prior type: ", numerator@type)
+          }
+})
 
 
 setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "data.frame"), 

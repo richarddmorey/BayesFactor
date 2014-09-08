@@ -96,90 +96,39 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
     if(any(is.na(c(x,y)))) stop("x or y must not contain missing values.")
   
   if(!is.null(nullInterval)){
+    nullInterval = range(nullInterval)
     if(identical(nullInterval,c(-Inf,Inf))){
       nullInterval = NULL
     }
   }
   
-  if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){
+  if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){ # one sample
     if(paired){
       # check that the two vectors have same length
       if(length(x)!=length(y)) stop("Length of x and y must be the same if paired=TRUE.")
       x = x - y
     }
-    rscale = rpriorValues("ttestOne",,rscale)
-    if(is.null(nullInterval)){
-      modFull = BFoneSample(type = "JZS", 
-                            identifier = list(formula = "y ~ 1"), 
-                            prior=list(rscale=rscale, mu=mu),
-                            shortName = paste("Alt., r=",round(rscale,3),sep=""),
-                            longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, sep="")
-      )
-      
-      if(posterior){
-        chains = posterior(modFull,data = data.frame(y=x), callback = callback, ...)
-        return(chains)
-      }else{
-        bf = compare(numerator = modFull, data = data.frame(y=x))
-        return(bf)
-      }
-    }else{
-      nullInterval = range(nullInterval)
-      modInterval = BFoneSample(type = "JZS", 
-                                 identifier = list(formula = "y ~ 1",nullInterval = nullInterval), 
-                                 prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
-                                 shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
-                                 longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
-      )      
-      if(posterior){
-        chains = posterior(modInterval, data = data.frame(y=x), callback = callback, ...)
-        return(chains)
-      }else{
-        bf = compare(numerator = modInterval, data = data.frame(y=x))
-        return(bf)
-      }
-    }
-  }else if(!is.null(y) & !paired){
+    return( ttestBF_oneSample(x = x, mu = mu,
+                              nullInterval = nullInterval, 
+                              rscale = rscale, posterior = posterior, 
+                              callback = callback, ... ) )
+  }
+  if(!is.null(y) & !paired){ # Two-sample; create formula
+    if(!is.null(data) | !is.null(formula)) stop("Do not specify formula or data if x and y are specified.")
     data = data.frame(y = c(x,y), 
                       group = factor(c(rep("x",length(x)),rep("y",length(y))))
                       )
     formula = y ~ group
   }
-  if(!is.null(formula)){ # formula
+  if(!is.null(formula)){ # Two-sample
     if(paired) stop("Cannot use 'paired' with formula.")
     if(is.null(data)) stop("'data' needed for formula.")
-    checkFormula(formula, data, analysis = "indept")
-
-    dataTypes = "fixed"
-    names(dataTypes) =  attr(terms(formula, data = data),"term.labels")
     if(mu != 0) stop("Use of nonzero null hypothesis not implemented for independent samples test.")
-    
-    rscale = rpriorValues("ttestTwo",,rscale)
-    
-    if(is.null(nullInterval)){
-      numerator = BFindepSample(type = "JZS", 
-                              identifier = list(formula = stringFromFormula(formula)), 
-                              prior=list(rscale=rscale, mu=mu),
-                              shortName = paste("Alt., r=",round(rscale,3),sep=""),
-                              longName = paste("Alternative, r = ",rscale,", mu =/= ",mu,sep="")
-      )
-    }else{
-      nullInterval = range(nullInterval)
-      numerator = BFindepSample(type = "JZS", 
-                                identifier = list(formula = stringFromFormula(formula),nullInterval = nullInterval), 
-                                prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
-                                shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep=""),
-                                longName = paste("Alternative, r = ",rscale,", mu =/= ",mu, " ",nullInterval[1],"<d<",nullInterval[2],sep="")
-      )
-    }
-
-    if(posterior){
-      chains = posterior(numerator, data = data, callback = callback, ...)
-      return(chains)
-    }else{
-      bf = compare(numerator = numerator, data = data)
-      return(bf)
-    }
+    return(ttestBF_indepSample(formula = formula, data = data, mu = mu,
+                               nullInterval = nullInterval, rscale = rscale,
+                               posterior = posterior, callback = callback, ... ))
+  }else{
+    stop("Insufficient arguments to perform t test.")
   }
 }
 
