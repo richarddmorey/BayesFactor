@@ -129,75 +129,46 @@ meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE){
 },"delta")
 
 
-meta.t.Metrop <- function(t,n1,n2=NULL,iterations=10000,nullInterval=NULL,rscale,progress=options()$BFprogress, noSample=FALSE, callback = NULL){
+meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1){
   if(length(t)!=length(n1)) stop("lengths of t and n1 must be equal.")
   if(!is.null(n2)){
     if(length(t) != length(n2)) stop("If n2 is defined, it must have the same length as t.")
   }
   iterations = as.integer(iterations)
   
-  if(is.null(n2)){
-    nu = n1 - 1  
-    n <- n1
+  if( is.null(n2) ){
+    n2 = n1*0
+    twoSample = FALSE
   }else{
-    nu = n1 + n2 - 2
-    n <- n1 * n2 / (n1 + n2)
+    twoSample = TRUE
   }
   
-  if(progress & !noSample){
-    progress = round(iterations/100)
-    pb = txtProgressBar(min = 0, max = as.integer(iterations), style = 3) 
-  }else{ 
-    pb=NULL 
+  progress = as.logical(progress)
+  if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
+  
+  if(is.null(nullInterval) | nullModel){
+    doInterval = FALSE
+    nullInterval = c(-Inf, Inf)
+    intervalCompl = FALSE
+  }else{
+    doInterval = TRUE
+    intervalCompl = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
+    nullInterval = range(nullInterval)
   }
-  pbFun = function(samps){ if(progress) setTxtProgressBar(pb, samps)}
   
-  
-  delta.est = t/sqrt(n)
-  mean.delta = sum((delta.est * n)/sum(n))
-
   if(noSample){
-    chains = matrix(NA,1,2)
+    chains = matrix(as.numeric(NA),1,1)
   }else{
-    
-    if(is.null(nullInterval)){
-      Ubounds = c(0,1)
-    }else{
-      Ubounds = pnorm(range(nullInterval),mean.delta,sqrt(1/sum(n)))
+    if(nullModel) rscale = 0
+    chains = metropMetaTRcpp(t, n1, n2, twoSample, rscale, iterations, 
+                           doInterval, nullInterval, intervalCompl, nullModel, 
+                           progress, callback, callbackInterval)
+    if(!nullModel){
+      acc.rate = mean(diff(chains) != 0)
+      message("Independent-candidate M-H acceptance rate: ",round(100*acc.rate),"%")
     }
-    
-    chains = 1:(iterations+1)
-    chains[1] = mean.delta
-    
-    
-    ## Independence Metropolis-Hastings
-    for(m in 2:(iterations+1)){
-      
-      # Cancel the analysis if the callback returns null
-      if(is.function(callback)){
-        rtn = callback(progress =  m / (iterations + 1) * 1000)
-        if(rtn)
-          stop("Operation cancelled: code ",rtn)
-      }
-      candidate = qnorm(runif(1,Ubounds[1],Ubounds[2]),mean.delta,sqrt(1/sum(n)))
-    
-    ## Metropolis-Hastings acceptance
-      z = meta.t.like(candidate,t,n,nu,rscale,log=TRUE) - 
-        meta.t.like(chains[m-1],t,n,nu,rscale,log=TRUE) +
-        dnorm(chains[m-1],mean.delta,sqrt(1/sum(n)),log=TRUE) - 
-        dnorm(candidate,mean.delta,sqrt(1/sum(n)),log=TRUE)
-    
-      chains[m] = ifelse(rexp(1)>(-z), candidate, chains[m-1])
-
-      if(!(m%%(iterations%/%100))) pbFun(m)
-    }
-    chains = matrix(chains[-1],iterations)
   }
   
-  if(inherits(pb,"txtProgressBar")) close(pb);
-  
-  acc.rate = mean(diff(chains) != 0)
-  message("Independent-candidate M-H acceptance rate: ",round(100*acc.rate),"%")
   return(mcmc(data.frame(delta=chains)))
 }
 

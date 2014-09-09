@@ -104,7 +104,7 @@ ttestOneSample.Gibbs = function(y, nullModel, iterations, rscale, nullInterval, 
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
 
   if(noSample){
-    chains = matrix(NA,4,2)
+    chains = matrix(as.numeric(NA),4,2)
   }else{
     chains = gibbsOneSampleRcpp(mean(y), var(y), n, rscale, iterations, do.interval, nullInterval, complement, nullModel, progress, callback, callbackInterval) 
   }
@@ -161,7 +161,7 @@ ttestIndepSample.Gibbs = function(formula, data, nullModel, iterations, rscale, 
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
   
   if(noSample){
-    chains = matrix(NA,5,2)
+    chains = matrix(as.numeric(NA),5,2)
   }else{
     chains = gibbsTwoSampleRcpp(ybar, s2, N, rscale, iterations, do.interval, nullInterval, complement, nullModel, progress, callback, callbackInterval)
   }

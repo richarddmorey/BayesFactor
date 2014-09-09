@@ -164,7 +164,8 @@ setMethod('posterior', signature(model = "BFmetat", index = "missing", data = "d
           function(model, index = NULL, data, iterations, ...){
             rscale = model@prior$rscale
             interval = model@prior$nullInterval
-            chains = meta.t.Metrop(t = data$t, n1 = data$n1, n2 = data$n2, iterations = iterations, 
+            nullModel = ( model@identifier$formula == "d = 0" )
+            chains = meta.t.Metrop(t = data$t, n1 = data$n1, n2 = data$n2, nullModel, iterations = iterations, 
                                    rscale = rscale, nullInterval = interval,  ...)
             new("BFmcmc",chains, model = model, data = data)         
           })
