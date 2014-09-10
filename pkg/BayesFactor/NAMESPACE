@@ -17,7 +17,7 @@ export(logMeanExpLogs,
     meta.ttestBF,
     enumerateGeneralModels)
 
-import(mvtnorm, pbapply, stringr, coda)
+import(mvtnorm, pbapply, stringr, coda, RcppProgress)
 importFrom(methods, show)
 importFrom(utils, head)
 importFrom(utils, tail)

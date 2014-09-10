@@ -1,3 +1,11 @@
+  CHANGES IN BayesFactor VERSION 0.9.9
+
+CHANGES
+  *  Refactored t test and meta-t test code
+  *  Moved many backend functions to Rcpp from R C API
+  *  t test samplers now sample from interval null hypotheses and point null hypotheses where appropriate
+  *  fixed bug in in meta t test sampler which wouldn't allow sampling small numbers of MCMC samples
+
   CHANGES IN BayesFactor VERSION 0.9.8
 
 CHANGES

@@ -1,12 +1,20 @@
 // [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
+//#include <progress.hpp>
+#include <time.h>
+#include "bfcommon.h"
+
+/* NOTE: RcppProgress code is disabled until
+   I can fix the header issue. */
 
 using namespace Rcpp;
 
 // [[Rcpp::export]]
 NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, int iterations, bool doInterval, 
-                      NumericVector interval, bool intervalCompl, int progress, Function callback) 
+                      NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval) 
 {
+    // setting last_cb to the beginning of the epoch 
+    // ensures that the callback is called once, first
+    time_t last_cb = static_cast<time_t>(int(0));    
 
     int i = 0, whichInterval = 0, signAgree = 1;
     double meanMu, varMu, scaleSig2, scaleg;
@@ -15,7 +23,6 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     double rscaleSq = pow(rscale, 2);
     double intLower = 0, intUpper = 1, areaLower, areaUpper;
     
-    IntegerVector callbackResult(1);
 
     // For intervals
     if( doInterval){
@@ -28,10 +35,12 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     }
 
     // starting values
-    double mu = ybar, sig2 = s2, g = pow(ybar, 2) / s2;
-
+    double mu = ybar, sig2 = s2, g = pow(ybar, 2) / s2 + 1;
+    
+    if(nullModel) mu = 0;
+    
     // create progress bar
-    Progress p(iterations, (bool) progress);
+    //Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 4);
@@ -41,21 +50,21 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     {
 
       // Check interrupt
-      if (Progress::check_abort() )
-        Rcpp::stop("Operation cancelled by interrupt.");
+      //if (Progress::check_abort() )
+      //  Rcpp::stop("Operation cancelled by interrupt.");
       
-      p.increment(); // update progress
+      //p.increment(); // update progress
       
       // Check callback
-      callbackResult = callback( ( 1000 * ( i + 1 ) ) / iterations );
-      if(callbackResult[0])
+      if( RcppCallback( &last_cb, callback, ( 1000.0 * ( i + 1 ) ) / iterations, callbackInterval) )
         Rcpp::stop("Operation cancelled by callback function.");
+
 
       // sample mu
   	  varMu  = sig2 / ( 1.0 * N + 1/g );
       meanMu = ybar * N * varMu / sig2;
       
-      if(doInterval){
+      if(doInterval && !nullModel){
         if( !intervalCompl ){
           // Interval as given
           intLower = Rf_pnorm5( sqrt(sig2) * interval[0], meanMu, sqrt(varMu), 1, 0 );
@@ -79,7 +88,11 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
         mu = Rf_qnorm5( mu, meanMu, sqrt(varMu), 1, 0 );
       }else{
         // no interval
-        mu = Rf_rnorm( meanMu, sqrt(varMu) );
+        if(nullModel){
+          mu = 0; 
+        }else{
+          mu = Rf_rnorm( meanMu, sqrt(varMu) );
+        }
       }
       
       // sample sig2

@@ -43,8 +43,8 @@ setMethod('compare', signature(numerator = "BFmcmc", denominator = "missing"),
 )    
 
 #' @rdname posterior-methods
-#' @aliases posterior,BFlinearModel,missing,data.frame,missing-method
-setMethod("posterior", signature(model="BFlinearModel", index="missing", data="data.frame", iterations="missing"),
+#' @aliases posterior,BFmodel,missing,data.frame,missing-method
+setMethod("posterior", signature(model="BFmodel", index="missing", data="data.frame", iterations="missing"),
   function(model, index, data, iterations, ...)
     stop("Iterations must be specified for posterior sampling.")
   )
@@ -129,7 +129,10 @@ setMethod('posterior', signature(model = "BFindepSample", index = "missing", dat
   function(model, index = NULL, data, iterations, ...){
     formula = formula(model@identifier$formula)
     rscale = model@prior$rscale
-    lmBF(formula, data = data, rscaleFixed = rscale / sqrt(2), posterior = TRUE, iterations = iterations, ...)                
+    interval = model@prior$nullInterval
+    nullModel = ( formula[[3]] == 1 )
+    chains = ttestIndepSample.Gibbs(formula, data, nullModel, iterations,rscale, interval,...)
+    new("BFmcmc",chains,model = model, data = data)         
 })
 
 #' @rdname posterior-methods
@@ -149,18 +152,20 @@ setMethod('posterior', signature(model = "BFoneSample", index = "missing", data 
      mu = model@prior$mu
      rscale = model@prior$rscale
      interval = model@prior$nullInterval
-     chains = ttest.Gibbs(y = data$y, iterations = iterations, rscale = rscale,
-                          nullInterval = interval, ...)[["chains"]]
+     nullModel = ( model@identifier$formula == "y ~ 0" )
+     chains = ttestOneSample.Gibbs(y = data$y, nullModel, iterations = iterations, rscale = rscale,
+                          nullInterval = interval, ...)
      new("BFmcmc",chains,model = model, data = data)         
 })
 
 #' @rdname posterior-methods
-#' @aliases posterior,BFoneSample,missing,data.frame,numeric-method
+#' @aliases posterior,BFmetat,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFmetat", index = "missing", data = "data.frame", iterations = "numeric"), 
           function(model, index = NULL, data, iterations, ...){
             rscale = model@prior$rscale
             interval = model@prior$nullInterval
-            chains = meta.t.Metrop(t = data$t, n1 = data$n1, n2 = data$n2, iterations = iterations, 
+            nullModel = ( model@identifier$formula == "d = 0" )
+            chains = meta.t.Metrop(t = data$t, n1 = data$n1, n2 = data$n2, nullModel, iterations = iterations, 
                                    rscale = rscale, nullInterval = interval,  ...)
             new("BFmcmc",chains, model = model, data = data)         
           })
