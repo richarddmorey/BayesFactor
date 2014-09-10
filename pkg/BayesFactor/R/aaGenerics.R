@@ -30,6 +30,7 @@ setGeneric("%termin%", function(x, table) standardGeneric("%termin%"))
 #'  compare,BFindepSample,missing,data.frame-method
 #'  compare,BFlinearModel,missing,data.frame-method
 #'  compare,BFmetat,missing,data.frame-method
+#'  compare,BFproportion,missing,data.frame-method
 #'  compare,BFcontingencyTable,BFcontingencyTable,data.frame-method
 #'  compare,BFcontingencyTable,missing,data.frame-method
 #'  compare,BFmcmc,BFmcmc,ANY-method

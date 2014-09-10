@@ -56,7 +56,8 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
   * [General linear models: mixing continuous and categorical covariates](#glm)
-<!--  * [Contingency Tables (0.9.8+)](#ctables) <--
+  * [Tests of proportions (0.9.9+)](#proptest)
+  * [Contingency Tables (0.9.9+)](#ctables) 
 * Additional tips and tricks (0.9.4+)
   * [Testing restrictions on linear models: generalTestBF()](#generalTestBF)
   * [Saving time: Pre-culling Bayes factor objects](#preculltricks)
@@ -301,6 +302,9 @@ plot(chains)
 Notice that the posterior samples will respect the `nullInterval` argument if given; in order to get unrestricted samples, perform an analysis with no interval restriction and pass it to the `posterior` function.
 
 See `?meta.ttestBF` for more information.
+
+
+
 
 ### ANOVA 
 The `BayesFactor` package has two main functions that allow the comparison of models with factors as predictors (ANOVA): `anovaBF`, which computes several model estimates at once, and `lmBF`, which computes one comparison at a time. We begin by demonstrating a 3x2 fixed-effect ANOVA using the `ToothGrowth` data set. For details about the data set, see `?ToothGrowth`.
@@ -663,8 +667,12 @@ plot(allBFs / max(allBFs))
 ```
 
 
+<a id="proptest"></a>
+### Tests for proportions (0.9.9+)
+
+
 <a id="ctables"></a>
-<!-- ### Contingency tables (0.9.8+) -->
+### Contingency tables (0.9.9+)
 
 
 

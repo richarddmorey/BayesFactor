@@ -11,6 +11,7 @@
 \alias{posterior,BFmetat,missing,data.frame,numeric-method}
 \alias{posterior,BFmodel,missing,data.frame,missing-method}
 \alias{posterior,BFoneSample,missing,data.frame,numeric-method}
+\alias{posterior,BFproportion,missing,data.frame,numeric-method}
 \title{Sample from the posterior distribution of one of several models.}
 \usage{
 posterior(model, index, data, iterations, ...)
@@ -41,6 +42,9 @@ posterior(model, index, data, iterations, ...)
 
 \S4method{posterior}{BFmetat,missing,data.frame,numeric}(model, index = NULL,
   data, iterations, ...)
+
+\S4method{posterior}{BFproportion,missing,data.frame,numeric}(model,
+  index = NULL, data, iterations, ...)
 }
 \arguments{
 \item{model}{or set of models from which to sample}

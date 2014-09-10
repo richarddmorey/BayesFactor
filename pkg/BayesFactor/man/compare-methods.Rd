@@ -11,6 +11,7 @@
 \alias{compare,BFmcmc,missing,ANY-method}
 \alias{compare,BFmetat,missing,data.frame-method}
 \alias{compare,BFoneSample,missing,data.frame-method}
+\alias{compare,BFproportion,missing,data.frame-method}
 \title{Compare two models, with respect to some data}
 \usage{
 compare(numerator, denominator, data, ...)
