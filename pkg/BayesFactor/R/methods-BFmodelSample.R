@@ -171,6 +171,21 @@ setMethod('posterior', signature(model = "BFmetat", index = "missing", data = "d
           })
 
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFproportion,missing,data.frame,numeric-method
+setMethod('posterior', signature(model = "BFproportion", index = "missing", data = "data.frame", iterations = "numeric"), 
+          function(model, index = NULL, data, iterations, ...){
+            rscale = model@prior$rscale
+            p = model@prior$p0
+            interval = model@prior$nullInterval
+            nullModel = ( model@identifier$formula == "p = p0" )
+
+            chains = proportion.Metrop(y = data$y, N = data$N, nullModel, iterations = iterations,
+                                      nullInterval = interval, p = p, rscale = rscale, ...)
+            new("BFmcmc",chains, model = model, data = data)         
+          })
+
+
 ###########
 ## S3
 ###########

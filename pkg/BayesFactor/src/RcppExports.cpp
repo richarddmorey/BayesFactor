@@ -32,19 +32,26 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// meta_t_like_Rcpp
-double meta_t_like_Rcpp(double delta, NumericVector t, NumericVector n, NumericVector df, double rscale);
-RcppExport SEXP BayesFactor_meta_t_like_Rcpp(SEXP deltaSEXP, SEXP tSEXP, SEXP nSEXP, SEXP dfSEXP, SEXP rscaleSEXP) {
+// metropProportionRcpp
+NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
+RcppExport SEXP BayesFactor_metropProportionRcpp(SEXP ySEXP, SEXP nSEXP, SEXP pSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< double >::type delta(deltaSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP );
         Rcpp::traits::input_parameter< NumericVector >::type n(nSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type df(dfSEXP );
+        Rcpp::traits::input_parameter< double >::type p(pSEXP );
         Rcpp::traits::input_parameter< double >::type rscale(rscaleSEXP );
-        double __result = meta_t_like_Rcpp(delta, t, n, df, rscale);
+        Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< bool >::type doInterval(doIntervalSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type interval(intervalSEXP );
+        Rcpp::traits::input_parameter< bool >::type intervalCompl(intervalComplSEXP );
+        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
+        Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
+        NumericMatrix __result = metropProportionRcpp(y, n, p, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

@@ -1,6 +1,7 @@
   CHANGES IN BayesFactor VERSION 0.9.9
 
 CHANGES
+  *  Added test for single proportion; see proportionBF()
   *  Refactored t test and meta-t test code
   *  Moved many backend functions to Rcpp from R C API
   *  t test samplers now sample from interval null hypotheses and point null hypotheses where appropriate
