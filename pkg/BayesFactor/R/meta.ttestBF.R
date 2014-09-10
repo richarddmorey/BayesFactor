@@ -77,7 +77,12 @@ meta.ttestBF <- function(t, n1, n2 = NULL, nullInterval = NULL, rscale="medium",
   hypNames = makeMetaTtestHypothesisNames(rscale, nullInterval)
   data = data.frame(t=t,n1=n1)
   if(!is.null(n2)) data$n2 = n2
-  if(!is.null(nullInterval)) nullInterval = range(nullInterval)
+  if(!is.null(nullInterval)){
+    nullInterval = range(nullInterval)
+    if(identical(nullInterval,c(-Inf,Inf))){
+      nullInterval = NULL
+    }
+  }
   
   mod1 = BFmetat(type = "JZS", 
                         identifier = list(formula = "delta =/= 0", nullInterval = nullInterval), 

@@ -53,7 +53,11 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   interval = unique(sort(interval))
   
   if(interval[1]==-Inf & interval[2]==Inf){
-    return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
+    if(complement){
+     return(list(bf=NA,properror=NA)) 
+    }else{
+      return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
+    }
   }
   
   if(any(is.infinite(interval))){
