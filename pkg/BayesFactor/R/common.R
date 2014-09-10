@@ -123,6 +123,16 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
     return(NULL)
   }
   
+  if(modelType=="proptest"){
+    return(
+      switch(priorType, 
+             ultrawide=3/2,
+             wide=1, 
+             medium=1/2, 
+             stop("Unknown prior type."))  
+    )
+  }
+  
   if(modelType=="allNways"){
     return(
       switch(effectType,

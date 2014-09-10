@@ -4,7 +4,7 @@ makeMetaTtestHypothesisNames = function(rscale, nullInterval=NULL){
     longName = paste("Alternative, r = ",rscale,", delta =/= 0", sep="")
   }else{
     if(!is.null(attr(nullInterval,"complement"))){
-      shortName = paste("Alt., r=",round(rscale,3)," (",nullInterval[1],"<d<",nullInterval[2],")",sep="")
+      shortName = paste("Alt., r=",round(rscale,3)," !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
       longName = paste("Alternative, r = ",rscale,", delta =/= 0 !(",nullInterval[1],"<d<",nullInterval[2],")",sep="")
     }else{
       shortName = paste("Alt., r=",round(rscale,3)," ",nullInterval[1],"<d<",nullInterval[2],sep="")
@@ -50,7 +50,7 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
     return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
   }
   
-  interval = unique(sort(interval))
+  interval = range(interval)
   
   if(interval[1]==-Inf & interval[2]==Inf){
     if(complement){
@@ -101,7 +101,7 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
 }
 
 
-meta.bf.interval <- function(lower,upper,t,N,df,rscale=1){
+meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   nullLike = sum(dt(t,df,log=TRUE))
   logPriorProbs = pcauchy(c(upper,lower),scale=rscale,log.p=TRUE)
   prior.interval = logExpAminusExpB(logPriorProbs[1], logPriorProbs[2])
@@ -167,7 +167,7 @@ meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInter
     chains = metropMetaTRcpp(t, n1, n2, twoSample, rscale, iterations, 
                            doInterval, nullInterval, intervalCompl, nullModel, 
                            progress, callback, callbackInterval)
-    if(!nullModel){
+    if(!nullModel & !noSample){
       acc.rate = mean(diff(chains) != 0)
       message("Independent-candidate M-H acceptance rate: ",round(100*acc.rate),"%")
     }

@@ -9,6 +9,16 @@ BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName){
       version = BFInfo(FALSE))
 }
 
+BFproportion <- function(type, identifier, prior, shortName, longName){
+  new("BFproportion", type = type,
+      identifier = identifier,
+      prior = prior,
+      shortName = shortName,
+      longName = longName,
+      version = BFInfo(FALSE))
+}
+
+
 BFcontingencyTable <- function(type, identifier, prior, shortName, longName){
   new("BFcontingencyTable", type = type,
       identifier = identifier,
@@ -68,7 +78,7 @@ setMethod('show', signature = c("BFlinearModel"),
   }
 )
 
-setMethod('show', signature = c("BFmetat"),
+setMethod('show', signature = c("BFmodel"),
           function(object){
             cat("---\n Model:\n")
             cat("Type: ",class(object)[1],", ",object@type,"\n",sep="")
@@ -257,6 +267,50 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
             stop("Unknown prior type: ", numerator@type)
           }
 })
+
+setMethod('compare', signature(numerator = "BFproportion", denominator = "missing", data = "data.frame"), 
+          function(numerator, data, ...){
+            
+            nullInterval=numerator@prior$nullInterval
+            
+            if( (numerator@type=="logistic") ){
+              if( numerator@identifier$formula=="p = p0" ){
+                numBF = 0
+                errorEst = 0
+              }else{
+                complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
+                bf = prop.test.bf(y=data$y, N=data$N, p=numerator@prior$p0, 
+                                  rscale=numerator@prior$rscale, nullInterval, 
+                                  complement = complement)  
+                numBF = bf[['bf']]
+                errorEst = bf[['properror']]
+              }
+              numList = list(numerator)
+              nms = numerator@shortName
+              
+              modDenominator = BFproportion(type = "logistic", 
+                                       identifier = list(formula = "p = p0",p0=numerator@prior$p0), 
+                                       prior=list(p0=numerator@prior$p0),
+                                       shortName = paste("Null, p=",round(numerator@prior$p0,3),sep=""),
+                                       longName = paste("Null, p = ", numerator@prior$p0, sep=""))
+              
+              bf_df = data.frame(bf = numBF,
+                                 error = errorEst,
+                                 time = date(),
+                                 code = randomString(length(numBF)))
+              
+              rownames(bf_df) <- nms
+              
+              newBF = BFBayesFactor(numerator = numList,
+                                    denominator = modDenominator,
+                                    data = data,
+                                    bayesFactor = bf_df)
+              return(newBF)
+            }else{
+              stop("Unknown prior type: ", numerator@type)
+            }
+          })
+
 
 
 setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "missing", data = "data.frame"), 

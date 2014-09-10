@@ -34,6 +34,10 @@ setClass("BFmodel", representation(
 
 #' @name BFcontingencyTable-class
 #' @rdname model-classes
+setClass("BFproportion", contains = "BFmodel")
+
+#' @name BFcontingencyTable-class
+#' @rdname model-classes
 setClass("BFcontingencyTable", contains = "BFmodel")
 
 #' @name BFlinearModel-class

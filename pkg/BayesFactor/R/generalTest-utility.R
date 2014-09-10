@@ -4,7 +4,16 @@ requiredFor = Vectorize(function(t1,t2){
   return(all(t1 %in% t2))
 },c("t1","t2"))
 
-
+##' Generate lists of nested models, given a model formula
+##' 
+##' This is a backend function not intended for users. It is exposed for third-party
+##' applications.
+##' @title Function for generation of nested linear models
+##' @param fmla formula for the "full" model
+##' @param whichModels which subsets of models to generate 
+##' @param neverExclude a character vector of terms to never remove 
+##' @param includeBottom Include the base model containing only \code{neverExclude} terms
+##' @keywords internal
 enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBottom=TRUE){
   trms <- attr(terms(fmla), "term.labels")
   

@@ -15,6 +15,7 @@ export(logMeanExpLogs,
     as.BFBayesFactor,
     generalTestBF,
     meta.ttestBF,
+    proportionBF,
     enumerateGeneralModels)
 
 import(mvtnorm, pbapply, stringr, coda, RcppProgress)
