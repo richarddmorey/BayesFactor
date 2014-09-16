@@ -167,8 +167,8 @@ setMethod("[", signature(x = "BFBayesFactor", i = "index", j = "missing",
 #' @aliases extractBF,BFBayesFactor-method
 setMethod("extractBF", "BFBayesFactor", function(x, logbf = FALSE, onlybf = FALSE){
   x = x@bayesFactor
-  if(onlybf) x = x$bf
   if(!logbf) x$bf = exp(x$bf)
+  if(onlybf) x = x$bf
   return(x)
 })
 
