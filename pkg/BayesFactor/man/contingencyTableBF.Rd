@@ -2,19 +2,24 @@
 \alias{contingencyTableBF}
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
-contingencyTableBF(x, sampleType, priorConcentration = 1, posterior = FALSE,
-  ...)
+contingencyTableBF(x, sampleType, fixedMargin = NULL,
+  priorConcentration = 1, posterior = FALSE, callback = function(...)
+  as.integer(0), ...)
 }
 \arguments{
   \item{x}{an m by n matrix of counts (integers m,n > 1)}
+
+\item{sampleType}{the sampling plan (see details)}
+
+\item{fixedMargin}{for the independent multinomial sampling plan, which margin is fixed ("rows" or "cols")}
 
   \item{sampleType}{the sampling plan (see details)}
 
   \item{priorConcentration}{prior concentration parameter
   (see details)}
 
-  \item{posterior}{if \code{TRUE}, return samples from the
-  posterior instead of Bayes factor}
+\item{callback}{callback function for third-party interfaces}
+  
 
   \item{...}{further arguments to be passed to or from
   methods.}
