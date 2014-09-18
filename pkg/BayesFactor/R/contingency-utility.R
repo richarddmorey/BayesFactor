@@ -155,7 +155,7 @@ contingencyHypergeometric<-function (y, a) {
 ## Sampling
 ###########################
 
-sampleContingency <- function(model, type, prior, data = data, iterations = iterations, ...)                  
+sampleContingency <- function(model, type, fixedMargin, prior, data = data, iterations = iterations, ...)                  
 {
   stop("Sampling for contingency tables not yet implemented.")
 }
