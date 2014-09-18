@@ -319,27 +319,28 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
             type = numerator@type
             a = numerator@prior$a
             marg = numerator@prior$fixedMargin
+            data2 = as.matrix(data)
             if( !is.null(marg) )
               if( ( marg == "cols" ) & ( type == "independent multinomial" ) ) 
-                data = t(as.matrix(data)) 
+                data2 = t(data2)
               
             if(any(data%%1 != 0)) stop("All elements of x must be integers.")
             if(any(dim(data)<2) | (length(dim(data)) != 2)) stop("x must be m by n.")
             
             lbf = switch(type,
-                         "poisson" = contingencyPoisson(as.matrix(data), a),
-                         "joint multinomial" = contingencyJointMultinomial(as.matrix(data), a),
-                         "independent multinomial" = contingencyIndepMultinomial(as.matrix(data), a),
-                         "hypergeometric" =  contingencyHypergeometric(as.matrix(data), a),
+                         "poisson" = contingencyPoisson(as.matrix(data2), a),
+                         "joint multinomial" = contingencyJointMultinomial(as.matrix(data2), a),
+                         "independent multinomial" = contingencyIndepMultinomial(as.matrix(data2), a),
+                         "hypergeometric" =  contingencyHypergeometric(as.matrix(data2), a),
                          stop("Unknown value of sampleType (see help for contingencyBF).")
             )
             error = 0
             
             denominator = BFcontingencyTable(type = type, 
                                              identifier = list(formula = "independence"), 
-                                             prior=list(),
-                                             shortName = "Indep.",
-                                             longName = "Null, independence")
+                                             prior=numerator@prior,
+                                             shortName = paste0("Indep. (a=",a,")"),
+                                             longName = paste0("Null, independence, a = ", a))
             
             bf_df = data.frame(bf = lbf,
                                error = error,

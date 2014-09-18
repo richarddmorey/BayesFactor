@@ -143,7 +143,8 @@ setMethod('posterior', signature(model = "BFcontingencyTable", index = "missing"
             type = model@type
             prior = model@prior$a
             marg = model@prior$fixedMargin
-            sampleContingency(mod, type, marg, prior, data = data, iterations = iterations, ...)                
+            chains = sampleContingency(mod, type, marg, prior, data = data, iterations = iterations, ...)                
+            new("BFmcmc",chains,model = model, data = data)
           })
 
 #' @rdname posterior-methods

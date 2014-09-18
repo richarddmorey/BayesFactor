@@ -173,7 +173,7 @@ sampleContingency <- function(model, type, fixedMargin, prior, data, iterations,
     if(model == "non-independence"){
       chains = sampleIndepMultiContingencyAlt(fixedMargin, prior, data, iterations, ...)
     }else if(model == "independence"){
-      chains = sampleIndepMultiContingencyNull(fixedMargin, data, iterations, ...)
+      chains = sampleIndepMultiContingencyNull(fixedMargin, prior, data, iterations, ...)
     }
   }else if(type == "hypergeometric"){
     if(model == "non-independence"){
@@ -186,26 +186,29 @@ sampleContingency <- function(model, type, fixedMargin, prior, data, iterations,
   }
 }
 
-samplePoissonContingencyNull <- function(prior, data, iterations,  progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1, ...)
-{
-  # Convert matrix to integers
-  dm = dim(data)
-  data = as.integer(as.matrix(data))
-  dim(data) = dm
-  
+samplePoissonContingencyNull <- function(prior, data, iterations, noSample=FALSE, ...)
+{  
   a = prior
   b = length(data) * a / sum(data)
-  
-  iterations = as.integer(iterations)
-  
-  progress = as.logical(progress)
-  if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
-  
+  I = nrow(data)
+  J = ncol(data)
+
   if(noSample){
-    gibbsContTabPoissonNull(data, a, b, iterations, progress, callback, callbackInterval)     
+    samples = data.frame(matrix(NA, 1, I*J + 1 + I + J))
   }else{
-  
+    lambda = rgamma(iterations, sum(data) + I*J*(a - 1) + I + J - 1, b + 1)
+    pi_i = rdirichlet(iterations, rowSums(data) + a - J + 1)
+    pi_j = rdirichlet(iterations, colSums(data) + a - I + 1)
+    lambda_ij = t(sapply( 1:iterations, function(i) as.vector( lambda[i] * outer( pi_i[i,], pi_j[i,] ) ) ) )
+    samples = data.frame( lambda_ij, lambda, pi_i, pi_j )
   }
+  
+  cn1 = paste0("lambda[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  cn2 = paste0("pi[",1:nrow(data),",*]")
+  cn3 = paste0("pi[*,",1:ncol(data),"]")
+  colnames(samples) = c(cn1,"lambda..",cn2,cn3)
+  
+  return(mcmc(samples))
 }
 
 samplePoissonContingencyAlt <- function(prior, data, iterations, noSample=FALSE, ...)
@@ -235,36 +238,147 @@ samplePoissonContingencyAlt <- function(prior, data, iterations, noSample=FALSE,
 }
 
 
-sampleJointMultiContingencyNull <- function(prior, data, iterations, ...)
+sampleJointMultiContingencyNull <- function(prior, data, iterations, noSample = FALSE, ...)
+{
+  a = prior
+  I = nrow(data)
+  J = ncol(data)
+  
+  if(noSample){
+    samples = data.frame(matrix(NA, 1, I*J + I + J))
+  }else{
+    pi_i = rdirichlet(iterations, rowSums(data) + a - J + 1)
+    pi_j = rdirichlet(iterations, colSums(data) + a - I + 1)
+    pi_ij = t(sapply( 1:iterations, function(i) as.vector( outer( pi_i[i,], pi_j[i,] ) ) ) )
+    samples = data.frame( pi_ij, pi_i, pi_j )
+  }
+  
+  cn1 = paste0("pi[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  cn2 = paste0("pi[",1:nrow(data),",*]")
+  cn3 = paste0("pi[*,",1:ncol(data),"]")
+  colnames(samples) = c(cn1,cn2,cn3)
+  
+  return(mcmc(samples))
+}
+
+
+sampleJointMultiContingencyAlt <- function(prior, data, iterations, noSample = FALSE, ...)
+{
+  a = prior
+  I = nrow(data)
+  J = ncol(data)
+  
+  if(noSample){
+    samples = data.frame(matrix(NA, 1, I*J))
+  }else{
+    pi_ij = rdirichlet( iterations, as.matrix(data) + a )
+    samples = data.frame( pi_ij )
+  }
+  
+  cn = paste0("pi[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  colnames(samples) = cn
+  
+  return(mcmc(samples))
+  
+}
+
+
+sampleIndepMultiContingencyNull <- function(fixedMargin, prior, data, iterations, noSample = FALSE, ...)
+{
+  a = prior
+  I = nrow(data)
+  J = ncol(data)
+  
+  if(noSample){
+    if(fixedMargin == "rows"){
+      samples = data.frame(matrix(NA, 1, I*J + I + J))
+    }else{
+      samples = data.frame(matrix(NA, 1, I*J + J + J))
+    }
+  }else{
+    if(fixedMargin == "rows"){
+      pi_star = rdirichlet( iterations, rowSums(data) + J*a )
+      omega = rdirichlet( iterations, colSums(data) + a )
+      pi_ij = t(sapply(1:iterations, 
+                       function(i){
+                         as.vector(outer( pi_star[i,], omega[i,] ))
+                       }))
+    }else{
+      pi_star = rdirichlet( iterations, colSums(data) + I*a )
+      omega = rdirichlet( iterations, rowSums(data) + a )
+      pi_ij = t(sapply(1:iterations, 
+                       function(i){
+                         as.vector(outer( omega[i,], pi_star[i,] ))
+                       }))      
+    }
+    samples = data.frame( pi_ij, pi_star, omega )
+  }
+  
+  cn1 = paste0("pi[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  if(fixedMargin == "rows"){
+    cn2 = paste0("pi[",1:nrow(data),",*]")
+    cn3 = paste0("omega[*,",1:ncol(data),"]")
+  }else{
+    cn2 = paste0("pi[*,",1:ncol(data),"]") 
+    cn3 = paste0("omega[",1:nrow(data),",*]")
+  }
+  colnames(samples) = c(cn1,cn2,cn3)
+  
+  return(mcmc(samples))
+}
+
+
+sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations, noSample = FALSE, ...)
+{
+  a = prior
+  I = nrow(data)
+  J = ncol(data)
+  
+  if(noSample){
+    if(fixedMargin == "rows"){
+      samples = data.frame(matrix(NA, 1, I*J + I + I*J))
+    }else{
+      samples = data.frame(matrix(NA, 1, I*J + J + I*J))
+    }
+  }else{
+    if(fixedMargin == "rows"){
+      pi_star = rdirichlet( iterations, rowSums(data) + J*a )
+      omega = t(replicate(iterations, as.vector(t(apply(data, 1, function( v ) rdirichlet( 1, v + a ))))))
+      pi_ij = t(sapply(1:iterations, 
+                       function(i){
+                         as.vector(rep(pi_star[i,], J) * omega[i,])
+                       }))
+    }else{
+      pi_star = rdirichlet( iterations, colSums(data) + I*a )
+      omega = t(replicate(iterations, as.vector(apply(data, 2, function( v ) rdirichlet( 1, v + a )))))
+      pi_ij = t(sapply(1:iterations, 
+                       function(i){
+                         as.vector(rep(pi_star[i,], each = I ) * omega[i,])
+                       }))      
+    }
+    samples = data.frame( pi_ij, pi_star, omega )
+  }
+  
+  cn1 = paste0("pi[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  if(fixedMargin == "rows"){
+    cn2 = paste0("pi[",1:nrow(data),",*]") 
+  }else{
+    cn2 = paste0("pi[*,",1:ncol(data),"]") 
+  }
+  cn3 = paste0("omega[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  colnames(samples) = c(cn1,cn2,cn3)
+  
+  return(mcmc(samples))
+  
+}
+
+sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = FALSE, ...)
 {
   stop("Sampling for this model not yet implemented.")
 }
 
 
-sampleJointMultiContingencyAlt <- function(prior, data, iterations, ...)
-{
-  stop("Sampling for this model not yet implemented.")
-}
-
-
-sampleIndepMultiContingencyNull <- function(fixedMargin, prior, data, iterations, ...)
-{
-  stop("Sampling for this model not yet implemented.")
-}
-
-
-sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations, ...)
-{
-  stop("Sampling for this model not yet implemented.")
-}
-
-sampleHypergeomContingencyNull <- function(prior, data, iterations, ...)
-{
-  stop("Sampling for this model not yet implemented.")
-}
-
-
-sampleHypergeomContingencyAlt <- function(prior, data, iterations, ...)
+sampleHypergeomContingencyAlt <- function(prior, data, iterations, noSample = FALSE, ...)
 {
   stop("Sampling for this model not yet implemented.")
 }
