@@ -10,6 +10,7 @@
 ##' @param priorConcentration prior concentration parameter (see details)
 ##' @param posterior if \code{TRUE}, return samples from the posterior instead 
 ##'   of Bayes factor
+##' @param callback callback function for third-party interfaces 
 ##' @param ... further arguments to be passed to or from methods.
 ##' @return If \code{posterior} is \code{FALSE}, an object of class 
 ##'   \code{BFBayesFactor} containing the computed model comparisons is 
@@ -34,7 +35,7 @@
 ##' contingencyTableBF(data, "poisson")
 ##' }
 
-contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentration = 1, posterior = FALSE, ...)
+contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentration = 1, posterior = FALSE,  callback = function(...) as.integer(0), ...)
 {
   
   x.mat = as.matrix(as.integer(x))
@@ -74,7 +75,7 @@ contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentra
     )
 
     if(posterior){
-      chains = posterior(numerator, data = x, ...)
+      chains = posterior(numerator, data = x, callback = callback, ...)
       return(chains)
     }else{
       bf = compare(numerator = numerator, data = x)
