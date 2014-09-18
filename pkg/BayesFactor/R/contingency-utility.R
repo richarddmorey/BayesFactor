@@ -155,9 +155,118 @@ contingencyHypergeometric<-function (y, a) {
 ## Sampling
 ###########################
 
-sampleContingency <- function(model, type, fixedMargin, prior, data = data, iterations = iterations, ...)                  
+sampleContingency <- function(model, type, fixedMargin, prior, data, iterations, ...)                  
 {
-  stop("Sampling for contingency tables not yet implemented.")
+  if(type == "poisson"){
+    if(model == "non-independence"){
+      chains = samplePoissonContingencyAlt(prior, data, iterations, ...)
+    }else if(model == "independence"){
+      chains = samplePoissonContingencyNull(prior, data, iterations, ...)
+    }
+  }else if(type == "joint multinomial"){
+    if(model == "non-independence"){
+      chains = sampleJointMultiContingencyAlt(prior, data, iterations, ...)
+    }else if(model == "independence"){
+      chains = sampleJointMultiContingencyNull(prior, data, iterations, ...)
+    }
+  }else if(type == "independent multinomial"){
+    if(model == "non-independence"){
+      chains = sampleIndepMultiContingencyAlt(fixedMargin, prior, data, iterations, ...)
+    }else if(model == "independence"){
+      chains = sampleIndepMultiContingencyNull(fixedMargin, data, iterations, ...)
+    }
+  }else if(type == "hypergeometric"){
+    if(model == "non-independence"){
+      chains = sampleHypergeomContingencyAlt(prior, data, iterations, ...)
+    }else if(model == "independence"){
+      chains = sampleHypergeomContingencyNull(prior, data, iterations, ...)
+    }
+  }else{
+    stop("Unknown model type.")
+  }
+}
+
+samplePoissonContingencyNull <- function(prior, data, iterations,  progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1, ...)
+{
+  # Convert matrix to integers
+  dm = dim(data)
+  data = as.integer(as.matrix(data))
+  dim(data) = dm
+  
+  a = prior
+  b = length(data) * a / sum(data)
+  
+  iterations = as.integer(iterations)
+  
+  progress = as.logical(progress)
+  if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
+  
+  if(noSample){
+    gibbsContTabPoissonNull(data, a, b, iterations, progress, callback, callbackInterval)     
+  }else{
+  
+  }
+}
+
+samplePoissonContingencyAlt <- function(prior, data, iterations, noSample=FALSE, ...)
+{
+  
+  data = as.matrix(data)
+  a = prior
+  IJ = length(data)
+  b = IJ * a / sum(data)
+
+  a.post = data + a
+  b.post = data*0 + b + 1
+  
+  if(noSample){
+    samples = data.frame(matrix(NA, 1, IJ))
+  }else{
+    samples = rgamma(iterations * IJ, a.post, rate = b.post)
+    dim(samples) = c(IJ, iterations)
+    samples = data.frame(t(samples))
+  }
+  
+  cn = paste0("lambda[",outer(1:nrow(data), 1:ncol(data),paste,sep=","),"]")
+  colnames(samples) = cn
+  
+  return(mcmc(samples))
+
+}
+
+
+sampleJointMultiContingencyNull <- function(prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
+}
+
+
+sampleJointMultiContingencyAlt <- function(prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
+}
+
+
+sampleIndepMultiContingencyNull <- function(fixedMargin, prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
+}
+
+
+sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
+}
+
+sampleHypergeomContingencyNull <- function(prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
+}
+
+
+sampleHypergeomContingencyAlt <- function(prior, data, iterations, ...)
+{
+  stop("Sampling for this model not yet implemented.")
 }
 
 

@@ -319,8 +319,9 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
             type = numerator@type
             a = numerator@prior$a
             marg = numerator@prior$fixedMargin
-            if( ( marg == "cols" ) & ( type == "independent multinomial" ) ) 
-              data = t(as.matrix(data)) 
+            if( !is.null(marg) )
+              if( ( marg == "cols" ) & ( type == "independent multinomial" ) ) 
+                data = t(as.matrix(data)) 
               
             if(any(data%%1 != 0)) stop("All elements of x must be integers.")
             if(any(dim(data)<2) | (length(dim(data)) != 2)) stop("x must be m by n.")

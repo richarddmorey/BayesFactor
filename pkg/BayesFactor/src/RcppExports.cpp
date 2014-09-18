@@ -32,6 +32,27 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// gibbsContTabPoissonNull
+NumericMatrix gibbsContTabPoissonNull(IntegerMatrix y, double a, double b, int iterations, int progress, Function callback, double callbackInterval);
+RcppExport SEXP BayesFactor_gibbsContTabPoissonNull(SEXP ySEXP, SEXP aSEXP, SEXP bSEXP, SEXP iterationsSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< IntegerMatrix >::type y(ySEXP );
+        Rcpp::traits::input_parameter< double >::type a(aSEXP );
+        Rcpp::traits::input_parameter< double >::type b(bSEXP );
+        Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
+        NumericMatrix __result = gibbsContTabPoissonNull(y, a, b, iterations, progress, callback, callbackInterval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // metropProportionRcpp
 NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
 RcppExport SEXP BayesFactor_metropProportionRcpp(SEXP ySEXP, SEXP nSEXP, SEXP pSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {

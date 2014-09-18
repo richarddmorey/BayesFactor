@@ -5,6 +5,10 @@ metropMetaTRcpp <- function(t, n1, n2, twoSample, rscale, iterations, doInterval
     .Call('BayesFactor_metropMetaTRcpp', PACKAGE = 'BayesFactor', t, n1, n2, twoSample, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
+gibbsContTabPoissonNull <- function(y, a, b, iterations, progress, callback, callbackInterval) {
+    .Call('BayesFactor_gibbsContTabPoissonNull', PACKAGE = 'BayesFactor', y, a, b, iterations, progress, callback, callbackInterval)
+}
+
 metropProportionRcpp <- function(y, n, p, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
     .Call('BayesFactor_metropProportionRcpp', PACKAGE = 'BayesFactor', y, n, p, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
