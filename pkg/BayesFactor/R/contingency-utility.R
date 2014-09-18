@@ -153,6 +153,7 @@ contingencyHypergeometric<-function (y, a) {
 
 ###########################
 ## Sampling
+## All code below by Richard Morey
 ###########################
 
 sampleContingency <- function(model, type, fixedMargin, prior, data, iterations, ...)                  
