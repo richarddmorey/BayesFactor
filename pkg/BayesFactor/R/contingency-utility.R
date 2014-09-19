@@ -390,7 +390,16 @@ sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = F
 
 sampleHypergeomContingencyAlt <- function(prior, data, iterations, noSample = FALSE, ...)
 {
-  stop("Sampling for this model not yet implemented.")
+  if(noSample){
+    samples = data.frame(matrix(as.numeric(NA), 1))
+  }else{
+    stop("Sampling for this model not yet implemented.")
+  }
+  
+  colnames(samples) = c("log.odds.ratio")
+  
+  return(mcmc(samples))
+  
 }
 
 
