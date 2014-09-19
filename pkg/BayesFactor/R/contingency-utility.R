@@ -195,7 +195,7 @@ samplePoissonContingencyNull <- function(prior, data, iterations, noSample=FALSE
   J = ncol(data)
 
   if(noSample){
-    samples = data.frame(matrix(NA, 1, I*J + 1 + I + J))
+    samples = data.frame(matrix(as.numeric(NA), 1, I*J + 1 + I + J))
   }else{
     lambda = rgamma(iterations, sum(data) + I*J*(a - 1) + I + J - 1, b + 1)
     pi_i = rdirichlet(iterations, rowSums(data) + a - J + 1)
@@ -224,7 +224,7 @@ samplePoissonContingencyAlt <- function(prior, data, iterations, noSample=FALSE,
   b.post = data*0 + b + 1
   
   if(noSample){
-    samples = data.frame(matrix(NA, 1, IJ))
+    samples = data.frame(matrix(as.numeric(NA), 1, IJ))
   }else{
     samples = rgamma(iterations * IJ, a.post, rate = b.post)
     dim(samples) = c(IJ, iterations)
@@ -246,7 +246,7 @@ sampleJointMultiContingencyNull <- function(prior, data, iterations, noSample = 
   J = ncol(data)
   
   if(noSample){
-    samples = data.frame(matrix(NA, 1, I*J + I + J))
+    samples = data.frame(matrix(as.numeric(NA), 1, I*J + I + J))
   }else{
     pi_i = rdirichlet(iterations, rowSums(data) + a - J + 1)
     pi_j = rdirichlet(iterations, colSums(data) + a - I + 1)
@@ -270,7 +270,7 @@ sampleJointMultiContingencyAlt <- function(prior, data, iterations, noSample = F
   J = ncol(data)
   
   if(noSample){
-    samples = data.frame(matrix(NA, 1, I*J))
+    samples = data.frame(matrix(as.numeric(NA), 1, I*J))
   }else{
     pi_ij = rdirichlet( iterations, as.matrix(data) + a )
     samples = data.frame( pi_ij )
@@ -292,9 +292,9 @@ sampleIndepMultiContingencyNull <- function(fixedMargin, prior, data, iterations
   
   if(noSample){
     if(fixedMargin == "rows"){
-      samples = data.frame(matrix(NA, 1, I*J + I + J))
+      samples = data.frame(matrix(as.numeric(NA), 1, I*J + I + J))
     }else{
-      samples = data.frame(matrix(NA, 1, I*J + J + J))
+      samples = data.frame(matrix(as.numeric(NA), 1, I*J + J + J))
     }
   }else{
     if(fixedMargin == "rows"){
@@ -337,9 +337,9 @@ sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations,
   
   if(noSample){
     if(fixedMargin == "rows"){
-      samples = data.frame(matrix(NA, 1, I*J + I + I*J))
+      samples = data.frame(matrix(as.numeric(NA), 1, I*J + I + I*J))
     }else{
-      samples = data.frame(matrix(NA, 1, I*J + J + I*J))
+      samples = data.frame(matrix(as.numeric(NA), 1, I*J + J + I*J))
     }
   }else{
     if(fixedMargin == "rows"){
@@ -375,7 +375,18 @@ sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations,
 
 sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = FALSE, ...)
 {
-  stop("Sampling for this model not yet implemented.")
+  
+  warning("The hypergeometric model has no parameters under the null hypothesis.")
+  
+  if(noSample){
+    samples = data.frame(matrix(as.numeric(NA), 1))
+  }else{
+    samples = data.frame(matrix(as.numeric(NA), iterations, 1))
+  }
+  
+  colnames(samples) = c("NA")
+  
+  return(mcmc(samples))
 }
 
 
