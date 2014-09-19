@@ -375,16 +375,14 @@ sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations,
 
 sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = FALSE, ...)
 {
-  
-  warning("The hypergeometric model has no parameters under the null hypothesis.")
-  
+    
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1))
   }else{
-    samples = data.frame(matrix(as.numeric(NA), iterations, 1))
+    samples = data.frame(matrix(0, iterations, 1))
   }
   
-  colnames(samples) = c("NA")
+  colnames(samples) = c("log.odds.ratio")
   
   return(mcmc(samples))
 }
