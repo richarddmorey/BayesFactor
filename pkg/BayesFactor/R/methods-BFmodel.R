@@ -327,14 +327,19 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
             if(any(data%%1 != 0)) stop("All elements of x must be integers.")
             if(any(dim(data)<2) | (length(dim(data)) != 2)) stop("x must be m by n.")
             
-            lbf = switch(type,
+            if(numerator@identifier$formula == "independence"){
+              lbf = 0
+              error = 0
+            }else{
+              lbf = switch(type,
                          "poisson" = contingencyPoisson(as.matrix(data2), a),
                          "joint multinomial" = contingencyJointMultinomial(as.matrix(data2), a),
                          "independent multinomial" = contingencyIndepMultinomial(as.matrix(data2), a),
                          "hypergeometric" =  contingencyHypergeometric(as.matrix(data2), a),
                          stop("Unknown value of sampleType (see help for contingencyBF).")
-            )
-            error = 0
+              )
+              error = 0
+            }
             
             denominator = BFcontingencyTable(type = type, 
                                              identifier = list(formula = "independence"), 
