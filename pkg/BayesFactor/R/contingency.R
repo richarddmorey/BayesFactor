@@ -6,9 +6,11 @@
 ##' @title Function for Bayesian analysis of one- and two-sample designs
 ##' @param x an m by n matrix of counts (integers m,n > 1)
 ##' @param sampleType the sampling plan (see details)
+##' @param fixedMargin for the independent multinomial sampling plan, which margin is fixed ("rows" or "cols")
 ##' @param priorConcentration prior concentration parameter (see details)
 ##' @param posterior if \code{TRUE}, return samples from the posterior instead 
 ##'   of Bayes factor
+##' @param callback callback function for third-party interfaces 
 ##' @param ... further arguments to be passed to or from methods.
 ##' @return If \code{posterior} is \code{FALSE}, an object of class 
 ##'   \code{BFBayesFactor} containing the computed model comparisons is 
@@ -33,12 +35,20 @@
 ##' contingencyTableBF(data, "poisson")
 ##' }
 
-contingencyTableBF <- function(x, sampleType, priorConcentration = 1, posterior = FALSE, ...)
+contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentration = 1, posterior = FALSE,  callback = function(...) as.integer(0), ...)
 {
   
   x.mat = as.matrix(as.integer(x))
   dim(x.mat) = dim(x)
   x = as.data.frame(x.mat)
+  
+  if( sampleType == "indepMulti" )
+    if( is.null(fixedMargin) ){
+      stop("Argument fixedMargin ('rows' or 'cols') required with independent multinomial sampling plan.")
+    }else if( !(fixedMargin %in% c("rows","cols")) ){
+      stop("Argument fixedMargin must be either 'rows' or 'cols'.")
+    }
+
   
   numerator = switch(sampleType,
          poisson = BFcontingencyTable(type = "poisson", 
@@ -52,8 +62,8 @@ contingencyTableBF <- function(x, sampleType, priorConcentration = 1, posterior 
                                          shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                          longName = paste0("Alternative, non-independence, a = ", priorConcentration)),
          indepMulti = BFcontingencyTable(type = "independent multinomial", 
-                                         identifier = list(formula = "non-independence"), 
-                                         prior=list(a=priorConcentration),
+                                         identifier = list(formula = "non-independence", fixedMargin = fixedMargin), 
+                                         prior=list(a=priorConcentration, fixedMargin = fixedMargin),
                                          shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                          longName = paste0("Alternative, non-independence, a = ", priorConcentration)),
          hypergeom = BFcontingencyTable(type = "hypergeometric", 
@@ -65,7 +75,7 @@ contingencyTableBF <- function(x, sampleType, priorConcentration = 1, posterior 
     )
 
     if(posterior){
-      chains = posterior(numerator, data = x, ...)
+      chains = posterior(numerator, data = x, callback = callback, ...)
       return(chains)
     }else{
       bf = compare(numerator = numerator, data = x)

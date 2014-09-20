@@ -16,6 +16,7 @@ export(logMeanExpLogs,
     generalTestBF,
     meta.ttestBF,
     proportionBF,
+    contingencyTableBF,
     enumerateGeneralModels)
 
 import(mvtnorm, pbapply, stringr, coda, RcppProgress)
@@ -25,6 +26,7 @@ importFrom(utils, tail)
 importFrom(graphics, plot)
 importFrom(utils, packageDescription)
 importFrom(Rcpp, evalCpp)
+importFrom(gtools, rdirichlet)
 
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
