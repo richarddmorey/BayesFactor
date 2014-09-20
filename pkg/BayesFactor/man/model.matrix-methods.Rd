@@ -1,0 +1,44 @@
+\docType{methods}
+\name{model.matrix,BFBayesFactor-method}
+\alias{model.matrix,BFBayesFactor}
+\alias{model.matrix,BFBayesFactor-method}
+\alias{model.matrix,BFBayesFactorTop-method}
+\title{Design matrices for Bayes factor linear models analyses.}
+\usage{
+\S4method{model.matrix}{BFBayesFactor}(object, ...)
+
+\S4method{model.matrix}{BFBayesFactorTop}(object, ...)
+}
+\arguments{
+  \item{object}{a BayesFactor object with a single
+  numerator}
+
+  \item{...}{arguments passed to and from related methods}
+}
+\value{
+Returns the design matrix for the corresponding model. The
+'gMap' attribute of the returned matrix contains the
+mapping from columns of the design matrix to g parameters
+}
+\description{
+This function returns the design matrix used for
+computation of the Bayes factor for the numerator of a
+\code{BFBayesFactor} object. There must not be more than
+one numerator in the \code{BFBayesFactor} object.
+}
+\examples{
+## Gets the design matrix for a simple analysis
+data(sleep)
+
+bf = anovaBF(extra ~ group + ID, data = sleep, whichRandom="ID", progress=FALSE)
+X = model.matrix(bf)
+
+## Show dimensions of X (should be 20 by 12)
+dim(X)
+}
+\references{
+Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J.
+M., (2012) Default Bayes Factors for ANOVA Designs. Journal
+of Mathematical Psychology.  56.  p. 356-374.
+}
+

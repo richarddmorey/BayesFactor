@@ -29,7 +29,7 @@ importFrom(Rcpp, evalCpp)
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
-exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na")
+exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na","model.matrix")
               
 S3method("is.na","BFBayesFactor")
 S3method("c","BFBayesFactor")
@@ -58,3 +58,5 @@ S3method("as.data.frame", "BFmcmc")
 S3method("as.BFBayesFactor", "BFBayesFactorTop")
 S3method("plot","BFBayesFactorTop")
 S3method("sort","BFBayesFactorTop")
+S3method("length","BFBayesFactorTop")
+

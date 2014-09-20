@@ -81,4 +81,6 @@ as.BFBayesFactor.BFBayesFactorTop <- function(object){
                 data = object@data)
 }
 
+length.BFBayesFactorTop <- function(x) 
+  length(as.BFBayesFactor(x))
 
