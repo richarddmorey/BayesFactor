@@ -1,4 +1,4 @@
-`BayesFactor` is an R package enables the computation of Bayes factors in standard designs, such as one- and two- sample designs, ANOVA designs, and regression.
+`BayesFactor` is an R package that enables the computation of Bayes factors in standard designs, such as one- and two- sample designs, ANOVA designs, and regression.
 
 ### Installing
 
