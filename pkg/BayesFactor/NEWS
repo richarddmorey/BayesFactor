@@ -3,6 +3,7 @@
 CHANGES
   *  Added test for single proportion; see proportionBF()
   *  Added support for contingency tables; see contingencyBF()
+  *  Added Hraba and Grant (1970) data set; see ?raceDolls
   *  Refactored t test and meta-t test code
   *  Moved many backend functions to Rcpp from R C API
   *  t test samplers now sample from interval null hypotheses and point null hypotheses where appropriate

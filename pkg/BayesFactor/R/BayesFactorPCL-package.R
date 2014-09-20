@@ -95,5 +95,31 @@ NULL
 #'
 NULL
 
-
-
+#'Hraba and Grant (1970) children's doll preference data
+#'
+#'Hraba and Grant (1970) describe a replication of Clark and Clark (1947) in which
+#'black and white children from Lincoln, Nebraska were shown dolls that were either black
+#'or white. They were then asked a series of questions, including "Give me the doll that is 
+#'a nice doll." This data set contains the frequency of children giving the same-race or different race doll in
+#'response to this question.
+#'@name raceDolls
+#'@docType data
+#'@format A matrix with 2 rows and 2 columns. Rows give doll preference; colums give the 
+#'race of the child.
+#'@source Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of 
+#'racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402.
+#'
+#'@keywords datasets
+#'@examples
+#'
+#'data(raceDolls)
+#'
+#'## chi-square test
+#'## Barely significant with continuity correction
+#'chisq.test(raceDolls)
+#'
+#'## Bayes factor test (assuming independent binomial sampling plan)
+#'## Very little evidence for the alternative of lack of independence
+#'bf = contingencyTableBF(raceDolls, sampleType = "indepMulti", fixedMargin = "cols")
+#'bf
+NULL
