@@ -3,19 +3,30 @@
 \name{recompute}
 \alias{recompute}
 \alias{recompute,BFBayesFactor-method}
+\alias{recompute,BFBayesFactorTop-method}
 \alias{recompute,BFmcmc-method}
 \title{Take an object and redo the computation (useful for sampling)}
 \usage{
-recompute(x, progress = options()$BFprogress, ...)
+recompute(x, progress = options()$BFprogress, multicore = FALSE,
+  callback = function(...) as.integer(0), ...)
 
-\S4method{recompute}{BFBayesFactor}(x, progress = options()$BFprogress, ...)
+\S4method{recompute}{BFBayesFactor}(x, progress = options()$BFprogress,
+  multicore = FALSE, callback = function(...) as.integer(0), ...)
 
-\S4method{recompute}{BFmcmc}(x, progress = options()$BFprogress, ...)
+\S4method{recompute}{BFBayesFactorTop}(x, progress = options()$BFprogress,
+  multicore = FALSE, callback = function(...) as.integer(0), ...)
+
+\S4method{recompute}{BFmcmc}(x, progress = options()$BFprogress,
+  multicore = FALSE, callback = function(...) as.integer(0), ...)
 }
 \arguments{
 \item{x}{object to recompute}
 
 \item{progress}{report progress of the computation?}
+
+\item{multicore}{Use multicore, if available}
+
+\item{callback}{callback function for third-party interfaces}
 
 \item{...}{arguments passed to and from related methods}
 }

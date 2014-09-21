@@ -88,7 +88,7 @@ generalTestBF <-
                                                   "options('BFMaxModels').")
     
     if(multicore){
-      message("Progress bars and callbacks are suppressed when running multicore.")
+      message("Note: Progress bars and callbacks are suppressed when running multicore.")
       if(!require(doMC, quietly = TRUE)){
         stop("Required package (doMC) missing for multicore functionality.")
       } 

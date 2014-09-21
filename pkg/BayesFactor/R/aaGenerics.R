@@ -59,6 +59,8 @@ setGeneric("compare", function(numerator, denominator, data, ...) standardGeneri
 #' Take an object and redo the computation (useful for sampling)
 #' @param x object to recompute
 #' @param progress report progress of the computation?
+#' @param multicore Use multicore, if available
+#' @param callback callback function for third-party interfaces 
 #' @param ... arguments passed to and from related methods
 #' @return Returns an object of the same type, after repeating the sampling (perhaps with more iterations)
 #' @export
@@ -79,7 +81,7 @@ setGeneric("compare", function(numerator, denominator, data, ...) standardGeneri
 #' ## Sample from posterior distribution of model above, and recompute:
 #' chains = posterior(bf, iterations = 1000, progress = FALSE)
 #' newChains = recompute(chains, iterations = 1000, progress=FALSE)     
-setGeneric("recompute", function(x, progress=options()$BFprogress, ...) standardGeneric("recompute"))
+setGeneric("recompute", function(x, progress=options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...) standardGeneric("recompute"))
 
 #' Sample from the posterior distribution of one of several models.
 #' 
