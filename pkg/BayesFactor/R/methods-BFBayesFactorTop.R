@@ -1,7 +1,23 @@
 BFBayesFactorTop <- function(bf){
-  nms = names(bf)[[1]]
-  biggest = which.max(nchar(nms))
-  new("BFBayesFactorTop", bf[-biggest]/bf[biggest])
+  if( class(bf@denominator) != "BFlinearModel" )
+    stop("BFBayesFactorTopcan only be created from linear model objects.")
+
+  len = sapply(bf@numerator, function(m){ 
+    fmla = formula(m@identifier$formula)
+    length(attr(terms(fmla),"term.labels"))
+  })
+  len_denom = length(attr(terms(formula(bf@denominator@identifier$formula)),"term.labels"))
+  
+  if( all( len < len_denom ) ){
+    return(new("BFBayesFactorTop", bf))
+  }else if( any( len > len_denom ) ){
+    biggest = which(len == max(len))
+    if(length(biggest) != 1) stop("Could not determine full model.")
+    return(new("BFBayesFactorTop", bf[-biggest]/bf[biggest]))
+  }else{
+    stop("Could not determine full model.")
+  }
+
 }
   
 setValidity("BFBayesFactorTop", function(object){
@@ -47,16 +63,20 @@ setMethod("[", signature(x = "BFBayesFactorTop", i = "index", j = "missing",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
             x = as(x,"BFBayesFactor")
-            denom = (1/x[1])/(1/x[1]) 
-            subset = "["(x, i=i,...)
-            subset = c(subset, denom)
-            return(BFBayesFactorTop(subset))
+            return(BFBayesFactorTop(x[i]))
           })
 
 
 setMethod('summary', "BFBayesFactorTop", function(object){
   show(object)
 })
+
+#' @rdname recompute-methods
+#' @aliases recompute,BFBayesFactor-method
+setMethod("recompute", "BFBayesFactorTop", function(x, progress = options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...){
+  bf = recompute(as.BFBayesFactor(x), progress, multicore, callback, ...)
+  BFBayesFactorTop(bf)
+})  
 
 setAs("BFBayesFactorTop", "BFBayesFactor",
       function( from, to ){
@@ -69,8 +89,6 @@ setAs("BFBayesFactorTop", "BFBayesFactor",
 sort.BFBayesFactorTop <- function(x, decreasing = FALSE, ...){
   x = as.BFBayesFactor(x)
   x = sort(x,decreasing = decreasing, ...)
-  denom = (1/x[1])/(1/x[1]) 
-  x = c(x, denom)
   return(BFBayesFactorTop(x))
 }
 

@@ -46,12 +46,46 @@ setValidity("BFBayesFactor", function(object){
 
 #' @rdname recompute-methods
 #' @aliases recompute,BFBayesFactor-method
-setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogress, ...){
-  if(progress) lapply = pblapply 
+setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...){
+  
   modelList = c(x@numerator,x@denominator)
-  bfs = lapply(modelList, function(num, data, ...)
-    compare(numerator = num, data = data, ...),
-          data = x@data, progress = FALSE, ...)
+  
+  if(multicore){
+    callback = function(...) as.integer(0)
+    message("Note: Progress bars and callbacks are suppressed when running multicore.")
+    if( !suppressMessages( require(doMC, quietly = TRUE) ) ){
+      stop("Required package (doMC) missing for multicore functionality.")
+    } 
+    doMC::registerDoMC()
+    if(foreach::getDoParWorkers()==1){
+      warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
+    }
+    bfs = foreach::"%dopar%"(
+      foreach::foreach(gIndex=modelList, .options.multicore=mcoptions),
+      compare(numerator = gIndex, data = x@data, ...)
+    )
+
+  }else{ # No multicore
+    bfs = NULL
+    myCallback <- function(prgs){
+      frac <- (i - 1 + prgs/1000)/length(modelList)
+      ret <- callback(frac*1000)
+      return(as.integer(ret))
+    }
+    if(progress){
+      pb = txtProgressBar(min = 0, max = length(modelList), style = 3)
+    }else{
+      pb = NULL
+    }
+    for(i in 1:length(modelList)){
+      oneModel <- compare(numerator = modelList[[i]], data = x@data, progress=FALSE, callback=myCallback, ...)
+      if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
+      bfs = c(bfs,oneModel)
+    }
+    if(inherits(pb,"txtProgressBar")) close(pb)      
+    
+  }
+  
   joined = do.call("c", bfs)
   numerators = joined[ 1:(length(joined)-1) ]
   denominator = joined[ length(joined) ]
