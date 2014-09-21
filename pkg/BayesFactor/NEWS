@@ -4,11 +4,13 @@ CHANGES
   *  Added test for single proportion; see proportionBF()
   *  Added support for contingency tables; see contingencyBF()
   *  Added Hraba and Grant (1970) data set; see ?raceDolls
+  *  Added model.matrix method for BayesFactor objects; allows for extracting the design matrix used for an analysis
+  *  recompute() now has multicore and callback support, as intended
   *  Refactored t test and meta-t test code
   *  Moved many backend functions to Rcpp from R C API
   *  t test samplers now sample from interval null hypotheses and point null hypotheses where appropriate
   *  fixed bug in in meta t test sampler which wouldn't allow sampling small numbers of MCMC samples
-  *  Added model.matrix method for BayesFactor objects; allows for extracting the design matrix used for an analysis
+
 
   CHANGES IN BayesFactor VERSION 0.9.8
 
