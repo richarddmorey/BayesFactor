@@ -6,6 +6,7 @@ BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName){
       dataTypes = dataTypes,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -15,6 +16,7 @@ BFproportion <- function(type, identifier, prior, shortName, longName){
       prior = prior,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -25,6 +27,7 @@ BFcontingencyTable <- function(type, identifier, prior, shortName, longName){
       prior = prior,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -35,6 +38,7 @@ BFlinearModel <- function(type, identifier, prior, dataTypes, shortName, longNam
       dataTypes = dataTypes,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -44,6 +48,7 @@ BFoneSample <- function(type, identifier, prior, shortName, longName){
       prior = prior,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -53,6 +58,7 @@ BFindepSample <- function(type, identifier, prior, shortName, longName){
       prior = prior,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -62,6 +68,7 @@ BFmetat <- function(type, identifier, prior, shortName, longName){
       prior = prior,
       shortName = shortName,
       longName = longName,
+      analysis = list(),
       version = BFInfo(FALSE))
 }
 
@@ -94,8 +101,8 @@ setMethod("%same%", signature = c(x="BFmodel",y="BFmodel"),
             slotSame = sapply(slotNames(x), function(el,x,y) identical(slot(x,el),slot(y,el)),
                    x=x,y=y)
             slotSame["dataTypes"] = ifelse(length(dataTypeSame)>0,dataTypeSame, TRUE)
-            # exclude version
-            slotSame = slotSame[names(slotSame)!="version"]
+            # exclude version and analysis
+            slotSame = slotSame[ !( names(slotSame) %in% c("version", "analysis") ) ]
             return(all(slotSame) & classesSame)
           })
 

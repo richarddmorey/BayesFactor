@@ -4,7 +4,9 @@
 
 setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missing", data = "data.frame"), 
   function(numerator, data, ...){
-
+    
+    if(!.hasSlot(numerator,"analysis")) numerator@analysis = list()
+    old.numerator = numerator
     rscaleFixed = rpriorValues("allNways","fixed",numerator@prior$rscale[['fixed']])
     rscaleRandom = rpriorValues("allNways","random",numerator@prior$rscale[['random']])
     rscaleCont = rpriorValues("regression",,numerator@prior$rscale[['continuous']])
@@ -71,16 +73,15 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
                        rscaleCont = rscaleCont,
-                       gibbs = FALSE, ...)        
+                       gibbs = FALSE, ...)
     }
-            
-          
-    nBF = length(bf[['bf']])
-          
-    bf_df = data.frame(bf = bf[['bf']],
-                error = bf[['properror']],
+    numerator@analysis = as.list(bf)
+    numerator = combineModels(list(numerator,old.numerator))
+                  
+    bf_df = data.frame(bf = numerator@analysis[['bf']],
+                error = numerator@analysis[['properror']],
                 time = date(),
-                code = randomString(nBF)
+                code = randomString(1)
             )
           
     rownames(bf_df) <- numerator@shortName

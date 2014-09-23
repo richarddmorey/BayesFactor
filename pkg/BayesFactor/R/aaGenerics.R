@@ -56,7 +56,12 @@ setGeneric("%termin%", function(x, table) standardGeneric("%termin%"))
 #' compare(mod1, mod2) 
 setGeneric("compare", function(numerator, denominator, data, ...) standardGeneric("compare"))
 
-#' Take an object and redo the computation (useful for sampling)
+#' Recompute a Bayes factor computation or MCMC object. 
+#' 
+#' Take an object and redo the computation (useful for sampling). In cases where sampling is 
+#' used to compute the Bayes factor, the estimate of the precision of new samples will be added
+#' to the estimate precision of the old sample will be added to produce a new estimate of the 
+#' precision.
 #' @param x object to recompute
 #' @param progress report progress of the computation?
 #' @param multicore Use multicore, if available

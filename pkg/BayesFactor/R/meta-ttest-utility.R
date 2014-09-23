@@ -78,10 +78,10 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
     bf = meta.bf.interval(interval[1],interval[2],t,N,df,rscale)
     bf3 = meta.bf.interval(interval[2],Inf,t,N,df,rscale)
     
-    bf.compl = sumWithPropErr(bf1$bf + prior.interval1,
-                              bf3$bf + prior.interval3,
-                              bf1$properror,
-                              bf3$properror)
+    bf.compl = sumWithPropErr(bf1[['bf']] + prior.interval1,
+                              bf3[['bf']] + prior.interval3,
+                              bf1[['properror']],
+                              bf3[['properror']])
     bf.compl[1] = bf.compl[1] - prior.interval.1.3
   }
   
@@ -94,8 +94,8 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   }else{
     return(
       list(
-        bf = bf$bf,
-        properror = bf$properr
+        bf = bf[['bf']],
+        properror = bf[['properror']]
       ))
   }
 }

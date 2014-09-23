@@ -101,7 +101,7 @@
 ##' 
 ##' ## (log) Bayes factor of full model against grand-mean only model
 ##' bf.full <- nWayAOV(y = sleep$extra, X = X, struc = c(1,10), rscale=c(.5,1))
-##' exp(bf.full['bf'])
+##' exp(bf.full[['bf']])
 ##' 
 ##' ## Compare with lmBF result (should be about the same, give or take 1%)
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
