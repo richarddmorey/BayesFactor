@@ -91,6 +91,7 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
     }
   }  
   if(method=="simple" | is.null(returnList)){
+    method = "simple"
     returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
                         P, nGs, gMap, a, b, incCont,
                         as.integer(iters/100*progress), pbFun, callback, new.env(), 
@@ -101,13 +102,19 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
     warning("Unknown sampling method requested (or sampling failed) for nWayAOV")
     return(c(bf=NA,properror=NA))
   }
+  
+  if( any(is.na(returnList[[2]])) ) warning("Some NAs were removed from sampling results: ",sum(is.na(returnList[[2]]))," in total.")
+  bfSamp = returnList[[2]][!is.na(returnList[[2]])] - nullLike
+  n2 = length(bfSamp)
+    
   bf = returnList[[1]] - nullLike
   
   # estimate error
-  bfSamp = returnList[[2]] - nullLike
-  properror = propErrorEst(bfSamp)
+  sumx = bf + log(n2)
+  sumx2 = logMeanExpLogs(2*bfSamp) + log(n2)
+  properror = propErrorEst2(sumx,sumx2,n2)
     
-  return(c(bf = bf, properror=properror))
+  return(list(bf = bf, properror=properror, sumx=sumx, sumx2 = sumx2, N = n2, method = method, sampled = TRUE, code = randomString(1)))
 }
 
 createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL){

@@ -5,7 +5,7 @@
 \alias{recompute,BFBayesFactor-method}
 \alias{recompute,BFBayesFactorTop-method}
 \alias{recompute,BFmcmc-method}
-\title{Take an object and redo the computation (useful for sampling)}
+\title{Recompute a Bayes factor computation or MCMC object.}
 \usage{
 recompute(x, progress = options()$BFprogress, multicore = FALSE,
   callback = function(...) as.integer(0), ...)
@@ -34,7 +34,10 @@ recompute(x, progress = options()$BFprogress, multicore = FALSE,
 Returns an object of the same type, after repeating the sampling (perhaps with more iterations)
 }
 \description{
-Take an object and redo the computation (useful for sampling)
+Take an object and redo the computation (useful for sampling). In cases where sampling is
+used to compute the Bayes factor, the estimate of the precision of new samples will be added
+to the estimate precision of the old sample will be added to produce a new estimate of the
+precision.
 }
 \examples{
 ## Sample from the posteriors for two models

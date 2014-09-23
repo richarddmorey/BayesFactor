@@ -78,7 +78,7 @@ setMethod('posterior', signature(model = "BFBayesFactor", index = "missing", dat
 #' @aliases posterior,BFlinearModel,missing,data.frame,numeric-method
 setMethod('posterior', signature(model = "BFlinearModel", index = "missing", data = "data.frame", iterations = "numeric"), 
   function(model, index = NULL, data, iterations, ...){
-
+    
     rscaleFixed = rpriorValues("allNways","fixed",model@prior$rscale[['fixed']])
     rscaleRandom = rpriorValues("allNways","random",model@prior$rscale[['random']])
     rscaleCont = rpriorValues("regression",,model@prior$rscale[['continuous']])

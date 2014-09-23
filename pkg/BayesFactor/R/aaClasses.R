@@ -17,6 +17,7 @@ setClassUnion("index", members =  c("numeric", "logical", "character"))
 #'    \item{dataTypes}{a character vector whose names are possible columns in the data; elements specify the corresponding data type, currently one of c("fixed","random","continuous")}
 #'    \item{shortName}{a short, readable identifying string}
 #'    \item{longName}{a longer, readable identifying string}
+#'    \item{analysis}{object storing information about a previous analysis of this model}
 #'    \item{version}{character string giving the version and revision number of the package that the model was created in}
 #'    }
 #' @name BFmodel-class
@@ -29,6 +30,7 @@ setClass("BFmodel", representation(
   dataTypes = "character",
   shortName = "character",
   longName = "character",
+  analysis = "list",
   version = "character"
 ))
 

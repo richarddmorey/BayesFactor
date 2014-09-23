@@ -90,6 +90,71 @@ propErrorEst = function(logX){
   sqrt((exp(logSumX2 - 2*logSumX) - 1/n) * (n/(n-1)))
 }
 
+propErrorEst2 = function(sumX,sumX2,n){
+  sqrt((exp(sumX2 - 2*sumX) - 1/n) * (n/(n-1)))
+}
+
+
+
+
+combineModels <- function(modelList, checkCodes = TRUE){
+  are.same = sapply(modelList[-1],function(m) modelList[[1]] %same% m)
+  if( any(!are.same) ) stop("Cannot combine models that are not the same.")
+  if(class(modelList[[1]]) != "BFlinearModel") return(modelList[[1]])
+  
+  hasanalysis = sapply(modelList, .hasSlot, name = "analysis")
+  
+  if( all(!hasanalysis) ) return(modelList[[1]])
+  modelList = modelList[hasanalysis]
+  if(length(modelList)==1) return(modelList[[1]])
+  sampledTRUE = sapply(sapply(modelList, function(m) m@analysis[['sampled']]),identical,y=TRUE)
+  
+  
+  if( !any(sampledTRUE)) return(modelList[[1]])
+  modelList = modelList[which(sampledTRUE)]  
+  if( length(modelList)==1 ) return(modelList[[1]])
+  
+  bfs = unlist(sapply(modelList, function(m) m@analysis[['bf']]))
+  properrs = unlist(sapply(modelList, function(m) m@analysis[['properror']]))
+  
+  # We need to make sure we don't combine analyses that are based on the same codes.
+  codes = lapply(modelList, function(m) m@analysis[['code']])
+  if(checkCodes){
+    n = length(codes)
+    X = diag(n)
+    for(i in 2:n)
+      for(j in 1:(i-1))
+        X[i,j] = X[j,i] = length(intersect(codes[[i]],codes[[j]]))>0
+    if(!identical(X,diag(n)))
+      return(modelList[[which.min(properrs)]])
+  }
+    
+  # Convert prop to abs err
+  logAbs = bfs + log(properrs)
+  # Compute log precisions
+  logPrec = -2*logAbs
+  # log sum of precisions
+  logSumPrec = logMeanExpLogs(logPrec) + log(length(logPrec))
+  # log weighted average
+  logAvgBF = logMeanExpLogs(logPrec + bfs - logSumPrec) + log(length(logPrec))
+  # convert prec back to abs err
+  logSumAbs = -logSumPrec/2
+  # convert back to prop err
+  sumPropErr = exp(logSumAbs - logAvgBF)
+  
+  bf = logAvgBF
+  properror = sumPropErr
+  new.analysis = list(bf = bf, properror = properror, sampled = TRUE)
+  
+  all.codes = do.call("c",codes)
+  
+  new.mod = modelList[[1]]
+  new.mod@analysis = new.analysis
+  new.mod@analysis[['code']] = all.codes
+  new.mod@version = BFInfo(FALSE)
+  return(new.mod)
+}
+
 combn2 <- function(x,lower=1){
   unlist(lapply(lower:length(x),function(m,x) combn(x,m,simplify=FALSE),x=x),recursive=FALSE)
 }

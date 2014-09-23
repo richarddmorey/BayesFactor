@@ -78,10 +78,10 @@ prop.test.bf <- function(y, N, p, rscale, interval, complement){
     bf = prop.test.bf.interval(y, N, p, rscale, interval)
     bf3 = prop.test.bf.interval(y, N, p, rscale, c(interval[2],Inf))
     
-    bf.compl = sumWithPropErr(bf1$bf + prior.interval1,
-                              bf3$bf + prior.interval3,
-                              bf1$properror,
-                              bf3$properror)
+    bf.compl = sumWithPropErr(bf1[['bf']] + prior.interval1,
+                              bf3[['bf']] + prior.interval3,
+                              bf1[['properror']],
+                              bf3[['properror']])
     bf.compl[1] = bf.compl[1] - prior.interval.1.3
   }
   
@@ -94,8 +94,8 @@ prop.test.bf <- function(y, N, p, rscale, interval, complement){
   }else{
     return(
       list(
-        bf = bf$bf,
-        properror = bf$properr
+        bf = bf[['bf']],
+        properror = bf[['properror']]
       ))
   }
 }
