@@ -43,16 +43,16 @@ Bayes factors or posterior samples for binomial, geometric, or neg. binomial dat
 \details{
 Given count data modeled as a binomial, geometric, or negative binomial random variable,
 the Bayes factor provided by \code{proportionBF} tests the null hypothesis that
-the probability of a a success is \eqn{p_0}{p0} (argument \code{p}). Specifically,
-the Bayes factor compares two hypotheses: that the probability is \eqn{p_0}{p0}, or
-probability is not \eqn{p_0}{p0}. Currently, the default alternative is that
-\deqn{\lambda~logistic(\lambda_0,r)}, where
-\eqn{\lambda_0=logit(p0)}{lambda_0=logit(p0)} and
+the probability of a success is \eqn{p_0}{p_0} (argument \code{p}). Specifically,
+the Bayes factor compares two hypotheses: that the probability is \eqn{p_0}{p_0}, or
+probability is not \eqn{p_0}{p_0}. Currently, the default alternative is that
+\deqn{\lambda~logistic(\lambda_0,r)} where
+\eqn{\lambda_0=logit(p_0)}{lambda_0=logit(p_0)} and
 \eqn{\lambda=logit(p)}{lambda=logit(p)}. \eqn{r}{r} serves as a prior scale parameter.
 
 For the \code{rscale} argument, several named values are recognized:
 "medium", "wide", and "ultrawide". These correspond
-to \eqn{r} scale values of \eqn{1/2}{1/2}, 1, and \eqn{3/2}{3/2}
+to \eqn{r} scale values of \eqn{1/2}{1/2}, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1,
 respectively.
 
 The Bayes factor is computed via Gaussian quadrature, and posterior
