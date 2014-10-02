@@ -175,8 +175,8 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
                                  rscale = rscale, progress = progress, callback = callback)
         return(chains)
       }else{
-        R2 = t(y)%*%X%*%solve(t(X)%*%X)%*%t(X)%*%y / (t(y)%*%y)
-        bf = linearReg.R2stat(N=N,p=ncol(X),R2=R2,rscale=rscale)  
+        R2 = t(Cy)%*%CX%*%solve(t(CX)%*%CX)%*%t(CX)%*%Cy / (t(Cy)%*%Cy)
+        bf = linearReg.R2stat(N=N,p=ncol(CX),R2=R2,rscale=rscale)  
         return(bf)
       }
     } 
