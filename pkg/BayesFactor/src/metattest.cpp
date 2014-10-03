@@ -39,10 +39,10 @@ NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n
     // effective sample size and degrees of freedom
     if(twoSample){
       eff_n = n1 * n2  / (n1 + n2);
-      nu = n1 + n2 - 2;
+      nu = n1 + n2 - 2.0;
     }else{
       eff_n = n1;
-      nu = n1 - 1;
+      nu = n1 - 1.0;
     }
 
     // starting values
