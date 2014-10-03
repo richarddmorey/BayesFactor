@@ -93,7 +93,8 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
   if(!is.null(x) & !is.null(formula)) stop("Only one of x or formula should be defined.")
   
   if(!is.null(x) | !is.null(y))
-    if(any(is.na(c(x,y)))) stop("x or y must not contain missing values.")
+    if(any(is.na(c(x,y))) | any(is.infinite(c(x,y)))) 
+      stop("x or y must not contain missing or infinite values.")
   
   if(!is.null(nullInterval)){
     nullInterval = range(nullInterval)

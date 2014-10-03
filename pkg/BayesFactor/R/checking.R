@@ -39,7 +39,7 @@ checkFormula <- function(formula, data, analysis){
   dv = stringFromFormula(formula[[2]])
   
   if(!is.numeric(data[,dv])) stop("Dependent variable must be numeric.")
-  if(any(is.na(data[,dv]))) stop("Dependent variable must not contain missing values.")
+  if(any(is.na(data[,dv])) | any(is.infinite(data[,dv]))) stop("Dependent variable must not contain missing or infinite values.")
   factors = fmlaFactors(formula, data)
   terms = colnames(attr(terms(formula, data = data),"factors"))  
   
