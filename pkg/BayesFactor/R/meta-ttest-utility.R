@@ -34,6 +34,9 @@ meta.ttest.tstat <- function(t,n1,n2=NULL,nullInterval=NULL,rscale, complement =
     n <- n1 * n2 / (n1 + n2)
   }
   
+  if( any(n < 1) | any(nu < 1))
+    stop("Insufficient sample size for t analysis.")
+  
   if(is.null(nullInterval)){
     return(meta.t.bf(t,n,nu,rscale=rscale))
   }else{

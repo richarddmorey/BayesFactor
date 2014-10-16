@@ -33,7 +33,7 @@ createFullRegressionModel <- function(formula, data){
 }
 
 integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, log.const=0){
-  a = .5 * ((N - p -1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
+  a = .5 * ((N - p - 1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
   shape=.5
   scale=rscaleSqr*N/2
   log.density.igam <- dinvgamma1(g, shape, scale)

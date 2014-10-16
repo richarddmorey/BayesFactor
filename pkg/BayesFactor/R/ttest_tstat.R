@@ -66,6 +66,10 @@ ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium", complement=FAL
   
   nu=ifelse(n2==0 | is.null(n2),n1-1,n1+n2-2)
   n=ifelse(n2==0 | is.null(n2),n1,(n1*n2)/(n1+n2))
+  
+  if( (n < 1) | (nu < 1))
+    stop("Insufficient sample size for t analysis.")
+  
   r2=rscale^2
   log.marg.like.0= -(nu+1)/2 * log(1+t^2/(nu))
   if(is.null(nullInterval)){
