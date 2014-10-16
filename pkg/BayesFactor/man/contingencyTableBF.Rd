@@ -14,7 +14,7 @@ contingencyTableBF(x, sampleType, fixedMargin = NULL,
 
 \item{fixedMargin}{for the independent multinomial sampling plan, which margin is fixed ("rows" or "cols")}
 
-\item{priorConcentration}{prior concentration parameter (see details)}
+\item{priorConcentration}{prior concentration parameter, set to 1 by default (see details)}
 
 \item{posterior}{if \code{TRUE}, return samples from the posterior instead
 of Bayes factor}
@@ -36,19 +36,57 @@ This function computes Bayes factors for contingency tables.
 }
 \details{
 The Bayes factor provided by \code{contingencyTableBF} tests the independence assumption in
-contingency tables under various sampling plans.
+contingency tables under various sampling plans, each of which is described below.
+See Gunel and Dickey (1974) for more details.
+
+For \code{sampleType="poisson"}, the sampling plan is assumed to be
+one in which observations occur as a poissons process with an overall
+rate, and then assignment to particular factor levels occurs with
+fixed probability. Under the null hypothesis, the assignments to the
+two factors are independent. Importantly, the total N is not fixed.
+
+For \code{sampleType="jointMulti"} (joint multinomial), the sampling
+plan is assumed to be one in which the total N is fixed, and observations
+are assigned to cells with fixed probability. Under the null hypothesis, the
+assignments to the two factors are independent.
+
+For \code{sampleType="indepMulti"} (independent multinomial), the
+sampling plan is assumed to be one in which row or column totals are fixed,
+and the each row or column is assumed to be multinomially distributed.
+Under the null hypothesis, each row or column is assumed to have the
+same multinomial probabilities. The fixed margin must be given by
+the \code{fixedMargin} argument.
+
+For \code{sampleType="hypergeom"} (hypergeometric), the sampling
+plan is assumed to be one in which both the row and column totals are fixed.
+Under the null hypothesis, the cell counts are assumed to be governed by the
+hypergeometric distribution.
+
+For all models, the argument \code{priorConcentration} indexes
+the expected deviation from the null hypothesis under the alternative,
+and corresponds to Gunel and Dickey's (1974) "a" parameter.
 }
 \note{
-This will be implemented in a future version.
+Posterior sampling for the hypergeometric model under the alternative
+has not yet been implemented.
 }
 \examples{
-\dontrun{
+## Hraba and Grant (1970) doll race data
+data(raceDolls)
 
-data<-matrix(c(10,3,2,15),c(2,2))
+## Compute Bayes factor for independent binomial design, with
+## columns as the fixed margin
+bf = contingencyTableBF(raceDolls, sampleType = "indepMulti", fixedMargin = "cols")
+bf
 
-## Assume poisson sampling scheme
-contingencyTableBF(data, "poisson")
-}
+## Posterior distribution of difference in probabilities, under alternative
+chains = posterior(bf, iterations = 10000)
+sameRaceGivenWhite = chains[,"pi[1,1]"] / chains[,"pi[*,1]"]
+sameRaceGivenBlack = chains[,"pi[1,2]"] / chains[,"pi[*,2]"]
+hist(sameRaceGivenWhite - sameRaceGivenBlack, xlab = "Probability increase",
+  main = "Increase in probability of child picking\\nsame race doll (white - black)",
+  freq=FALSE, yaxt='n')
+box()
 }
 \author{
 Richard D. Morey (\email{richarddmorey@gmail.com})
@@ -60,5 +98,4 @@ Gunel, E. and Dickey, J., (1974)
 Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557
 }
 \keyword{htest}
-\keyword{internal}
 

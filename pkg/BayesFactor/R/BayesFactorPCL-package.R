@@ -5,10 +5,10 @@
 #'
 #'This package contains function to compute Bayes factors for a number of 
 #'research designs and hypotheses, including t tests, ANOVA, and linear 
-#'regression.
+#'regression, and contingency tables.
 #'
 #'\tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-#'0.9.9\cr Date: \tab 2014-11-22\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
+#'0.9.9\cr Date: \tab 2014-10-22\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
 #'yes\cr } The following methods are currently implemented, with more to follow:
 #'
 #'Linear regression: \code{\link{regressionBF}} \code{\link{lmBF}}, 
@@ -30,7 +30,7 @@
 #'@name BayesFactor-package
 #'@aliases BayesFactor-package BayesFactor
 #'@docType package
-#'@author Richard D. Morey and Jeffrey N. Rouder
+#'@author Richard D. Morey and Jeffrey N. Rouder (with contributions from Tahira Jamil)
 #'  
 #'  Maintainer: Richard D. Morey <richarddmorey@@gmail.com>
 #'@seealso \code{\link[BAS:BAS-package]{BAS}}

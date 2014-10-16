@@ -56,7 +56,7 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
   * [General linear models: mixing continuous and categorical covariates](#glm)
-  * [Tests of proportions (0.9.9+)](#proptest)
+  * [Tests of single proportions (0.9.9+)](#proptest)
   * [Contingency Tables (0.9.9+)](#ctables) 
 * Additional tips and tricks (0.9.4+)
   * [Testing restrictions on linear models: generalTestBF()](#generalTestBF)
@@ -114,6 +114,8 @@ Function                 | Description
 `regressionBF`           | Bayes factors comparing many linear regression models
 `generalTestBF`          | Bayes factors for all restrictions on a full model (0.9.4+)
 `lmBF`                   | Bayes factors for specific linear models (ANOVA or regression)
+`proportionBF`           | Bayes factors for tests of single proportions
+`contingencyTableBF`     | Bayes factors for contingency tables
 `posterior`              | Sample from the posterior distribution of the numerator of a Bayes factor object
 `recompute`              | Recompute a Bayes factor or MCMC chain, possibly increasing the precision of the estimate
 `compare`                | Compare two models; typically used to compare two models in `BayesFactor` MCMC objects
@@ -668,13 +670,113 @@ plot(allBFs / max(allBFs))
 
 
 <a id="proptest"></a>
-### Tests for proportions (0.9.9+)
+### Tests of single proportions (0.9.9+)
+
+The default test for a proportion assumes that all observations were independent with fixed probability $\pi$. The rule for stopping can be fixed $N$ ([binomial sampling](http://en.wikipedia.org/wiki/Binomial_distribution)) or a fixed number of successes ([negative binomial sampling](http://en.wikipedia.org/wiki/Negative_binomial_distribution)); unlike a significance test, the Bayes factor does not depend on the stopping rule.
+
+For the Bayes factor test of a single proportion, there are two hypotheses; the null hypothesis assumes that the probability $\pi$ is a fixed, known value $p$; under the alternative, the log-odds corresponding to $\pi$, denoted $\omega = \log(\pi/(1-\pi))$, has a logistic distribution centered on the log-odds corresponding to the null value $p$ (denoted $\omega_0 = \log(p/(1-p))$:
+\[
+\omega \sim \mbox{logistic}(\mbox{mean}=\omega_0, \mbox{scale}=r)
+\]
+The default prior $r$ scale is 1/2. The figure below shows the prior distribution assuming the null hypothesis $p=0.5$, for the three named prior scale settings $r$ ("medium", "wide", and "ultrawide"). The default is "medium":
+
+```{r propprior,echo=FALSE,fig.width=10, fig.height=5}
+p0 = .5
+rnames = c("medium","wide","ultrawide")
+r = sapply(rnames,function(rname) BayesFactor:::rpriorValues("proptest",,rname))
+leg_names = paste(rnames," (r=",round(r,3), ")", sep="")
+
+omega = seq(-5,5,len=100)
+pp = dlogis(omega,qlogis(p0),r[1])
+
+plot(omega,pp, col="black", typ = 'l', lty=1, lwd=2, ylab="Prior density", xlab=expression(paste("True log odds ", omega)), yaxt='n')
+
+pp = dlogis(omega,qlogis(p0),r[2])
+lines(omega, pp, col = "red",lty=1, lwd=2)
+
+pp = dlogis(omega,qlogis(p0),r[3])
+lines(omega, pp, col = "blue",lty=1,lwd=2)
+
+axis(3,at = -2:2 * 2, labels=round(plogis(-2:2*2),2))
+mtext(expression(paste("True probability ", pi)),3,2,adj=.5)
+
+legend(-5,.5,legend = leg_names, col=c("black","red","blue"), lwd=2,lty=1)
+```
+
+The following example is taken from `?binom.test`, which cites [Conover (1971)](#Conover).
+
+> Under (the assumption of) simple Mendelian inheritance, a cross
+between plants of two particular genotypes produces progeny 1/4 of
+which are "dwarf" and 3/4 of which are "giant", respectively.
+In an experiment to determine if this assumption is reasonable, a
+cross results in progeny having 243 dwarf and 682 giant plants.
+If "giant" is taken as success, the null hypothesis is that $p =
+3/4$ and the alternative that $p \neq 3/4$.
+
+```{r}
+bf = proportionBF( 682, 682 + 243, p = 3/4)
+1 / bf
+```
+
+The Bayes factor favors the null hypothesis by a factor of about 7 (which is not surprising given that the observed proportion is 73.7%). In contrast, the best we can say about the classical result is that it is not statistically "significant":
+
+```{r}
+binom.test(682, 682 + 243, p = 3/4)
+```
+
+Using the `posterior` function, we can draw samples from the posterior distribution of the true log odds and true probability and plot the estimate of the posterior.
+
+```{r proppost,fig.width=10, fig.height=5}
+chains = posterior(bf, iterations = 10000)
+plot(chains[,"p"], main = "Posterior of true probability\nof 'giant' progeny")
+```
 
 
 <a id="ctables"></a>
 ### Contingency tables (0.9.9+)
+The `BayesFactor` package implements versions of [Gunel and Dickey's (1974)](#GunelDickey) contingency table Bayes factor tests. Bayes factors for contingency tests are computed using the `contingencyTableBF` function. The necessary arguments are a matrix of cell frequencies and details about the sampling plan that produced the data. 
+
+Here, we provide an example analysis of [Hraba and Grant's (1970)](#HrabaGrant) data, included as part of the `BayesFactor` package as the `raceDolls` data set. 71 white children and 89 black children from Lincoln, Nebraska were offered two dolls, one of whose "race" was the same as the child's and one that was different (either white or black). The children were then asked to select one of the dolls, with prompts such as "Give me the doll that is a nice doll." 50 of the 71 white children (70%) selected the white doll, while 48 of the 89 black children (54%) selected the black doll. These data are shown in the table below:
+
+```{r results='asis', echo=FALSE}
+data(raceDolls)
+kable(raceDolls)
+``` 
 
 
+We can perform a Bayes factor analysis using the `contingencyTableBF` function:
+```{r}
+bf = contingencyTableBF(raceDolls, sampleType = "indepMulti", fixedMargin = "cols")
+bf
+```
+Here we used `sampleType="indepMulti"` and `fixedMargin="cols"` to specify that the columns are assumed to be sampled as independent multinomials with their total fixed. See the help at `?contingencyTableBF` for more details about possible sampling plans and the priors.
+
+The Bayes factor in favor of the alternative that the factors are not independent is just shy of 2, which is not very much evidence against the null hypothesis. For comparison, consider the results classical chi-square test, with continuity correction:
+
+```{r}
+chisq.test(raceDolls)
+```
+
+The classical test is just barely statistically significant.
+
+We can also use the `posterior` function to estimate the difference in probabilities of selecing a doll of the same race between white and black children, assuming the non-independence alternative:
+```{r}
+chains = posterior(bf, iterations = 10000)
+```
+For the independent multinomial sampling plan, the chains will contain the individual cell probabilities and the marginal column probabilities. We first need to compute the conditional probabilities from the results:
+
+```{r}
+sameRaceGivenWhite = chains[,"pi[1,1]"] / chains[,"pi[*,1]"]
+sameRaceGivenBlack = chains[,"pi[1,2]"] / chains[,"pi[*,2]"]
+
+```
+
+...and then plot the MCMC estimate of the difference:
+```{r ctablechains,fig.width=10, fig.height=5}
+plot(mcmc(sameRaceGivenWhite - sameRaceGivenBlack), main = "Increase in probability of child picking\nsame race doll (white - black)")
+```
+
+For more information, see `?contingencyTableBF`.
 
 <a id="tricks"></a>
 Additional tips and tricks (0.9.4+)
@@ -840,9 +942,15 @@ acf(chainsThinned[,"shape-round"])
 References 
 ---------
 
+<a id="Conover"</a>
+Conover, W. J. (1971), Practical nonparametric statistics. New York: John Wiley & Sons. Pages 97–104.
+
 <a id="GunelDickey"></a>
-<!--Gunel, E. and Dickey, J. (1974) Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557.
- ([JSTOR](http://www.jstor.org/stable/2334738)) -->
+Gunel, E. and Dickey, J. (1974) Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557.
+ ([JSTOR](http://www.jstor.org/stable/2334738))
+ 
+<a id="HrabaGrant"></a>
+Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](http://psycnet.apa.org/psycinfo/1971-03987-001)
  
 <a id="Liangetal"></a> 
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([PDF](http://www.isds.duke.edu/courses/Spring09/sta244/Handouts/hyper-g.pdf))
