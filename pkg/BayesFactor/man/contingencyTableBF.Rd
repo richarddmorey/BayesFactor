@@ -40,7 +40,7 @@ contingency tables under various sampling plans, each of which is described belo
 See Gunel and Dickey (1974) for more details.
 
 For \code{sampleType="poisson"}, the sampling plan is assumed to be
-one in which observations occur as a poissons process with an overall
+one in which observations occur as a poisson process with an overall
 rate, and then assignment to particular factor levels occurs with
 fixed probability. Under the null hypothesis, the assignments to the
 two factors are independent. Importantly, the total N is not fixed.
