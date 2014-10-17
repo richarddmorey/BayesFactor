@@ -1,12 +1,8 @@
-// [[Rcpp::depends(RcppProgress)]]
-//#include <progress.hpp>
+#include "progress.h"
 #include <time.h>
 #include "bfcommon.h"
 
 double meta_t_like_Rcpp(double delta, Rcpp::NumericVector t, Rcpp::NumericVector n, Rcpp::NumericVector df, double rscale);
-
-/* NOTE: RcppProgress code is disabled until
-   I can fix the header issue. */
 
 using namespace Rcpp;
 
@@ -54,7 +50,7 @@ NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n
     double delta = delta0;
     
     // create progress bar
-    //Progress p(iterations, (bool) progress);
+    Progress::Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 1);
@@ -72,18 +68,16 @@ NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n
     {
 
       // Check interrupt
-      //if (Progress::check_abort() )
-      //  Rcpp::stop("Operation cancelled by interrupt.");
+      if (Progress::check_abort() )
+        Rcpp::stop("Operation cancelled by interrupt.");
       
-      //p.increment(); // update progress
+      p.increment(); // update progress
       
       // Check callback
       if( RcppCallback( &last_cb, callback, ( 1000.0 * ( i + 1 ) ) / iterations, callbackInterval) )
         Rcpp::stop("Operation cancelled by callback function.");
 
-      // sample delta
-      //Rprintf("%d %f %f %f %f %f %f %f\n", twoSample, d[0], d[1], delta, delta0, delta_sd, Ubounds[0], Ubounds[1]);
-      
+      // sample delta      
       if(doInterval){
         if(intervalCompl){
           candidate = Rf_runif(0, Ubounds[0] + 1 - Ubounds[1]);

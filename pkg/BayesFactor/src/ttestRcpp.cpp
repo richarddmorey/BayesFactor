@@ -1,10 +1,6 @@
-// [[Rcpp::depends(RcppProgress)]]
-//#include <progress.hpp>
+#include "progress.h"
 #include <time.h>
 #include "bfcommon.h"
-
-/* NOTE: RcppProgress code is disabled until
-   I can fix the header issue. */
 
 using namespace Rcpp;
 
@@ -40,7 +36,7 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     if(nullModel) mu = 0;
     
     // create progress bar
-    //Progress p(iterations, (bool) progress);
+    Progress::Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 4);
@@ -50,10 +46,10 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     {
 
       // Check interrupt
-      //if (Progress::check_abort() )
-      //  Rcpp::stop("Operation cancelled by interrupt.");
+      if (Progress::check_abort() )
+        Rcpp::stop("Operation cancelled by interrupt.");
       
-      //p.increment(); // update progress
+      p.increment(); // update progress
       
       // Check callback
       if( RcppCallback( &last_cb, callback, ( 1000.0 * ( i + 1 ) ) / iterations, callbackInterval) )
