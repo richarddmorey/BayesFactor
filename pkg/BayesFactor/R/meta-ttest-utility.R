@@ -37,6 +37,9 @@ meta.ttest.tstat <- function(t,n1,n2=NULL,nullInterval=NULL,rscale, complement =
   if( any(n < 1) | any(nu < 1))
     stop("Insufficient sample size for t analysis.")
   
+  if(any(is.infinite(t)))
+    stop("At least one t statistic is infinite.")
+  
   if(is.null(nullInterval)){
     return(meta.t.bf(t,n,nu,rscale=rscale))
   }else{

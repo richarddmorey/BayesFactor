@@ -63,6 +63,9 @@ linearReg.R2stat=function(N,p,R2,rscale="medium") {
   if(p>=(N-1))
     stop("Number of predictors must be less than N - 1 (number of data points minus 1).")
   
+  if( (R2>=1) | (R2<0) )
+    stop("Illegal R2 value (must be 0 <= R2 < 1)")
+  
   ### Compute approximation to posterior mode of g
   ### Liang et al Eq. A.3, assuming a=b=0
   g3 = -(1 - R2) * (p + 3) #* g^3 

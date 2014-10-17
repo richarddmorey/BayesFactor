@@ -70,6 +70,9 @@ ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium", complement=FAL
   if( (n < 1) | (nu < 1))
     stop("Insufficient sample size for t analysis.")
   
+  if(is.infinite(t))
+    stop("t statistic is infinite (no variance in data?)")
+  
   r2=rscale^2
   log.marg.like.0= -(nu+1)/2 * log(1+t^2/(nu))
   if(is.null(nullInterval)){
