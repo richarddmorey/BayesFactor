@@ -182,8 +182,13 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
             factor = fmlaFactors(formula, data)[-1]
                         
             y = data[[dv]]
-            iv = data[[factor]]
-            ns = table(iv)
+            if(!is.null(factor)){
+              iv = data[[factor]]
+              ns = table(iv)
+            }else{
+              iv = NULL
+              ns = NULL
+            }
             
             mu = numerator@prior$mu
             nullInterval=numerator@prior$nullInterval
