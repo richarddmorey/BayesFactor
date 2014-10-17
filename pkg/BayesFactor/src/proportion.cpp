@@ -1,17 +1,13 @@
-// [[Rcpp::depends(RcppProgress)]]
-//#include <progress.hpp>
+#include "progress.h"
 #include <time.h>
 #include "bfcommon.h"
 
 double proptest_like_Rcpp(double lo, Rcpp::NumericVector y, Rcpp::NumericVector n, double p, double rscale);
 
-/* NOTE: RcppProgress code is disabled until
-   I can fix the header issue. */
-
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, double rscale, int iterations, bool doInterval, 
+NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p0, double rscale, int iterations, bool doInterval, 
                       NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval) 
 {
     // setting last_cb to the beginning of the epoch 
@@ -19,7 +15,7 @@ NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, d
     time_t last_cb = static_cast<time_t>(int(0));    
 
     int i = 0;
-    double Ubounds[2], mu = log( p / ( 1 - p ) );
+    double Ubounds[2], mu = log( p0 / ( 1 - p0 ) );
     double candidate, z, trans_lo;
     bool inInterval, valid_lo = true;
 
@@ -41,7 +37,7 @@ NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, d
     double lo = lo0;
     
     // create progress bar
-    //Progress p(iterations, (bool) progress);
+    Progress::Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 1);
@@ -61,18 +57,16 @@ NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p, d
     {
 
       // Check interrupt
-      //if (Progress::check_abort() )
-      //  Rcpp::stop("Operation cancelled by interrupt.");
+      if (Progress::check_abort() )
+        Rcpp::stop("Operation cancelled by interrupt.");
       
-      //p.increment(); // update progress
+      p.increment(); // update progress
       
       // Check callback
       if( RcppCallback( &last_cb, callback, ( 1000.0 * ( i + 1 ) ) / iterations, callbackInterval) )
         Rcpp::stop("Operation cancelled by callback function.");
 
-      // sample delta
-      //Rprintf("%d %f %f %f %f %f %f %f\n", twoSample, d[0], d[1], delta, delta0, delta_sd, Ubounds[0], Ubounds[1]);
-      
+      // sample delta      
       if(doInterval){
         if(intervalCompl){
           candidate = Rf_runif(0, Ubounds[0] + 1 - Ubounds[1]);

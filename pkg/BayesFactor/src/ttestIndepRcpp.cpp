@@ -1,5 +1,4 @@
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
+#include "progress.h"
 #include <time.h>
 #include "bfcommon.h"
 
@@ -51,7 +50,7 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
 
     
     // create progress bar
-    Progress p(iterations, (bool) progress);
+    Progress::Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 5);
