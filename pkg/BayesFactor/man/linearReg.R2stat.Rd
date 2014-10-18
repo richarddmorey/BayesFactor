@@ -3,7 +3,7 @@
 \alias{linearReg.R2stat}
 \title{Use R^2 statistic to compute Bayes factor for regression designs}
 \usage{
-linearReg.R2stat(N, p, R2, rscale = "medium")
+linearReg.R2stat(N, p, R2, rscale = "medium", simple = FALSE)
 }
 \arguments{
 \item{N}{number of observations}
@@ -14,11 +14,14 @@ linearReg.R2stat(N, p, R2, rscale = "medium")
 intercept}
 
 \item{rscale}{numeric prior scale}
+
+\item{simple}{if \code{TRUE}, return only the Bayes factor}
 }
 \value{
-a vector of length 2 containing the computed log(e) Bayes factor
-  (against the intercept-only null), along with a proportional error
-  estimate on the Bayes factor.
+If \code{simple} is \code{TRUE}, returns the Bayes factor (against the
+intercept-only null). If \code{FALSE}, the function returns a
+vector of length 2 containing the computed log(e) Bayes factor,
+along with a proportional error estimate on the Bayes factor.
 }
 \description{
 Using the classical R^2 test statistic for (linear) regression designs, this

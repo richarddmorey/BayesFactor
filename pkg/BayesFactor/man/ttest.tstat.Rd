@@ -4,7 +4,7 @@
 \title{Use t statistic to compute Bayes factor for one- and two- sample designs}
 \usage{
 ttest.tstat(t, n1, n2 = 0, nullInterval = NULL, rscale = "medium",
-  complement = FALSE)
+  complement = FALSE, simple = FALSE)
 }
 \arguments{
 \item{t}{classical t statistic}
@@ -18,14 +18,14 @@ ttest.tstat(t, n1, n2 = 0, nullInterval = NULL, rscale = "medium",
 \item{rscale}{numeric prior scale}
 
 \item{complement}{if \code{TRUE}, compute the Bayes factor against the complement of the interval}
+
+\item{simple}{if \code{TRUE}, return only the Bayes factor}
 }
 \value{
-If \code{nullInterval} is defined, then two Bayes factors will be
-  computed: The Bayes factor for the interval against the null hypothesis
-  that the standardized effect is 0, and the corresponding Bayes factor for
-  the compliment of the interval. For each Bayes factor, a vector of length
-  2 containing the computed log(e) Bayes factor (against the point null),
-  along with a proportional error estimate on the Bayes factor is returned.
+If \code{simple} is \code{TRUE}, returns the Bayes factor (against the
+null). If \code{FALSE}, the function returns a
+vector of length 2 containing the computed log(e) Bayes factor,
+along with a proportional error estimate on the Bayes factor.
 }
 \description{
 Using the classical t test statistic for a one- or two-sample design, this

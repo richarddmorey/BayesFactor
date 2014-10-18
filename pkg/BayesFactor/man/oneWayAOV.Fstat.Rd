@@ -3,7 +3,7 @@
 \alias{oneWayAOV.Fstat}
 \title{Use F statistic to compute Bayes factor for balanced one-way designs}
 \usage{
-oneWayAOV.Fstat(F, N, J, rscale = "medium")
+oneWayAOV.Fstat(F, N, J, rscale = "medium", simple = FALSE)
 }
 \arguments{
 \item{F}{F statistic from classical ANOVA}
@@ -13,11 +13,14 @@ oneWayAOV.Fstat(F, N, J, rscale = "medium")
 \item{J}{number of cells or groups}
 
 \item{rscale}{numeric prior scale}
+
+\item{simple}{if \code{TRUE}, return only the Bayes factor}
 }
 \value{
-a vector of length 2 containing the computed log(e) Bayes factor
-  (against the intercept-only null), along with a proportional error
-  estimate on the Bayes factor.
+If \code{simple} is \code{TRUE}, returns the Bayes factor (against the
+intercept-only null). If \code{FALSE}, the function returns a
+vector of length 2 containing the computed log(e) Bayes factor,
+along with a proportional error estimate on the Bayes factor.
 }
 \description{
 Using the classical F test statistic for a balanced one-way design, this function computes the corresponding Bayes factor test.
