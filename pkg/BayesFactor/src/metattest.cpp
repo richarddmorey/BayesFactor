@@ -50,7 +50,7 @@ NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n
     double delta = delta0;
     
     // create progress bar
-    Progress::Progress p(iterations, (bool) progress);
+    class Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 1);

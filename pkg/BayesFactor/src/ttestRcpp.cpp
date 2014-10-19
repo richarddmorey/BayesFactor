@@ -36,7 +36,7 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
     if(nullModel) mu = 0;
     
     // create progress bar
-    Progress::Progress p(iterations, (bool) progress);
+    class Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 4);

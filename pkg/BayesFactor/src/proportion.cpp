@@ -37,7 +37,7 @@ NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p0, 
     double lo = lo0;
     
     // create progress bar
-    Progress::Progress p(iterations, (bool) progress);
+    class Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 1);

@@ -50,7 +50,7 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
 
     
     // create progress bar
-    Progress::Progress p(iterations, (bool) progress);
+    class Progress p(iterations, (bool) progress);
 
     // Create matrix for chains
     NumericMatrix chains(iterations, 5);
