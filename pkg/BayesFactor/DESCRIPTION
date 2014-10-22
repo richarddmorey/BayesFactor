@@ -2,14 +2,11 @@ Package: BayesFactor
 Type: Package
 Title: Computation of Bayes factors for common designs
 Version: 0.9.9
-Date: 2014-11-22
+Date: 2014-10-22
 Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre"), email =
     "richarddmorey@gmail.com"), person("Jeffrey N.", "Rouder", role = "aut",
     email = "rouderj@missouri.edu"), person("Tahira", "Jamil", role = "ctb",
     email = "tahjamil@gmail.com"))
-Author: Richard D. Morey and Jeffrey N. Rouder, with contributions from Tahira
-    Jamil
-Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 Description: The BayesFactor package is a suite of functions for computing
     various Bayes factors for simple designs, including contingency tables,
     one- and two-sample designs, one-way designs, general ANOVA designs, and

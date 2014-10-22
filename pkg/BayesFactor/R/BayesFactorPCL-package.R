@@ -11,15 +11,20 @@
 #'0.9.9\cr Date: \tab 2014-10-22\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
 #'yes\cr } The following methods are currently implemented, with more to follow:
 #'
-#'Linear regression: \code{\link{regressionBF}} \code{\link{lmBF}}, 
+#'general linear models (including linear mixed effects models): \code{\link{generalTestBF}}, \code{\link{lmBF}}
+#'
+#'linear regression: \code{\link{regressionBF}}, \code{\link{lmBF}}, 
 #'\code{\link{linearReg.R2stat}};
 #'
-#'t test: \code{\link{ttestBF}}, \code{\link{ttest.tstat}};
+#'t tests: \code{\link{ttestBF}}, \code{\link{ttest.tstat}};
 #'
-#'ANOVA: \code{\link{anovaBF}}, \code{\link{lmBF}}, 
-#'\code{\link{oneWayAOV.Fstat}};
+#'meta-analytic t tests: \code{\link{meta.ttestBF}}
+#'
+#'ANOVA: \code{\link{anovaBF}}, \code{\link{lmBF}}, \code{\link{oneWayAOV.Fstat}};
 #'
 #'contingency tables: \code{\link{contingencyTableBF}};
+#'
+#'single proportions: \code{\link{proportionBF}};
 #'
 #'Other useful functions: \code{\link{posterior}}, for sampling from posterior 
 #'distributions; \code{\link{recompute}}, for re-estimating a Bayes factor or 
