@@ -134,7 +134,7 @@ contingencyHypergeometric<-function (y, a) {
     all.M <- t(sapply(lower:upper, function(i) c(a=i, b=M[1] - i, c=M[3] - i,
                                                  d=M[4] - M[1] + i)))
     a <- a + 0 * y
-    n.sim<-upper+1
+    n.sim<-n.sim<-dim(all.M)[1]
     g1<- rep(NA,n.sim)
     
     for (s in 1:n.sim)  {
