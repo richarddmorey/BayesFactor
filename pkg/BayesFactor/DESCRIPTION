@@ -1,8 +1,8 @@
 Package: BayesFactor
 Type: Package
 Title: Computation of Bayes Factors for Common Designs
-Version: 0.9.9
-Date: 2014-10-22
+Version: 0.9.10
+Date: 2014-11-22
 Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre"), email =
     "richarddmorey@gmail.com"), person("Jeffrey N.", "Rouder", role = "aut",
     email = "rouderj@missouri.edu"), person("Tahira", "Jamil", role = "ctb",
