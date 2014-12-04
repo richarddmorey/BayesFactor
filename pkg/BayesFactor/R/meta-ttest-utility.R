@@ -114,7 +114,7 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   delta.est = t/sqrt(N)
   mean.delta = sum((delta.est * N)/sum(N))
   log.const = meta.t.like(mean.delta,t,N,df,rscale,log=TRUE)
-  intgl = integrate(meta.t.like,lower,upper,t=t,N=N,df=df,rscale=rscale,log.const=log.const)
+  intgl = integrate(meta.t.like,lower-mean.delta,upper-mean.delta,t=t,N=N,df=df,rscale=rscale,log.const=log.const,shift=mean.delta)
   
   val = log(intgl[[1]]) + log.const - prior.interval - nullLike
   err = exp(log(intgl[[2]]) - val)
@@ -127,9 +127,9 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   )
 }
 
-meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE){
+meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE,shift=0){
   ans = suppressWarnings(
-    sum(dt(t,df,ncp=delta*sqrt(N),log=TRUE)) + dcauchy(delta,scale=rscale,log=TRUE) - log.const
+    sum(dt(t,df,ncp=(delta + shift)*sqrt(N),log=TRUE)) + dcauchy(delta+shift,scale=rscale,log=TRUE) - log.const
   )
   if(log){
     return(ans)
