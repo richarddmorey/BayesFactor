@@ -120,7 +120,7 @@ nWayAOV<- function(y, X, struc = NULL, gMap = NULL, rscale, iterations = 10000, 
   N = length(y)
 	X = matrix( X, nrow=N )
   
-  constantCols = apply(X,2,function(v) length(unique(v)))==1
+  constantCols = apply(X,2,function(v) length(unique(v)))==1 & !apply(X,2,function(v) all(v==0))
   if( sum(constantCols) > 0 )
 	{
     X = X[,-which(constantCols)]
