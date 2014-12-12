@@ -29,52 +29,55 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                     shortName = paste("Intercept only",sep=""),
                     longName = paste("Intercept only", sep="")
                   )
-                     
-    if( nFactors == 0 ){
-      numerator = denominator
-      bf = c(bf = 0, properror = 0)
-    }else if(all(relevantDataTypes == "continuous")){
-      ## Regression
-      reg = summary(lm(formula,data=data))
-      R2 = reg[[8]]
-      N = nrow(data)
-      p = length(attr(terms(formula),"term.labels"))
-      bf = linearReg.R2stat(N,p,R2,rscale=rscaleCont)
-    }else if(all(relevantDataTypes != "continuous")){
-      # ANOVA or t test
-      freqs <- table(data[[factors[1]]])
-      nLvls <- length(freqs)
-      rscale = ifelse(dataTypes[factors[1]] == "fixed", rscaleFixed, rscaleRandom)              
-      if( (nFactors==1) & (nLvls==2) ){
-        # test
-        # independent groups t
-        t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
-        bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
-      }else if( (nFactors==1) & (nLvls>2) & all(freqs==freqs[1])){          
-        # Balanced one-way
-        Fstat = summary(aov(formula, data=data))[[1]]["F value"][1,] 
-        J = length(freqs)
-        N = freqs[1]
-        bf = oneWayAOV.Fstat(Fstat, N, J, rscale)                
-      }else if( (nFactors > 1) | ( (nFactors == 1) & any(freqs!=freqs[1]))){ 
-        # Nway ANOVA or unbalanced one-way ANOVA
+    bf <- c(bf=NA, properror=NA)                 
+    try({
+      if( nFactors == 0 ){
+        numerator = denominator
+        bf = c(bf = 0, properror = 0)
+      }else if(all(relevantDataTypes == "continuous")){
+        ## Regression
+        reg = summary(lm(formula,data=data))
+        R2 = reg[[8]]
+        N = nrow(data)
+        p = length(attr(terms(formula),"term.labels"))
+        bf = linearReg.R2stat(N,p,R2,rscale=rscaleCont)
+      }else if(all(relevantDataTypes != "continuous")){
+        # ANOVA or t test
+        freqs <- table(data[[factors[1]]])
+        nLvls <- length(freqs)
+        rscale = ifelse(dataTypes[factors[1]] == "fixed", rscaleFixed, rscaleRandom)              
+        if( (nFactors==1) & (nLvls==2) ){
+          # test
+          # independent groups t
+          t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
+          bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
+        }else if( (nFactors==1) & (nLvls>2) & all(freqs==freqs[1])){          
+          # Balanced one-way
+          Fstat = summary(aov(formula, data=data))[[1]]["F value"][1,] 
+          J = length(freqs)
+          N = freqs[1]
+          bf = oneWayAOV.Fstat(Fstat, N, J, rscale)                
+        }else if( (nFactors > 1) | ( (nFactors == 1) & any(freqs!=freqs[1]))){ 
+          # Nway ANOVA or unbalanced one-way ANOVA
           bf = nWayFormula(formula=formula, data = data, 
                 dataTypes = dataTypes,
                 rscaleFixed = rscaleFixed,
                 rscaleRandom = rscaleRandom,
                 gibbs = FALSE, ...)
-      }else{ # Nothing
-        stop("Too few levels in independent variable: ",factors[1])
-      }
-    }else{
-      # GLM
-      bf = nWayFormula(formula=formula, data = data, 
+        }else{ # Nothing
+          stop("Too few levels in independent variable: ",factors[1])
+        }
+      }else{
+        # GLM
+        bf = nWayFormula(formula=formula, data = data, 
                        dataTypes = dataTypes,
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
                        rscaleCont = rscaleCont,
                        gibbs = FALSE, ...)
-    }
+      }
+    }) # End try expression
+    
     numerator@analysis = as.list(bf)
     numerator = combineModels(list(numerator,old.numerator))
                   

@@ -50,13 +50,17 @@
 oneWayAOV.Fstat = function(F, N, J, rscale="medium", simple = FALSE)
 {
   rscale = rpriorValues("allNways","fixed",rscale)
-  log.const = marginal.g.oneWay(1,F=F,N=N,J=J,rscale=rscale,log=TRUE)
-  integral = integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale,log.const=log.const)
-  properror = exp(log(integral[[2]]) - log(integral[[1]]))
-	bf = log(integral[[1]]) + log.const
-	if(simple){
-	  return(c(B10=exp(bf)))
+  res = c(bf=NA, properror=NA)
+  try({
+    log.const = marginal.g.oneWay(1,F=F,N=N,J=J,rscale=rscale,log=TRUE)
+    integral = integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale,log.const=log.const)
+    properror = exp(log(integral[[2]]) - log(integral[[1]]))
+	  bf = log(integral[[1]]) + log.const
+	  res = c(bf=bf, properror=properror)
+  })
+  if(simple){
+	  return(c(B10=exp(res$bf)))
   }else{
-    return(c(bf=bf, properror=properror))
+    return(res)
 	}
 }
