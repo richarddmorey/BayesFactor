@@ -127,13 +127,19 @@ possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
   mb = monotoneBooleanNice(nFactors)
   mb = mb[-c(1,2),-ncol(mb)]
   
+  if(dim(mb)[1]==0) stop("No models left in analysis. Please check that your model is valid under 'withmain'.")
+  
   # Remove rows that have include
   invalidRows = apply(mb,1,function(v) any(v[toDiscard]))
-  mb = mb[!invalidRows,]
+  mb = matrix(mb[!invalidRows,], ncol = ncol(mb))
+  
+  if(dim(mb)[1]==0) stop("No models left in analysis. Please check that your model is valid under 'withmain'.")
   
   # Remove rows that do NOT include required terms
   validRows = apply(mb,1,function(v) all(v[toKeep]))
-  mb = mb[validRows,]
+  mb = matrix(mb[validRows,], ncol = ncol(mb))
+
+  if(dim(mb)[1]==0) stop("No models left in analysis. Please check that your model is valid under 'withmain'.")
   
   # Get all submodels of the specified model
   subMods = subModelsMatrix(row,mb)
