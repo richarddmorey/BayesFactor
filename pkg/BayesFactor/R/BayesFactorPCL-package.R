@@ -45,7 +45,7 @@
 #'  
 #'  Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. 
 #'  (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
-#'  Psychonomic Bulletin & Review, 16, 752-760
+#'  Psychonomic Bulletin & Review, 16, 225-237
 #'  
 #'  Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) 
 #'  Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology.

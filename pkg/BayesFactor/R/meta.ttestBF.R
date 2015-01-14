@@ -46,7 +46,7 @@
 ##'   
 ##'   Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. 
 ##'   (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
-##'   Psychonomic Bulletin & Review, 16, 752-760
+##'   Psychonomic Bulletin & Review, 16, 225-237
 ##'   
 ##'   Rouder, J. N. & Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim.
 ##'   Psychonomic Bulletin & Review, 18, 682-689  

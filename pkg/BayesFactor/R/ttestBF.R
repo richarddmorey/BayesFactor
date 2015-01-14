@@ -60,7 +60,7 @@
 ##'   
 ##'   Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. 
 ##'   (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
-##'   Psychonomic Bulletin & Review, 16, 752-760
+##'   Psychonomic Bulletin & Review, 16, 225-237
 ##'   
 ##'   Perception and Cognition Lab (University of Missouri): Bayes factor 
 ##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
