@@ -110,3 +110,18 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// logSummaryStatsRcpp
+NumericVector logSummaryStatsRcpp(NumericVector x);
+RcppExport SEXP BayesFactor_logSummaryStatsRcpp(SEXP xSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
+        NumericVector __result = logSummaryStatsRcpp(x);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

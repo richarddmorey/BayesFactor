@@ -17,7 +17,8 @@ export(logMeanExpLogs,
     meta.ttestBF,
     proportionBF,
     contingencyTableBF,
-    enumerateGeneralModels)
+    enumerateGeneralModels,
+    logSummaryStatsRcpp)
 
 import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)

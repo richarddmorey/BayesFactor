@@ -17,3 +17,7 @@ gibbsOneSampleRcpp <- function(ybar, s2, N, rscale, iterations, doInterval, inte
     .Call('BayesFactor_gibbsOneSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
+logSummaryStatsRcpp <- function(x) {
+    .Call('BayesFactor_logSummaryStatsRcpp', PACKAGE = 'BayesFactor', x)
+}
+
