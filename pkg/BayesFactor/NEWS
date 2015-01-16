@@ -2,6 +2,8 @@
 
 CHANGES
   *  Various bug fixes
+  *  Analyses are more error tolerant (problem analyses will yield NA in BayesFactor object)
+  *  Fixed some typos in citation information
 
   CHANGES IN BayesFactor VERSION 0.9.9
 
