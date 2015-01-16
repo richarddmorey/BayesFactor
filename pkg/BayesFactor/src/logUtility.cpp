@@ -5,6 +5,7 @@ using namespace Rcpp;
 
 // return log(1 + exp(x)), preventing cancellation and overflow */
 // From http://www.codeproject.com/KB/recipes/avoiding_overflow.aspx
+// [[Rcpp::export]]
 double log1pExp(double x)
 {
     const double LOG_DBL_EPSILON = log(DBL_EPSILON);
@@ -27,12 +28,14 @@ double log1pExp(double x)
 }
 
 // Compute log(exp(x) + exp(y))
+// [[Rcpp::export]]
 double logExpXplusExpY( const double x, const double y )
 {
   return x + log1pExp( y - x );
 }
 
 // Compute log(exp(x) - exp(y))
+// [[Rcpp::export]]
 double logExpXminusExpY( const double x, const double y )
 {
   return x + Rf_pexp( x - y, 1, true, true );

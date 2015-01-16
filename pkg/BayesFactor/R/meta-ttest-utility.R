@@ -75,8 +75,8 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
     } 
   }else{
     logPriorProbs = pcauchy(c(-Inf,interval,Inf),scale=rscale,log.p=TRUE)
-    prior.interval1 = logExpAminusExpB(logPriorProbs[2], logPriorProbs[1])
-    prior.interval3 = logExpAminusExpB(logPriorProbs[4], logPriorProbs[3])
+    prior.interval1 = logExpXminusExpY(logPriorProbs[2], logPriorProbs[1])
+    prior.interval3 = logExpXminusExpY(logPriorProbs[4], logPriorProbs[3])
     
     prior.interval.1.3 = logMeanExpLogs(c(prior.interval1,prior.interval3)) + log(2)
     
@@ -110,7 +110,7 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
 meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   nullLike = sum(dt(t,df,log=TRUE))
   logPriorProbs = pcauchy(c(upper,lower),scale=rscale,log.p=TRUE)
-  prior.interval = logExpAminusExpB(logPriorProbs[1], logPriorProbs[2])
+  prior.interval = logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
   delta.est = t/sqrt(N)
   mean.delta = sum((delta.est * N)/sum(N))
   log.const = meta.t.like(mean.delta,t,N,df,rscale,log=TRUE)

@@ -14,7 +14,7 @@
 #'that avoids overflow (see the references). The code is written in C for very
 #'fast computations.
 #'
-#'@aliases logMeanExpLogs logCumMeanExpLogs
+#'@aliases logMeanExpLogs logCumMeanExpLogs logSummaryStats
 #'@param v A vector of (log) values
 #'@return \code{logMeanExpLogs} returns a single value;
 #'\code{logCumMeanExpLogs} returns a vector of values of the same length as
@@ -46,13 +46,11 @@
 #'
 logMeanExpLogs = function(v)
 {
-	N = length(v)
-	.Call("RLogMeanExpLogs", as.numeric(v), N, package="BayesFactor")
+  logSummaryStats(v)$logMean
 }
 
 logCumMeanExpLogs = function(v)
 {
-	N = length(v)
-	.Call("RLogCumMeanExpLogs", as.numeric(v), N, package="BayesFactor")
+  logSummaryStats(v)$cumLogMean
 }
 

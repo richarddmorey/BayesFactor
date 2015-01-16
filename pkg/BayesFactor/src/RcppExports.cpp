@@ -5,6 +5,53 @@
 
 using namespace Rcpp;
 
+// log1pExp
+double log1pExp(double x);
+RcppExport SEXP BayesFactor_log1pExp(SEXP xSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< double >::type x(xSEXP );
+        double __result = log1pExp(x);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// logExpXplusExpY
+double logExpXplusExpY(const double x, const double y);
+RcppExport SEXP BayesFactor_logExpXplusExpY(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type y(ySEXP );
+        double __result = logExpXplusExpY(x, y);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// logExpXminusExpY
+double logExpXminusExpY(const double x, const double y);
+RcppExport SEXP BayesFactor_logExpXminusExpY(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type y(ySEXP );
+        double __result = logExpXminusExpY(x, y);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // metropMetaTRcpp
 NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n2, bool twoSample, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
 RcppExport SEXP BayesFactor_metropMetaTRcpp(SEXP tSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP twoSampleSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
@@ -111,14 +158,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // logSummaryStatsRcpp
-NumericVector logSummaryStatsRcpp(NumericVector x);
+List logSummaryStatsRcpp(NumericVector x);
 RcppExport SEXP BayesFactor_logSummaryStatsRcpp(SEXP xSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
-        NumericVector __result = logSummaryStatsRcpp(x);
+        List __result = logSummaryStatsRcpp(x);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
