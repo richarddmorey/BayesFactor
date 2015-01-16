@@ -110,11 +110,9 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   bf = returnList[[1]] - nullLike
   
   # estimate error
-  sumx = bf + log(n2)
-  sumx2 = logMeanExpLogs(2*bfSamp) + log(n2)
-  properror = propErrorEst2(sumx,sumx2,n2)
-    
-  return(list(bf = bf, properror=properror, sumx=sumx, sumx2 = sumx2, N = n2, method = method, sampled = TRUE, code = randomString(1)))
+  properror = propErrorEst(bfSamp)
+  
+  return(list(bf = bf, properror=properror, N = n2, method = method, sampled = TRUE, code = randomString(1)))
 }
 
 createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL){

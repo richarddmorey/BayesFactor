@@ -25,7 +25,7 @@ like.prop.test = Vectorize(function(lo, y, N, p, rscale, log = FALSE, log.const 
 
 prop.test.bf.interval <- function(y, N, p, rscale, nullInterval){ 
   intervalProb = plogis(nullInterval, qlogis(p), rscale, log.p = TRUE)
-  prior.interval = logExpAminusExpB(intervalProb[2], intervalProb[1])
+  prior.interval = logExpXminusExpY(intervalProb[2], intervalProb[1])
   log.const = like.prop.test(qlogis((sum(y)+1)/(sum(N)+2)),y = y, N = N, p = p, rscale = rscale, log = TRUE)
   intgl = integrate(like.prop.test,nullInterval[1],nullInterval[2], y = y, N = N, p = p, rscale = rscale, log.const = log.const)
   nullLike = sum(dbinom(y, N, p, log = TRUE))
@@ -69,8 +69,8 @@ prop.test.bf <- function(y, N, p, rscale, interval, complement){
     } 
   }else{
     logPriorProbs = plogis(c(-Inf,interval,Inf), qlogis(p), scale=rscale,log.p=TRUE)
-    prior.interval1 = logExpAminusExpB(logPriorProbs[2], logPriorProbs[1])
-    prior.interval3 = logExpAminusExpB(logPriorProbs[4], logPriorProbs[3])
+    prior.interval1 = logExpXminusExpY(logPriorProbs[2], logPriorProbs[1])
+    prior.interval3 = logExpXminusExpY(logPriorProbs[4], logPriorProbs[3])
     
     prior.interval.1.3 = logMeanExpLogs(c(prior.interval1,prior.interval3)) + log(2)
     

@@ -84,18 +84,9 @@ whichOmitted <- function(numerator, full){
 
 propErrorEst = function(logX){
   logX = logX[!is.na(logX)]
-  n = length(logX)
-  logSumX = logMeanExpLogs(logX) + log(n)
-  logSumX2 = logMeanExpLogs(2*logX) + log(n)
-  sqrt((exp(logSumX2 - 2*logSumX) - 1/n) * (n/(n-1)))
+  summaries = logSummaryStats(logX)
+  exp( ( summaries$logVar - log(length(logX)) )/2 - summaries$logMean)
 }
-
-propErrorEst2 = function(sumX,sumX2,n){
-  sqrt((exp(sumX2 - 2*sumX) - 1/n) * (n/(n-1)))
-}
-
-
-
 
 combineModels <- function(modelList, checkCodes = TRUE){
   are.same = sapply(modelList[-1],function(m) modelList[[1]] %same% m)
@@ -366,16 +357,9 @@ sumWithPropErr <- function(x1,x2,err1,err2){
   # convert proportional error to abs err
   logAbs1 = x1 + log(err1)
   logAbs2 = x2 + log(err2)
-  # Compute the logarithms of sums of exponentiated logarithms, safely
-  logSum = logMeanExpLogs(c(x1, x2)) + log(2)
-  absSum = .5 * (logMeanExpLogs(2*c(logAbs1, logAbs2)) + log(2))
+  logSum =  logExpXplusExpY( x1, x2 )
+  absSum = .5 * logExpXplusExpY(2*logAbs1, 2*logAbs2)
   
   propErr = exp(absSum - logSum)
   return(c(logSum,propErr))
 }
-
-# Return log(exp(a) - exp(b)), without losing precision
-logExpAminusExpB <- function(a,b)
-  a + pexp(a-b,log.p=TRUE)
-
-
