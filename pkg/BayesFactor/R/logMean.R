@@ -16,13 +16,15 @@
 #'
 #'@aliases logMeanExpLogs logCumMeanExpLogs logSummaryStats
 #'@param v A vector of (log) values
-#'@return \code{logMeanExpLogs} returns a single value;
+#'@return \code{logMeanExpLogs} returns a single value,
 #'\code{logCumMeanExpLogs} returns a vector of values of the same length as
-#'\var{v}.
+#'\var{v}, and \code{logSummaryStats} returns a list of the 
+#'log mean, log variance, and cumulative log means.
 #'@author Richard D. Morey (\email{richarddmorey@@gmail.com})
 #'@references For details of the approximation of \eqn{\log(1+e^x)}{log(1+e^x)}
 #'used to prevent loss of precision, see
-#'\url{http://www.codeproject.com/Articles/25294/Avoiding-Overflow-Underflow-and-Loss-of-Precision}.
+#'\url{http://www.codeproject.com/Articles/25294/Avoiding-Overflow-Underflow-and-Loss-of-Precision} and
+#'\url{http://www.johndcook.com/blog/standard_deviation/}.
 #'@keywords arith misc
 #'@examples
 #'

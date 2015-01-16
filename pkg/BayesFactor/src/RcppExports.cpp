@@ -5,6 +5,21 @@
 
 using namespace Rcpp;
 
+// logSummaryStats
+List logSummaryStats(NumericVector x);
+RcppExport SEXP BayesFactor_logSummaryStats(SEXP xSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
+        List __result = logSummaryStats(x);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // log1pExp
 double log1pExp(double x);
 RcppExport SEXP BayesFactor_log1pExp(SEXP xSEXP) {
@@ -151,21 +166,6 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
         Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
         NumericMatrix __result = gibbsOneSampleRcpp(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// logSummaryStatsRcpp
-List logSummaryStatsRcpp(NumericVector x);
-RcppExport SEXP BayesFactor_logSummaryStatsRcpp(SEXP xSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP );
-        List __result = logSummaryStatsRcpp(x);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
