@@ -21,7 +21,7 @@ enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBo
   logicalToInclude = filterVectorLogical(neverExclude,trms)
   if(any(logicalToInclude)){
     alwaysIncluded = trms[logicalToInclude]
-    if(whichModels=="withMain"){
+    if(whichModels=="withmain"){
       rq = matrix(outer(trms,alwaysIncluded,requiredFor),nrow=length(trms))
       rq = apply(rq,1,any)
       logicalToInclude[rq] = TRUE 
