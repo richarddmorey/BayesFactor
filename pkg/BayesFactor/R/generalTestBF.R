@@ -89,7 +89,7 @@ generalTestBF <-
     
     if(multicore){
       message("Note: Progress bars and callbacks are suppressed when running multicore.")
-      if(!require(doMC, quietly = TRUE)){
+      if(!requireNamespace("doMC", quietly = TRUE)){
         stop("Required package (doMC) missing for multicore functionality.")
       } 
       
