@@ -53,7 +53,7 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogr
   if(multicore){
     callback = function(...) as.integer(0)
     message("Note: Progress bars and callbacks are suppressed when running multicore.")
-    if( !suppressMessages( require(doMC, quietly = TRUE) ) ){
+    if( !suppressMessages( requireNamespace("doMC", quietly = TRUE) ) ){
       stop("Required package (doMC) missing for multicore functionality.")
     } 
     doMC::registerDoMC()
