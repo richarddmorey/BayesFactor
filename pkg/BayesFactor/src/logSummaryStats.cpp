@@ -48,6 +48,6 @@ List logSummaryStats(NumericVector x)
     }
   
     retM(0) = M.modulo();
-    retS(0) = S.modulo() - log(N - 1);
+    retS(0) = S.modulo() - log(N - 1.0);
     return ret;
 }
