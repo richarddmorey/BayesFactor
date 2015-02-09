@@ -2,7 +2,7 @@
 % Please edit documentation in R/aaGenerics.R
 \name{\%termin\%}
 \alias{\%termin\%}
-\title{Find a model term in a vector of}
+\title{Find a model term in a vector of model terms}
 \usage{
 x \%termin\% table
 }
@@ -16,6 +16,6 @@ A logical vector of the same length as x, indicating if a
 match was located for each element of x.
 }
 \description{
-Find a model term in a vector of
+Find a model term in a vector of model terms
 }
 

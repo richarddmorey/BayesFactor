@@ -5,7 +5,7 @@
 #' @return Returns \code{TRUE} or \code{FALSE}
 setGeneric("%same%", function(x, y) standardGeneric("%same%"))
 
-#' Find a model term in a vector of 
+#' Find a model term in a vector of model terms
 #' @param x the terms to be matched
 #' @param table the terms to be matched against
 #' @return A logical vector of the same length as x, indicating if a 
