@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/6098/richarddmorey/BayesFactor.svg)](http://dx.doi.org/10.5281/zenodo.14858)
+[![DOI](https://zenodo.org/badge/6098/richarddmorey/BayesFactor.svg)](http://dx.doi.org/10.5281/zenodo.14950)
 
 `BayesFactor` is an R package that enables the computation of Bayes factors in standard designs, such as one- and two- sample designs, ANOVA designs, and regression.
 
