@@ -8,7 +8,7 @@
 #'regression, and contingency tables.
 #'
 #'\tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-#'0.9.10-1\cr Date: \tab 2015-2-2\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
+#'0.9.10-2\cr Date: \tab 2015-2-9\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
 #'yes\cr } The following methods are currently implemented, with more to follow:
 #'
 #'general linear models (including linear mixed effects models): \code{\link{generalTestBF}}, \code{\link{lmBF}}
@@ -38,7 +38,6 @@
 #'@author Richard D. Morey and Jeffrey N. Rouder (with contributions from Tahira Jamil)
 #'  
 #'  Maintainer: Richard D. Morey <richarddmorey@@gmail.com>
-#'@seealso \code{\link[BAS:BAS-package]{BAS}}
 #'@references Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and 
 #'  Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. 
 #'  Journal of the American Statistical Association, 103, pp. 410-423

@@ -13,7 +13,7 @@ regression, and contingency tables.
 }
 \details{
 \tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-0.9.10\cr Date: \tab 2014-11-22\cr License: \tab GPL 2.0\cr LazyLoad: \tab
+0.9.10-2\cr Date: \tab 2015-2-9\cr License: \tab GPL 2.0\cr LazyLoad: \tab
 yes\cr } The following methods are currently implemented, with more to follow:
 
 general linear models (including linear mixed effects models): \code{\link{generalTestBF}}, \code{\link{lmBF}}
@@ -60,9 +60,6 @@ Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
 
  Perception and Cognition Lab (University of Missouri): Bayes factor
  calculators. \url{http://pcl.missouri.edu/bayesfactor}
-}
-\seealso{
-\code{\link[BAS:BAS-package]{BAS}}
 }
 \keyword{htest}
 
