@@ -52,6 +52,11 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   if(length(interval)!=2 & !is.null(interval))
     stop("argument interval must have two elements.")
   
+  if(any(abs(t)>15)){
+    message("t is large; approximation invoked.")
+    meta.bf.interval = meta.bf.interval_approx
+  }
+  
   if(is.null(interval)){
     return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
   }
@@ -66,29 +71,39 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
     }
   }
   
+  if(any(abs(t)>5)){
+    message("t is large; approximation invoked.")
+    meta.bf.interval = meta.bf.interval_approx
+  }
+  
   if(any(is.infinite(interval))){
-    bf = meta.bf.interval(interval[1],interval[2],t,N,df,rscale)
-    if(interval[1]==-Inf){
-      bf.compl = meta.bf.interval(interval[2],Inf,t,N,df,rscale)  
+    if(!complement){
+      bf = meta.bf.interval(interval[1],interval[2],t,N,df,rscale)
     }else{
-      bf.compl = meta.bf.interval(-Inf,interval[1],t,N,df,rscale)
-    } 
+      if( ( interval[1]==-Inf ) ){
+        bf.compl = meta.bf.interval(interval[2],Inf,t,N,df,rscale)  
+      }else{
+        bf.compl = meta.bf.interval(-Inf,interval[1],t,N,df,rscale)
+      }
+    }
   }else{
     logPriorProbs = pcauchy(c(-Inf,interval,Inf),scale=rscale,log.p=TRUE)
     prior.interval1 = logExpXminusExpY(logPriorProbs[2], logPriorProbs[1])
     prior.interval3 = logExpXminusExpY(logPriorProbs[4], logPriorProbs[3])
     
-    prior.interval.1.3 = logMeanExpLogs(c(prior.interval1,prior.interval3)) + log(2)
+    prior.interval.1.3 = logExpXplusExpY(prior.interval1,prior.interval3)
     
     bf1 = meta.bf.interval(-Inf,interval[1],t,N,df,rscale)
     bf = meta.bf.interval(interval[1],interval[2],t,N,df,rscale)
     bf3 = meta.bf.interval(interval[2],Inf,t,N,df,rscale)
     
-    bf.compl = sumWithPropErr(bf1[['bf']] + prior.interval1,
+    if(complement){
+      bf.compl = sumWithPropErr(bf1[['bf']] + prior.interval1,
                               bf3[['bf']] + prior.interval3,
                               bf1[['properror']],
                               bf3[['properror']])
-    bf.compl[1] = bf.compl[1] - prior.interval.1.3
+      bf.compl[1] = bf.compl[1] - prior.interval.1.3
+    }
   }
   
   if(complement){
@@ -180,6 +195,41 @@ meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInter
   }
   
   return(mcmc(data.frame(delta=chains)))
+}
+
+meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
+  
+  ## Savage-Dickey using t approximation to posterior of delta
+  delta.est = t/sqrt(N)
+  mean.delta = sum((delta.est * N)/sum(N))
+  var.delta = 1/sum(N)
+  
+  logPriorDensity = dcauchy(0, scale = rscale, log=TRUE)
+  logPriorProbs = pcauchy(c(upper,lower),scale=rscale,log.p=TRUE)
+  logPostProbs = pt((c(upper,lower) - mean.delta)/sqrt(var.delta),sum(df),log.p=TRUE)
+  
+  prior.interval = BayesFactor:::logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
+  post.interval = BayesFactor:::logExpXminusExpY(logPostProbs[1], logPostProbs[2])
+  
+  log.bf.interval = post.interval - prior.interval
+  
+  logPosteriorDensity = -lbeta(.5, sum(N)/2) - sum(N)/2 * log(1 + mean.delta^2)
+  log.bf.point = logPriorDensity - logPosteriorDensity
+  
+  if(lower == -Inf & upper == Inf){
+    val = log.bf.point
+    err = NA
+  }else{
+    val = log.bf.interval + log.bf.point
+    err = NA
+  }
+  
+  return(
+    list(
+      bf = val,
+      properror = err
+    )
+  )
 }
 
 
