@@ -208,8 +208,8 @@ meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
   logPriorProbs = pcauchy(c(upper,lower),scale=rscale,log.p=TRUE)
   logPostProbs = pt((c(upper,lower) - mean.delta)/sqrt(var.delta),sum(df),log.p=TRUE)
   
-  prior.interval = BayesFactor:::logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
-  post.interval = BayesFactor:::logExpXminusExpY(logPostProbs[1], logPostProbs[2])
+  prior.interval = logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
+  post.interval = logExpXminusExpY(logPostProbs[1], logPostProbs[2])
   
   log.bf.interval = post.interval - prior.interval
   
