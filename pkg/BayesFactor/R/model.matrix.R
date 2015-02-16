@@ -22,8 +22,9 @@ designMatrixJZS_LM = function(bf, ...){
   if( nFactors == 0 ){
     X = matrix(1,nrow(data),1)
     gMap = c(intercept=NA)
-  }else{              
-    X = fullDesignMatrix(formula, data, dataTypes)
+  }else{
+    # Remove "as.matrix" when sparse matrix support is added
+    X = as.matrix(fullDesignMatrix(formula, data, dataTypes))
     gMap = createGMap(formula, data, dataTypes)
     X = cbind(1,X)
     gMap = c(intercept=NA, gMap + 1)
