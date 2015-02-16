@@ -5,6 +5,7 @@ CHANGES
   * Made some error messages clearer
   * Use callbacks at least once in all cases
   * Fix bug preventing continuous interactions from showing in regression Gibbs sampler
+  * Removed unexported function oneWayAOV.Gibbs(), and related C functions, due to redundancy
 
   CHANGES IN BayesFactor VERSION 0.9.10-2
 
