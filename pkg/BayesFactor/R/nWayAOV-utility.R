@@ -205,31 +205,33 @@ termTypes <- function(formula, data, dataTypes){
 fullDesignMatrix <- function(fmla, data, dataTypes){
   trms <- attr(terms(fmla, data = data), "term.labels")
   
+  sparse = any(dataTypes=="random")
+  
   Xs = lapply(trms,function(trm, data, dataTypes){
-    oneDesignMatrix(trm, data = data, dataTypes = dataTypes)      
+    oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)      
   }, data = data, dataTypes = dataTypes)    
   
-  do.call("cbind",Xs)
+  do.call("cBind" ,Xs)
 }
 
-oneDesignMatrix <- function(trm, data, dataTypes)
+oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
 {
   effects <- unlist(strsplit(trm, ":", fixed = TRUE))
   #check to ensure all terms are in data
   checkEffects(effects, data, dataTypes)
-  
+    
   if(length(effects) == 1){
     effect = paste("~",effects,"-1")
-    X = model.matrix(formula(effect),data = data)
+    X = model.Matrix(formula(effect),data = data, sparse = sparse)
     if(dataTypes[effects] == "fixed"){
-      X = X %*% fixedFromRandomProjection(ncol(X))
+      X = X %*% fixedFromRandomProjection(ncol(X), sparse = sparse)
       colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
     }
     return(X)
   }else{
-    Xs = lapply(effects, function(trm, data, dataTypes){
-      oneDesignMatrix(trm, data = data, dataTypes = dataTypes)
-    }, data = data, dataTypes = dataTypes)
+    Xs = lapply(effects, function(trm, data, dataTypes, sparse){
+      oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)
+    }, data = data, dataTypes = dataTypes, sparse = sparse)
     X = Reduce(rowMultiply, x = Xs)
     return(X)
   }
@@ -259,9 +261,9 @@ design.projection.intList <- function(effects, data, dataTypes){
   firstCol = data[ ,effects[1] ]
   nLevs = nlevels( firstCol )
   if(length(effects)==1){
-    if(type=="random") return(diag(nLevs))
+    if(type=="random") return(bdiag(diag(nLevs)))
     if(type=="fixed") return(fixedFromRandomProjection(nLevs))
-    if(type=="continuous") return(matrix(1,1,1))
+    if(type=="continuous") return(Matrix(1,1,1))
   }else{
     if(type=="random") 
       return(kronecker(diag(nLevs), design.projection.intList(effects[-1],data, dataTypes) ))
@@ -277,14 +279,15 @@ rowPaste = function(v1,v2)
   as.vector(t(outer(v1,v2,paste,sep=".&.")))
 }
 
-rowMultiply = function(x,y)
+rowMultiply = function(x, y)
 {
+  sparse = is(x, "sparseMatrix") | is(y, "sparseMatrix")
   if(nrow(x) != nrow(y)) stop("Unequal row numbers in row.multiply:", nrow(x),", ",nrow(y))
   K = sapply(1:nrow(x), function(n, x, y){
     kronecker(x[n,], y[n,])
   }, x = x, y = y )
   # add names
-  K <- t(matrix(K, ncol = nrow(x)))
+  K <- t(Matrix(as.vector(K), ncol = nrow(x), sparse = sparse))
   colnames(K) = as.vector(t(
     outer(colnames(x), colnames(y), function(x,y){
       paste(x, y,sep=".&.")
@@ -293,10 +296,10 @@ rowMultiply = function(x,y)
 }
 
 # Create projection matrix
-fixedFromRandomProjection <- function(nlevRandom){
+fixedFromRandomProjection <- function(nlevRandom, sparse = FALSE){
   centering=diag(nlevRandom)-(1/nlevRandom)
   S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
-  return(matrix(S,nrow=nlevRandom))
+  return(Matrix(S,nrow=nlevRandom, sparse = sparse))
 }
 
 centerContinuousColumns <- function(data){
@@ -318,6 +321,9 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   y = data[,stringFromFormula(formula[[2]])]
   data <- centerContinuousColumns(data)
   X = fullDesignMatrix(formula, data, dataTypes)
+  
+  # To be removed when sparse matrix support is complete
+  X = as.matrix(X)
   
   rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
   gMap = createGMap(formula, data, dataTypes)
@@ -377,7 +383,7 @@ unreduceChainPart = function(term, chains, data, dataTypes, gMap, ignoreCols){
   chains = chains[, remappedCols, drop = FALSE ]
   if(any(dataTypes[effects]=="fixed")){
     S = design.projection.intList(effects, data, dataTypes)
-    return(chains%*%t(S))
+    return(chains%*%as.matrix(t(S)))
   }else{
     return(chains)
   }
