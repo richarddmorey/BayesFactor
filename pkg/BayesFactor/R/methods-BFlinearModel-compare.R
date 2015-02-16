@@ -44,6 +44,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
       }else if(all(relevantDataTypes != "continuous")){
         # ANOVA or t test
         freqs <- table(data[[factors[1]]])
+        if(all(freqs==1)) stop("not enough observations")
         nLvls <- length(freqs)
         rscale = ifelse(dataTypes[factors[1]] == "fixed", rscaleFixed, rscaleRandom)              
         if( (nFactors==1) & (nLvls==2) ){
