@@ -106,7 +106,7 @@ generalTestBF <-
              progress=FALSE,noSample=noSample)
         )
     }else{ # Single core
-      
+      callback(as.integer(0))
       bfs = NULL
       myCallback <- function(prgs){
         frac <- (i - 1 + prgs/1000)/length(models)
@@ -127,7 +127,7 @@ generalTestBF <-
         bfs = c(bfs,oneModel)
       }
       if(inherits(pb,"txtProgressBar")) close(pb)
-      
+      callback(as.integer(1000))
     }
     
     # combine all the Bayes factors into one BFBayesFactor object

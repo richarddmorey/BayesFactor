@@ -38,9 +38,11 @@ ttestBF_oneSample = function(x, mu, nullInterval, rscale, posterior, callback, .
     mod2@shortName = hypNames$shortName
     mod2@longName = hypNames$longName
     
-    bf2 = compare(numerator = mod2, data = data.frame(y=x))    
+    bf2 = compare(numerator = mod2, data = data.frame(y=x))
+    callback(as.integer(1000))
     return(c(bf1,bf2))
   }else{
+    callback(as.integer(1000))
     return(bf1)
   }    
   

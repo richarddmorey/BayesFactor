@@ -72,6 +72,8 @@ proportionBF <- function(y, N, p, rscale = "medium", nullInterval = NULL, poster
   
   data = data.frame(y = y, N = N)
   
+  callback(as.integer(0))
+  
   if(posterior)
     return(posterior(mod1, data = data, callback = callback, ...))
   
@@ -86,8 +88,10 @@ proportionBF <- function(y, N, p, rscale = "medium", nullInterval = NULL, poster
     mod2@longName = hypNames$longName
     
     bf2 = compare(numerator = mod2, data = data)
+    callback(as.integer(1000))
     return(c(bf1, bf2))
   }else{
+    callback(as.integer(1000))
     return(c(bf1))
   }   
 }

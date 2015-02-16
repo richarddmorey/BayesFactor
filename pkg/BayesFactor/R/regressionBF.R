@@ -98,6 +98,7 @@ regressionBF <- function(formula, data, whichModels = "all", progress=options()$
   }else{
     pb = NULL
   }
+  callback(as.integer(0))
   for(i in 1:length(models)){
     oneModel <- lmBF(models[[i]],data = data, dataTypes = dataTypes,
                      rscaleCont = rscaleCont,noSample=noSample)
@@ -107,7 +108,7 @@ regressionBF <- function(formula, data, whichModels = "all", progress=options()$
     bfs = c(bfs,oneModel)
   }
   if(inherits(pb,"txtProgressBar")) close(pb)
-
+  callback(as.integer(1000))
   bfObj = do.call("c", bfs)
   if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)
   return(bfObj)
