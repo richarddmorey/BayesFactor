@@ -41,55 +41,24 @@ integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, lo
   ifelse(log,ans,exp(ans))
 },"g")
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=function(...) as.integer(0), noSample=FALSE, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
   rscale = rpriorValues("regression",,rscale)
   X <- apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
-  N = length(y)
-  p = ncol(X)
-  Cn = diag(N) - matrix(1,N,N)/N 
-  XtX = t(X)%*%X
-  XtCnX = t(X)%*%Cn%*%X
-  XtCny = t(X)%*%Cn%*%y
-  Cny = Cn%*%y
   
-  sig2start = sum( (X%*%solve(XtCnX)%*%XtCny - Cny)^2 ) / N
+  sig2start = sum( (X%*%solve(t(X)%*%X)%*%t(X)%*%y - y)^2 ) / N
   
-  if(progress & !noSample){
-    pb = txtProgressBar(min = 0, max = 100, style = 3) 
-  }else{ 
-    pb=NULL 
-  }
+  progress = as.logical(progress)
+  if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
   
-  pbFun = function(samps){ 
-    if(progress){
-      percent = as.integer(round(samps / iterations * 100))
-      setTxtProgressBar(pb, percent)
-    }
-  }
   
   if(noSample){
     chains = matrix(NA,ncol(covariates)+2,2)
   }else{
-    chains = .Call("RGibbsLinearReg", 
-                 as.integer(iterations), 
-                 Cny,
-                 X,
-                 XtX,
-                 XtCnX,
-                 XtCny,
-                 as.integer(N),
-                 as.integer(p),
-                 rscale,
-                 sig2start,
-                 progress,
-                 pbFun,
-                 callback,
-                 new.env(),
-                 package="BayesFactor")
+    chains = GibbsLinearRegRcpp(as.integer(iterations), 
+                       y, X, rscale, sig2start, FALSE, 
+                       progress, callback, callbackInterval)
   }
-  if(inherits(pb,"txtProgressBar")) close(pb);
-  chains = t(chains)
   
   colnames(chains) = c(colnames(covariates),"sig2","g")
   return(mcmc(chains))
