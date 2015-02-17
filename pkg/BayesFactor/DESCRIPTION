@@ -26,7 +26,8 @@ Imports:
     graphics,
     Rcpp (>= 0.11.2),
     gtools,
-    MatrixModels
+    MatrixModels,
+    RcppEigen
 Suggests:
     doMC,
     foreach,
