@@ -6,6 +6,29 @@
 
 using namespace Rcpp;
 
+// GibbsLinearRegRcpp
+NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix X, double r, double sig2start, bool nullModel, int progress, Function callback, double callbackInterval);
+RcppExport SEXP BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP );
+        Rcpp::traits::input_parameter< double >::type r(rSEXP );
+        Rcpp::traits::input_parameter< double >::type sig2start(sig2startSEXP );
+        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
+        Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
+        NumericMatrix __result = GibbsLinearRegRcpp(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // logSummaryStats
 List logSummaryStats(NumericVector x);
 RcppExport SEXP BayesFactor_logSummaryStats(SEXP xSEXP) {
@@ -115,6 +138,21 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
         Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
         NumericMatrix __result = metropProportionRcpp(y, n, p0, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// getEigenValues
+Eigen::VectorXd getEigenValues(Eigen::Map<Eigen::MatrixXd> M);
+RcppExport SEXP BayesFactor_getEigenValues(SEXP MSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type M(MSEXP );
+        Eigen::VectorXd __result = getEigenValues(M);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

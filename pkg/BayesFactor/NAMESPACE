@@ -28,7 +28,7 @@ importFrom(utils, packageDescription)
 importFrom(Rcpp, evalCpp)
 importFrom(gtools, rdirichlet)
 importFrom(MatrixModels, model.Matrix)
-import(mvtnorm, pbapply, stringr, coda, Matrix)
+import(mvtnorm, pbapply, stringr, coda, Matrix, RcppEigen)
 
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
