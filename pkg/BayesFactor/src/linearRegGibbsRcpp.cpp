@@ -70,11 +70,13 @@ NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix 
    
       // Sample beta
       if(!nullModel){
-        Sigma = ( ( XtCnX + ( XtXoN / g ) ) / sig2 );
+        Sigma = ( XtCnX + ( XtXoN / g ) ) / sig2;
         Sigma = Sigma.llt().solve(Eigen::MatrixXd::Identity(P,P));
         mu = ( Sigma / sig2 ) * XtCny;
-        beta = random_multivariate_normal( mu, Sigma );  
+        beta = random_multivariate_normal( mu, Sigma );
       }
+
+      
       
       // Sample sig2
       yResid = Xm * beta - Cny;
