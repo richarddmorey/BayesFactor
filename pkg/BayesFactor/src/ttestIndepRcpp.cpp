@@ -8,6 +8,7 @@ using namespace Rcpp;
 NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, 
                       NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval) 
 {
+    RNGScope scope;
     
     // setting last_cb to the beginning of the epoch 
     // ensures that the callback is called once, first
