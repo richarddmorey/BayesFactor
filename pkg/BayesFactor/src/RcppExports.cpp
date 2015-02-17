@@ -144,21 +144,6 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// getEigenValues
-Eigen::VectorXd getEigenValues(Eigen::Map<Eigen::MatrixXd> M);
-RcppExport SEXP BayesFactor_getEigenValues(SEXP MSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< Eigen::Map<Eigen::MatrixXd> >::type M(MSEXP );
-        Eigen::VectorXd __result = getEigenValues(M);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // gibbsTwoSampleRcpp
 NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
 RcppExport SEXP BayesFactor_gibbsTwoSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {

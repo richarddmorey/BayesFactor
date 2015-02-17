@@ -29,10 +29,6 @@ metropProportionRcpp <- function(y, n, p0, rscale, iterations, doInterval, inter
     .Call('BayesFactor_metropProportionRcpp', PACKAGE = 'BayesFactor', y, n, p0, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
-getEigenValues <- function(M) {
-    .Call('BayesFactor_getEigenValues', PACKAGE = 'BayesFactor', M)
-}
-
 gibbsTwoSampleRcpp <- function(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
     .Call('BayesFactor_gibbsTwoSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }

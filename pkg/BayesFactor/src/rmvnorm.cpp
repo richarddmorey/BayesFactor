@@ -12,9 +12,10 @@ Eigen::MatrixXd random_multivariate_normal(const Eigen::MatrixXd mu, const Eigen
   Eigen::MatrixXd z(Eigen::MatrixXd(P, 1).setZero());
   
   for( i = 0 ; i < P ; i++ )
-    z(i) = Rf_rnorm(0,1);
+    z(i, 0) = Rf_rnorm( 0, 1 );
   
   y = mu + Sigma.llt().matrixL() * z;
 
   return y;
 }
+
