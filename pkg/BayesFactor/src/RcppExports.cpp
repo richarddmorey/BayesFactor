@@ -7,21 +7,21 @@
 using namespace Rcpp;
 
 // GibbsLinearRegRcpp
-NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix X, double r, double sig2start, bool nullModel, int progress, Function callback, double callbackInterval);
+NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, const NumericMatrix X, const double r, const double sig2start, const bool nullModel, const int progress, const Function callback, const double callbackInterval);
 RcppExport SEXP BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< int >::type iterations(iterationsSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP );
-        Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP );
-        Rcpp::traits::input_parameter< double >::type r(rSEXP );
-        Rcpp::traits::input_parameter< double >::type sig2start(sig2startSEXP );
-        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
-        Rcpp::traits::input_parameter< int >::type progress(progressSEXP );
-        Rcpp::traits::input_parameter< Function >::type callback(callbackSEXP );
-        Rcpp::traits::input_parameter< double >::type callbackInterval(callbackIntervalSEXP );
+        Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP );
+        Rcpp::traits::input_parameter< const double >::type r(rSEXP );
+        Rcpp::traits::input_parameter< const double >::type sig2start(sig2startSEXP );
+        Rcpp::traits::input_parameter< const bool >::type nullModel(nullModelSEXP );
+        Rcpp::traits::input_parameter< const int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP );
         NumericMatrix __result = GibbsLinearRegRcpp(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }

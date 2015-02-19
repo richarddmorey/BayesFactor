@@ -4,31 +4,34 @@
 #include <time.h>
 
 using namespace Rcpp;
+using Eigen::MatrixXd;
+using Eigen::Map;
+using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
-
-// void GibbsLinearReg(double *chains, int iters, double *Cny, double *X, double *XtX, double *XtCnX, double *XtCny, int N, int P, double r, double sig2start, int progress, SEXP pBar, SEXP callback, SEXP rho)
 // [[Rcpp::export]]
-NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix X, double r, double sig2start, bool nullModel, int progress, Function callback, double callbackInterval)
+NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, const NumericMatrix X, const double r, const double sig2start, const bool nullModel, const int progress, const Function callback, const double callbackInterval)
 {
-    RNGScope scope;  
+    RNGScope scope;
     // setting last_cb to the beginning of the epoch 
     // ensures that the callback is called once, first
     time_t last_cb = static_cast<time_t>(int(0));
 
-    const Eigen::Map<Eigen::MatrixXd> Xm(as<Eigen::Map<Eigen::MatrixXd> >(X));
+    const Map<MatrixXd> Xm(as<Map<MatrixXd> >(X));
     
-    int P = X.ncol(), N = y.size(), i = 0, j = 0;
+    const int P = X.ncol();
+    const int N = y.size();
+    int i = 0, j = 0;
     NumericMatrix XcolMeans(1, P);
-    Eigen::MatrixXd Sigma(Eigen::MatrixXd(P, P).setZero());
-    Eigen::MatrixXd beta(Eigen::MatrixXd(P, 1).setZero());
-    Eigen::MatrixXd XtCny(Eigen::MatrixXd(P, 1).setZero());
-    Eigen::MatrixXd mu(Eigen::MatrixXd(P, 1).setZero());
-    Eigen::MatrixXd Cny(Eigen::MatrixXd(N, 1).setZero());
-    Eigen::MatrixXd yResid(Eigen::MatrixXd(N, 1).setZero());
-    Eigen::MatrixXd CnX(Eigen::MatrixXd(N, P).setZero());
-    Eigen::MatrixXd XtXoN(Eigen::MatrixXd(P, P).setZero().
-      selfadjointView<Eigen::Lower>().rankUpdate(Xm.adjoint(), 1 / (1.0*N) ));
+    MatrixXd Sigma(MatrixXd(P, P).setZero());
+    MatrixXd beta(MatrixXd(P, 1).setZero());
+    MatrixXd XtCny(MatrixXd(P, 1).setZero());
+    MatrixXd mu(MatrixXd(P, 1).setZero());
+    MatrixXd Cny(MatrixXd(N, 1).setZero());
+    MatrixXd yResid(MatrixXd(N, 1).setZero());
+    MatrixXd CnX(MatrixXd(N, P).setZero());
+    const MatrixXd XtXoN(MatrixXd(P, P).setZero().
+      selfadjointView<Lower>().rankUpdate(Xm.adjoint(), 1 / (1.0*N) ));
 
     double g=1, sig2 = sig2start, SSq=0, meanY = mean(y), SSq_temp = 0;
 
@@ -46,8 +49,8 @@ NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix 
     
     XtCny = Xm.transpose() * Cny;
     
-    Eigen::MatrixXd XtCnX(Eigen::MatrixXd(P, P).setZero().
-      selfadjointView<Eigen::Lower>().rankUpdate(CnX.adjoint()));
+    const MatrixXd XtCnX(MatrixXd(P, P).setZero().
+      selfadjointView<Lower>().rankUpdate(CnX.adjoint()));
 
     // create progress bar
     class Progress p(iterations, (bool) progress);
@@ -71,7 +74,7 @@ NumericMatrix GibbsLinearRegRcpp(int iterations, NumericVector y, NumericMatrix 
       // Sample beta
       if(!nullModel){
         Sigma = ( XtCnX + ( XtXoN / g ) ) / sig2;
-        Sigma = Sigma.llt().solve(Eigen::MatrixXd::Identity(P,P));
+        Sigma = Sigma.llt().solve(MatrixXd::Identity(P,P));
         mu = ( Sigma / sig2 ) * XtCny;
         beta = random_multivariate_normal( mu, Sigma );
       }
