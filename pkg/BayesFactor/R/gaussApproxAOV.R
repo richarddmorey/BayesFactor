@@ -1,12 +1,3 @@
-d2dinvgamma1 <- function(x,a,b)
-  (a+1)/(x^2) - 2*b/(x^3)
-
-ddinvgamma1 <- function(x,a,b)
-  -(a+1)/x + b/(x^2)
-
-dinvgamma1 <- function(x,a,b)
-  a * log(b) - lgamma(a) - (a+1)*log(x) - b/x
-
 Qg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0,limit=TRUE)
 {
   
@@ -29,7 +20,6 @@ d2Qg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incC
 }
 
 
-
 hessianQg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0){
   diag(d2Qg(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX,incCont))
 }
@@ -43,7 +33,6 @@ Qg_nlm <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,in
   attr(res, "hessian") <- -zz[['d2g']]
   return(res)
 }
-
 
 gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0){
 
