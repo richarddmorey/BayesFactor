@@ -91,8 +91,7 @@ Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq
       sumInvGammaDens += dinvgamma1_Rcpp(g(i), 0.5, rscale(i) * rscale(i) / 2);
     }
   
-    d0g = -0.5 * sumLogg - 0.5 * logDetVg + 0.5*(N-1) * log( sumSq ) - 
-           0.5*(N-1)*log( sumSq - yXVXy) + sumInvGammaDens + sum(q);
+    d0g = -0.5 * sumLogg - 0.5 * logDetVg - 0.5*(N-1)*log1p( -yXVXy/sumSq ) + sumInvGammaDens + sum(q);
   }
 
   if(which > 0 || which == -1){ // first derivative of log
