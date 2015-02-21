@@ -246,16 +246,19 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
 }
 
 
-dinvgamma = function (x, shape, scale = 1) 
+dinvgamma = function (x, shape, scale = 1, log = FALSE) 
 {
     if (shape <= 0 | scale <= 0) {
         stop("Shape or scale parameter negative in dinvgamma().\n")
     }
-    alpha <- shape
-    beta <- scale
-    log.density <- alpha * log(beta) - lgamma(alpha) - (alpha + 
-        1) * log(x) - (beta/x)
-    return(exp(log.density))
+    shape = rep(0, length(x)) + shape
+    scale = rep(0, length(x)) + scale
+    log.density = mapply(dinvgamma1_Rcpp, x = x, a = shape, b = scale)
+    if(log){
+      return(log.density) 
+    }else{
+      return(exp(log.density))
+    }
 }
 
 # Taken from the WLE package source by Claudio Agostinelli <claudio at unive.it>
