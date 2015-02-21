@@ -6,6 +6,84 @@
 
 using namespace Rcpp;
 
+// dinvgamma1_Rcpp
+double dinvgamma1_Rcpp(const double x, const double a, const double b);
+RcppExport SEXP BayesFactor_dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type a(aSEXP );
+        Rcpp::traits::input_parameter< const double >::type b(bSEXP );
+        double __result = dinvgamma1_Rcpp(x, a, b);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// ddinvgamma1_Rcpp
+double ddinvgamma1_Rcpp(const double x, const double a, const double b);
+RcppExport SEXP BayesFactor_ddinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type a(aSEXP );
+        Rcpp::traits::input_parameter< const double >::type b(bSEXP );
+        double __result = ddinvgamma1_Rcpp(x, a, b);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// d2dinvgamma1_Rcpp
+double d2dinvgamma1_Rcpp(const double x, const double a, const double b);
+RcppExport SEXP BayesFactor_d2dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const double >::type x(xSEXP );
+        Rcpp::traits::input_parameter< const double >::type a(aSEXP );
+        Rcpp::traits::input_parameter< const double >::type b(bSEXP );
+        double __result = d2dinvgamma1_Rcpp(x, a, b);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// log_marginal_posterior_logg
+Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
+RcppExport SEXP BayesFactor_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP Cny0SEXP, SEXP CnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const NumericVector >::type q(qSEXP );
+        Rcpp::traits::input_parameter< const double >::type sumSq(sumSqSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type Cny0(Cny0SEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type CnX0(CnX0SEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type CnytCnX0(CnytCnX0SEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type gMapCounts(gMapCountsSEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type priorX(priorXSEXP );
+        Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
+        Rcpp::traits::input_parameter< const bool >::type limit(limitSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type limits(limitsSEXP );
+        Rcpp::traits::input_parameter< const int >::type which(whichSEXP );
+        Rcpp::List __result = log_marginal_posterior_logg(q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // GibbsLinearRegRcpp
 NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, const NumericMatrix X, const double r, const double sig2start, const bool nullModel, const int progress, const Function callback, const double callbackInterval);
 RcppExport SEXP BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
@@ -23,6 +101,21 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP );
         Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP );
         NumericMatrix __result = GibbsLinearRegRcpp(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// log_determinant_pos_def
+double log_determinant_pos_def(Eigen::MatrixXd A);
+RcppExport SEXP BayesFactor_log_determinant_pos_def(SEXP ASEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< Eigen::MatrixXd >::type A(ASEXP );
+        double __result = log_determinant_pos_def(A);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

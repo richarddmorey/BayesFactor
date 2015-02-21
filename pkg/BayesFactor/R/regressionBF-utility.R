@@ -36,15 +36,16 @@ integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, lo
   a = .5 * ((N - p - 1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
   shape=.5
   scale=rscaleSqr*N/2
-  log.density.igam <- dinvgamma1(g, shape, scale)
+  log.density.igam <- dinvgamma(g, shape, scale, log=TRUE)
   ans = a + log.density.igam - log.const
   ifelse(log,ans,exp(ans))
 },"g")
 
 linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
   rscale = rpriorValues("regression",,rscale)
-  X <- apply(covariates,2,function(v) v - mean(v))
+  X = apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
+  N = length(y)
   
   sig2start = sum( (X%*%solve(t(X)%*%X)%*%t(X)%*%y - y)^2 ) / N
   

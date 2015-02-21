@@ -8,16 +8,26 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
   }else{
     # change from C indexing to R indexing
     gMap = gMap + 1
+    
+    incCont = 0
+    priorX = matrix(1,0,0)
+    N = length(y)
+    Cny = matrix(y - mean(y), N)
+    CnX = t(t(X) - colMeans(X))
+    CnytCnX = t(Cny)%*%CnX
+    sumSq = var(y) * (N-1) 
+    gMapCounts = table(gMap)
+    
     f1 = Vectorize(
-      function(g,y,Xm,rscale,gMap,const){
-        exp(Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g) - const)
+      function(g,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,const,priorX,incCont){
+        exp(Qg(log(g),sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX,incCont,limit=FALSE) - log(g) - const)
       },"g")
     
     integral = try({
       op = optim(1, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
-                 y=y, Xm=X, rscale=rscale, gMap=gMap)
+                 sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
       const = op$value - op$par
-      integrate(f1,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
+      integrate(f1,0,Inf,sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
     })
     if(inherits(integral,"try-error")){
       return(list(bf = NA, properror = NA))
@@ -298,7 +308,7 @@ rowMultiply = function(x, y)
 # Create projection matrix
 fixedFromRandomProjection <- function(nlevRandom, sparse = FALSE){
   centering=diag(nlevRandom)-(1/nlevRandom)
-  S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
+  S=as.vector((eigen(centering)$vectors)[,1:(nlevRandom-1)])
   return(Matrix(S,nrow=nlevRandom, sparse = sparse))
 }
 
