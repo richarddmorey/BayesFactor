@@ -9,7 +9,7 @@ using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
 {
  
   const int P = CnX0.ncol();
@@ -64,8 +64,8 @@ Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq
   
   // Build g matrix
   for( i = 0 ; i < P ; i++ ){
-    sumLogg += q( gMap(i) - 1 );
-    gInv(i,i) = 1 / g( gMap(i) - 1 ); 
+    sumLogg += q( gMap(i) );
+    gInv(i,i) = 1 / g( gMap(i) ); 
   }
   if(incCont){ // Continuous covariates included
     if( priorX.nrow() != incCont )
@@ -74,7 +74,7 @@ Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq
       Rcpp::stop("priorX matrix must be square.");
     for( i = 0; i < incCont ; i++ ){
       for( j = 0 ; j <= i ; j++ ){
-        gInv(i,j) = priorX(i,j) / g(gMap(0) - 1);
+        gInv(i,j) = priorX(i,j) / g(gMap(0));
       }
     }
   }
@@ -104,8 +104,8 @@ Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq
     }
     
     for( i = 0 ; i < P ; i++ ){
-      tempVec1(gMap(i) - 1) += VgInv.diagonal()(i) / g(gMap(i) - 1);
-      tempVec2(gMap(i) - 1) += CnytCnXVg(0, i) * CnytCnXVg(0, i) / g(gMap(i) - 1) / (sumSq - yXVXy);
+      tempVec1( gMap(i) ) += VgInv.diagonal()(i) / g( gMap(i) );
+      tempVec2( gMap(i) ) += CnytCnXVg(0, i) * CnytCnXVg(0, i) / g( gMap(i) ) / (sumSq - yXVXy);
     }
     
     d1g = -0.5 * gMapCounts + 0.5 * tempVec1 + 0.5*(N-1) * tempVec2  + ddensg + 1.0;
@@ -121,8 +121,8 @@ Rcpp::List log_marginal_posterior_logg(const NumericVector q, const double sumSq
     }
 
     for( i = 0 ; i < P ; i++ ){
-      tempVec3(gMap(i) - 1) += VgInv2.diagonal()(i) / ( g(gMap(i) - 1) * g(gMap(i) - 1) );
-      tempVec4(gMap(i) - 1) += CnytCnXVg(0, i) * CnytCnXVg2(0, i) / ( g(gMap(i) - 1) * g(gMap(i) - 1) * (sumSq - yXVXy) );
+      tempVec3( gMap(i) ) += VgInv2.diagonal()(i) / ( g( gMap(i) ) * g( gMap(i) ) );
+      tempVec4( gMap(i) ) += CnytCnXVg(0, i) * CnytCnXVg2(0, i) / ( g( gMap(i) ) * g( gMap(i) ) * (sumSq - yXVXy) );
     }
 
     d2g = d1g + 0.5 * gMapCounts - 1.0 + ddensg + 0.5 * (tempVec3 - 2*tempVec1) + 0.5*(N-1) * ( tempVec2 * tempVec2 - 2*tempVec2  + 2*tempVec4 );
