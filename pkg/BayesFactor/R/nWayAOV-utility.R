@@ -6,8 +6,6 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
     bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
     return(bf)
   }else{
-    # change from C indexing to R indexing
-    gMap = gMap + 1
     
     incCont = 0
     priorX = matrix(1,0,0)

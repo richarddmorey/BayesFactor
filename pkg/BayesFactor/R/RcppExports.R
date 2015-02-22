@@ -13,8 +13,16 @@ d2dinvgamma1_Rcpp <- function(x, a, b) {
     .Call('BayesFactor_d2dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
-log_marginal_posterior_logg <- function(q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
-    .Call('BayesFactor_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
+jzs_log_marginal_posterior_logg <- function(q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
+    .Call('BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
+}
+
+jzs_sampler <- function(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which) {
+    .Call('BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
+}
+
+jzs_mc_marg_like <- function(g, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont) {
+    .Call('BayesFactor_jzs_mc_marg_like', PACKAGE = 'BayesFactor', g, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont)
 }
 
 GibbsLinearRegRcpp <- function(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval) {

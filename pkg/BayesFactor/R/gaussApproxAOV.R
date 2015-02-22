@@ -1,32 +1,32 @@
 Qg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0,limit=TRUE)
 {
-  
   qLimits = options()$BFapproxLimits  
-  zz = log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, limit, qLimits, which = 0)
+  zz = jzs_log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, limit, qLimits, which = 0)
   return(zz[["d0g"]])
 }
 
-dQg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap, gMapCounts, priorX=NULL, incCont=0){
-    
-  zz = log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf,Inf), which = 1)
+dQg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap, gMapCounts, priorX=NULL, incCont=0)
+{
+  zz = jzs_log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf,Inf), which = 1)
   return(zz[['d1g']])
 }
 
 
-d2Qg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0){
-  
-  zz = log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf, Inf), which = 2)
+d2Qg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0)
+{  
+  zz = jzs_log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf, Inf), which = 2)
   return(zz[['d2g']])
 }
 
 
-hessianQg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0){
+hessianQg <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0)
+{
   diag(d2Qg(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX,incCont))
 }
 
-Qg_nlm <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0){
-  
-  zz = log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf,Inf), which = 2)
+Qg_nlm <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0)
+{  
+  zz = jzs_log_marginal_posterior_logg(q, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf,Inf), which = 2)
   
   res = -zz[['d0g']]
   attr(res, "gradient") <- -zz[['d1g']]
@@ -34,12 +34,10 @@ Qg_nlm <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,in
   return(res)
 }
 
-gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0){
-
+gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
+{
   optMethod = options()$BFapproxOptimizer
   
-  # gMap is written for C indexing
-  gMap = gMap + 1
   # dumb starting values
   qs = rscale * 0 
   
@@ -77,7 +75,6 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0){
 
 laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
 {
-
   apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   apx$val - approxVal

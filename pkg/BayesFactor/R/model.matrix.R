@@ -27,7 +27,7 @@ designMatrixJZS_LM = function(bf, ...){
     X = as.matrix(fullDesignMatrix(formula, data, dataTypes))
     gMap = createGMap(formula, data, dataTypes)
     X = cbind(1,X)
-    gMap = c(intercept=NA, gMap + 1)
+    gMap = c(intercept=NA, gMap)
   }
                         
   attr(X,"gMap") = gMap
