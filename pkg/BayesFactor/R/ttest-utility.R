@@ -25,6 +25,7 @@ ttestBF_oneSample = function(x, mu, nullInterval, rscale, posterior, callback, .
                         prior=list(rscale=rscale, mu=mu, nullInterval = nullInterval),
                         shortName = hypNames$shortName,
                         longName = hypNames$longName)
+  
   if(posterior)
     return(posterior(mod1, data = data.frame(y=x), callback = callback, ...))
   
@@ -39,10 +40,10 @@ ttestBF_oneSample = function(x, mu, nullInterval, rscale, posterior, callback, .
     mod2@longName = hypNames$longName
     
     bf2 = compare(numerator = mod2, data = data.frame(y=x))
-    callback(as.integer(1000))
+    checkCallback(callback,as.integer(1000))
     return(c(bf1,bf2))
   }else{
-    callback(as.integer(1000))
+    checkCallback(callback,as.integer(1000))
     return(bf1)
   }    
   
@@ -75,8 +76,10 @@ ttestBF_indepSample = function(formula, data, mu, nullInterval, rscale, posterio
     mod2@longName = hypNames$longName
     
     bf2 = compare(numerator = mod2, data = data)
+    checkCallback(callback,as.integer(1000))
     return(c(bf1, bf2))
   }else{
+    checkCallback(callback,as.integer(1000))
     return(bf1)
   }  
   

@@ -103,7 +103,7 @@ ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = N
     }
   }
   
-  callback(as.integer(0))
+  checkCallback(callback,as.integer(0))
   
   if( (is.null(formula) & is.null(y)) | (!is.null(y) & paired) ){ # one sample
     if(paired){
