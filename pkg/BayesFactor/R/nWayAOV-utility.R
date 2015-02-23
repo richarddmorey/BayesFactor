@@ -45,7 +45,7 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   apx = NULL
   testNsamples = options()$BFpretestIterations
   
-  testCallback = function(...) callback(as.integer(0))
+  testCallback = function(...) callback(0)
   
   if(ncol(X)==1) method="simple"
   
