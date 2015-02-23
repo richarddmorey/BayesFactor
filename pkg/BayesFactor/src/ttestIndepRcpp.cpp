@@ -48,7 +48,6 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
     double g = pow(beta, 2) / sig2 + 1;
     
     if(nullModel) beta = 0;
-
     
     // create progress bar
     class Progress p(iterations, (bool) progress);
@@ -114,9 +113,10 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
       
       // sample sig2
 		  scaleSig2 = 0.5 * ( sumySq - 2.0 * mu * sumy - beta * diffy +
-                          N[0] * pow(mu - beta/2, 2) + N[1] * pow(mu + beta/2, 2) +
-                          pow(beta, 2) / g );
-      if(doInterval){
+                          N[0] * pow(mu - beta/2, 2) + N[1] * pow(mu + beta/2, 2) );
+      if(!nullModel) scaleSig2 += pow(beta, 2) / g / 2;
+      
+      if(doInterval && !nullModel){
         if( !intervalCompl){
           // Interval as given
           if( signAgree ){
@@ -173,8 +173,11 @@ NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVe
       
   	  // sample g
 		  scaleg = 0.5 * ( pow(beta,2) / sig2 + rscaleSq );
-		  g = 1 / Rf_rgamma( 0.5 * (1 + !nullModel), 1/scaleg );
-      
+		  if(nullModel){
+		    g = NA_REAL;
+      }else{
+        g = 1 / Rf_rgamma( 0.5 * (1 + !nullModel), 1/scaleg );
+		  }
       // copy to chains
       chains(i, 0) = mu;
       chains(i, 1) = beta;
