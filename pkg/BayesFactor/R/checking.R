@@ -20,11 +20,11 @@ createDataTypes <- function(formula, whichRandom, data, analysis){
   
   ## ANOVA can only accept factors
   if( any(types=="continuous") & analysis == "anova" )
-    stop("anovaBF() cannot be used with nonfactor independent variables. Use lmBF() or regressionBF() instead.")
+    stop("anovaBF() cannot be used with nonfactor independent variables. Use lmBF(), regressionBF(), or generalTestBF() instead.")
   
   ## regression can only accept nonfactors
   if( any(types %in% c("fixed", "random")) & analysis == "regression" )
-    stop("regressionBF() cannot be used with factor independent variables. Use lmBF() or anovaBF() instead.")
+    stop("regressionBF() cannot be used with factor independent variables. Use lmBF(), anovaBF(), or generalTestBF() instead.")
   
   #### End checking analysis types
   return(types)
@@ -52,7 +52,7 @@ checkFormula <- function(formula, data, analysis){
   
   if(analysis=="regression"){
     RHS = stringFromFormula(formula[[3]])
-    if( grepl(":",RHS,fixed=TRUE) ) stop("Interactions not allowed in regression.")
+    if( grepl(":",RHS,fixed=TRUE) ) stop("Interactions not allowed in regressionBF (try generalTestBF).")
   }
   
   if(analysis=="lm" | analysis=="anova" | analysis == "regression" | analysis == "indept")
