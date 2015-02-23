@@ -6,18 +6,26 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
     bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
     return(bf)
   }else{
-    # change from C indexing to R indexing
-    gMap = gMap + 1
+    
+    incCont = 0
+    priorX = matrix(1,0,0)
+    N = length(y)
+    Cny = matrix(y - mean(y), N)
+    CnX = t(t(X) - colMeans(X))
+    CnytCnX = t(Cny)%*%CnX
+    sumSq = var(y) * (N-1) 
+    gMapCounts = table(gMap)
+    
     f1 = Vectorize(
-      function(g,y,Xm,rscale,gMap,const){
-        exp(Qg(log(g),y,Xm,rscale,gMap,limit=FALSE) - log(g) - const)
+      function(g,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,const,priorX,incCont){
+        exp(Qg(log(g),sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX,incCont,limit=FALSE) - log(g) - const)
       },"g")
     
     integral = try({
       op = optim(1, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
-                 y=y, Xm=X, rscale=rscale, gMap=gMap)
+                 sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
       const = op$value - op$par
-      integrate(f1,0,Inf,y=y,Xm=X,rscale=rscale,gMap=gMap,const=const)
+      integrate(f1,0,Inf,sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
     })
     if(inherits(integral,"try-error")){
       return(list(bf = NA, properror = NA))
@@ -29,39 +37,34 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
 }
 
 
-doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun, callback = function(...) as.integer(0))
+doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progress, callback = function(...) as.integer(0))
 {
-  returnList = NULL
+  goodSamples = NULL
   simpSamples = NULL
   impSamples = NULL
   apx = NULL
-  optMethod = options()$BFapproxOptimizer
   testNsamples = options()$BFpretestIterations
+  
+  testCallback = function(...) callback(as.integer(0))
   
   if(ncol(X)==1) method="simple"
   
   if(method=="auto"){
-    simpSamples = suppressWarnings(.Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
-                        P, nGs, gMap, a, b, incCont,
-                        as.integer(0), pbFun, callback, new.env(), 
-                        package="BayesFactor"))
-    simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
-    logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
+    simpSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, NA, NA, FALSE, testCallback, 1, 0))
+    simpleErr = propErrorEst(simpSamples)
+    logAbsSimpErr = logMeanExpLogs(simpSamples) + log(simpleErr) 
      
     
-    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)))
+    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,incCont)))
     if(inherits(apx,"try-error")){
       method="simple"
     }else{
-      impSamples = suppressWarnings(try(.Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
-                         P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                         as.integer(0), pbFun, callback, new.env(), 
-                         package="BayesFactor")))
+      impSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, apx$mu, apx$sig, FALSE, testCallback, 1, 1))
       if(inherits(impSamples, "try-error")){
         method="simple"
       }else{
-        impErr = propErrorEst(impSamples[[2]] - nullLike)
-        logAbsImpErr = impSamples[[1]] + log(impErr) - nullLike   
+        impErr = propErrorEst(impSamples)
+        logAbsImpErr = logMeanExpLogs(impSamples) + log(impErr)
         if(is.na(impErr)){
           method="simple"
         }else if(is.na(simpleErr)){
@@ -76,38 +79,32 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   if(method=="importance"){
 
     if(is.null(apx) | inherits(apx,"try-error"))  
-      apx = try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont))
+      apx = try(gaussianApproxAOV(y,X,rscale,gMap,incCont))
     if(inherits(apx, "try-error")){
       method="simple"   
     }else{
-      returnList = try(.Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
-                       P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                       as.integer(iters/100*progress), pbFun, callback, new.env(), 
-                       package="BayesFactor"))
-      if(inherits(returnList,"try-error")){
+      goodSamples= try(jzs_sampler(iterations, y, X, rscale, gMap, incCont, apx$mu, apx$sig, progress, callback, 1, 1))
+      if(inherits(goodSamples,"try-error")){
         method="simple"
-        returnList = NULL
+        goodSamples = NULL
       }
     }
   }  
-  if(method=="simple" | is.null(returnList)){
+  if(method=="simple" | is.null(goodSamples)){
     method = "simple"
-    returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
-                        P, nGs, gMap, a, b, incCont,
-                        as.integer(iters/100*progress), pbFun, callback, new.env(), 
-                        package="BayesFactor")
+    goodSamples = jzs_sampler(iterations, y, X, rscale, gMap, incCont, NA, NA, progress, callback, 1, 0)
     
   }
-  if(is.null(returnList)){  
+  if(is.null(goodSamples)){  
     warning("Unknown sampling method requested (or sampling failed) for nWayAOV")
     return(c(bf=NA,properror=NA))
   }
   
-  if( any(is.na(returnList[[2]])) ) warning("Some NAs were removed from sampling results: ",sum(is.na(returnList[[2]]))," in total.")
-  bfSamp = returnList[[2]][!is.na(returnList[[2]])] - nullLike
+  if( any(is.na(goodSamples)) ) warning("Some NAs were removed from sampling results: ",sum(is.na(goodSamples))," in total.")
+  bfSamp = goodSamples[!is.na(goodSamples)]
   n2 = length(bfSamp)
     
-  bf = returnList[[1]] - nullLike
+  bf = logMeanExpLogs(bfSamp)
   
   # estimate error
   properror = propErrorEst(bfSamp)
@@ -205,31 +202,33 @@ termTypes <- function(formula, data, dataTypes){
 fullDesignMatrix <- function(fmla, data, dataTypes){
   trms <- attr(terms(fmla, data = data), "term.labels")
   
+  sparse = any(dataTypes=="random")
+  
   Xs = lapply(trms,function(trm, data, dataTypes){
-    oneDesignMatrix(trm, data = data, dataTypes = dataTypes)      
+    oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)      
   }, data = data, dataTypes = dataTypes)    
   
-  do.call("cbind",Xs)
+  do.call("cBind" ,Xs)
 }
 
-oneDesignMatrix <- function(trm, data, dataTypes)
+oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
 {
   effects <- unlist(strsplit(trm, ":", fixed = TRUE))
   #check to ensure all terms are in data
   checkEffects(effects, data, dataTypes)
-  
+    
   if(length(effects) == 1){
     effect = paste("~",effects,"-1")
-    X = model.matrix(formula(effect),data = data)
+    X = model.Matrix(formula(effect),data = data, sparse = sparse)
     if(dataTypes[effects] == "fixed"){
-      X = X %*% fixedFromRandomProjection(ncol(X))
+      X = X %*% fixedFromRandomProjection(ncol(X), sparse = sparse)
       colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
     }
     return(X)
   }else{
-    Xs = lapply(effects, function(trm, data, dataTypes){
-      oneDesignMatrix(trm, data = data, dataTypes = dataTypes)
-    }, data = data, dataTypes = dataTypes)
+    Xs = lapply(effects, function(trm, data, dataTypes, sparse){
+      oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)
+    }, data = data, dataTypes = dataTypes, sparse = sparse)
     X = Reduce(rowMultiply, x = Xs)
     return(X)
   }
@@ -259,9 +258,9 @@ design.projection.intList <- function(effects, data, dataTypes){
   firstCol = data[ ,effects[1] ]
   nLevs = nlevels( firstCol )
   if(length(effects)==1){
-    if(type=="random") return(diag(nLevs))
+    if(type=="random") return(bdiag(diag(nLevs)))
     if(type=="fixed") return(fixedFromRandomProjection(nLevs))
-    if(type=="continuous") return(matrix(1,1,1))
+    if(type=="continuous") return(Matrix(1,1,1))
   }else{
     if(type=="random") 
       return(kronecker(diag(nLevs), design.projection.intList(effects[-1],data, dataTypes) ))
@@ -277,14 +276,15 @@ rowPaste = function(v1,v2)
   as.vector(t(outer(v1,v2,paste,sep=".&.")))
 }
 
-rowMultiply = function(x,y)
+rowMultiply = function(x, y)
 {
+  sparse = is(x, "sparseMatrix") | is(y, "sparseMatrix")
   if(nrow(x) != nrow(y)) stop("Unequal row numbers in row.multiply:", nrow(x),", ",nrow(y))
   K = sapply(1:nrow(x), function(n, x, y){
     kronecker(x[n,], y[n,])
   }, x = x, y = y )
   # add names
-  K <- t(matrix(K, ncol = nrow(x)))
+  K <- t(Matrix(as.vector(K), ncol = nrow(x), sparse = sparse))
   colnames(K) = as.vector(t(
     outer(colnames(x), colnames(y), function(x,y){
       paste(x, y,sep=".&.")
@@ -293,10 +293,10 @@ rowMultiply = function(x,y)
 }
 
 # Create projection matrix
-fixedFromRandomProjection <- function(nlevRandom){
+fixedFromRandomProjection <- function(nlevRandom, sparse = FALSE){
   centering=diag(nlevRandom)-(1/nlevRandom)
-  S=(eigen(centering)$vectors)[,1:(nlevRandom-1)]
-  return(matrix(S,nrow=nlevRandom))
+  S=as.vector((eigen(centering)$vectors)[,1:(nlevRandom-1)])
+  return(Matrix(S,nrow=nlevRandom, sparse = sparse))
 }
 
 centerContinuousColumns <- function(data){
@@ -318,6 +318,9 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   y = data[,stringFromFormula(formula[[2]])]
   data <- centerContinuousColumns(data)
   X = fullDesignMatrix(formula, data, dataTypes)
+  
+  # To be removed when sparse matrix support is complete
+  X = as.matrix(X)
   
   rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
   gMap = createGMap(formula, data, dataTypes)
@@ -377,7 +380,7 @@ unreduceChainPart = function(term, chains, data, dataTypes, gMap, ignoreCols){
   chains = chains[, remappedCols, drop = FALSE ]
   if(any(dataTypes[effects]=="fixed")){
     S = design.projection.intList(effects, data, dataTypes)
-    return(chains%*%t(S))
+    return(chains%*%as.matrix(t(S)))
   }else{
     return(chains)
   }

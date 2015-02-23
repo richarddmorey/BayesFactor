@@ -1,6 +1,6 @@
 # https://stat.ethz.ch/pipermail/r-devel/2010-May/057506.html
 ## for 'i' in x[i] or A[i,] : (numeric = {double, integer})
-setClassUnion("index", members =  c("numeric", "logical", "character"))
+# setClassUnion("index", members =  c("numeric", "logical", "character"))
 
 
 

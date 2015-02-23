@@ -5,6 +5,10 @@ CHANGES
   * Made some error messages clearer
   * Use callbacks at least once in all cases
   * Fix bug preventing continuous interactions from showing in regression Gibbs sampler
+  * Removed unexported function oneWayAOV.Gibbs(), and related C functions, due to redundancy
+  * gMap from model.matrix is now 0-indexed vector (for compatibility with C functions)
+  * substantial changes to backend, to Rcpp and RcppEigen for speed
+  * removed redundant struc argument from nWayAOV (use gMap instead)
 
   CHANGES IN BayesFactor VERSION 0.9.10-2
 

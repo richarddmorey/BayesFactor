@@ -20,7 +20,6 @@ export(logMeanExpLogs,
     enumerateGeneralModels,
     logSummaryStats)
 
-import(mvtnorm, pbapply, stringr, coda)
 importFrom(methods, show)
 importFrom(utils, head)
 importFrom(utils, tail)
@@ -28,6 +27,8 @@ importFrom(graphics, plot)
 importFrom(utils, packageDescription)
 importFrom(Rcpp, evalCpp)
 importFrom(gtools, rdirichlet)
+importFrom(MatrixModels, model.Matrix)
+import(mvtnorm, pbapply, stringr, coda, Matrix, RcppEigen)
 
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
