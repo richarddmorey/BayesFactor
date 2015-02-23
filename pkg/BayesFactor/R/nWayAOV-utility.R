@@ -37,39 +37,34 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
 }
 
 
-doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, XtCy, ytCy, N, P, nGs, gMap, a, b, incCont, progress, pbFun, callback = function(...) as.integer(0))
+doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progress, callback = function(...) as.integer(0))
 {
-  returnList = NULL
+  goodSamples = NULL
   simpSamples = NULL
   impSamples = NULL
   apx = NULL
-  optMethod = options()$BFapproxOptimizer
   testNsamples = options()$BFpretestIterations
+  
+  testCallback = function(...) callback(as.integer(0))
   
   if(ncol(X)==1) method="simple"
   
   if(method=="auto"){
-    simpSamples = suppressWarnings(.Call("RjeffSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
-                        P, nGs, gMap, a, b, incCont,
-                        as.integer(0), pbFun, callback, new.env(), 
-                        package="BayesFactor"))
-    simpleErr = propErrorEst(simpSamples[[2]] - nullLike)
-    logAbsSimpErr = simpSamples[[1]] - nullLike + log(simpleErr) 
+    simpSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, NA, NA, FALSE, testCallback, 1, 0))
+    simpleErr = propErrorEst(simpSamples)
+    logAbsSimpErr = logMeanExpLogs(simpSamples) + log(simpleErr) 
      
     
-    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)))
+    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,incCont)))
     if(inherits(apx,"try-error")){
       method="simple"
     }else{
-      impSamples = suppressWarnings(try(.Call("RimportanceSamplerNwayAov", testNsamples, XtCX, priorX, XtCy, ytCy, N, 
-                         P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                         as.integer(0), pbFun, callback, new.env(), 
-                         package="BayesFactor")))
+      impSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, apx$mu, apx$sig, FALSE, testCallback, 1, 1))
       if(inherits(impSamples, "try-error")){
         method="simple"
       }else{
-        impErr = propErrorEst(impSamples[[2]] - nullLike)
-        logAbsImpErr = impSamples[[1]] + log(impErr) - nullLike   
+        impErr = propErrorEst(impSamples)
+        logAbsImpErr = logMeanExpLogs(impSamples) + log(impErr)
         if(is.na(impErr)){
           method="simple"
         }else if(is.na(simpleErr)){
@@ -84,38 +79,32 @@ doNwaySampling<-function(method, y, X, rscale, nullLike, iters, XtCX, priorX, Xt
   if(method=="importance"){
 
     if(is.null(apx) | inherits(apx,"try-error"))  
-      apx = try(gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont))
+      apx = try(gaussianApproxAOV(y,X,rscale,gMap,incCont))
     if(inherits(apx, "try-error")){
       method="simple"   
     }else{
-      returnList = try(.Call("RimportanceSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
-                       P, nGs, gMap, a, b, apx$mu, apx$sig, incCont,
-                       as.integer(iters/100*progress), pbFun, callback, new.env(), 
-                       package="BayesFactor"))
-      if(inherits(returnList,"try-error")){
+      goodSamples= try(jzs_sampler(iterations, y, X, rscale, gMap, incCont, apx$mu, apx$sig, progress, callback, 1, 1))
+      if(inherits(goodSamples,"try-error")){
         method="simple"
-        returnList = NULL
+        goodSamples = NULL
       }
     }
   }  
-  if(method=="simple" | is.null(returnList)){
+  if(method=="simple" | is.null(goodSamples)){
     method = "simple"
-    returnList = .Call("RjeffSamplerNwayAov", iters, XtCX, priorX, XtCy, ytCy, N, 
-                        P, nGs, gMap, a, b, incCont,
-                        as.integer(iters/100*progress), pbFun, callback, new.env(), 
-                        package="BayesFactor")
+    goodSamples = jzs_sampler(iterations, y, X, rscale, gMap, incCont, NA, NA, progress, callback, 1, 0)
     
   }
-  if(is.null(returnList)){  
+  if(is.null(goodSamples)){  
     warning("Unknown sampling method requested (or sampling failed) for nWayAOV")
     return(c(bf=NA,properror=NA))
   }
   
-  if( any(is.na(returnList[[2]])) ) warning("Some NAs were removed from sampling results: ",sum(is.na(returnList[[2]]))," in total.")
-  bfSamp = returnList[[2]][!is.na(returnList[[2]])] - nullLike
+  if( any(is.na(goodSamples)) ) warning("Some NAs were removed from sampling results: ",sum(is.na(goodSamples))," in total.")
+  bfSamp = goodSamples[!is.na(goodSamples)]
   n2 = length(bfSamp)
     
-  bf = returnList[[1]] - nullLike
+  bf = logMeanExpLogs(bfSamp)
   
   # estimate error
   properror = propErrorEst(bfSamp)

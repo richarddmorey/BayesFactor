@@ -34,7 +34,7 @@ Qg_nlm <- function(q,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,in
   return(res)
 }
 
-gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
+gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
 {
   optMethod = options()$BFapproxOptimizer
   
@@ -44,7 +44,7 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
   if(!incCont){
     priorX = matrix(1,0,0)
   }else{
-    priorX = matrix(priorX, nrow=incCont)
+    priorX = matrix((t(X)%*%X)[1:incCont, 1:incCont],nrow=incCont)
   }
   
   N = length(y)
@@ -73,9 +73,9 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
 
-laplaceAOV <- function(y,X,rscale,gMap,priorX=NULL,incCont=0)
+laplaceAOV <- function(y,X,rscale,gMap,incCont=0)
 {
-  apx = gaussianApproxAOV(y,X,rscale,gMap,priorX,incCont)
+  apx = gaussianApproxAOV(y,X,rscale,gMap,incCont)
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   apx$val - approxVal
   
