@@ -98,7 +98,8 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
       stop("Sampling from intercept-only model not implemented.")
     }else if(all(relevantDataTypes == "continuous")){
       ## Regression
-      chains = linearReg.Gibbs(y = data[[dv]],covariates = data[factors],iterations = iterations, rscale = rscaleCont, ...)
+      X = fullDesignMatrix(formula, data, dataTypes)
+      chains = linearReg.Gibbs(y = data[[dv]],covariates = X,iterations = iterations, rscale = rscaleCont, ...)
     }else if(all(relevantDataTypes != "continuous")){
       # ANOVA or t test
       chains = nWayFormula(formula=formula, data = data, 
