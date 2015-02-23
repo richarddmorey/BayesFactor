@@ -57,6 +57,32 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// jzs_sampler
+NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
+RcppExport SEXP BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type importanceMu(importanceMuSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type importanceSig(importanceSigSEXP );
+        Rcpp::traits::input_parameter< const int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP );
+        Rcpp::traits::input_parameter< const int >::type which(whichSEXP );
+        NumericVector __result = jzs_sampler(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // jzs_log_marginal_posterior_logg
 Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
 RcppExport SEXP BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP Cny0SEXP, SEXP CnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
@@ -78,32 +104,6 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const NumericVector >::type limits(limitsSEXP );
         Rcpp::traits::input_parameter< const int >::type which(whichSEXP );
         Rcpp::List __result = jzs_log_marginal_posterior_logg(q, sumSq, Cny0, CnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// jzs_sampler
-NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
-RcppExport SEXP BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
-        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
-        Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type importanceMu(importanceMuSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type importanceSig(importanceSigSEXP );
-        Rcpp::traits::input_parameter< const int >::type progress(progressSEXP );
-        Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP );
-        Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP );
-        Rcpp::traits::input_parameter< const int >::type which(whichSEXP );
-        NumericVector __result = jzs_sampler(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
