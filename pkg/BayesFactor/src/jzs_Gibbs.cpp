@@ -80,7 +80,7 @@ NumericMatrix jzs_Gibbs(const int iterations, const NumericVector y, const Numer
     
     // sample sig2
     SSq += ( yResid.transpose() * yResid )(0,0);
-    sig2 = 1 / Rf_rgamma( 0.5 * ( N + P ), 2 / SSq );
+    sig2 = 1 / Rf_rgamma( 0.5 * ( N + P*(!nullModel) ), 2 / SSq );
 
     // sample g
     for( j = 0 ; j < nGs ; j++ ){
