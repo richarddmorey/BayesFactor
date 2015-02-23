@@ -16,7 +16,7 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
 
     int i = 0, whichInterval = 0, signAgree = 1;
     double meanMu, varMu, scaleSig2, scaleg;
-    double shapeSig2 = 0.5 * N  + 0.5;
+    double shapeSig2 = 0.5 * N  + 0.5 * (!nullModel);
     double sumy2 = (N - 1) * s2 + N * pow(ybar, 2);
     double rscaleSq = pow(rscale, 2);
     double intLower = 0, intUpper = 1, areaLower, areaUpper;
