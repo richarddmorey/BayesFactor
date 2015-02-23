@@ -34,7 +34,8 @@ NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, co
       selfadjointView<Lower>().rankUpdate(Xm.adjoint(), 1 / (1.0*N) ));
 
     double g=1, sig2 = sig2start, SSq=0, meanY = mean(y), SSq_temp = 0;
-
+    const double sumy2 = sum(y * y);
+    
     for( i = 0 ; i < X.ncol() ; i++ ){
       XcolMeans(0, i) = sum( X( _, i) ) / ( N * 1.0 );
     }
@@ -77,26 +78,28 @@ NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, co
         Sigma = Sigma.llt().solve(MatrixXd::Identity(P,P));
         mu = ( Sigma / sig2 ) * XtCny;
         beta = random_multivariate_normal( mu, Sigma );
+        
+        SSq_temp = ( beta.transpose() * XtXoN * beta )(0,0);
+        SSq = SSq_temp / g;
+        yResid = Cny - Xm * beta;
+        SSq += ( yResid.transpose() * yResid )(0,0);
+      }else{
+        SSq_temp = 0;
+        SSq = sumy2;
       }
 
-      SSq_temp = ( beta.transpose() * XtXoN * beta )(0,0);
-      
       // Sample sig2
-      SSq =  SSq_temp / g;
-      yResid = Xm * beta - Cny;
-      for( j = 0; j < N; j++ )
-        SSq += yResid( j, 0 ) * yResid( j, 0 );
       sig2 = 1 / Rf_rgamma( N / 2, 2 / SSq );
-	      
+
       // Sample g
 		  SSq =  SSq_temp / sig2 + r*r;
-      g  = 1/Rf_rgamma( 1, 2 / SSq );
+      g  = 1/Rf_rgamma( 0.5 * ( P + !nullModel ) , 2 / SSq );
 
       // Copy samples to chain
       for( j = 0 ; j < P ; j++ )
-        chains(i, j) = beta(j, 0);	
-		  chains(i, P) = sig2;	
-		  chains(i, P + 1) = g;	
+        chains(i, j) = beta(j, 0);
+		  chains(i, P) = sig2;
+		  chains(i, P + 1) = g;
     }
     
     return chains;

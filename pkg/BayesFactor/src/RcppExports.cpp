@@ -58,7 +58,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // jzs_log_marginal_posterior_logg
-Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
 RcppExport SEXP BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP Cny0SEXP, SEXP CnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -70,7 +70,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const NumericMatrix >::type CnX0(CnX0SEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type CnytCnX0(CnytCnX0SEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type gMapCounts(gMapCountsSEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type priorX(priorXSEXP );
         Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
@@ -85,7 +85,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // jzs_sampler
-NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const NumericVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
+NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
 RcppExport SEXP BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -95,7 +95,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
         Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type importanceMu(importanceMuSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type importanceSig(importanceSigSEXP );
@@ -110,8 +110,36 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// jzs_Gibbs
+NumericMatrix jzs_Gibbs(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const double sig2start, const IntegerVector gMap, const NumericVector gMapCounts, const int incCont, bool nullModel, const IntegerVector ignoreCols, const int thin, const int progress, const Function callback, const double callbackInterval);
+RcppExport SEXP BayesFactor_jzs_Gibbs(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP sig2startSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP incContSEXP, SEXP nullModelSEXP, SEXP ignoreColsSEXP, SEXP thinSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP );
+        Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
+        Rcpp::traits::input_parameter< const double >::type sig2start(sig2startSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const NumericVector >::type gMapCounts(gMapCountsSEXP );
+        Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
+        Rcpp::traits::input_parameter< bool >::type nullModel(nullModelSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type ignoreCols(ignoreColsSEXP );
+        Rcpp::traits::input_parameter< const int >::type thin(thinSEXP );
+        Rcpp::traits::input_parameter< const int >::type progress(progressSEXP );
+        Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP );
+        Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP );
+        NumericMatrix __result = jzs_Gibbs(iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // jzs_mc_marg_like
-double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
+double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
 RcppExport SEXP BayesFactor_jzs_mc_marg_like(SEXP gSEXP, SEXP sumSqSEXP, SEXP CnySEXP, SEXP CnXSEXP, SEXP CnytCnXSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP logDetPriorXSEXP, SEXP incContSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -123,7 +151,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const NumericMatrix >::type CnX(CnXSEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type CnytCnX(CnytCnXSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type gMap(gMapSEXP );
+        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type gMapCounts(gMapCountsSEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type priorX(priorXSEXP );
         Rcpp::traits::input_parameter< const double >::type logDetPriorX(logDetPriorXSEXP );

@@ -4,7 +4,7 @@ using namespace Rcpp;
 
 // [[Rcpp::depends(Rcpp)]]
 // [[Rcpp::export]]
-double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont)
+double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont)
 {
   double ans = 0, sumInvGammaDens = 0;
   const NumericVector q = log(g);
@@ -25,7 +25,7 @@ double jzs_mc_marg_like(const NumericVector g, const double sumSq, const Numeric
   return ans - sum(q) - sumInvGammaDens + .5*logDetPriorX;
 }
 
-double jzs_importance_marg_like(const NumericVector q, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont)
+double jzs_importance_marg_like(const NumericVector q, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont)
 {
   double ans = 0, sumNormDens = 0;
   const NumericVector limits(2);
