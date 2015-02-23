@@ -152,7 +152,7 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
       
   	  // sample g
 		  scaleg = 0.5 * ( pow(mu,2) / sig2 + rscaleSq );
-		  g = 1 / Rf_rgamma( 1, 1/scaleg );
+		  g = 1 / Rf_rgamma( 0.5 * (1 + !nullModel), 1/scaleg );
       
       // copy to chains
       chains(i, 0) = mu;
