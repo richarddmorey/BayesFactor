@@ -94,8 +94,10 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
       }
       
       // sample sig2
-		  scaleSig2 = 0.5 * ( sumy2 - 2.0 * N * ybar * mu + (N + 1/g)*pow(mu,2) );
-      if(doInterval){
+		  scaleSig2 = 0.5 * ( sumy2 - 2.0 * N * ybar * mu );
+      if( !nullModel ) scaleSig2 += (N + 1/g)*pow(mu,2)/2;
+      
+      if(doInterval && !nullModel){
         if( !intervalCompl){
           // Interval as given
           if( signAgree ){
@@ -151,9 +153,12 @@ NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, i
       }
       
   	  // sample g
-		  scaleg = 0.5 * ( pow(mu,2) / sig2 + rscaleSq );
-		  g = 1 / Rf_rgamma( 0.5 * (1 + !nullModel), 1/scaleg );
-      
+      if(nullModel){
+        g = NA_REAL;
+      }else{
+        scaleg = 0.5 * ( pow(mu,2) / sig2 + rscaleSq );
+  	    g = 1 / Rf_rgamma( 0.5 * (1 + !nullModel), 1/scaleg );
+      }
       // copy to chains
       chains(i, 0) = mu;
       chains(i, 1) = sig2;
