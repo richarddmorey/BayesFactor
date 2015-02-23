@@ -9,7 +9,7 @@ using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
 {
  
   const int P = CnX0.ncol();
@@ -82,7 +82,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   VgHalf = gInv.selfadjointView<Lower>().rankUpdate(CnX.transpose()).llt().solve(MatrixXd::Identity(P, P)).llt().matrixL();
   VgInv = MatrixXd(P,P).setZero().selfadjointView<Lower>().rankUpdate(VgHalf);
   CnytCnXVgHalf =  CnytCnX * VgHalf;
-  yXVXy = ( MatrixXd(1,1).setZero().selfadjointView<Lower>().rankUpdate( CnytCnXVgHalf ) )(0,0);
+  yXVXy = ( CnytCnXVgHalf * CnytCnXVgHalf.transpose() )(0,0);
   
   if(which == 0 || which == -1){ // (log) marginal posterior
     logDetVg = -log_determinant_pos_def( VgInv );

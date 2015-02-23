@@ -9,7 +9,7 @@ using Eigen::Map;
 
 // [[Rcpp::depends(RcppEigen)]]
 
-void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
+void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
 {
   RNGScope scope;
 
@@ -50,7 +50,7 @@ void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const doubl
   }
 }
 
-void jzs_importance_sampler(NumericVector *logsamples, const int iterations, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const NumericVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
+void jzs_importance_sampler(NumericVector *logsamples, const int iterations, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
 {
   RNGScope scope;
 
@@ -91,7 +91,7 @@ void jzs_importance_sampler(NumericVector *logsamples, const int iterations, con
 }
 
 // [[Rcpp::export]]
-NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const NumericVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which)
+NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which)
 {
   // which = 0 for mc sampler 
   // which = 1 for importance sampler
