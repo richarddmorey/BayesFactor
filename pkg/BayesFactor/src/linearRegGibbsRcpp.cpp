@@ -89,11 +89,11 @@ NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, co
       }
 
       // Sample sig2
-      sig2 = 1 / Rf_rgamma( N / 2, 2 / SSq );
+      sig2 = 1 / Rf_rgamma( ( N + P*(!nullModel) ) / 2, 2 / SSq );
 
       // Sample g
 		  SSq =  SSq_temp / sig2 + r*r;
-      g  = 1/Rf_rgamma( 0.5 * ( P + !nullModel ) , 2 / SSq );
+      g  = 1/Rf_rgamma( 0.5 * ( P*(!nullModel) + 1 ) , 2 / SSq );
 
       // Copy samples to chain
       for( j = 0 ; j < P ; j++ )
