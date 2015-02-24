@@ -64,7 +64,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                 dataTypes = dataTypes,
                 rscaleFixed = rscaleFixed,
                 rscaleRandom = rscaleRandom,
-                gibbs = FALSE, ...)
+                posterior = FALSE, ...)
         }else{ # Nothing
           stop("Too few levels in independent variable: ",factors[1])
         }
@@ -75,7 +75,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
                        rscaleCont = rscaleCont,
-                       gibbs = FALSE, ...)
+                       posterior = FALSE, ...)
       }
     }) # End try expression
     

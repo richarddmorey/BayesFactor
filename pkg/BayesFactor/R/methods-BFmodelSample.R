@@ -107,7 +107,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
                        iterations = iterations,
-                       gibbs = TRUE, ...) 
+                       posterior = TRUE, ...) 
     }else{
       # GLM
       chains = nWayFormula(formula=formula, data = data, 
@@ -116,7 +116,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
                        rscaleRandom = rscaleRandom,
                        rscaleCont = rscaleCont,
                        iterations = iterations,
-                       gibbs = TRUE, ...)        
+                       posterior = TRUE, ...)        
     }
     
     return(new("BFmcmc",chains, model = model, data = data))

@@ -48,17 +48,18 @@
 ##'   factor or posterior
 ##' @param progress  if \code{TRUE}, show progress with a text progress bar
 ##' @param callback callback function for third-party interfaces 
-##' @param gibbs if \code{TRUE}, return samples from the posterior instead of a 
-##'   Bayes factor
-##' @param ignoreCols if \code{NULL} and \code{gibbs=TRUE}, all parameter
+##' @param gibbs will be deprecated. See \code{posterior}
+##' @param posterior if \code{TRUE}, return samples from the posterior using 
+##' Gibbs sampling, instead of the Bayes factor
+##' @param ignoreCols if \code{NULL} and \code{posterior=TRUE}, all parameter
 ##'   estimates are returned in the MCMC object. If not \code{NULL}, a vector of
 ##'   length P-1 (where P is number of columns in the design matrix) giving which
 ##'   effect estimates to ignore in output
 ##' @param thin MCMC chain to every \code{thin} iterations. Default of 1 means 
-##'   no thinning. Only used if \code{gibbs=TRUE}
-##' @param method the integration method (only valid if \code{gibbs=TRUE}); one 
+##'   no thinning. Only used if \code{posterior=TRUE}
+##' @param method the integration method (only valid if \code{posterior=FALSE}); one 
 ##'   of "simple", "importance", "laplace", or "auto"
-##' @param continuous either FALSE is no continuous covariates are included, or 
+##' @param continuous either FALSE if no continuous covariates are included, or 
 ##'   a logical vector of length equal to number of columns of X indicating 
 ##'   which columns of the design matrix represent continuous covariates
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA. This is 
@@ -104,11 +105,17 @@
 ##' bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 ##' bf.full2
 
-nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$BFprogress, callback = NULL, gibbs = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE, noSample = FALSE)
+nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$BFprogress, callback = function(...) as.integer(0), gibbs = NULL, posterior = FALSE, ignoreCols=NULL, thin=1, method="auto", continuous=FALSE, noSample = FALSE)
 {  
   if(!is.numeric(y)) stop("y must be numeric.")  
   if(!is.numeric(X)) stop("X must be numeric.")  
-    
+  if(!is.function(callback)) stop("Invalid callback.")  
+  
+  if(!is.null(gibbs)){
+    warning("Argument 'gibbs' to nWayAOV will soon be deprecated. Use 'posterior' instead.")
+    posterior = gibbs
+  }
+  
   # Check thinning to make sure number is reasonable
   if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
     
@@ -128,10 +135,9 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
       stop("Invalid gMap argument. length(gMap) must be the the same as the number of parameters (excluding intercept): ",sum(gMap)," != ",P)
     if( !all(0:max(gMap) %in% unique(gMap)) )
       stop("Invalid gMap argument: no index can be skipped.")
-    
     nGs = as.integer(max(gMap) + 1)
   }else{
-    stop("One of gMap or struc must be defined.")
+    stop("gMap must be defined.")
   }
   
   if(is.null(ignoreCols)) ignoreCols = rep(0,P)
@@ -141,7 +147,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
   }
   
   # What if we can use quadrature?
-  if(nGs==1 & !gibbs & all(!continuous)) 
+  if(nGs==1 & !posterior & all(!continuous)) 
     return(singleGBayesFactor(y,X,rscale,gMap))
     
   # Rearrange design matrix if continuous columns are included
@@ -149,20 +155,50 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
   if(!identical(continuous,FALSE)){
     if(all(continuous)){
       #### If all covariates are continuous, we want to use Gaussian quadrature.
-      if(gibbs){
-        chains = linearReg.Gibbs(y, X, iterations = iterations, 
-                                 rscale = rscale, progress = progress, callback = callback)
-        return(chains)
-      }else{
         Cy = matrix(y - mean(y), ncol=1)
         CX = t(t(X) - colMeans(X))
         R2 = t(Cy)%*%CX%*%solve(t(CX)%*%CX)%*%t(CX)%*%Cy / (t(Cy)%*%Cy)
         bf = linearReg.R2stat(N=N,p=ncol(CX),R2=R2,rscale=rscale)  
         return(bf)
-      }
+    }
+  }else{
+    incCont = as.integer(0)
+  }
+  
+  if(posterior)
+    return(nWayAOV.Gibbs(y, X, gMap, rscale, iterations, progress, ignoreCols, thin, continuous, noSample, callback))
+ 
+  if(!noSample){
+    if(method %in% c("simple","importance","auto")){
+      return(doNwaySampling(method, y, X, rscale, 
+                   iterations, gMap, incCont, progress, callback))
+    }else if(method=="laplace"){
+      bf = laplaceAOV(y,X,rscale,gMap,incCont)
+      return(c(bf = bf, properror=NA))
+    }else{  
+      stop("Unknown method specified.")
+    }
+  }
+  
+  return(c(bf = NA, properror=NA))
+}
+
+
+nWayAOV.Gibbs = function(y, X, gMap, rscale, iterations, progress, ignoreCols, thin, continuous, noSample, callback)
+{
+  P = ncol(X)
+  nGs = as.integer( max(gMap) + 1 )
+  
+  if(!identical(continuous,FALSE)){
+    if(all(continuous)){
+        chains = linearReg.Gibbs(y, X, iterations = iterations, 
+                                 rscale = rscale, progress = progress, callback = callback)
+        return(chains)
     } 
     if(length(continuous) != P) stop("argument continuous must have same length as number of predictors")
     if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
+    
+    # Sort chains so that continuous covariates are together, and first
     sortX = order(!continuous)
     revSortX = order(sortX)
     X = X[,sortX]
@@ -173,51 +209,26 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
     incCont = as.integer(0)
   }
   
-	if(is.null(callback) | !is.function(callback)) {
-    callback = function(...){
-      return(as.integer(0))
-    }
-	}
-	    
-  if(gibbs){ # Create chains
-    
-    # set up for not outputing some parameters
-    nOutputPars = sum(1-ignoreCols)
+  nOutputPars = sum(1-ignoreCols)
   
-    if(noSample){ # Return structure of chains
-      chains = matrix(NA,2,nOutputPars + 2 + nGs)
-    }else{  
-      chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, 1, gMap, table(gMap), incCont, FALSE, 
-                         as.integer(ignoreCols), as.integer(thin), as.logical(progress), callback, 1)
-    }
-    chains = mcmc(chains)  
-    # Unsort the chains if we had continuous covariates
-    if(incCont){
-      # Account for ignored columns when resorting
-      revSort = 1+order(sortX[!ignoreCols])
-      chains[,1 + 1:nOutputPars] = chains[,revSort]
-      labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols[revSortX]],"sig2",paste("g",1:nGs,sep="_"))
-    }else{
-      labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols],"sig2",paste("g",1:nGs,sep="_"))
-    }
-    colnames(chains) = labels
-    retVal = chains
- 
-  }else if(noSample){
-    retVal = c(bf = NA, properror=NA)
-  }else{# Compute Bayes factor
-    if(method %in% c("simple","importance","auto")){
-      retVal = doNwaySampling(method, y, X, rscale, 
-                   iterations, gMap, incCont, progress, callback)
-    }else if(method=="laplace"){
-      bf = laplaceAOV(y,X,rscale,gMap,incCont)
-      properror=NA
-      retVal = c(bf = bf, properror=properror)
-      return(retVal)
-    }else{  
-      stop("Unknown method specified.")
-    }
+  if(noSample){ # Return structure of chains
+    chains = matrix(NA,2,nOutputPars + 2 + nGs)
+  }else{  
+    chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, 1, gMap, table(gMap), incCont, FALSE, 
+                       as.integer(ignoreCols), as.integer(thin), as.logical(progress), callback, 1)
   }
+  chains = mcmc(chains)  
   
-  return(retVal)
+  # Unsort the chains if we had continuous covariates
+  if(incCont){
+    # Account for ignored columns when resorting
+    revSort = 1+order(sortX[!ignoreCols])
+    chains[,1 + 1:nOutputPars] = chains[,revSort]
+    labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols[revSortX]],"sig2",paste("g",1:nGs,sep="_"))
+  }else{
+    labels = c("mu",paste("beta",1:P,sep="_")[!ignoreCols],"sig2",paste("g",1:nGs,sep="_"))
+  }
+  colnames(chains) = labels
+  return(chains)
 }
+

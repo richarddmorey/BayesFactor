@@ -310,7 +310,7 @@ centerContinuousColumns <- function(data){
   return(data.frame(mycols))
 }
 
-nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, gibbs=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
+nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, posterior=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
   
   checkFormula(formula, data, analysis = "lm")
   
@@ -340,8 +340,8 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   }
   if(all(ignoreCols) & !is.null(ignoreCols)) stop("Filtering out all chain columns of interest is not allowed.")
   
-  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, gibbs = gibbs, continuous = continuous, ignoreCols=ignoreCols,...)
-  if(gibbs){
+  retVal = nWayAOV(y, X, gMap = gMap, rscale = rscale, posterior = posterior, continuous = continuous, ignoreCols=ignoreCols,...)
+  if(posterior){
     retVal <- mcmc(makeChainNeater(retVal, colnames(X), formula, data, dataTypes, gMap, unreduce, continuous, columnFilter))  
   }
   return(retVal)
