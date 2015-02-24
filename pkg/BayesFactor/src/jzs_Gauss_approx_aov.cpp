@@ -9,7 +9,7 @@ using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
 {
  
   const int P = CnX0.ncol();
@@ -27,7 +27,6 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
     Rcpp::stop("length mismatch: q and gMapCount");
   }
   
-
   NumericVector d1g(nGs, NA_REAL);
   NumericVector d2g(nGs, NA_REAL);
   NumericVector ddensg(nGs, 0.0);
@@ -35,12 +34,11 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   NumericVector tempVec2(nGs, 0.0);
   NumericVector tempVec3(nGs, 0.0);
   NumericVector tempVec4(nGs, 0.0); 
-  MatrixXd VgHalf(MatrixXd(P, P).setZero());
   MatrixXd VgInv(MatrixXd(P, P).setZero());
   MatrixXd Cny(as<Map<MatrixXd> >(Cny0));
+  MatrixXd XtCnX(as<Map<MatrixXd> >(XtCnX0));
   MatrixXd CnX(as<Map<MatrixXd> >(CnX0));
   MatrixXd CnytCnX(as<Map<MatrixXd> >(CnytCnX0));
-  MatrixXd CnytCnXVgHalf(MatrixXd(P, P).setZero());
   MatrixXd gInv(MatrixXd(P, P).setZero());
   MatrixXd CnytCnXVg(MatrixXd(1, P).setZero());
   MatrixXd CnytCnXVg2(MatrixXd(1, P).setZero());
@@ -78,11 +76,10 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
       }
     }
   }
-  
-  VgHalf = gInv.selfadjointView<Lower>().rankUpdate(CnX.transpose()).llt().solve(MatrixXd::Identity(P, P)).llt().matrixL();
-  VgInv = MatrixXd(P,P).setZero().selfadjointView<Lower>().rankUpdate(VgHalf);
-  CnytCnXVgHalf =  CnytCnX * VgHalf;
-  yXVXy = ( CnytCnXVgHalf * CnytCnXVgHalf.transpose() )(0,0);
+
+  VgInv = (gInv + XtCnX).selfadjointView<Lower>().llt().solve(MatrixXd::Identity(P, P));
+  CnytCnXVg =  CnytCnX * VgInv;
+  yXVXy = ( CnytCnXVg * CnytCnX.transpose() )(0,0);
   
   if(which == 0 || which == -1){ // (log) marginal posterior
     logDetVg = -log_determinant_pos_def( VgInv );
@@ -96,9 +93,6 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
 
   if(which > 0 || which == -1){ // first derivative of log
     
-
-    CnytCnXVg = CnytCnXVgHalf * VgHalf.transpose();
-
     for( i = 0 ; i < nGs ; i++ ){
       ddensg(i) = g(i) * ddinvgamma1_Rcpp(g(i), 0.5, rscale(i) * rscale(i) / 2);
     }

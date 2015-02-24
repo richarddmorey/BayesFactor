@@ -6,10 +6,11 @@
 using namespace Rcpp;
 using Eigen::MatrixXd;
 using Eigen::Map;
+using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
 
-void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
+void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
 {
   RNGScope scope;
 
@@ -17,7 +18,6 @@ void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const doubl
   // ensures that the callback is called once, first
   time_t last_cb = static_cast<time_t>(int(0));    
   
-
   const int nGs = gMapCounts.size();
   NumericVector g(nGs);
 
@@ -46,11 +46,11 @@ void jzs_mc_sampler(NumericVector *logsamples, const int iterations, const doubl
       g(j) = 1 / Rf_rgamma( 0.5, 2.0 / ( rscale(j) * rscale(j) ) );
     }
 
-    (*logsamples)(i) = jzs_mc_marg_like(g, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont);
+    (*logsamples)(i) = jzs_mc_marg_like(g, sumSq, Cny, CnX, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont);
   }
 }
 
-void jzs_importance_sampler(NumericVector *logsamples, const int iterations, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
+void jzs_importance_sampler(NumericVector *logsamples, const int iterations, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont, const int progress, const Function callback, const double callbackInterval)
 {
   RNGScope scope;
 
@@ -86,7 +86,7 @@ void jzs_importance_sampler(NumericVector *logsamples, const int iterations, con
       q(j) = Rf_rnorm( mu(j), sig(j) );
     }
 
-    (*logsamples)(i) = jzs_importance_marg_like(q, mu, sig, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont);
+    (*logsamples)(i) = jzs_importance_marg_like(q, mu, sig, sumSq, Cny, CnX, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont);
   }
 }
 
@@ -108,7 +108,7 @@ NumericVector jzs_sampler(const int iterations, const NumericVector y, const Num
   NumericMatrix CnytCnX(1, P);
   NumericVector Cny(N);
   NumericVector XcolMeans(P);
-    
+  
   // Compute mean of each column of design matrix
   for( i = 0 ; i < P ; i++ )
   {
@@ -126,6 +126,8 @@ NumericVector jzs_sampler(const int iterations, const NumericVector y, const Num
       }
   }
   
+  MatrixXd XtCnX(MatrixXd(P,P).setZero().selfadjointView<Lower>().rankUpdate( MatrixXd((as<Map<MatrixXd> >(CnX))).transpose()));
+  
   // Construct prior cov matrix for continuous covariates from X
   if(incCont){
     for( i = 0 ; i < incCont ; i++ ){
@@ -142,9 +144,9 @@ NumericVector jzs_sampler(const int iterations, const NumericVector y, const Num
   CnytCnX = wrap(MatrixXd((as<Map<MatrixXd> >(Cny))).transpose() * MatrixXd((as<Map<MatrixXd> >(CnX))));
   
   if( which == 0 ){ // mc sampler
-    jzs_mc_sampler(&logsamples, iterations, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont, progress, callback, callbackInterval);
+    jzs_mc_sampler(&logsamples, iterations, sumSq, Cny, CnX, wrap(XtCnX), CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont, progress, callback, callbackInterval);
   }else if( which == 1 ){ // importance sampler
-    jzs_importance_sampler(&logsamples, iterations, importanceMu, importanceSig, sumSq, Cny, CnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont, progress, callback, callbackInterval);  
+    jzs_importance_sampler(&logsamples, iterations, importanceMu, importanceSig, sumSq, Cny, CnX, wrap(XtCnX), CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont, progress, callback, callbackInterval);  
   }else{
     Rcpp::stop("Invalid sampler specified.");
   }
