@@ -39,7 +39,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   MatrixXd XtCnX(as<Map<MatrixXd> >(XtCnX0));
   MatrixXd CnX(as<Map<MatrixXd> >(CnX0));
   MatrixXd CnytCnX(as<Map<MatrixXd> >(CnytCnX0));
-  MatrixXd gInv(MatrixXd(P, P).setZero());
+  MatrixXd gInv( XtCnX );
   MatrixXd CnytCnXVg(MatrixXd(1, P).setZero());
   MatrixXd CnytCnXVg2(MatrixXd(1, P).setZero());
   MatrixXd VgInv2(MatrixXd(P, P));
@@ -61,9 +61,9 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   }
   
   // Build g matrix
-  for( i = 0 ; i < P ; i++ ){
+  for( i = incCont ; i < P ; i++ ){
     sumLogg += q( gMap(i) );
-    gInv(i,i) = 1 / g( gMap(i) ); 
+    gInv(i,i) +=  1 / g( gMap(i) ); 
   }
   if(incCont){ // Continuous covariates included
     if( priorX.nrow() != incCont )
@@ -71,13 +71,14 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
     if( priorX.nrow() != priorX.ncol() )
       Rcpp::stop("priorX matrix must be square.");
     for( i = 0; i < incCont ; i++ ){
+      sumLogg += q( gMap(i) );
       for( j = 0 ; j <= i ; j++ ){
-        gInv(i,j) = priorX(i,j) / g(gMap(0));
+        gInv(i,j) += priorX(i,j) / g(gMap(0));
       }
     }
   }
 
-  VgInv = (gInv + XtCnX).selfadjointView<Lower>().llt().solve(MatrixXd::Identity(P, P));
+  VgInv = gInv.selfadjointView<Lower>().llt().solve(MatrixXd::Identity(P, P));
   CnytCnXVg =  CnytCnX * VgInv;
   yXVXy = ( CnytCnXVg * CnytCnX.transpose() )(0,0);
   
