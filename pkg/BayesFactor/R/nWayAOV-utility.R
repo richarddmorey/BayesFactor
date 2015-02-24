@@ -17,12 +17,12 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
     gMapCounts = table(gMap)
     
     f1 = Vectorize(
-      function(g,sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,const,priorX,incCont){
-        exp(Qg(log(g),sumSq,Cny,CnX,CnytCnX,rscale,gMap,gMapCounts,priorX,incCont,limit=FALSE) - log(g) - const)
+      function(g,...){
+        exp(Qg(log(g), ..., limit=FALSE) - log(g) - const)
       },"g")
     
     integral = try({
-      op = optim(1, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
+      op = optim(0, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
                  sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
       const = op$value - op$par
       integrate(f1,0,Inf,sumSq=sumSq,Cny=Cny,CnX=CnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
