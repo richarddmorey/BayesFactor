@@ -24,9 +24,9 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
     
     integral = try({
       op = optim(0, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
-                 sumSq=sumSq,Cny=Cny,CnX=CnX,XtCnX=XtCnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
+                 sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
       const = op$value - op$par
-      integrate(f1,0,Inf,sumSq=sumSq,Cny=Cny,CnX=CnX,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
+      integrate(f1,0,Inf,sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
     })
     if(inherits(integral,"try-error")){
       return(list(bf = NA, properror = NA))

@@ -9,11 +9,10 @@ using Eigen::Lower;
 
 // [[Rcpp::depends(RcppEigen)]]
 // [[Rcpp::export]]
-Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const int N, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which)
 {
  
-  const int P = CnX0.ncol();
-  const int N = CnX0.nrow();
+  const int P = XtCnX0.ncol();
   const int nGs = q.size();
   double d0g = NA_REAL;
   int i = 0, j = 0;
@@ -35,9 +34,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   NumericVector tempVec3(nGs, 0.0);
   NumericVector tempVec4(nGs, 0.0); 
   MatrixXd VgInv(MatrixXd(P, P).setZero());
-  const MatrixXd Cny(as<Map<MatrixXd> >(Cny0));
   const MatrixXd XtCnX(as<Map<MatrixXd> >(XtCnX0));
-  const MatrixXd CnX(as<Map<MatrixXd> >(CnX0));
   const MatrixXd CnytCnX(as<Map<MatrixXd> >(CnytCnX0));
   MatrixXd gInv( XtCnX );
   MatrixXd CnytCnXVg(MatrixXd(1, P).setZero());

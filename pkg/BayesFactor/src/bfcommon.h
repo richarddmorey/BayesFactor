@@ -13,10 +13,13 @@ double d2dinvgamma1_Rcpp(const double x, const double a, const double b);
 
 double log_determinant_pos_def(Eigen::MatrixXd A);
 
-List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix XtCnX, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
+List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const int N, const NumericMatrix XtCnX, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
 
-double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
-double jzs_importance_marg_like(const NumericVector q, const NumericVector mu, const NumericVector sig, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
+double jzs_mc_marg_like(const NumericVector g, const double sumSq, const int N, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
+double jzs_mc_marg_like2(const NumericVector g, const double sumSq, const int N, const NumericMatrix XtCnX, const NumericMatrix XtCny, const IntegerVector gMap, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
+
+double jzs_importance_marg_like(const NumericVector q, const NumericVector mu, const NumericVector sig, const double sumSq, const int N, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
+double jzs_importance_marg_like2(const NumericVector q, const NumericVector mu, const NumericVector sig, const double sumSq, const int N, const NumericMatrix XtCnX, const NumericMatrix XtCny, const NumericVector rscale, const IntegerVector gMap, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
 
 
 // sign function 

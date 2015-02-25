@@ -84,16 +84,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // jzs_log_marginal_posterior_logg
-Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const NumericVector Cny0, const NumericMatrix CnX0, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
-RcppExport SEXP BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP Cny0SEXP, SEXP CnX0SEXP, SEXP XtCnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
+Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const int N, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
+RcppExport SEXP BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP NSEXP, SEXP XtCnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< const NumericVector >::type q(qSEXP );
         Rcpp::traits::input_parameter< const double >::type sumSq(sumSqSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type Cny0(Cny0SEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type CnX0(CnX0SEXP );
+        Rcpp::traits::input_parameter< const int >::type N(NSEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type XtCnX0(XtCnX0SEXP );
         Rcpp::traits::input_parameter< const NumericMatrix >::type CnytCnX0(CnytCnX0SEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
@@ -104,7 +103,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< const bool >::type limit(limitSEXP );
         Rcpp::traits::input_parameter< const NumericVector >::type limits(limitsSEXP );
         Rcpp::traits::input_parameter< const int >::type which(whichSEXP );
-        Rcpp::List __result = jzs_log_marginal_posterior_logg(q, sumSq, Cny0, CnX0, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which);
+        Rcpp::List __result = jzs_log_marginal_posterior_logg(q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

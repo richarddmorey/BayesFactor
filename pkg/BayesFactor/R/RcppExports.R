@@ -17,8 +17,8 @@ jzs_sampler <- function(iterations, y, X, rscale, gMap, incCont, importanceMu, i
     .Call('BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
 }
 
-jzs_log_marginal_posterior_logg <- function(q, sumSq, Cny0, CnX0, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
-    .Call('BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, Cny0, CnX0, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
+jzs_log_marginal_posterior_logg <- function(q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
+    .Call('BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
 }
 
 jzs_Gibbs <- function(iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval) {
