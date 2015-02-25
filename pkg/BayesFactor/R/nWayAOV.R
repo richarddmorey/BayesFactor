@@ -142,11 +142,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
   if(length(rscale)!=nGs){
     stop("Length of rscale vector wrong. Was ", length(rscale), " and should be ", nGs,".")
   }
-  
-  # What if we can use quadrature?
-  if(nGs==1 & !posterior & all(!continuous)) 
-    return(singleGBayesFactor(y,X,rscale,gMap))
-    
+      
   # Rearrange design matrix if continuous columns are included
   # We will undo this later if chains have to be returned
   if(!identical(continuous,FALSE)){
@@ -173,6 +169,10 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
     revSortX = sortX = 1:ncol(X)
     incCont = as.integer(0)
   }
+  
+  # What if we can use quadrature?
+  if(nGs==1 & !posterior & all(!continuous)) 
+    return(singleGBayesFactor(y,X,rscale,gMap, incCont))
   
   if(posterior)
     return(nWayAOV.Gibbs(y, X, gMap, rscale, iterations, incCont, sortX, revSortX, progress, ignoreCols, thin, continuous, noSample, callback))

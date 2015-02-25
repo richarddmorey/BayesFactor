@@ -25,7 +25,7 @@ singleGBayesFactor <- function(y,X,rscale,gMap,incCont){
     gMapCounts = table(gMap)
     
     f1 = Vectorize(
-      function(g,...){
+      function(g, const, ...){
         exp(Qg(log(g), ..., limit=FALSE) - log(g) - const)
       },"g")
     
