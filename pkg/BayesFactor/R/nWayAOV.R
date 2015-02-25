@@ -167,13 +167,15 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
     X = X[,sortX]
     gMap = gMap[sortX]
     ignoreCols = ignoreCols[sortX]
+    continuous = continuous[sortX]
     incCont = sum(continuous)
   }else{
+    revSortX = sortX = 1:ncol(X)
     incCont = as.integer(0)
   }
   
   if(posterior)
-    return(nWayAOV.Gibbs(y, X, gMap, rscale, iterations, progress, ignoreCols, thin, continuous, noSample, callback))
+    return(nWayAOV.Gibbs(y, X, gMap, rscale, iterations, incCont, sortX, revSortX, progress, ignoreCols, thin, continuous, noSample, callback))
  
   if(!noSample){
     if(method %in% c("simple","importance","auto")){
@@ -191,7 +193,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
 }
 
 
-nWayAOV.Gibbs = function(y, X, gMap, rscale, iterations, progress, ignoreCols, thin, continuous, noSample, callback)
+nWayAOV.Gibbs = function(y, X, gMap, rscale, iterations, incCont, sortX, revSortX, progress, ignoreCols, thin, continuous, noSample, callback)
 {
   P = ncol(X)
   nGs = as.integer( max(gMap) + 1 )
@@ -207,16 +209,6 @@ nWayAOV.Gibbs = function(y, X, gMap, rscale, iterations, progress, ignoreCols, t
     } 
     if(length(continuous) != P) stop("argument continuous must have same length as number of predictors")
     if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
-    
-    # Sort chains so that continuous covariates are together, and first
-    sortX = order(!continuous)
-    revSortX = order(sortX)
-    X = X[,sortX]
-    gMap = gMap[sortX]
-    ignoreCols = ignoreCols[sortX]
-    incCont = sum(continuous)
-  }else{
-    incCont = as.integer(0)
   }
   
   nOutputPars = sum(1-ignoreCols)
