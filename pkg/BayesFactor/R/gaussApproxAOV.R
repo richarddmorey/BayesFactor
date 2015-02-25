@@ -40,16 +40,17 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
   
   # dumb starting values
   qs = rscale * 0 
-  
+    
+  N = length(y)
+
   if(!incCont){
     priorX = matrix(1,0,0)
   }else if(incCont == 1){
-    priorX = matrix(sum(X[,1]^2),1,1)
+    priorX = matrix(sum(X[,1]^2),1,1) / N
   }else{
-    priorX = crossprod(X[,1:incCont])  
+    priorX = crossprod(X[,1:incCont]) / N
   }
   
-  N = length(y)
   Cny = matrix(y - mean(y), N)
   CnX = t(t(X) - colMeans(X))
   XtCnX = crossprod(CnX)

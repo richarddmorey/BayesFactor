@@ -1,4 +1,4 @@
-singleGBayesFactor <- function(y,X,rscale,gMap){
+singleGBayesFactor <- function(y,X,rscale,gMap,incCont){
   if(ncol(X)==1){
     dat = data.frame(y=y,x=as.factor(X[,1])) 
     freqs = table(dat$x)
@@ -6,14 +6,21 @@ singleGBayesFactor <- function(y,X,rscale,gMap){
     bf = ttest.tstat(t=t, n1=freqs[1], n2=freqs[2],rscale=rscale*sqrt(2))
     return(bf)
   }else{
-    
-    incCont = 0
-    priorX = matrix(1,0,0)
+       
     N = length(y)
+    
+    if(!incCont){
+      priorX = matrix(1,0,0)
+    }else if(incCont == 1){
+      priorX = matrix(sum(X[,1]^2),1,1) / N
+    }else{
+      priorX = crossprod(X[,1:incCont]) / N
+    }
+    
     Cny = matrix(y - mean(y), N)
     CnX = t(t(X) - colMeans(X))
-    XtCnX = t(CnX) %*% CnX
-    CnytCnX = t(Cny)%*%CnX
+    XtCnX = crossprod(CnX)
+    CnytCnX = crossprod(Cny, CnX)
     sumSq = var(y) * (N-1) 
     gMapCounts = table(gMap)
     
