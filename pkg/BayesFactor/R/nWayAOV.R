@@ -115,10 +115,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
     warning("Argument 'gibbs' to nWayAOV will soon be deprecated. Use 'posterior' instead.")
     posterior = gibbs
   }
-  
-  # Check thinning to make sure number is reasonable
-  if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
-    
+     
   N = length(y)
 	X = matrix( X, nrow=N )
   
@@ -161,6 +158,15 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
         bf = linearReg.R2stat(N=N,p=ncol(CX),R2=R2,rscale=rscale)  
         return(bf)
     }
+    if(length(continuous) != P) stop("argument continuous must have same length as number of predictors")
+    if(length(unique(gMap[continuous]))!=1) stop("gMap for continuous predictors don't all point to same g value")
+    
+    # Sort chains so that continuous covariates are together, and first
+    sortX = order(!continuous)
+    revSortX = order(sortX)
+    X = X[,sortX]
+    gMap = gMap[sortX]
+    ignoreCols = ignoreCols[sortX]
     incCont = sum(continuous)
   }else{
     incCont = as.integer(0)
@@ -189,6 +195,9 @@ nWayAOV.Gibbs = function(y, X, gMap, rscale, iterations, progress, ignoreCols, t
 {
   P = ncol(X)
   nGs = as.integer( max(gMap) + 1 )
+
+  # Check thinning to make sure number is reasonable
+  if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
   
   if(!identical(continuous,FALSE)){
     if(all(continuous)){
