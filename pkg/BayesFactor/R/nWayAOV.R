@@ -161,6 +161,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
         bf = linearReg.R2stat(N=N,p=ncol(CX),R2=R2,rscale=rscale)  
         return(bf)
     }
+    incCont = sum(continuous)
   }else{
     incCont = as.integer(0)
   }

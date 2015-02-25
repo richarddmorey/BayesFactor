@@ -60,7 +60,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   // Build g matrix
   for( i = incCont ; i < P ; i++ ){
     sumLogg += q( gMap(i) );
-    gInv(i,i) +=  1 / g( gMap(i) ); 
+    gInv(i,i) +=  1 / g( gMap(i) );
   }
   if(incCont){ // Continuous covariates included
     if( priorX.nrow() != incCont )
@@ -70,7 +70,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
     for( i = 0; i < incCont ; i++ ){
       sumLogg += q( gMap(i) );
       for( j = 0 ; j <= i ; j++ ){
-        gInv(i,j) += priorX(i,j) / g(gMap(0));
+        gInv(i,j) += priorX(i,j) / g(gMap(i));
       }
     }
   }

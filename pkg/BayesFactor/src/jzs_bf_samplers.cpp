@@ -141,8 +141,7 @@ NumericVector jzs_sampler(const int iterations, const NumericVector y, const Num
   // Construct prior cov matrix for continuous covariates from X
   if(incCont){
     for( i = 0 ; i < incCont ; i++ ){
-      priorX(i,i) = sum( CnX( _ , i) * CnX( _ , i) ) / N;
-      for( j = 0 ; j < i ; j++ ){
+      for( j = 0 ; j <= i ; j++ ){
         priorX(i,j) = sum( CnX( _ , i) * CnX( _ , j) ) / N;
         priorX(j,i) = priorX(i,j);
       }
