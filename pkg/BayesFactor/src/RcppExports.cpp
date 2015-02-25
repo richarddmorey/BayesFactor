@@ -139,32 +139,6 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// jzs_mc_marg_like
-double jzs_mc_marg_like(const NumericVector g, const double sumSq, const NumericVector Cny, const NumericMatrix CnX, const NumericMatrix XtCnX, const NumericMatrix CnytCnX, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const double logDetPriorX, const int incCont);
-RcppExport SEXP BayesFactor_jzs_mc_marg_like(SEXP gSEXP, SEXP sumSqSEXP, SEXP CnySEXP, SEXP CnXSEXP, SEXP XtCnXSEXP, SEXP CnytCnXSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP logDetPriorXSEXP, SEXP incContSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< const NumericVector >::type g(gSEXP );
-        Rcpp::traits::input_parameter< const double >::type sumSq(sumSqSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type Cny(CnySEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type CnX(CnXSEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type XtCnX(XtCnXSEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type CnytCnX(CnytCnXSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP );
-        Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP );
-        Rcpp::traits::input_parameter< const NumericVector >::type gMapCounts(gMapCountsSEXP );
-        Rcpp::traits::input_parameter< const NumericMatrix >::type priorX(priorXSEXP );
-        Rcpp::traits::input_parameter< const double >::type logDetPriorX(logDetPriorXSEXP );
-        Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP );
-        double __result = jzs_mc_marg_like(g, sumSq, Cny, CnX, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
 // GibbsLinearRegRcpp
 NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, const NumericMatrix X, const double r, const double sig2start, const bool nullModel, const int progress, const Function callback, const double callbackInterval);
 RcppExport SEXP BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {

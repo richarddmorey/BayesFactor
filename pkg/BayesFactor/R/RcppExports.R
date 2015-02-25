@@ -25,10 +25,6 @@ jzs_Gibbs <- function(iterations, y, X, rscale, sig2start, gMap, gMapCounts, inc
     .Call('BayesFactor_jzs_Gibbs', PACKAGE = 'BayesFactor', iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval)
 }
 
-jzs_mc_marg_like <- function(g, sumSq, Cny, CnX, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont) {
-    .Call('BayesFactor_jzs_mc_marg_like', PACKAGE = 'BayesFactor', g, sumSq, Cny, CnX, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, logDetPriorX, incCont)
-}
-
 GibbsLinearRegRcpp <- function(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval) {
     .Call('BayesFactor_GibbsLinearRegRcpp', PACKAGE = 'BayesFactor', iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval)
 }

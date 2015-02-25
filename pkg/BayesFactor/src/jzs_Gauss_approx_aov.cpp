@@ -35,10 +35,10 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   NumericVector tempVec3(nGs, 0.0);
   NumericVector tempVec4(nGs, 0.0); 
   MatrixXd VgInv(MatrixXd(P, P).setZero());
-  MatrixXd Cny(as<Map<MatrixXd> >(Cny0));
-  MatrixXd XtCnX(as<Map<MatrixXd> >(XtCnX0));
-  MatrixXd CnX(as<Map<MatrixXd> >(CnX0));
-  MatrixXd CnytCnX(as<Map<MatrixXd> >(CnytCnX0));
+  const MatrixXd Cny(as<Map<MatrixXd> >(Cny0));
+  const MatrixXd XtCnX(as<Map<MatrixXd> >(XtCnX0));
+  const MatrixXd CnX(as<Map<MatrixXd> >(CnX0));
+  const MatrixXd CnytCnX(as<Map<MatrixXd> >(CnytCnX0));
   MatrixXd gInv( XtCnX );
   MatrixXd CnytCnXVg(MatrixXd(1, P).setZero());
   MatrixXd CnytCnXVg2(MatrixXd(1, P).setZero());
