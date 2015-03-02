@@ -28,6 +28,8 @@ BFprobability <- function(odds, normalize = 0){
 setValidity("BFprobability", function(object){
   if( !is.numeric(object@normalize) )
     return("Normalization constant must be numeric.")
+  if( object@normalize > 0 )
+    return("Normalization constant must be a valid probability.")
   odds = object@odds
   ## Add denominator 
   odds = c( odds, (1/odds[1]) / (1/odds[1]) )
@@ -91,13 +93,37 @@ setMethod("extractProbabilities", "BFprobability", function(x, logprobs = FALSE,
   odds = c(odds, (1/odds)/(1/odds))
   x = extractOdds(odds, log = TRUE)
   logsumodds = logMeanExpLogs(x$odds) + log(length(x$odds))
-  logp = x$odds - logsumodds - norm
+  logp = x$odds - logsumodds + norm
   z = data.frame(probs = logp, error = NA)
   rownames(z) = rownames(x)
   if(!logprobs) z$probs = exp(z$probs)
   if(onlyprobs) z = z$probs
   return(z)
 })
+
+#' @rdname BFprobability-class
+#' @name /,BFprobability-method,numeric
+#' @param e1 BFprobability object
+#' @param e2 new normalization constant
+setMethod('/', signature("BFprobability", "numeric"), function(e1, e2){
+  if(e2 > 1 | e2 <= 0)
+    stop("Normalization constant must be >0 and not >1")
+  return(e1 - log(e2))
+}
+)
+
+#' @rdname BFprobability-class
+#' @name -,BFprobability-method,numeric
+#' @param e1 BFprobability object
+#' @param e2 new (log) normalization constant
+setMethod('-', signature("BFprobability", "numeric"), function(e1, e2){
+  if(length(e2)>1) stop("Normalization constant must be a scalar.")
+  if(e2 > 0 | e2 == -Inf)
+    stop("Normalization constant must be >0 and not >1")
+  e1@normalize = e2
+  return(e1)
+}
+)
 
 ######
 # S3
