@@ -31,10 +31,11 @@ importFrom(MatrixModels, model.Matrix)
 import(mvtnorm, pbapply, stringr, coda, Matrix, RcppEigen)
 
 
-exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
+exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFodds")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
 exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na","model.matrix")
-              
+exportMethods("extractOdds", "extractProbabilities")
+
 S3method("is.na","BFBayesFactor")
 S3method("c","BFBayesFactor")
 S3method("plot","BFBayesFactor")
@@ -63,4 +64,8 @@ S3method("as.BFBayesFactor", "BFBayesFactorTop")
 S3method("plot","BFBayesFactorTop")
 S3method("sort","BFBayesFactorTop")
 S3method("length","BFBayesFactorTop")
+
+S3method("c","BFodds")
+S3method("length","BFodds")
+
 

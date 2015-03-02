@@ -145,3 +145,50 @@ setClass("BFBayesFactorTop", contains = "BFBayesFactor")
 
 setOldClass("mcmc")
 setClass("BFmcmc", contains = "mcmc", representation(model="BFmodel",data = "data.frame"))
+
+setClassUnion("BFOrNULL", members = c("BFBayesFactor", "NULL"))
+
+#' General S4 class for representing multiple odds model comparisons, all against the same model
+#' 
+#' The \code{BFodds} class is a general S4 class for representing models model comparison via prior or posterior odds.
+#'   
+#'   \code{BFodds} objects can be inverted by taking the reciprocal and can
+#'    be divided by one another, provided both objects have the same denominator. In addition, 
+#'    the \code{t} (transpose) method can be used to invert odds objects.
+
+#'   \describe{
+#'   The \code{BFodds} class has the following slots defined:
+#'    \item{numerator}{a list of models all inheriting \code{BFmodel}, each providing a single numerator}
+#'    \item{denominator}{a single \code{BFmodel} object serving as the denominator for all model comparisons}
+#'    \item{logodds}{a data frame containing information about the (log) prior odds between each numerator and the denominator}
+#'    \item{bayesFactor}{a \code{BFBayesFactor} object (possibly) containing the evidence from the data.}
+#'    \item{version}{character string giving the version and revision number of the package that the model was created in}
+#'    }
+#' @name BFodds-class
+#' @export
+setClass("BFodds", representation(
+  numerator = "list",
+  denominator = "BFmodel",
+  logodds = "data.frame",
+  bayesFactor = "BFOrNULL",
+  version = "character"
+))
+
+#' General S4 class for representing multiple model probability comparisons
+#' 
+#' The \code{BFprobability} class is a general S4 class for representing models model comparison via prior or posterior probabilities.
+#'  
+#'   \describe{
+#'   The \code{BFprobability} class has the following slots defined:
+#'    \item{odds}{A BFodds object containing the models from which to compute the probabilities}
+#'    \item{normalize}{the sum of the probabilities of all models (will often be 1.0)}
+#'    \item{version}{character string giving the version and revision number of the package that the model was created in}
+#'    }
+#' @name BFodds-class
+#' @export
+setClass("BFprobability", representation(
+  odds = "BFodds",
+  normalize = "numeric",
+  version = "character"
+))
+
