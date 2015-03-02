@@ -166,6 +166,20 @@ setMethod('/', signature("BFodds", "BFodds"), function(e1, e2){
 }
 )
 
+#' @rdname BFodds-class
+#' @name *,BFodds,BFodds-method
+setMethod('*', signature("BFodds", "BFBayesFactor"), function(e1, e2){
+  if(!is.null(e1@bayesFactor))
+    stop("Cannot multiply posterior odds object with Bayes factor.")
+  new("BFodds", numerator = e1@numerator, 
+      denominator = e1@denominator,
+      logodds = e1@logodds,
+      bayesFactor = e2, 
+      version = BFInfo(FALSE))
+}
+)
+
+
 
 #' @rdname BFodds-class
 #' @name [,BFodds,index,missing,missing-method
