@@ -257,3 +257,61 @@ c.BFodds <-
     return(bf)    
   }
 
+
+names.BFodds <- function(x) {
+  rownames(extractOdds(x))
+}
+
+# See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
+sort.BFodds <- function(x, decreasing = FALSE, ...){
+  ord = order(extractOdds(x, logodds=TRUE)$odds, decreasing = decreasing)
+  return(x[ord])
+}
+
+max.BFodds <- function(..., na.rm=FALSE){
+  joinedodds = do.call('c',list(...))
+  el <- head(joinedodds, n=1)
+  return(el)
+}
+
+min.BFodds <- function(..., na.rm=FALSE){
+  joinedodds = do.call('c',list(...))
+  el <- tail(joinedodds, n=1)
+  return(el)
+}
+
+which.max.BFodds <- function(x){
+  index = which.max(extractOdds(x, logodds=TRUE)$odds)
+  names(index) = names(x)[index]
+  return(index)
+}
+
+which.min.BFodds <- function(x){
+  index = which.min(extractOdds(x, logodds=TRUE)$odds)
+  names(index) = names(x)[index]
+  return(index)
+}
+
+head.BFodds <- function(x, n=6L, ...){
+  n = ifelse(n>length(x),length(x),n)
+  x = sort(x, decreasing=TRUE)
+  return(x[1:n])
+}
+
+tail.BFodds <- function(x, n=6L, ...){
+  n = ifelse(n>length(x),length(x),n)
+  x = sort(x)
+  return(x[n:1])}
+
+as.data.frame.BFodds <- function(x, row.names = NULL, optional=FALSE,...){
+  df = extractOdds(x)
+  return(df) 
+}
+
+as.vector.BFodds <- function(x, mode = "any"){
+  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)  
+  v = extractOdds(x)$odds
+  names(v) = names(x)
+  return(v) 
+}
+

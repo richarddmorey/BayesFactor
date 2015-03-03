@@ -172,3 +172,61 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
 length.BFprobability <- function(x) 
   nrow(extractProbabilities(x))
 
+names.BFprobability <- function(x) {
+  rownames(extractProbabilities(x))
+}
+
+# See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
+sort.BFprobability <- function(x, decreasing = FALSE, ...){
+  ord = order(extractProbabilities(x, logprobs=TRUE)$probs, decreasing = decreasing)
+  return(x[ord])
+}
+
+max.BFprobability <- function(..., na.rm=FALSE){
+  if(nargs()>2) stop("Cannot concatenate probability objects.")
+  el <- head(list(...)[[1]], n=1)
+  return(el)
+}
+
+min.BFprobability <- function(..., na.rm=FALSE){
+  if(nargs()>2) stop("Cannot concatenate probability objects.")
+  el <- tail(list(...)[[1]], n=1)
+  return(el)
+}
+
+which.max.BFprobability <- function(x){
+  index = which.max(extractProbabilities(x, logprobs=TRUE)$probs)
+  names(index) = names(x)[index]
+  return(index)
+}
+
+which.min.BFprobability <- function(x){
+  index = which.min(extractProbabilities(x, logprobs=TRUE)$probs)
+  names(index) = names(x)[index]
+  return(index)
+  
+}
+
+head.BFprobability <- function(x, n=6L, ...){
+  n = ifelse(n>length(x),length(x),n)
+  x = sort(x, decreasing=TRUE)
+  return(x[1:n])
+}
+
+tail.BFprobability <- function(x, n=6L, ...){
+  n = ifelse(n>length(x),length(x),n)
+  x = sort(x)
+  return(x[n:1])}
+
+as.data.frame.BFprobability <- function(x, row.names = NULL, optional=FALSE,...){
+  df = extractProbabilities(x)
+  return(df) 
+}
+
+as.vector.BFprobability <- function(x, mode = "any"){
+  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)  
+  v = extractProbabilities(x)$probs
+  names(v) = names(x)
+  return(v) 
+}
+
