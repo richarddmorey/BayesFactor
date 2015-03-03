@@ -1,24 +1,26 @@
 # constructor
 BFprobability <- function(odds, normalize = 0){
   ## Add denominator 
-  odds = c( odds, (1/odds[1]) / (1/odds[1]) )
+  
   ## eliminate redundant models
-  duplicates = 1:length(odds)
-  for(i in 2:length(odds)){
-    for(j in 1:(i-1)){
-      if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
-        duplicates[i] = j
-        break
+  if( length(odds) > 1 ){
+    odds = c( odds, (1/odds[1]) / (1/odds[1]) )
+    duplicates = 1:length(odds)
+    for(i in 2:length(odds)){
+      for(j in 1:(i-1)){
+        if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
+          duplicates[i] = j
+          break
+        }
       }
     }
-  }
-  which.denom = duplicates[length(odds)]
-  not.duplicate = duplicates == (1:length(odds))
-  not.duplicate[ which.denom ] = FALSE
+    which.denom = duplicates[length(odds)]
+    not.duplicate = duplicates == (1:length(odds))
+    not.duplicate[ which.denom ] = FALSE
     
-  # get rid of redundant models (this could be done better)  
-  odds = odds[not.duplicate]
-  
+    # get rid of redundant models (this could be done better)  
+    odds = odds[not.duplicate]
+  }
   new("BFprobability", odds = odds, 
       normalize = normalize,
       version = BFInfo(FALSE))
@@ -32,17 +34,18 @@ setValidity("BFprobability", function(object){
     return("Normalization constant must be a valid probability.")
   odds = object@odds
   ## Add denominator 
-  odds = c( odds, (1/odds[1]) / (1/odds[1]) )
   
-  duplicates = 1:length(odds)
-  for(i in 2:length(odds)){
-    for(j in 1:(i-1)){
-      if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
-        return("Duplicate models not allowed in probability objects.")
+  if( length(odds) > 1 ){
+    odds = c( odds, (1/odds[1]) / (1/odds[1]) )  
+    duplicates = 1:length(odds)
+    for(i in 2:length(odds)){
+      for(j in 1:(i-1)){
+        if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
+          return("Duplicate models not allowed in probability objects.")
+        }
       }
     }
   }
-  
   return(TRUE)
 })
 
@@ -90,11 +93,16 @@ setMethod('summary', "BFprobability", function(object){
 setMethod("extractProbabilities", "BFprobability", function(x, logprobs = FALSE, onlyprobs = FALSE){
   norm = x@normalize
   odds = x@odds
-  odds = c(odds, (1/odds)/(1/odds))
-  x = extractOdds(odds, log = TRUE)
-  logsumodds = logMeanExpLogs(x$odds) + log(length(x$odds))
-  logp = x$odds - logsumodds + norm
-  z = data.frame(probs = logp, error = NA)
+  if( (length(odds) > 1 ) | !( odds@numerator[[1]] %same% odds@denominator ) ){
+    odds = c(odds, (1/odds[1])/(1/odds[1]))
+    x = extractOdds(odds, log = TRUE)
+    logsumodds = logMeanExpLogs(x$odds) + log(length(x$odds))
+    logp = x$odds - logsumodds + norm
+    z = data.frame(probs = logp, error = NA)
+  }else{ # numerator and denominator are the same
+    x = extractOdds(odds, log = TRUE)
+    z = data.frame(probs = norm, error = NA)
+  }
   rownames(z) = rownames(x)
   if(!logprobs) z$probs = exp(z$probs)
   if(onlyprobs) z = z$probs
@@ -125,10 +133,42 @@ setMethod('-', signature("BFprobability", "numeric"), function(e1, e2){
 }
 )
 
+#' @rdname BFprobability-class
+#' @name [,BFprobability,index,missing,missing-method
+#' @param x BFprobability object
+#' @param i indices indicating elements to extract
+#' @param j unused for BFprobability objects
+#' @param drop unused
+#' @param ... further arguments passed to related methods
+setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
+                         drop = "missing"),
+          function (x, i, j, ..., drop) {
+            if((na <- nargs()) == 2){
+              i = unique(i)
+              norm = x@normalize
+              logprobs = extractProbabilities(x, logprobs = TRUE)[i, ,drop=FALSE]
+              sumlogprobs = logMeanExpLogs(logprobs$probs) + log(nrow(logprobs))
+              if(length(x) == length(i) ){
+                newnorm = norm
+              }else if( length(i) == 1){
+                newnorm = sumlogprobs
+              }else{
+                newnorm = norm + sumlogprobs
+              }
+              whichnum = i[1:max(1, length(i)-1)]
+              whichdenom = i[length(i)]
+              newodds = c(x@odds, (1/x@odds[1])/(1/x@odds[1]))
+              newodds = newodds[whichnum] / newodds[whichdenom]
+              x = BFprobability( newodds,  newnorm )
+            }else stop("invalid nargs()= ",na)
+            return(x)
+          })
+
+
 ######
 # S3
 ######
 
 length.BFprobability <- function(x) 
-  length(x@odds) + 1
+  nrow(extractProbabilities(x))
 

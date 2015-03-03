@@ -68,4 +68,5 @@ S3method("length","BFBayesFactorTop")
 S3method("c","BFodds")
 S3method("length","BFodds")
 
+S3method("length","BFprobability")
 
