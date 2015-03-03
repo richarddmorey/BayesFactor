@@ -1,6 +1,7 @@
   CHANGES IN BayesFactor VERSION 0.9.11
 
 CHANGES
+  * Added support for prior/posterior odds and probabilities. See the new vignette for details.
   * Added approximation for t test in case of large t
   * Made some error messages clearer
   * Use callbacks at least once in all cases
