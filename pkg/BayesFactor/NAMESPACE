@@ -13,12 +13,14 @@ export(logMeanExpLogs,
     anovaBF,
     BFManual,
     as.BFBayesFactor,
+    as.BFprobability,
     generalTestBF,
     meta.ttestBF,
     proportionBF,
     contingencyTableBF,
     enumerateGeneralModels,
-    logSummaryStats)
+    logSummaryStats,
+    newPriorOdds)
 
 importFrom(methods, show)
 importFrom(utils, head)
@@ -65,6 +67,8 @@ S3method("plot","BFBayesFactorTop")
 S3method("sort","BFBayesFactorTop")
 S3method("length","BFBayesFactorTop")
 
+S3method("as.BFBayesFactor", "BFodds")
+S3method("as.BFprobability", "BFodds")
 S3method("c","BFodds")
 S3method("length","BFodds")
 S3method("head","BFodds")

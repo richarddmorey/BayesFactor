@@ -169,6 +169,25 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
 # S3
 ######
 
+##' This function coerces objects to the BFprobability class
+##' 
+##' Function to coerce objects to the BFprobability class
+##' 
+##' Currently, this function will only work with objects of class
+##' \code{BFOdds}.
+##' @title Function to coerce objects to the BFprobability class
+##' @param object an object of appropriate class (BFodds)
+##' @param normalize the sum of the probabilities for all models in the object (1 by default)
+##' @param lognormalize alternative to \code{normalize}; the 
+##' logarithm of the normalization constant (0 by default)
+##' @return An object of class \code{BFprobability}
+##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
+##' @export
+##' @keywords misc
+as.BFprobability <- function(object, normalize = NULL, lognormalize = NULL)
+  UseMethod("as.BFprobability")
+
+
 length.BFprobability <- function(x) 
   nrow(extractProbabilities(x))
 

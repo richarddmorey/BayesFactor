@@ -204,10 +204,53 @@ setMethod("[", signature(x = "BFodds", i = "index", j = "missing",
             return(x)
           })
 
+#' @rdname recompute-methods
+#' @aliases recompute,BFodds-method
+setMethod("recompute", "BFodds", function(x, progress = options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...){
+  bf = as.BFBayesFactor(x)
+  bf = recompute(bf, progress = progress, 
+            multicore = multicore,
+            callback = callback,
+            ...)
+  x@bayesFactor = bf
+  return(x)
+  })
+
+setAs("BFodds", "BFBayesFactor",
+      function( from, to ){
+        as.BFBayesFactor.BFOdds(from)
+      })
+
+setAs("BFodds", "BFprobability",
+      function( from, to ){
+        as.BFprobability.BFOdds(from)
+      })
+
 
 ######
 # S3
 ######
+
+
+as.BFBayesFactor.BFodds <- function(object){
+  if(!is.null(object@bayesFactor)){
+    return(object@bayesFactor)
+  }else{
+    stop("Cannot convert prior odds to Bayes factor; no data has been given.")
+  }
+}
+
+as.BFprobability.BFodds <- function(x, normalize = NULL, lognormalize = NULL){
+  if(is.null(lognormalize) & is.null(normalize)){
+    lognormalize = 0
+  }else if(is.null(lognormalize) & !is.null(normalize)){
+    lognormalize = log(normalize)
+  }else if(!is.null(normalize)){
+    stop("Cannot specify foth normalize and lognormalize.")
+  }
+  return(BFprobability(x, lognormalize))
+}
+
 
 length.BFodds <- function(x) 
   nrow(x@logodds)
