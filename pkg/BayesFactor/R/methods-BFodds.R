@@ -167,7 +167,7 @@ setMethod('/', signature("BFodds", "BFodds"), function(e1, e2){
 )
 
 #' @rdname BFodds-class
-#' @name *,BFodds,BFodds-method
+#' @name *,BFodds,BFBayesFactor-method
 setMethod('*', signature("BFodds", "BFBayesFactor"), function(e1, e2){
   if(!is.null(e1@bayesFactor))
     stop("Cannot multiply posterior odds object with Bayes factor.")
@@ -218,12 +218,12 @@ setMethod("recompute", "BFodds", function(x, progress = options()$BFprogress, mu
 
 setAs("BFodds", "BFBayesFactor",
       function( from, to ){
-        as.BFBayesFactor.BFOdds(from)
+        as.BFBayesFactor.BFodds(from)
       })
 
 setAs("BFodds", "BFprobability",
       function( from, to ){
-        as.BFprobability.BFOdds(from)
+        as.BFprobability.BFodds(from)
       })
 
 
@@ -240,7 +240,7 @@ as.BFBayesFactor.BFodds <- function(object){
   }
 }
 
-as.BFprobability.BFodds <- function(x, normalize = NULL, lognormalize = NULL){
+as.BFprobability.BFodds <- function(object, normalize = NULL, lognormalize = NULL){
   if(is.null(lognormalize) & is.null(normalize)){
     lognormalize = 0
   }else if(is.null(lognormalize) & !is.null(normalize)){
@@ -248,7 +248,7 @@ as.BFprobability.BFodds <- function(x, normalize = NULL, lognormalize = NULL){
   }else if(!is.null(normalize)){
     stop("Cannot specify foth normalize and lognormalize.")
   }
-  return(BFprobability(x, lognormalize))
+  return(BFprobability(object, lognormalize))
 }
 
 

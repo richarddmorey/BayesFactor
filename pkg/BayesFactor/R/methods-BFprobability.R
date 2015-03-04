@@ -95,12 +95,12 @@ setMethod("extractProbabilities", "BFprobability", function(x, logprobs = FALSE,
   odds = x@odds
   if( (length(odds) > 1 ) | !( odds@numerator[[1]] %same% odds@denominator ) ){
     odds = c(odds, (1/odds[1])/(1/odds[1]))
-    x = extractOdds(odds, log = TRUE)
+    x = extractOdds(odds, logodds = TRUE)
     logsumodds = logMeanExpLogs(x$odds) + log(length(x$odds))
     logp = x$odds - logsumodds + norm
     z = data.frame(probs = logp, error = NA)
   }else{ # numerator and denominator are the same
-    x = extractOdds(odds, log = TRUE)
+    x = extractOdds(odds, logodds = TRUE)
     z = data.frame(probs = norm, error = NA)
   }
   rownames(z) = rownames(x)
@@ -110,7 +110,7 @@ setMethod("extractProbabilities", "BFprobability", function(x, logprobs = FALSE,
 })
 
 #' @rdname BFprobability-class
-#' @name /,BFprobability-method,numeric
+#' @name /,BFprobability,numeric-method
 #' @param e1 BFprobability object
 #' @param e2 new normalization constant
 setMethod('/', signature("BFprobability", "numeric"), function(e1, e2){
@@ -121,9 +121,7 @@ setMethod('/', signature("BFprobability", "numeric"), function(e1, e2){
 )
 
 #' @rdname BFprobability-class
-#' @name -,BFprobability-method,numeric
-#' @param e1 BFprobability object
-#' @param e2 new (log) normalization constant
+#' @name -,BFprobability,numeric-method
 setMethod('-', signature("BFprobability", "numeric"), function(e1, e2){
   if(length(e2)>1) stop("Normalization constant must be a scalar.")
   if(e2 > 0 | e2 == -Inf)

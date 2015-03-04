@@ -249,7 +249,7 @@ setMethod("is.na", "BFBayesFactor", function(x)
 
 
 #' @rdname BFBayesFactor-class
-#' @name *,BFBayesFactor,BFBayesFactor-method
+#' @name *,BFBayesFactor,BFodds-method
 setMethod('*', signature("BFBayesFactor", "BFodds"), function(e1, e2){
   return(e2 * e1)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/aaClasses.R, R/methods-BFodds.R
 \docType{class}
 \name{BFodds-class}
-\alias{*,BFodds,BFodds-method}
+\alias{*,BFodds,BFBayesFactor-method}
 \alias{/,BFodds,BFodds-method}
 \alias{/,numeric,BFodds-method}
 \alias{BFodds-class}
@@ -34,8 +34,6 @@
 }
 \description{
 The \code{BFodds} class is a general S4 class for representing models model comparison via prior or posterior odds.
-
-The \code{BFprobability} class is a general S4 class for representing models model comparison via prior or posterior probabilities.
 }
 \details{
 \code{BFodds} objects can be inverted by taking the reciprocal and can
@@ -47,13 +45,6 @@ The \code{BFprobability} class is a general S4 class for representing models mod
    \item{denominator}{a single \code{BFmodel} object serving as the denominator for all model comparisons}
    \item{logodds}{a data frame containing information about the (log) prior odds between each numerator and the denominator}
    \item{bayesFactor}{a \code{BFBayesFactor} object (possibly) containing the evidence from the data.}
-   \item{version}{character string giving the version and revision number of the package that the model was created in}
-   }
-
-\describe{
-  The \code{BFprobability} class has the following slots defined:
-   \item{odds}{A BFodds object containing the models from which to compute the probabilities}
-   \item{normalize}{the sum of the probabilities of all models (will often be 1.0)}
    \item{version}{character string giving the version and revision number of the package that the model was created in}
    }
 }

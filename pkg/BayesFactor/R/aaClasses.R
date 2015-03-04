@@ -184,7 +184,7 @@ setClass("BFodds", representation(
 #'    \item{normalize}{the sum of the probabilities of all models (will often be 1.0)}
 #'    \item{version}{character string giving the version and revision number of the package that the model was created in}
 #'    }
-#' @name BFodds-class
+#' @name BFprobability-class
 #' @export
 setClass("BFprobability", representation(
   odds = "BFodds",
