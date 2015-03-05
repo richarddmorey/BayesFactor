@@ -66,6 +66,7 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogr
     )
 
   }else{ # No multicore
+    checkCallback(callback,as.integer(0))
     bfs = NULL
     myCallback <- function(prgs){
       frac <- (i - 1 + prgs/1000)/length(modelList)
@@ -82,8 +83,8 @@ setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogr
       if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
       bfs = c(bfs,oneModel)
     }
-    if(inherits(pb,"txtProgressBar")) close(pb)      
-    
+    if(inherits(pb,"txtProgressBar")) close(pb)
+    checkCallback(callback,as.integer(1000))
   }
   
   joined = do.call("c", bfs)
