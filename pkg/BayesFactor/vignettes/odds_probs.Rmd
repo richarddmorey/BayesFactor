@@ -59,9 +59,7 @@ that is, the posterior odds are equal to the Bayes factor times the prior odds.
 
 Further, these odds can be converted to probabilities, if we assume that all the models sum to known probability.
 
-### Prior odds with Bayes factor
-
-
+### Prior odds with BayesFactor
 
 ```{r}
 data(puzzles)
@@ -83,6 +81,8 @@ priorOdds(prior.odds) <- c(4,3,2,1)
 prior.odds
 ```
 
+### Posterior odds with BayesFactor
+
 We can multiply the prior odds by the Bayes factor to obtain posterior odds:
 
 ```{r}
@@ -90,7 +90,9 @@ post.odds = prior.odds * bf
 post.odds
 ```
 
-This posterior odds object can be converted to probabilities:
+### Prior/posterior probabilities with BayesFactor
+
+Odds objects can be converted to probabilities:
 
 ```{r}
 post.prob = as.BFprobability(post.odds)
