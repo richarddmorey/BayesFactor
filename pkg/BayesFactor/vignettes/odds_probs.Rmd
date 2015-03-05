@@ -1,0 +1,125 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Odds and probabilities}
+\usepackage[utf8]{inputenc}
+-->
+
+<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
+
+![BayesFactor logo](extra/logo.png)
+
+------
+
+Odds and probabilities using BayesFactor
+===============================
+
+Richard D. Morey
+-----------------
+
+<div class="social">
+<a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
+</div>
+
+<div class="social">
+<a target="_blank" href="http://bayesfactor.blogspot.nl/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
+</div>
+
+<div class="socialsep"></div>
+
+Share via<br/>
+<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="https://delicious.com/save?v=5&provider=BayesFactor&noui&jump=close&url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/delicious.png" alt="bookmark on delicious" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: http://bayesfactorpcl.r-forge.r-project.org." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
+</span>
+
+----
+
+
+
+```{r echo=FALSE,message=FALSE,results='hide'}
+options(markdown.HTML.stylesheet = 'extra/manual.css')
+library(knitr)
+options(digits=3)
+require(graphics)
+set.seed(2)
+```
+
+```{r message=FALSE,results='hide',echo=FALSE}
+library(BayesFactor)
+options(BFprogress = FALSE)
+bfversion = BFInfo()
+session = sessionInfo()[[1]]
+rversion = paste(session$version.string," on ",session$platform,sep="")
+```
+
+The Bayes factor is only one part of Bayesian model comparison. The Bayes factor represents the relative evidence between two models -- that is, the change in the model odds due to the data -- but the odds are what are being changed. For any two models ${\cal M}_0$ and ${\cal M}_1$ and data $y$,
+
+\[
+\frac{P({\cal M}_1\mid y)}{P({\cal M}_0\mid y)} = \frac{P(y \mid {\cal M}_1)}{P(y\mid{\cal M}_0)} \times\frac{P({\cal M}_1)}{P({\cal M}_0)};
+\]
+that is, the posterior odds are equal to the Bayes factor times the prior odds.
+
+Further, these odds can be converted to probabilities, if we assume that all the models sum to known probability.
+
+### Prior odds with Bayes factor
+
+
+
+```{r}
+data(puzzles)
+bf = anovaBF(RT ~ shape*color + ID, whichRandom = "ID", data = puzzles)
+bf
+```
+
+With the addition of `BFodds` objects, we can compute prior and posterior odds. A prior odds object can be created from the structure of an existing BayesFactor object:
+
+```{r}
+prior.odds = newPriorOdds(bf, type = "equal")
+prior.odds
+```
+
+For now, the only type of prior odds is "equal". However, we can change the prior odds to whatever we like with the `priorOdds` function:
+
+```{r}
+priorOdds(prior.odds) <- c(4,3,2,1)
+prior.odds
+```
+
+We can multiply the prior odds by the Bayes factor to obtain posterior odds:
+
+```{r}
+post.odds = prior.odds * bf
+post.odds
+```
+
+This posterior odds object can be converted to probabilities:
+
+```{r}
+post.prob = as.BFprobability(post.odds)
+post.prob
+```
+
+By default the probabilities sum to 1, but we can change this by renormalizing. Note that this normalizing constant is arbitrary, but it can be helpful to set it to specific values.
+
+```{r}
+post.prob / .5
+```
+
+In addition, we can select subsets of the probabilities, and the normalizing constant is adjusted to the sum of the model probabilities:
+
+```{r}
+post.prob[1:3]
+```
+
+...which can, in turn, be renormalized:
+
+```{r}
+post.prob[1:3] / 1
+```
+
+In the future, the ability to filter these objects will be added, as well as model averaging based on posterior probabilities and samples.
+
+
+-------
+<p>Social media icons by <a href="http://www.awicons.com/">Lokas Software</a>.</p>
+
+*This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*
+

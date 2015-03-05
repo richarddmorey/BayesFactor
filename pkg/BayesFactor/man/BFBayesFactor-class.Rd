@@ -2,6 +2,7 @@
 % Please edit documentation in R/aaClasses.R, R/methods-BFBayesFactor.R, R/methods-BFBayesFactorTop.R
 \docType{class}
 \name{BFBayesFactor-class}
+\alias{*,BFBayesFactor,BFodds-method}
 \alias{/,BFBayesFactor,BFBayesFactor-method}
 \alias{/,numeric,BFBayesFactor-method}
 \alias{BFBayesFactor-class}
@@ -27,6 +28,8 @@
 \S4method{which.min}{BFBayesFactor}(x)
 
 \S4method{is.na}{BFBayesFactor}(x)
+
+\S4method{*}{BFBayesFactor,BFodds}(e1, e2)
 
 \S4method{[}{BFBayesFactorTop,index,missing,missing}(x, i, j, ...,
   drop = TRUE)

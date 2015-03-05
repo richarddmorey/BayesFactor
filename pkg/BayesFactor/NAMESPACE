@@ -13,12 +13,16 @@ export(logMeanExpLogs,
     anovaBF,
     BFManual,
     as.BFBayesFactor,
+    as.BFprobability,
     generalTestBF,
     meta.ttestBF,
     proportionBF,
     contingencyTableBF,
     enumerateGeneralModels,
-    logSummaryStats)
+    logSummaryStats,
+    newPriorOdds,
+    "priorOdds<-",
+    "priorLogodds<-")
 
 importFrom(methods, show)
 importFrom(utils, head)
@@ -31,10 +35,11 @@ importFrom(MatrixModels, model.Matrix)
 import(mvtnorm, pbapply, stringr, coda, Matrix, RcppEigen)
 
 
-exportClasses("BFmodel", "BFBayesFactor","BFlinearModel")
+exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFodds")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
 exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na","model.matrix")
-              
+exportMethods("extractOdds", "extractProbabilities")
+
 S3method("is.na","BFBayesFactor")
 S3method("c","BFBayesFactor")
 S3method("plot","BFBayesFactor")
@@ -63,4 +68,31 @@ S3method("as.BFBayesFactor", "BFBayesFactorTop")
 S3method("plot","BFBayesFactorTop")
 S3method("sort","BFBayesFactorTop")
 S3method("length","BFBayesFactorTop")
+
+S3method("as.BFBayesFactor", "BFodds")
+S3method("as.BFprobability", "BFodds")
+S3method("c","BFodds")
+S3method("length","BFodds")
+S3method("head","BFodds")
+S3method("tail","BFodds")
+S3method("min","BFodds")
+S3method("max","BFodds")
+S3method("which.min","BFodds")
+S3method("which.max","BFodds")
+S3method("sort","BFodds")
+S3method("as.data.frame","BFodds")
+S3method("as.vector","BFodds")
+S3method("names","BFodds")
+
+S3method("head","BFprobability")
+S3method("tail","BFprobability")
+S3method("min","BFprobability")
+S3method("max","BFprobability")
+S3method("which.min","BFprobability")
+S3method("which.max","BFprobability")
+S3method("sort","BFprobability")
+S3method("as.data.frame","BFprobability")
+S3method("as.vector","BFprobability")
+S3method("names","BFprobability")
+S3method("length","BFprobability")
 

@@ -157,3 +157,38 @@ setGeneric("posterior", function(model, index, data, iterations, ...) standardGe
 #'    
 #' extractBF(bf)  
 setGeneric("extractBF", function(x, logbf=FALSE, onlybf=FALSE) standardGeneric("extractBF"))
+
+#' Extract the odds from an object
+#' @param x object from which to extract
+#' @param logodds return the logarithm
+#' @param onlyodds return a vector of only the odds
+#' @return Returns an object containing odds extracted from the object
+#' @export
+#' @docType methods
+#' @rdname extractOdds-methods
+setGeneric("extractOdds", function(x, logodds=FALSE, onlyodds=FALSE) standardGeneric("extractOdds"))
+
+#' Extract the probabilities from an object
+#' @param x object from which to extract
+#' @param logprobs return the logarithm
+#' @param onlyprobs return a vector of only the probabilities
+#' @return Returns an object containing probabilities extracted from the object
+#' @export
+#' @docType methods
+#' @rdname extractProbabilities-methods
+setGeneric("extractProbabilities", function(x, logprobs=FALSE, onlyprobs=FALSE) standardGeneric("extractProbabilities"))
+
+#' Set prior odds in an object
+#' @docType methods
+#' @rdname priorOdds-method
+#' @param object object in which to set odds
+#' @param value odds
+setGeneric("priorOdds<-", function(object, value) standardGeneric("priorOdds<-"))
+
+#' Set prior log odds in an object
+#' @docType methods
+#' @rdname priorLogodds-method
+#' @param object object in which to set log odds
+#' @param value log odds
+setGeneric("priorLogodds<-", function(object, value) standardGeneric("priorLogodds<-"))
+

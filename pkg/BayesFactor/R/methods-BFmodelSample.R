@@ -193,7 +193,7 @@ setMethod('posterior', signature(model = "BFproportion", index = "missing", data
 ## S3
 ###########
 
-as.mcmc.BFmcmc <- function(x){
+as.mcmc.BFmcmc <- function(x, ...){
   return(S3Part(x))
 }
 
