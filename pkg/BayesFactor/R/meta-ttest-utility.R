@@ -204,7 +204,6 @@ meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
   mean.delta = sum((delta.est * N)/sum(N))
   var.delta = 1/sum(N)
   
-  logPriorDensity = dcauchy(0, scale = rscale, log=TRUE)
   logPriorProbs = pcauchy(c(upper,lower),scale=rscale,log.p=TRUE)
   logPostProbs = pt((c(upper,lower) - mean.delta)/sqrt(var.delta),sum(df),log.p=TRUE)
   
@@ -213,14 +212,13 @@ meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
   
   log.bf.interval = post.interval - prior.interval
   
-  logPosteriorDensity = -lbeta(.5, sum(N)/2) - sum(N)/2 * log(1 + mean.delta^2)
-  log.bf.point = logPriorDensity - logPosteriorDensity
-  
+  log.bf.point = meta.bf.interval(-Inf, Inf, t, N, df, rscale)
+
   if(lower == -Inf & upper == Inf){
-    val = log.bf.point
-    err = NA
+    val = log.bf.point$bf
+    err = log.bf.point$properror
   }else{
-    val = log.bf.interval + log.bf.point
+    val = log.bf.interval + log.bf.point$bf
     err = NA
   }
   
