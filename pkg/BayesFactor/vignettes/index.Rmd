@@ -18,5 +18,7 @@ library(knitr)
 ```
 
 * [Main manual](manual.html)
+* [Posterior odds and probabilities](odds_probs.html)
 * [Prior checks](priors.html)
 * [Comparison to arm/lmer](compare_lme4.html)
+
