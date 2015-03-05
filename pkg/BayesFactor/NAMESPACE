@@ -20,7 +20,9 @@ export(logMeanExpLogs,
     contingencyTableBF,
     enumerateGeneralModels,
     logSummaryStats,
-    newPriorOdds)
+    newPriorOdds,
+    "priorOdds<-",
+    "priorLogodds<-")
 
 importFrom(methods, show)
 importFrom(utils, head)

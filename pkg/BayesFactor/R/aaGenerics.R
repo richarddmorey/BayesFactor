@@ -178,4 +178,17 @@ setGeneric("extractOdds", function(x, logodds=FALSE, onlyodds=FALSE) standardGen
 #' @rdname extractProbabilities-methods
 setGeneric("extractProbabilities", function(x, logprobs=FALSE, onlyprobs=FALSE) standardGeneric("extractProbabilities"))
 
+#' Set prior odds in an object
+#' @docType methods
+#' @rdname priorOdds-method
+#' @param object object in which to set odds
+#' @param value odds
+setGeneric("priorOdds<-", function(object, value) standardGeneric("priorOdds<-"))
+
+#' Set prior log odds in an object
+#' @docType methods
+#' @rdname priorLogodds-method
+#' @param object object in which to set log odds
+#' @param value log odds
+setGeneric("priorLogodds<-", function(object, value) standardGeneric("priorLogodds<-"))
 

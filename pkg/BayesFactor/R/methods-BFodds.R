@@ -216,6 +216,25 @@ setMethod("recompute", "BFodds", function(x, progress = options()$BFprogress, mu
   return(x)
   })
 
+#' @rdname priorOdds-method
+#' @name priorOdds<-,BFodds,numeric-method
+#' @docType methods
+#' @exportMethod
+setReplaceMethod("priorOdds", signature(object = "BFodds", value = "numeric"), definition = function (object, value) {
+  priorLogodds(object) <- log(value)
+  object
+})
+
+#' @rdname priorLogodds-method
+#' @name priorLogodds<-,BFodds,numeric-method
+#' @docType methods
+#' @exportMethod
+setReplaceMethod("priorLogodds", signature(object = "BFodds", value = "numeric"), definition = function (object, value) {
+  object@logodds$odds <- value
+  object
+})
+
+
 setAs("BFodds", "BFBayesFactor",
       function( from, to ){
         as.BFBayesFactor.BFodds(from)

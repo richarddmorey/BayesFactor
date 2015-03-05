@@ -50,7 +50,17 @@ session = sessionInfo()[[1]]
 rversion = paste(session$version.string," on ",session$platform,sep="")
 ```
 
-First, we perform a Bayes factor analysis to obtain an object structure to create prior odds with.
+The Bayes factor is only one part of Bayesian model comparison. The Bayes factor represents the relative evidence between two models -- that is, the change in the model odds due to the data -- but the odds are what are being changed. For any two models ${\cal M}_0$ and ${\cal M}_1$ and data $y$,
+
+\[
+\frac{P({\cal M}_1\mid y)}{P({\cal M}_0\mid y)} = \frac{P(y \mid {\cal M}_1)}{P(y\mid{\cal M}_0)} \times\frac{P({\cal M}_1)}{P({\cal M}_0)};
+\]
+that is, the posterior odds are equal to the Bayes factor times the prior odds.
+
+Further, these odds can be converted to probabilities, if we assume that all the models sum to known probability.
+
+### Prior odds with Bayes factor
+
 
 
 ```{r}
@@ -66,7 +76,12 @@ prior.odds = newPriorOdds(bf, type = "equal")
 prior.odds
 ```
 
-For now, the only type of prior odds is "equal", but we can discuss more ways of generating these. In the near future, support for changing these element by element will be added.
+For now, the only type of prior odds is "equal". However, we can change the prior odds to whatever we like with the `priorOdds` function:
+
+```{r}
+priorOdds(prior.odds) <- c(4,3,2,1)
+prior.odds
+```
 
 We can multiply the prior odds by the Bayes factor to obtain posterior odds:
 
@@ -82,7 +97,7 @@ post.prob = as.BFprobability(post.odds)
 post.prob
 ```
 
-By default the probabilities sum to 1, but we can change this by renormalizing:
+By default the probabilities sum to 1, but we can change this by renormalizing. Note that this normalizing constant is arbitrary, but it can be helpful to set it to specific values.
 
 ```{r}
 post.prob / .5
@@ -100,7 +115,7 @@ post.prob[1:3]
 post.prob[1:3] / 1
 ```
 
-Soon, filtering functions will be added, and the odds/probability objects will be joined with the posterior sampling routines to enable completely painless model averaging (just sample the posterior probability object!).
+In the future, the ability to filter these objects will be added, as well as model averaging based on posterior probabilities and samples.
 
 
 -------
