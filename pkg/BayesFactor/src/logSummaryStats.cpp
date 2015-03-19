@@ -9,13 +9,9 @@ using namespace Rcpp;
 List logSummaryStats(NumericVector x) 
 {
     int N = x.size(), i=0;
-    logRepresentedReal oldM;
-    logRepresentedReal M = logRepresentedReal(x[0], 1);
-    logRepresentedReal S = logRepresentedReal(0, 0);
-    logRepresentedReal thisX;
     
-    NumericVector retM(1);
-    NumericVector retS(1);
+    NumericVector retM(1, NA_REAL);
+    NumericVector retS(1, NA_REAL);
     NumericVector retCumu( N == 0 ? 1 : N, NA_REAL);
     List ret;
     
@@ -24,13 +20,14 @@ List logSummaryStats(NumericVector x)
                  Rcpp::Named("cumLogMean") = retCumu);
                  
     // Ensure that for N=0 and N=1 we return something meaningful 
-    if( N == 0 ){
-      retM(0) = NA_REAL;
-      retS(0) = NA_REAL;
-      retCumu(0) = NA_REAL;
+    if( N == 0 )
       return ret;
-    }
-    
+
+    logRepresentedReal oldM;
+    logRepresentedReal M = logRepresentedReal(x[0], 1);
+    logRepresentedReal S = logRepresentedReal(0, 0);
+    logRepresentedReal thisX;
+        
     retM(0) = x[0];
     retS(0) = R_NegInf;
     retCumu(0) = x[0];
