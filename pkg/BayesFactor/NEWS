@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.11-1
+
+CHANGES
+  * Fixed memory bug causing importance sampling to fail.
+
   CHANGES IN BayesFactor VERSION 0.9.11
 
 CHANGES

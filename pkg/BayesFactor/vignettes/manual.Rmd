@@ -573,7 +573,7 @@ The highest two Bayes factors belong to the full model and the model with no int
 full / noInteraction
 ```
 
-The full model is *slightly* favored, but the evidence is equivocal. We can also use the `posterior` function to compute parameter estimates. 
+The evidence here is clearly equivocal. We can also use the `posterior` function to compute parameter estimates. 
 
 ```{r GLMposterior1}
 chainsFull <- posterior(full, iterations = 10000)
