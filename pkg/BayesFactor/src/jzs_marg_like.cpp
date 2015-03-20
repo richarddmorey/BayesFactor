@@ -77,7 +77,7 @@ double jzs_importance_marg_like2(const NumericVector q, const NumericVector mu, 
     sumInvGammaDens += dinvgamma1_Rcpp(g(i), 0.5, rscale(i) * rscale(i) / 2);
   }
   
-  return jzs_mc_marg_like2(g, N, sumSq, XtCnX0, XtCny0, gMap, priorX, logDetPriorX, incCont) + sumInvGammaDens - sumNormDens;
+  return jzs_mc_marg_like2(g, sumSq, N, XtCnX0, XtCny0, gMap, priorX, logDetPriorX, incCont) + sumInvGammaDens - sumNormDens + sum(q);
 
 }
 
