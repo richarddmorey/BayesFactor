@@ -142,6 +142,13 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
                          drop = "missing"),
           function (x, i, j, ..., drop) {
             if((na <- nargs()) == 2){
+              if(is.logical(i)){
+                if(any(i)){
+                  i = (1:length(i))[i]
+                }else{
+                  i = integer(0)
+                }
+              }
               i = unique(i)
               norm = x@normalize
               logprobs = extractProbabilities(x, logprobs = TRUE)[i, ,drop=FALSE]
