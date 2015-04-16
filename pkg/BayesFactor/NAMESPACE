@@ -38,7 +38,7 @@ import(mvtnorm, pbapply, stringr, coda, Matrix)
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFodds")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
 exportMethods("extractBF","compare","t","recompute","posterior","which.min","which.max","is.na","model.matrix")
-exportMethods("extractOdds", "extractProbabilities")
+exportMethods("extractOdds", "extractProbabilities","filterBF")
 
 S3method("is.na","BFBayesFactor")
 S3method("c","BFBayesFactor")

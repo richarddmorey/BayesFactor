@@ -146,7 +146,7 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
                 if(any(i)){
                   i = (1:length(i))[i]
                 }else{
-                  i = integer(0)
+                  return(NULL)
                 }
               }
               i = unique(i)
@@ -168,6 +168,25 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
             }else stop("invalid nargs()= ",na)
             return(x)
           })
+
+#' @rdname BFprobability-class
+#' @name filterBF,BFprobability,character,logical,logical-method
+#' @param x object
+#' @param name regular expression to search name
+#' @param perl logical. Should perl-compatible regexps be used? See ?grepl for details.
+#' @param fixed logical. If TRUE, pattern is a string to be matched as is. See ?grepl for details.
+#' @param ... arguments passed to and from related methods
+setMethod("filterBF", signature(x = "BFprobability", name = "character"),
+          function (x, name, perl, fixed, ...) {
+            my.names = names(x) 
+            matches = sapply(name, function(el){
+              grepl(el, my.names, fixed = fixed, perl = perl)
+            })
+            any.matches = apply(matches, 1, any)
+            x[any.matches]
+          }
+)
+            
 
 
 ######

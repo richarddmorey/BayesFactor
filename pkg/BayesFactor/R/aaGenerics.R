@@ -192,3 +192,12 @@ setGeneric("priorOdds<-", function(object, value) standardGeneric("priorOdds<-")
 #' @param value log odds
 setGeneric("priorLogodds<-", function(object, value) standardGeneric("priorLogodds<-"))
 
+#' Filter the elements of an object according to some pre-specified criteria
+#' @param x object
+#' @param name regular expression to search name
+#' @param perl logical. Should perl-compatible regexps be used? See ?grepl for details.
+#' @param fixed logical. If TRUE, pattern is a string to be matched as is. See ?grepl for details.
+#' @param ... arguments passed to and from related methods
+#' @return Returns a filtered object
+setGeneric("filterBF", function(x, name, perl = FALSE, fixed = FALSE, ...) standardGeneric("filterBF"))
+
