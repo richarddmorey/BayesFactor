@@ -95,4 +95,4 @@ S3method("as.data.frame","BFprobability")
 S3method("as.vector","BFprobability")
 S3method("names","BFprobability")
 S3method("length","BFprobability")
-
+S3method("sum","BFprobability")

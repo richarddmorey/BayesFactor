@@ -254,3 +254,16 @@ as.vector.BFprobability <- function(x, mode = "any"){
   return(v) 
 }
 
+sum.BFprobability <-
+  function(..., na.rm = FALSE)
+  {
+    if(na.rm) warning("na.rm argument not used for BFprobability objects.")
+    sapply(list(...), function(el){
+      if(is(el, "BFprobability")){
+        return(exp(el@normalize))
+      }else{
+        return(NA)
+      }
+    }, USE.NAMES = FALSE)
+  }
+
