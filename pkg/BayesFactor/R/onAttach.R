@@ -23,6 +23,7 @@
 #'\item{\code{BFapproxLimits}}{Vector of length two containing the lower and upper limits on 
 #'on \code{log(g)} before the the posterior returns \code{-Inf}. This only affects the initial optimization step for the importance sampler.}
 #'\item{\code{BFfactorsMax}}{Maximum number of factors to try to do enumeration with in generalTestBF.}
+#'\item{\code{BFcheckProbabilityList}}{Check for duplicate models when creating BFprobability objects?}
 #'}
 #'
 #'@name options-BayesFactor
@@ -40,6 +41,7 @@ setOptions <- function(){
   if(is.null(options()$BFapproxLimits)) options(BFapproxLimits = c(-15,15))
   if(is.null(options()$BFprogress)) options(BFprogress = interactive())
   if(is.null(options()$BFfactorsMax)) options(BFfactorsMax = 5)
+  if(is.null(options()$BFcheckProbabilityList)) options(BFcheckProbabilityList = TRUE)
   
 }
 

@@ -2,24 +2,26 @@
 BFprobability <- function(odds, normalize = 0){
   ## Add denominator 
   
-  ## eliminate redundant models
-  if( length(odds) > 1 ){
-    odds = c( odds, (1/odds[1]) / (1/odds[1]) )
-    duplicates = 1:length(odds)
-    for(i in 2:length(odds)){
-      for(j in 1:(i-1)){
-        if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
-          duplicates[i] = j
-          break
+  if(options()$BFcheckProbabilityList){
+    ## eliminate redundant models
+    if( length(odds) > 1 ){
+      odds = c( odds, (1/odds[1]) / (1/odds[1]) )
+      duplicates = 1:length(odds)
+      for(i in 2:length(odds)){
+        for(j in 1:(i-1)){
+          if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
+            duplicates[i] = j
+            break
+          }
         }
       }
-    }
-    which.denom = duplicates[length(odds)]
-    not.duplicate = duplicates == (1:length(odds))
-    not.duplicate[ which.denom ] = FALSE
+      which.denom = duplicates[length(odds)]
+      not.duplicate = duplicates == (1:length(odds))
+      not.duplicate[ which.denom ] = FALSE
     
-    # get rid of redundant models (this could be done better)  
-    odds = odds[not.duplicate]
+      # get rid of redundant models (this could be done better)  
+      odds = odds[not.duplicate]
+    }
   }
   new("BFprobability", odds = odds, 
       normalize = normalize,
@@ -35,13 +37,15 @@ setValidity("BFprobability", function(object){
   odds = object@odds
   ## Add denominator 
   
-  if( length(odds) > 1 ){
-    odds = c( odds, (1/odds[1]) / (1/odds[1]) )  
-    duplicates = 1:length(odds)
-    for(i in 2:length(odds)){
-      for(j in 1:(i-1)){
-        if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
-          return("Duplicate models not allowed in probability objects.")
+  if(options()$BFcheckProbabilityList){
+    if( length(odds) > 1 ){
+      odds = c( odds, (1/odds[1]) / (1/odds[1]) )  
+      duplicates = 1:length(odds)
+      for(i in 2:length(odds)){
+        for(j in 1:(i-1)){
+          if( odds@numerator[[i]] %same% odds@numerator[[j]] ){
+            return("Duplicate models not allowed in probability objects.")
+          }
         }
       }
     }
