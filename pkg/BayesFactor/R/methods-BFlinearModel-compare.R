@@ -30,7 +30,7 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                     longName = paste("Intercept only", sep="")
                   )
     bf <- c(bf=NA, properror=NA)                 
-    try({
+    BFtry({
       if( nFactors == 0 ){
         numerator = denominator
         bf = c(bf = 0, properror = 0)

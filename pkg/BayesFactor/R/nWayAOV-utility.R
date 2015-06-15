@@ -29,7 +29,7 @@ singleGBayesFactor <- function(y,X,rscale,gMap,incCont){
         exp(Qg(log(g), ..., limit=FALSE) - log(g) - const)
       },"g")
     
-    integral = try({
+    integral = BFtry({
       op = optim(0, Qg, control=list(fnscale=-1),gr=dQg, method="BFGS",
                  sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX, rscale=rscale, gMap=gMap, gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
       const = op$value - op$par
@@ -58,16 +58,16 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   if(ncol(X)==1) method="simple"
   
   if(method=="auto"){
-    simpSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, NA, NA, FALSE, testCallback, 1, 0))
+    simpSamples = BFtry(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, NA, NA, FALSE, testCallback, 1, 0))
     simpleErr = propErrorEst(simpSamples)
     logAbsSimpErr = logMeanExpLogs(simpSamples) + log(simpleErr) 
      
     
-    apx = suppressWarnings(try(gaussianApproxAOV(y,X,rscale,gMap,incCont)))
+    apx = suppressWarnings(BFtry(gaussianApproxAOV(y,X,rscale,gMap,incCont)))
     if(inherits(apx,"try-error")){
       method="simple"
     }else{
-      impSamples = try(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, apx$mu, apx$sig, FALSE, testCallback, 1, 1))
+      impSamples = BFtry(jzs_sampler(testNsamples, y, X, rscale, gMap, incCont, apx$mu, apx$sig, FALSE, testCallback, 1, 1))
       if(inherits(impSamples, "try-error")){
         method="simple"
       }else{
@@ -87,11 +87,11 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   if(method=="importance"){
 
     if(is.null(apx) | inherits(apx,"try-error"))  
-      apx = try(gaussianApproxAOV(y,X,rscale,gMap,incCont))
+      apx = BFtry(gaussianApproxAOV(y,X,rscale,gMap,incCont))
     if(inherits(apx, "try-error")){
       method="simple"   
     }else{
-      goodSamples= try(jzs_sampler(iterations, y, X, rscale, gMap, incCont, apx$mu, apx$sig, progress, callback, 1, 1))
+      goodSamples= BFtry(jzs_sampler(iterations, y, X, rscale, gMap, incCont, apx$mu, apx$sig, progress, callback, 1, 1))
       if(inherits(goodSamples,"try-error")){
         method="simple"
         goodSamples = NULL
