@@ -76,9 +76,9 @@ ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium", complement=FAL
   log.marg.like.0= -(nu+1)/2 * log(1+t^2/(nu))
   res = c(bf=NA, properror=NA)
   if(is.null(nullInterval)){
-    try({res = meta.t.bf(t,n,nu,rscale=rscale)})
+    BFtry({res = meta.t.bf(t,n,nu,rscale=rscale)})
   }else{
-    try({res = meta.t.bf(t,n,nu,interval=nullInterval,rscale=rscale,complement = complement)})
+    BFtry({res = meta.t.bf(t,n,nu,interval=nullInterval,rscale=rscale,complement = complement)})
   }
   if(simple){
     return(c(B10=exp(res$bf)))
