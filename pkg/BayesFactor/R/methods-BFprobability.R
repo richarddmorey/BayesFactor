@@ -174,12 +174,10 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
           })
 
 #' @rdname BFprobability-class
-#' @name filterBF,BFprobability,character,logical,logical-method
-#' @param x object
+#' @name filterBF,BFprobability,character-method
 #' @param name regular expression to search name
 #' @param perl logical. Should perl-compatible regexps be used? See ?grepl for details.
 #' @param fixed logical. If TRUE, pattern is a string to be matched as is. See ?grepl for details.
-#' @param ... arguments passed to and from related methods
 setMethod("filterBF", signature(x = "BFprobability", name = "character"),
           function (x, name, perl, fixed, ...) {
             my.names = names(x) 

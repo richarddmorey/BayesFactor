@@ -2,6 +2,7 @@
 
 CHANGES
   * Fixed bug that disallowed logical indexing of probability objects
+  * Fixed minor typos in documentation
 
   CHANGES IN BayesFactor VERSION 0.9.11-1
 
