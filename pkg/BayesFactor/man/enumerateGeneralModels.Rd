@@ -5,7 +5,7 @@
 \title{Function for generation of nested linear models}
 \usage{
 enumerateGeneralModels(fmla, whichModels, neverExclude = NULL,
-  includeBottom = TRUE)
+  includeBottom = TRUE, data = NULL)
 }
 \arguments{
 \item{fmla}{formula for the "full" model}
@@ -15,6 +15,8 @@ enumerateGeneralModels(fmla, whichModels, neverExclude = NULL,
 \item{neverExclude}{a character vector of terms to never remove}
 
 \item{includeBottom}{Include the base model containing only \code{neverExclude} terms}
+
+\item{data}{a data frame containing the columns mentioned in \code{fmla}}
 }
 \description{
 Generate lists of nested models, given a model formula

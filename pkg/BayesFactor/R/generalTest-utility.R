@@ -13,9 +13,10 @@ requiredFor = Vectorize(function(t1,t2){
 ##' @param whichModels which subsets of models to generate 
 ##' @param neverExclude a character vector of terms to never remove 
 ##' @param includeBottom Include the base model containing only \code{neverExclude} terms
+##' @param data a data frame containing the columns mentioned in \code{fmla}
 ##' @keywords internal
-enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL,includeBottom=TRUE){
-  trms <- attr(terms(fmla), "term.labels")
+enumerateGeneralModels = function(fmla, whichModels, neverExclude=NULL, includeBottom=TRUE, data=NULL){
+  trms <- attr(terms(fmla, data = data), "term.labels")
   
   # Remove everything we never exclude, to replace them later
   logicalToInclude = filterVectorLogical(neverExclude,trms)

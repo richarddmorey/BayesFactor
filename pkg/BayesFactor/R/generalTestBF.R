@@ -80,7 +80,8 @@ generalTestBF <-
     dataTypes <- createDataTypes(formula, whichRandom, data, analysis = "lm")
 
     models = enumerateGeneralModels(formula, whichModels, neverExclude, 
-                                    includeBottom = whichModels!="top")
+                                    includeBottom = whichModels!="top", 
+                                    data = data)
     
     if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
                                                   length(models), " > ",options()$BFMaxModels ,"). ",
