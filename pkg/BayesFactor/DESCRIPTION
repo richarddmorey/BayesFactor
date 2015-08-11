@@ -17,7 +17,7 @@ Depends:
     R (>= 3.0.2),
     coda,
     methods,
-    Matrix (>= 1.2)
+    Matrix (>= 1.1-1)
 Imports:
     pbapply,
     mvtnorm,
@@ -40,4 +40,4 @@ Suggests:
 URL: http://bayesfactorpcl.r-forge.r-project.org/
 BugReports: https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
-LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.4.0)
+LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0)
