@@ -385,6 +385,10 @@ BFtry <- function(expression, silent=FALSE) {
     
     if (error == "Operation cancelled by callback function.")
       stop("Operation cancelled by callback function.")
+    
+    if (error == "Operation cancelled by interrupt.")
+      stop("Operation cancelled by interrupt.")
+    
   }
   
   result
