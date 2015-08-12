@@ -1,8 +1,11 @@
-  CHANGES IN BayesFactor VERSION 0.9.12
+  CHANGES IN BayesFactor VERSION 0.9.12-2
 
 CHANGES
   * Fixed bug that disallowed logical indexing of probability objects
   * Fixed minor typos in documentation
+  * Fixed bug causing regression Bayes factors to fail for very small R^2
+  * Fixed bug disallowing expansion of dot (.) in generalTestBF model specifications
+  * Fixed bug preventing cancelling of all analyses with interrupt
 
   CHANGES IN BayesFactor VERSION 0.9.11-1
 
