@@ -6,6 +6,7 @@ using namespace Rcpp;
 
 /*
 *   dinvgamma1_Rcpp: log density of the inverse gamma distribution
+*   dinvgamma1_logx_Rcpp: log density of the inverse gamma distribution, as a function of log(x)
 *   ddinvgamma1_Rcpp: first derivative of the log density of the inverse gamma distribution
 *   d2dinvgamma1_Rcpp: second derivative of the log density of the inverse gamma distribution
 */
@@ -13,6 +14,11 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 double dinvgamma1_Rcpp(const double x, const double a, const double b){
   return a * log( b ) - lgamma( a ) - ( a + 1 ) * log( x ) - b / x ;
+}
+
+// [[Rcpp::export]]
+double dinvgamma1_logx_Rcpp(const double x, const double a, const double b){
+  return a * log( b ) - lgamma( a ) - ( a + 1 ) * x - b * exp( -x ) ;
 }
 
 // [[Rcpp::export]]

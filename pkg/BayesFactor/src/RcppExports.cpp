@@ -19,6 +19,19 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// dinvgamma1_logx_Rcpp
+double dinvgamma1_logx_Rcpp(const double x, const double a, const double b);
+RcppExport SEXP BayesFactor_dinvgamma1_logx_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const double >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
+    __result = Rcpp::wrap(dinvgamma1_logx_Rcpp(x, a, b));
+    return __result;
+END_RCPP
+}
 // ddinvgamma1_Rcpp
 double ddinvgamma1_Rcpp(const double x, const double a, const double b);
 RcppExport SEXP BayesFactor_ddinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {

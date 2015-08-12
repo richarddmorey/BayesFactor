@@ -246,14 +246,18 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
 }
 
 
-dinvgamma = function (x, shape, scale = 1, log = FALSE) 
+dinvgamma = function (x, shape, scale = 1, log = FALSE, logx = FALSE) 
 {
     if (shape <= 0 | scale <= 0) {
         stop("Shape or scale parameter negative in dinvgamma().\n")
     }
     shape = rep(0, length(x)) + shape
     scale = rep(0, length(x)) + scale
-    log.density = mapply(dinvgamma1_Rcpp, x = x, a = shape, b = scale)
+    if(logx){
+      log.density = mapply(dinvgamma1_logx_Rcpp, x = x, a = shape, b = scale)
+    }else{
+      log.density = mapply(dinvgamma1_Rcpp, x = x, a = shape, b = scale)
+    }
     if(log){
       return(log.density) 
     }else{

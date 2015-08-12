@@ -5,6 +5,10 @@ dinvgamma1_Rcpp <- function(x, a, b) {
     .Call('BayesFactor_dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
+dinvgamma1_logx_Rcpp <- function(x, a, b) {
+    .Call('BayesFactor_dinvgamma1_logx_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
+}
+
 ddinvgamma1_Rcpp <- function(x, a, b) {
     .Call('BayesFactor_ddinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }

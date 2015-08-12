@@ -32,7 +32,7 @@ createFullRegressionModel <- function(formula, data){
   return(formula(strng))
 }
 
-integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, log.const=0){
+integrand.regression=Vectorize(function(g, N, p, R2, rscaleSqr=1, log=FALSE, log.const=0){
   a = .5 * ((N - p - 1 ) * log(1 + g) - (N - 1) * log(1 + g * (1 - R2)))
   shape=.5
   scale=rscaleSqr*N/2
@@ -40,6 +40,19 @@ integrand.regression=Vectorize(function(g, N, p , R2, rscaleSqr=1, log=FALSE, lo
   ans = a + log.density.igam - log.const
   ifelse(log,ans,exp(ans))
 },"g")
+
+# This is a more numerically stable version of the integrand, as a function of log(g)
+integrand.regression.u=Vectorize(function(u, N, p, R2, rscaleSqr=1, log=FALSE, log.const=0, shift = 0){
+  u = u + shift  
+  a = .5 * ((N - p - 1 ) * log1pExp(u) - 
+              (N - 1) * log1pExp(u + log(1 - R2)))
+  shape=.5
+  scale=rscaleSqr*N/2
+  log.density.igam <- dinvgamma(u, shape, scale, log=TRUE, logx=TRUE)
+  ans = a + log.density.igam - log.const + u
+  ifelse(log,ans,exp(ans))
+},"u")
+
 
 linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
   rscale = rpriorValues("regression",,rscale)

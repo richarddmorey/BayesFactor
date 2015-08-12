@@ -78,9 +78,10 @@ linearReg.R2stat=function(N,p,R2,rscale="medium", simple = FALSE) {
   sol = polyroot(c(g0, g1, g2, g3))
   ## Pick the real solution
   modeg = Re(sol[which.min(Im(sol)^2)])
-  log.const = integrand.regression(modeg, N, p , R2, rscaleSqr=rscale^2, log=TRUE)
+  if(modeg<=0) modeg = N/20
+  log.const = integrand.regression.u(0, N, p , R2, rscaleSqr=rscale^2, log=TRUE, shift=log(modeg))
   
-  h=integrate(integrand.regression,lower=0,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2,log.const=log.const)
+  h=integrate(integrand.regression.u,lower=-Inf,upper=Inf,N=N,p=p,R2=R2,rscaleSqr=rscale^2,log.const=log.const,shift=log(modeg))
   properror = exp(log(h[[2]]) - log(h[[1]]))
   bf = log(h$value) + log.const
   if(simple){
