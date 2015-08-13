@@ -20,6 +20,8 @@
 ##'   number of preset values can be given as strings; see Details.
 ##' @param rscaleRandom prior scale for standardized random effects
 ##' @param rscaleCont prior scale for standardized slopes
+##' @param rscaleEffects A named vector of prior settings for individual factors, 
+##'   overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.
 ##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC} 
 ##'   package. Unavailable on Windows.
 ##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
@@ -71,7 +73,8 @@
 generalTestBF <- 
   function(formula, data, whichRandom = NULL, 
            whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = options()$BFprogress,
-           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", multicore = FALSE, method="auto",noSample=FALSE, callback=function(...) as.integer(0))
+           rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", rscaleEffects = NULL, multicore = FALSE, method="auto",
+           noSample=FALSE, callback=function(...) as.integer(0))
   {
     checkFormula(formula, data, analysis = "lm")
     # pare whichRandom down to terms that appear in the formula
@@ -103,7 +106,7 @@ generalTestBF <-
         foreach::foreach(gIndex=models, .options.multicore=mcoptions),
         lmBF(gIndex,data = data, whichRandom = whichRandom, 
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-             rscaleCont = rscaleCont, iterations = iterations, method=method,
+             rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations, method=method,
              progress=FALSE,noSample=noSample)
         )
     }else{ # Single core
@@ -122,7 +125,7 @@ generalTestBF <-
       for(i in 1:length(models)){
         oneModel <- lmBF(models[[i]],data = data, whichRandom = whichRandom,
           rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-          rscaleCont = rscaleCont, iterations = iterations, 
+          rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations, 
           progress = FALSE, method = method,noSample=noSample,callback=myCallback)
         if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
         bfs = c(bfs,oneModel)

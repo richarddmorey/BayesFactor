@@ -82,6 +82,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
     rscaleFixed = rpriorValues("allNways","fixed",model@prior$rscale[['fixed']])
     rscaleRandom = rpriorValues("allNways","random",model@prior$rscale[['random']])
     rscaleCont = rpriorValues("regression",,model@prior$rscale[['continuous']])
+    rscaleEffects = model@prior$rscale[['effects']]
     
     formula = formula(model@identifier$formula)
     checkFormula(formula, data, analysis = "lm")
@@ -106,6 +107,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
                        dataTypes = dataTypes,
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
+                       rscaleEffects = rscaleEffects,
                        iterations = iterations,
                        posterior = TRUE, ...) 
     }else{
@@ -115,6 +117,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
                        rscaleFixed = rscaleFixed,
                        rscaleRandom = rscaleRandom,
                        rscaleCont = rscaleCont,
+                       rscaleEffects = rscaleEffects,
                        iterations = iterations,
                        posterior = TRUE, ...)        
     }
