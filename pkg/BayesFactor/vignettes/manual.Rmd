@@ -62,6 +62,7 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
   * [Testing restrictions on linear models: generalTestBF()](#generalTestBF)
   * [Saving time: Pre-culling Bayes factor objects](#preculltricks)
   * [Saving memory: Thinning and filtering MCMC chains](#mcmctricks)
+  * [Fine-tuning of prior scales (0.9.12-2+)](#priorscales)
 * [References](#references)
   
 ### Getting help <a id="help"></a>
@@ -937,6 +938,26 @@ par(mfrow=c(1,2))
 plot(as.vector(chainsThinned[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
 acf(chainsThinned[,"shape-round"])
 ```
+
+<a id="priorscales"></a>
+### Fine-tuning of prior scales (0.9.12-2+)
+
+Previous to version `0.9.12-2`, it was only possible to change the priors on a per-effect-type basis; ie, fixed effects all had the same prior scale, random effects had a different prior scale, and slopes had third prior scale. As of `0.9.12-2`, it is possible to change the prior on a per-effect basis for fixed and random effects (slopes still share a common prior, due to the use of the Liang et al. hyper-g priors for the slopes). This is accomplished via the `rscaleEffects` argument to `lmBF`, `anovaBF`, and `generalTestBF`.
+
+The `rscaleEffects` argument is a named vector. The names correspond to the effect you'd for which you'd like to set the prior, and the value is the prior scale value. Any settings in `rscaleEffects` will override the settings in `rscaleFixed` and `rscaleRandom`; if no settings are found in `rscaleEffects`, then the settings in `rscaleFixed` and `rscaleRandom` are used.
+
+We can demonstrate using the `puzzles` data set. Suppose we prefer a prior on the `color` main effect of $r=1$, a prior twice as wide as the default in `rscaleFixed`, $r=.5$. We set the prior scale for `color` using the `rscaleEffects` argument:
+
+```{r tidy=FALSE}
+newprior.bf = anovaBF(RT ~ shape + color + shape:color + ID, data = puzzles,
+                           whichRandom = "ID",rscaleEffects = c( color = 1 ))
+
+newprior.bf
+```
+
+The other fixed effects, `shape` and `shape:color`, retain the prior scale of $r=.5$ from `rscaleFixed`. Compare these Bayes factors to the ones with in the [mixed modeling](#mixed) section above.
+
+
 
 <a id="references"></a>
 References 
