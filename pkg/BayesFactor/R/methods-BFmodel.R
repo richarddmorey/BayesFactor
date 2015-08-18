@@ -1,74 +1,74 @@
 # constructors
-BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName){
+BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName, analysis = list()){
   new("BFmodel", type = type,
       identifier = identifier,
       prior = prior,
       dataTypes = dataTypes,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
-BFproportion <- function(type, identifier, prior, shortName, longName){
+BFproportion <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFproportion", type = type,
       identifier = identifier,
       prior = prior,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
 
-BFcontingencyTable <- function(type, identifier, prior, shortName, longName){
+BFcontingencyTable <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFcontingencyTable", type = type,
       identifier = identifier,
       prior = prior,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
-BFlinearModel <- function(type, identifier, prior, dataTypes, shortName, longName){
+BFlinearModel <- function(type, identifier, prior, dataTypes, shortName, longName, analysis = list()){
   new("BFlinearModel", type = type,
       identifier = identifier,
       prior = prior,
       dataTypes = dataTypes,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
-BFoneSample <- function(type, identifier, prior, shortName, longName){
+BFoneSample <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFoneSample", type = type,
       identifier = identifier,
       prior = prior,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
-BFindepSample <- function(type, identifier, prior, shortName, longName){
+BFindepSample <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFindepSample", type = type,
       identifier = identifier,
       prior = prior,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
-BFmetat <- function(type, identifier, prior, shortName, longName){
+BFmetat <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFmetat", type = type,
       identifier = identifier,
       prior = prior,
       shortName = shortName,
       longName = longName,
-      analysis = list(),
+      analysis = analysis,
       version = BFInfo(FALSE))
 }
 
@@ -144,6 +144,7 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
+              numerator@analysis = bf
               numList = list(numerator)
               nms = numerator@shortName
               
@@ -151,7 +152,8 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
                                    identifier = list(formula = "y ~ 0"), 
                                    prior=list(mu=mu),
                                    shortName = paste("Null, mu=",mu,sep=""),
-                                   longName = paste("Null, mu = ",mu, sep="")
+                                   longName = paste("Null, mu = ",mu, sep=""),
+                                   analysis = list(method="trivial")
               )
               
               bf_df = data.frame(bf = numBF,
@@ -206,6 +208,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
+              numerator@analysis = bf
               numList = list(numerator)
               nms = numerator@shortName
       
@@ -215,7 +218,8 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
                                              identifier = list(formula = nullFormula), 
                                              prior=list(mu=mu),
                                              shortName = paste("Null, mu1-mu2=",mu,sep=""),
-                                             longName = paste("Null, mu1-mu2 = ",mu, sep="")
+                                             longName = paste("Null, mu1-mu2 = ",mu, sep=""),
+                                             analysis = list(method="trivial")
               )
               
               bf_df = data.frame(bf = numBF,
@@ -254,6 +258,7 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
+              numerator@analysis = bf
               numList = list(numerator)
               nms = numerator@shortName
               
@@ -261,7 +266,9 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
                                            identifier = list(formula = "d = 0"), 
                                            prior=list(),
                                            shortName = "Null, d=0",
-                                           longName = "Null, d = 0")
+                                           longName = "Null, d = 0",
+                                           analysis = list(method="trivial"))
+              
               
               bf_df = data.frame(bf = numBF,
                                error = errorEst,
@@ -293,10 +300,11 @@ setMethod('compare', signature(numerator = "BFproportion", denominator = "missin
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
                 bf = prop.test.bf(y=data$y, N=data$N, p=numerator@prior$p0, 
                                   rscale=numerator@prior$rscale, nullInterval, 
-                                  complement = complement)  
+                                  complement = complement)
                 numBF = bf[['bf']]
                 errorEst = bf[['properror']]
               }
+              numerator@analysis = bf
               numList = list(numerator)
               nms = numerator@shortName
               
@@ -304,7 +312,8 @@ setMethod('compare', signature(numerator = "BFproportion", denominator = "missin
                                        identifier = list(formula = "p = p0",p0=numerator@prior$p0), 
                                        prior=list(p0=numerator@prior$p0),
                                        shortName = paste("Null, p=",round(numerator@prior$p0,3),sep=""),
-                                       longName = paste("Null, p = ", numerator@prior$p0, sep=""))
+                                       longName = paste("Null, p = ", numerator@prior$p0, sep=""),
+                                       analysis = list(method="trivial"))
               
               bf_df = data.frame(bf = numBF,
                                  error = errorEst,
@@ -357,7 +366,8 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
                                              identifier = list(formula = "independence"), 
                                              prior=numerator@prior,
                                              shortName = paste0("Indep. (a=",a,")"),
-                                             longName = paste0("Null, independence, a = ", a))
+                                             longName = paste0("Null, independence, a = ", a),
+                                             analysis = list(method = "trivial"))
             
             bf_df = data.frame(bf = lbf,
                                error = error,
@@ -365,6 +375,7 @@ setMethod('compare', signature(numerator = "BFcontingencyTable", denominator = "
                                code = randomString(1))
             
             rownames(bf_df) <- numerator@shortName
+            numerator@analysis = list(method="analytic")
             
             newBF = BFBayesFactor(numerator = list(numerator),
                                   denominator = denominator,

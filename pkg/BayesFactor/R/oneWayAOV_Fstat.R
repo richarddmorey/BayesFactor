@@ -18,8 +18,8 @@
 ##' @param simple if \code{TRUE}, return only the Bayes factor
 ##' @return If \code{simple} is \code{TRUE}, returns the Bayes factor (against the 
 ##' intercept-only null). If \code{FALSE}, the function returns a 
-##' vector of length 2 containing the computed log(e) Bayes factor,
-##' along with a proportional error estimate on the Bayes factor.
+##' vector of length 3 containing the computed log(e) Bayes factor,
+##' along with a proportional error estimate on the Bayes factor and the method used to compute it.
 ##' @export
 ##' @keywords htest
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -50,16 +50,16 @@
 oneWayAOV.Fstat = function(F, N, J, rscale="medium", simple = FALSE)
 {
   rscale = rpriorValues("allNways","fixed",rscale)
-  res = c(bf=NA, properror=NA)
+  res = list(bf=NA, properror=NA,method="quadrature")
   BFtry({
     log.const = marginal.g.oneWay(1,F=F,N=N,J=J,rscale=rscale,log=TRUE)
     integral = integrate(marginal.g.oneWay,lower=0,upper=Inf,F=F,N=N,J=J,rscale=rscale,log.const=log.const)
     properror = exp(log(integral[[2]]) - log(integral[[1]]))
 	  bf = log(integral[[1]]) + log.const
-	  res = c(bf=bf, properror=properror)
+	  res = list(bf=bf, properror=properror, method="quadrature")
   })
   if(simple){
-	  return(c(B10=exp(res$bf)))
+	  return(c(B10=exp(res[['bf']])))
   }else{
     return(res)
 	}

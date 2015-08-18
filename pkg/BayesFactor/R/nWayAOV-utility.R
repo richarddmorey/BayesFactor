@@ -36,11 +36,11 @@ singleGBayesFactor <- function(y,X,rscale,gMap,incCont){
       integrate(f1,0,Inf,sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,const=const,priorX=priorX,incCont=incCont)
     })
     if(inherits(integral,"try-error")){
-      return(list(bf = NA, properror = NA))
+      return(list(bf = NA, properror = NA, method = "quadrature"))
     }
     lbf = log(integral$value)
     prop.error = exp(log(integral$abs.error) - lbf)
-    return(list(bf = lbf + const, properror = prop.error))
+    return(list(bf = lbf + const, properror = prop.error, method = "quadrature"))
   }
 }
 
@@ -105,7 +105,7 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   }
   if(is.null(goodSamples)){  
     warning("Unknown sampling method requested (or sampling failed) for nWayAOV")
-    return(c(bf=NA,properror=NA))
+    return(list(bf=NA,properror=NA,method=NA))
   }
   
   if( any(is.na(goodSamples)) ) warning("Some NAs were removed from sampling results: ",sum(is.na(goodSamples))," in total.")

@@ -65,7 +65,7 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   
   if(interval[1]==-Inf & interval[2]==Inf){
     if(complement){
-     return(list(bf=NA,properror=NA)) 
+     return(list(bf=NA,properror=NA,method=NA)) 
     }else{
       return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
     }
@@ -110,13 +110,15 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
     return(
       list(
         bf = bf.compl[[1]],
-        properror = bf.compl[[2]]
+        properror = bf.compl[[2]],
+        method = "Savage-Dickey t approximation"
       ))
   }else{
     return(
       list(
         bf = bf[['bf']],
-        properror = bf[['properror']]
+        properror = bf[['properror']],
+        method = bf[['method']]
       ))
   }
 }
@@ -137,7 +139,8 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   return(
     list(
       bf = val,
-      properror = err
+      properror = err,
+      method = "quadrature"
     )
   )
 }
@@ -225,7 +228,8 @@ meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
   return(
     list(
       bf = val,
-      properror = err
+      properror = err,
+      method = "Savage-Dickey t approximation"
     )
   )
 }
