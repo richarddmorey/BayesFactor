@@ -34,6 +34,16 @@ importFrom(gtools, rdirichlet)
 importFrom(MatrixModels, model.Matrix)
 import(mvtnorm, pbapply, stringr, coda, Matrix)
 
+importFrom("graphics", "abline", "axis", "barplot", "par", "segments",
+            "text")
+importFrom("methods", ".hasSlot", "S3Part", "S3Part<-", "as", "is",
+            "new", "slot", "slot<-", "slotNames")
+importFrom("stats", "aov", "dbinom", "dnorm", "dt", "formula",
+            "integrate", "lm", "nlm", "optim", "pcauchy", "plogis",
+            "pt", "qlogis", "rgamma", "sd", "t.test", "terms", "var")
+importFrom("utils", "combn", "setTxtProgressBar", "txtProgressBar",
+            "vignette")
+
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFodds")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")
