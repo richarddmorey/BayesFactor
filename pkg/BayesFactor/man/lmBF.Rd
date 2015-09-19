@@ -5,8 +5,8 @@
 \title{Function to compute Bayes factors for specific linear models}
 \usage{
 lmBF(formula, data, whichRandom = NULL, rscaleFixed = "medium",
-  rscaleRandom = "nuisance", rscaleCont = "medium", posterior = FALSE,
-  progress = options()$BFprogress, ...)
+  rscaleRandom = "nuisance", rscaleCont = "medium", rscaleEffects = NULL,
+  posterior = FALSE, progress = options()$BFprogress, ...)
 }
 \arguments{
 \item{formula}{a formula containing all factors to include in the analysis
@@ -23,6 +23,9 @@ number of preset values can be given as strings; see Details.}
 
 \item{rscaleCont}{prior scale for standardized slopes. A
 number of preset values can be given as strings; see Details.}
+
+\item{rscaleEffects}{A named vector of prior settings for individual factors,
+overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.}
 
 \item{posterior}{if \code{TRUE}, return samples from the posterior
 distribution instead of the Bayes factor}

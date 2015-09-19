@@ -120,7 +120,7 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   return(list(bf = bf, properror=properror, N = n2, method = method, sampled = TRUE, code = randomString(1)))
 }
 
-createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL){
+createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRandom = NULL, rscaleCont = NULL, rscaleEffects = NULL){
   
   rscaleFixed = rpriorValues("allNways","fixed",rscaleFixed)
   rscaleRandom = rpriorValues("allNways","random",rscaleRandom)
@@ -134,15 +134,33 @@ createRscales <- function(formula, data, dataTypes, rscaleFixed = NULL, rscaleRa
   rscale = 1:nGs * NA
   rscaleTypes = rscale
   
-  if(nCont > 0) rscaleTypes[nGs] = "continuous"
+  if(nCont > 0){
+    rscaleTypes[nGs] = "continuous"
+    names(rscaleTypes)[nGs] = "continuous"
+  }
   if(nFac > 0){
     facTypes = types[types != "continuous"]
     rscaleTypes[1:nFac] = facTypes 
+    names(rscaleTypes)[1:nFac] = names(facTypes)
   }
+  
+  names(rscale) = names(rscaleTypes)
   
   rscale[rscaleTypes=="continuous"] = rscaleCont
   rscale[rscaleTypes=="fixed"] = rscaleFixed
   rscale[rscaleTypes=="random"] = rscaleRandom
+  
+  
+  if( any( names(rscaleEffects) %in% names(types)[types == "continuous"] ) ){
+    stop("Continuous prior settings set from rscaleEffects; use rscaleCont instead.")
+    #rscaleEffects = rscaleEffects[ !( names(rscaleEffects) %in% names(types)[types == "continuous"] ) ]
+  }
+
+  if(length(rscaleEffects)>0)
+    rscale[names(rscale) %in% names(rscaleEffects)] = rscaleEffects[names(rscale)[names(rscale) %in% names(rscaleEffects)]]
+  
+  rscale = mapply(rpriorValues,effectType=rscaleTypes,
+                  priorType=rscale,MoreArgs = list(modelType="allNways"))
   
   return(rscale)
 }
@@ -318,7 +336,7 @@ centerContinuousColumns <- function(data){
   return(data.frame(mycols))
 }
 
-nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, posterior=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
+nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, rscaleEffects = NULL, posterior=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
   
   checkFormula(formula, data, analysis = "lm")
   
@@ -330,7 +348,7 @@ nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom
   # To be removed when sparse matrix support is complete
   X = as.matrix(X)
   
-  rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont)
+  rscale = createRscales(formula, data, dataTypes, rscaleFixed, rscaleRandom, rscaleCont, rscaleEffects)
   gMap = createGMap(formula, data, dataTypes)
   
   if(any(dataTypes=="continuous")){

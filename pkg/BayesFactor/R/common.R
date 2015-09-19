@@ -173,8 +173,12 @@ randomString <- function(x=1){
 }
 
 rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
-  if(length(priorType)>1 | is.numeric(priorType)){
+  if(length(priorType)==0){
+    return(NULL)
+  }else if(length(priorType)>1 | is.numeric(priorType)){
     return(priorType)
+  }else if( suppressWarnings( !is.na( as.numeric( priorType ) ) ) ){
+    return(as.numeric(priorType))
   }else if(length(priorType)==0){
     return(NULL)
   }
@@ -203,6 +207,7 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
                              nuisance=1,
                              ultrawide=1,
                              stop("Unknown prior type.")),
+             continuous = rpriorValues("regression",,priorType),
              stop("Unknown prior type.")
       )
     )

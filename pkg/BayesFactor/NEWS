@@ -1,6 +1,8 @@
   CHANGES IN BayesFactor VERSION 0.9.12-2
 
 CHANGES
+  * Added feature allowing fine-tuning of priors on a per-effect basis: see new argument 
+    rscaleEffects of lmBF, anovaBF, and generalTestBF
   * Fixed bug that disallowed logical indexing of probability objects
   * Fixed minor typos in documentation
   * Fixed bug causing regression Bayes factors to fail for very small R^2

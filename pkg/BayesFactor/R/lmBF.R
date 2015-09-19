@@ -22,6 +22,8 @@
 ##' @param rscaleRandom prior scale for standardized random effects
 ##' @param rscaleCont prior scale for standardized slopes. A 
 ##'   number of preset values can be given as strings; see Details.
+##' @param rscaleEffects A named vector of prior settings for individual factors, 
+##'   overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.
 ##' @param posterior if \code{TRUE}, return samples from the posterior
 ##'   distribution instead of the Bayes factor
 ##' @param progress if \code{TRUE}, show progress with a text progress bar
@@ -56,14 +58,15 @@
 ##' testing many regression or ANOVA models simultaneously.
 
 lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
-                 rscaleRandom="nuisance", rscaleCont="medium", posterior=FALSE,progress=options()$BFprogress, ...)
+                 rscaleRandom="nuisance", rscaleCont="medium", rscaleEffects=NULL, posterior=FALSE,progress=options()$BFprogress, ...)
 {    
   data <- reFactorData(data)
   checkFormula(formula, data, analysis="lm")
   dataTypes <- createDataTypes(formula, whichRandom = whichRandom, data = data, analysis="lm")
   rscales = list(fixed=rpriorValues("allNways","fixed",rscaleFixed), 
                  random=rpriorValues("allNways","random",rscaleRandom), 
-                 continuous=rpriorValues("regression",,rscaleCont))
+                 continuous=rpriorValues("regression",,rscaleCont),
+                 effects=rscaleEffects)
   
   numerator = BFlinearModel(type = "JZS", 
                             identifier = list(formula = stringFromFormula(formula)), 

@@ -6,9 +6,9 @@
 \usage{
 anovaBF(formula, data, whichRandom = NULL, whichModels = "withmain",
   iterations = 10000, progress = options()$BFprogress,
-  rscaleFixed = "medium", rscaleRandom = "nuisance", multicore = FALSE,
-  method = "auto", noSample = FALSE, callback = function(...)
-  as.integer(0))
+  rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleEffects = NULL,
+  multicore = FALSE, method = "auto", noSample = FALSE,
+  callback = function(...) as.integer(0))
 }
 \arguments{
 \item{formula}{a formula containing all factors to include in the analysis
@@ -28,6 +28,9 @@ anovaBF(formula, data, whichRandom = NULL, whichModels = "withmain",
 number of preset values can be given as strings; see Details.}
 
 \item{rscaleRandom}{prior scale for standardized random effects}
+
+\item{rscaleEffects}{A named vector of prior settings for individual factors,
+overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.}
 
 \item{multicore}{if \code{TRUE} use multiple cores through the \code{doMC}
 package. Unavailable on Windows.}

@@ -7,9 +7,9 @@
 generalTestBF(formula, data, whichRandom = NULL, whichModels = "withmain",
   neverExclude = NULL, iterations = 10000,
   progress = options()$BFprogress, rscaleFixed = "medium",
-  rscaleRandom = "nuisance", rscaleCont = "medium", multicore = FALSE,
-  method = "auto", noSample = FALSE, callback = function(...)
-  as.integer(0))
+  rscaleRandom = "nuisance", rscaleCont = "medium", rscaleEffects = NULL,
+  multicore = FALSE, method = "auto", noSample = FALSE,
+  callback = function(...) as.integer(0))
 }
 \arguments{
 \item{formula}{a formula containing the full model for the analysis
@@ -35,6 +35,9 @@ number of preset values can be given as strings; see Details.}
 \item{rscaleRandom}{prior scale for standardized random effects}
 
 \item{rscaleCont}{prior scale for standardized slopes}
+
+\item{rscaleEffects}{A named vector of prior settings for individual factors,
+overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.}
 
 \item{multicore}{if \code{TRUE} use multiple cores through the \code{doMC}
 package. Unavailable on Windows.}
