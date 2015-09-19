@@ -21,8 +21,8 @@
 ##' @param simple if \code{TRUE}, return only the Bayes factor
 ##' @return If \code{simple} is \code{TRUE}, returns the Bayes factor (against the 
 ##' null). If \code{FALSE}, the function returns a 
-##' vector of length 2 containing the computed log(e) Bayes factor,
-##' along with a proportional error estimate on the Bayes factor.
+##' vector of length 3 containing the computed log(e) Bayes factor,
+##' along with a proportional error estimate on the Bayes factor and the method used to compute it.
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com}) and Jeffrey N. 
 ##'   Rouder (\email{rouderj@@missouri.edu})
 ##' @keywords htest
@@ -74,7 +74,7 @@ ttest.tstat=function(t,n1,n2=0,nullInterval=NULL,rscale="medium", complement=FAL
   
   r2=rscale^2
   log.marg.like.0= -(nu+1)/2 * log(1+t^2/(nu))
-  res = c(bf=NA, properror=NA)
+  res = list(bf=NA, properror=NA,method=NA)
   if(is.null(nullInterval)){
     BFtry({res = meta.t.bf(t,n,nu,rscale=rscale)})
   }else{

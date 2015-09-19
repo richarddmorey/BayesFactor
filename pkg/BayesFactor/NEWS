@@ -9,6 +9,7 @@ CHANGES
   * Fixed bug disallowing expansion of dot (.) in generalTestBF model specifications
   * Fixed bug preventing cancelling of all analyses with interrupt
   * Restricted contingency prior to values >=1
+  * All BFmodel objects have additional "analysis" slot giving details of analysis
 
   CHANGES IN BayesFactor VERSION 0.9.11-1
 

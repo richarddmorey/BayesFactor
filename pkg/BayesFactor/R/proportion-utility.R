@@ -36,7 +36,8 @@ prop.test.bf.interval <- function(y, N, p, rscale, nullInterval){
   return(
     list(
       bf = val,
-      properror = err
+      properror = err,
+      method = "quadrature"
     )
   )
 }
@@ -89,13 +90,15 @@ prop.test.bf <- function(y, N, p, rscale, interval, complement){
     return(
       list(
         bf = bf.compl[[1]],
-        properror = bf.compl[[2]]
+        properror = bf.compl[[2]],
+        method = "quadrature"
       ))
   }else{
     return(
       list(
         bf = bf[['bf']],
-        properror = bf[['properror']]
+        properror = bf[['properror']],
+        method = bf[['method']]
       ))
   }
 }

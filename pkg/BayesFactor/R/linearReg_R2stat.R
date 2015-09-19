@@ -19,8 +19,8 @@
 ##' @param simple if \code{TRUE}, return only the Bayes factor
 ##' @return If \code{simple} is \code{TRUE}, returns the Bayes factor (against the 
 ##' intercept-only null). If \code{FALSE}, the function returns a 
-##' vector of length 2 containing the computed log(e) Bayes factor,
-##' along with a proportional error estimate on the Bayes factor.
+##' vector of length 3 containing the computed log(e) Bayes factor,
+##' along with a proportional error estimate on the Bayes factor and the method used to compute it.
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com}) and Jeffrey N. 
 ##'   Rouder (\email{rouderj@@missouri.edu})
 ##' @keywords htest
@@ -87,6 +87,6 @@ linearReg.R2stat=function(N,p,R2,rscale="medium", simple = FALSE) {
   if(simple){
     return(c(B10=exp(bf)))
   }else{
-    return(c(bf=bf, properror=properror))
+    return(list(bf=bf, properror=properror, method="quadrature"))
   }  
 }

@@ -183,13 +183,13 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = options()$
                    iterations, gMap, incCont, progress, callback))
     }else if(method=="laplace"){
       bf = laplaceAOV(y,X,rscale,gMap,incCont)
-      return(c(bf = bf, properror=NA))
+      return(list(bf = bf, properror=NA, method="laplace"))
     }else{  
       stop("Unknown method specified.")
     }
   }
   
-  return(c(bf = NA, properror=NA))
+  return(list(bf = NA, properror=NA, method=NA))
 }
 
 

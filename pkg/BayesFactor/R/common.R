@@ -135,7 +135,7 @@ combineModels <- function(modelList, checkCodes = TRUE){
   
   bf = logAvgBF
   properror = sumPropErr
-  new.analysis = list(bf = bf, properror = properror, sampled = TRUE)
+  new.analysis = list(bf = bf, properror = properror, sampled = TRUE, method = "composite")
   
   all.codes = do.call("c",codes)
   

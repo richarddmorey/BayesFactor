@@ -29,13 +29,14 @@ setMethod('compare', signature(numerator = "BFlinearModel", denominator = "missi
                     prior=list(),
                     dataTypes = dataTypes,
                     shortName = paste("Intercept only",sep=""),
-                    longName = paste("Intercept only", sep="")
+                    longName = paste("Intercept only", sep=""),
+                    analysis = list(method="trivial")
                   )
-    bf <- c(bf=NA, properror=NA)                 
+    bf <- list(bf=NA, properror=NA, method=NA)                 
     BFtry({
       if( nFactors == 0 ){
         numerator = denominator
-        bf = c(bf = 0, properror = 0)
+        bf = list(bf = 0, properror = 0, method = "trivial")
       }else if(all(relevantDataTypes == "continuous")){
         ## Regression
         reg = summary(lm(formula,data=data))

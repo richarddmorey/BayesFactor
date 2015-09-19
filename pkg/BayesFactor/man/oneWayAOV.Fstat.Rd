@@ -20,8 +20,8 @@ oneWayAOV.Fstat(F, N, J, rscale = "medium", simple = FALSE)
 \value{
 If \code{simple} is \code{TRUE}, returns the Bayes factor (against the
 intercept-only null). If \code{FALSE}, the function returns a
-vector of length 2 containing the computed log(e) Bayes factor,
-along with a proportional error estimate on the Bayes factor.
+vector of length 3 containing the computed log(e) Bayes factor,
+along with a proportional error estimate on the Bayes factor and the method used to compute it.
 }
 \description{
 Using the classical F test statistic for a balanced one-way design, this function computes the corresponding Bayes factor test.
