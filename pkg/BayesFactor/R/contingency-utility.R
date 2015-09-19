@@ -35,6 +35,8 @@ pcomb <- function( x, log=TRUE ) {
 # Poisson Sampling
 #########################################################################################
 contingencyPoisson<-function (y, a){
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
   n <- sum(y)
   d <- dim(y)
   I <- d[1]
@@ -63,6 +65,8 @@ contingencyPoisson<-function (y, a){
 #########################################################################################
 
 contingencyJointMultinomial <-function (y, a){
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+
   a <- a + 0 * y
   ac <- colSums(a)
   ar <- rowSums(a)
@@ -87,6 +91,7 @@ contingencyJointMultinomial <-function (y, a){
 #########################################################################################
 
 contingencyIndepMultinomial<-function (y, a){
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
   
   a <- a + 0 * y
   ac <- colSums(a)
@@ -110,6 +115,7 @@ contingencyIndepMultinomial<-function (y, a){
 # Hypergeometric Condition on both Margins
 #########################################################################################
 contingencyHypergeometric<-function (y, a) {
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
   
   if(!identical(dim(y),as.integer(c(2,2)))) stop("hypergeometric contingency tables restricted to 2 x 2 tables; see help for contingencyTableBF()")
   
@@ -194,6 +200,8 @@ samplePoissonContingencyNull <- function(prior, data, iterations, noSample=FALSE
   I = nrow(data)
   J = ncol(data)
 
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1, I*J + 1 + I + J))
   }else{
@@ -220,6 +228,9 @@ samplePoissonContingencyAlt <- function(prior, data, iterations, noSample=FALSE,
   IJ = length(data)
   b = IJ * a / sum(data)
 
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
+  
   a.post = data + a
   b.post = data*0 + b + 1
   
@@ -245,6 +256,9 @@ sampleJointMultiContingencyNull <- function(prior, data, iterations, noSample = 
   I = nrow(data)
   J = ncol(data)
   
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
+  
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1, I*J + I + J))
   }else{
@@ -269,6 +283,8 @@ sampleJointMultiContingencyAlt <- function(prior, data, iterations, noSample = F
   I = nrow(data)
   J = ncol(data)
   
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1, I*J))
   }else{
@@ -289,6 +305,8 @@ sampleIndepMultiContingencyNull <- function(fixedMargin, prior, data, iterations
   a = prior
   I = nrow(data)
   J = ncol(data)
+  
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
   
   if(noSample){
     if(fixedMargin == "rows"){
@@ -335,6 +353,8 @@ sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations,
   I = nrow(data)
   J = ncol(data)
   
+  if( a < 1 ) stop("Prior concentration cannot be less than 1.")
+  
   if(noSample){
     if(fixedMargin == "rows"){
       samples = data.frame(matrix(as.numeric(NA), 1, I*J + I + I*J))
@@ -375,6 +395,9 @@ sampleIndepMultiContingencyAlt <- function(fixedMargin, prior, data, iterations,
 
 sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = FALSE, ...)
 {
+  
+  if( prior < 1 ) stop("Prior concentration cannot be less than 1.")
+  
     
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1))
@@ -390,6 +413,9 @@ sampleHypergeomContingencyNull <- function(prior, data, iterations, noSample = F
 
 sampleHypergeomContingencyAlt <- function(prior, data, iterations, noSample = FALSE, ...)
 {
+  
+  if( prior < 1 ) stop("Prior concentration cannot be less than 1.")
+  
   if(noSample){
     samples = data.frame(matrix(as.numeric(NA), 1))
   }else{
