@@ -8,7 +8,7 @@
 #'regression, and contingency tables.
 #'
 #'\tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-#'0.9.12\cr Date: \tab 2015-4-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
+#'0.9.12-4\cr Date: \tab 2015-2-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
 #'yes\cr } The following methods are currently implemented, with more to follow:
 #'
 #'general linear models (including linear mixed effects models): \code{\link{generalTestBF}}, \code{\link{lmBF}}
