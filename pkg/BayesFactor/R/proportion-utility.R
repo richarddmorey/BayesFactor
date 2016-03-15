@@ -15,9 +15,8 @@ makePropHypothesisNames = function(rscale, nullInterval=NULL, p){
 }
 
 
-
-like.prop.test = Vectorize(function(lo, y, N, p, rscale, log = FALSE, log.const = 0){
-  ans = sum(dbinom(y, N, plogis(lo), log=TRUE)) + dlogis(lo, qlogis(p), rscale, log=TRUE) - log.const
+like.prop.test = Vectorize(function(lo, y, N, p, rscale, log = FALSE, log.const = 0, shift = 0, scale = 1){
+  ans = sum(dbinom(y, N, plogis(lo*scale + shift), log=TRUE)) + dlogis(lo*scale + shift, qlogis(p), rscale, log=TRUE) - log.const
   ifelse(log, ans, exp(ans))
 }
 ,"lo")
@@ -26,12 +25,20 @@ like.prop.test = Vectorize(function(lo, y, N, p, rscale, log = FALSE, log.const 
 prop.test.bf.interval <- function(y, N, p, rscale, nullInterval){ 
   intervalProb = plogis(nullInterval, qlogis(p), rscale, log.p = TRUE)
   prior.interval = logExpXminusExpY(intervalProb[2], intervalProb[1])
-  log.const = like.prop.test(qlogis((sum(y)+1)/(sum(N)+2)),y = y, N = N, p = p, rscale = rscale, log = TRUE)
-  intgl = integrate(like.prop.test,nullInterval[1],nullInterval[2], y = y, N = N, p = p, rscale = rscale, log.const = log.const)
+  
+  beta.a = sum(y) + 1
+  beta.b = sum(N) - sum(y) + 1
+  lo.est = qlogis(beta.a/(beta.a + beta.b))
+  p.var = beta.a * beta.b / ( ( beta.a + beta.b )^2 * ( beta.a + beta.b + 1 ) )
+  lo.sd = sqrt( p.var / dlogis( lo.est )^2 )
+  
+  log.const = like.prop.test(lo.est, y = y, N = N, p = p, rscale = rscale, log = TRUE)
+  
+  intgl = integrate(like.prop.test, (nullInterval[1] - lo.est)/lo.sd, (nullInterval[2] - lo.est)/lo.sd, y = y, N = N, p = p, rscale = rscale, log.const = log.const, shift = lo.est, scale = lo.sd)
   nullLike = sum(dbinom(y, N, p, log = TRUE))
   
-  val = log(intgl[[1]]) + log.const - prior.interval - nullLike
-  err = exp(log(intgl[[2]]) - val)
+  val = log(intgl[[1]]*lo.sd) + log.const - prior.interval - nullLike
+  err = exp(log(intgl[[2]]) + log(lo.sd) - val)
   
   return(
     list(
