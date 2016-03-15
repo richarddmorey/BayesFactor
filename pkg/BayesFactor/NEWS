@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4
+
+CHANGES
+  * Fixed issue with numerical integration in proportionBF with large N
+
   CHANGES IN BayesFactor VERSION 0.9.12-2
 
 CHANGES
