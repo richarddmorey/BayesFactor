@@ -223,7 +223,7 @@ setAs("BFBayesFactor" , "list",
        function ( from , to ){
           vec = vector(mode = "list", length = length(from) )
           for(i in 1:length(from))
-            vec[i] = from[i]
+            vec[[i]] = from[i]
           return(vec)
          })
 
