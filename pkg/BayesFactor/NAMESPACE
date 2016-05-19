@@ -40,7 +40,7 @@ importFrom("methods", ".hasSlot", "S3Part", "S3Part<-", "as", "is",
             "new", "slot", "slot<-", "slotNames")
 importFrom("stats", "aov", "dbinom", "dnorm", "dt", "formula",
             "integrate", "lm", "nlm", "optim", "pcauchy", "plogis",
-            "pt", "qlogis", "rgamma", "sd", "t.test", "terms", "var")
+            "pt", "qlogis", "rgamma", "sd", "t.test", "terms", "var", "dlogis")
 importFrom("utils", "combn", "setTxtProgressBar", "txtProgressBar",
             "vignette")
 
