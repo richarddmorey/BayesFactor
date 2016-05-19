@@ -13,6 +13,8 @@ BFBayesFactorTop <- function(bf){
   }else if( any( len > len_denom ) ){
     biggest = which(len == max(len))
     if(length(biggest) != 1) stop("Could not determine full model.")
+    if(length(bf)==1)
+      return(new("BFBayesFactorTop", 1/bf[biggest]))
     return(new("BFBayesFactorTop", bf[-biggest]/bf[biggest]))
   }else{
     stop("Could not determine full model.")
