@@ -1,6 +1,5 @@
 #include "progress.h"
 #include "bfcommon.h"
-#include <RcppEigen.h>
 #include <time.h>
 
 using namespace Rcpp;

@@ -8,7 +8,6 @@
  * Taken from CRAN package RcppProgress 0.1
  *
  */
-#include <R.h>
 #include "progress.h"
 
 

@@ -13,7 +13,7 @@
 #ifndef _RcppProgress_INTERRUPTABLE_PROGRESS_MONITOR_HPP
 #define _RcppProgress_INTERRUPTABLE_PROGRESS_MONITOR_HPP
 
-#include <Rcpp.h>
+#include "bfcommon.h"
 #include "interrupts.h"
 
 #ifdef _OPENMP
