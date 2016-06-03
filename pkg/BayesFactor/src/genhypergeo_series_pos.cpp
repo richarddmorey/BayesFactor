@@ -6,12 +6,12 @@
 
 using namespace Rcpp;
 
-bool isgood( NumericVector x, double tol)
+bool isgood( NumericVector s, NumericVector t,  double tol)
 { 
   int i=0;
-  for( i=0 ; i < x.size() ; i++){
-    if(x[i] != NA_REAL)
-      if ( fabs(x[i]) > tol )
+  for( i=0 ; i < t.size() ; i++){
+    if(t[i] != NA_REAL)
+      if ( ( logExpXminusExpY( s[i], t[i] ) - t[i] ) > log(tol) ) 
         return 0;
   }  
   return 1;
@@ -69,8 +69,8 @@ NumericVector genhypergeo_series_pos( NumericVector U,
     for( j = 0 ; j < z.size() ; j++ ){
       series[j] = logExpXplusExpY( temp[j], fac[j] );
     }
-    
-    if ( isgood( series - temp, tol ) ){
+
+    if ( isgood( series, temp , tol ) ){
       return series;
     }
     temp = clone(series);
