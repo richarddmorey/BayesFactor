@@ -64,7 +64,7 @@ corr.test.bf <- function(y, x, rscale, nullInterval, complement){
     if(interval[1]<=-1){
       bf.compl = corr.test.bf.interval(y, x, rscale, c(nullInterval[2], 1))
     }else{
-      bf.compl = corr.test.bf.interval(y, x, rscale, c(-1,nulInterval[1]))
+      bf.compl = corr.test.bf.interval(y, x, rscale, c(-1,nullInterval[1]))
     }
   }else{
     logPriorProbs = pbeta(c(-1,nullInterval,1)/2+.5, 1/rscale, 1/rscale, log.p=TRUE)
