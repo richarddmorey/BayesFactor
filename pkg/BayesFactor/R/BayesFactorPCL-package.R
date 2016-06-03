@@ -5,7 +5,7 @@
 #'
 #'This package contains function to compute Bayes factors for a number of 
 #'research designs and hypotheses, including t tests, ANOVA, and linear 
-#'regression, and contingency tables.
+#'regression, correlations, proportions, and contingency tables.
 #'
 #'\tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
 #'0.9.12-4\cr Date: \tab 2015-2-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
@@ -15,6 +15,8 @@
 #'
 #'linear regression: \code{\link{regressionBF}}, \code{\link{lmBF}}, 
 #'\code{\link{linearReg.R2stat}};
+#'
+#'linear correlation: \code{\link{correlationBF}};
 #'
 #'t tests: \code{\link{ttestBF}}, \code{\link{ttest.tstat}};
 #'

@@ -3,10 +3,12 @@
 \docType{class}
 \name{BFmodel-class}
 \alias{BFcontingencyTable-class}
+\alias{BFcorrelation-class}
 \alias{BFindepSample-class}
 \alias{BFlinearModel-class}
 \alias{BFmodel-class}
 \alias{BFoneSample-class}
+\alias{BFproportion-class}
 \title{General S4 classes for representing models for comparison}
 \description{
 The \code{BFmodel} is a general S4 class for representing models for comparison. The more classes 

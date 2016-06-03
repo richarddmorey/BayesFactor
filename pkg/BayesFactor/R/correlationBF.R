@@ -1,9 +1,16 @@
 ##' Bayes factors or posterior samples for correlations.
 ##' 
+##' The Bayes factor provided by \code{ttestBF} tests the null hypothesis that 
+##' the true linear correlation \eqn{\rho}{rho} between two samples (\eqn{y}{y} and \eqn{x}{x}) 
+##' of size \eqn{n}{n} from normal populations is equal to 0. The Bayes factor is based on Jeffreys (1961) 
+##' test for linear correlation. Noninformative priors are assumed for the population means and 
+##' variances of the two population; a shifted, scaled beta(1/rscale,1/rscale) prior distribution 
+##' is assumed for \eqn{\rho}{rho} (note that \code{rscale} is called \eqn{\kappa}{kappa} by 
+##' Ly et al. 2015; we call it \code{rscale} for consistency with other BayesFactor functions).
 ##' 
 ##' For the \code{rscale} argument, several named values are recognized: 
 ##' "medium.narrow", "medium", "wide", and "ultrawide". These correspond 
-##' to \eqn{r} scale values of \eqn{1/\sqrt(27)}{1/sqrt(27)}, \eqn{1/3){1/3}, 
+##' to \eqn{r} scale values of \eqn{1/\sqrt(27)}{1/sqrt(27)}, \eqn{1/3}{1/3}, 
 ##' \eqn{1/\sqrt(3)}{1/sqrt(3)} and 1, respectively.
 ##' 
 ##' The Bayes factor is computed via several different methods.
@@ -40,6 +47,8 @@
 ##' @references Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). 
 ##' Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology.
 ##' Journal of Mathematical Psychology, Available online 28 August 2015, http://dx.doi.org/10.1016/j.jmp.2015.06.004.
+##' 
+##' Jeffreys, H. (1961). Theory of probability, 3rd edn. Oxford, UK: Oxford University Press. 
 
 correlationBF <- function(y, x, rscale = "medium", nullInterval = NULL, posterior=FALSE, callback = function(...) as.integer(0), ...)
 {
