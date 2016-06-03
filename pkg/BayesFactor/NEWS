@@ -2,6 +2,7 @@
 
 CHANGES
   * Fixed issue with numerical integration in proportionBF with large N
+  * New function correlationBF - implements Jeffreys' correlation Bayes factor tests
 
   CHANGES IN BayesFactor VERSION 0.9.12-2
 
