@@ -41,5 +41,5 @@ Suggests:
 URL: http://bayesfactorpcl.r-forge.r-project.org/
 BugReports: https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
-LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0), hypergeo (>= 1.2-14), RcppArmadillo
+LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0)
 RoxygenNote: 5.0.1

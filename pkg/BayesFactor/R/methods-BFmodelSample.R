@@ -191,6 +191,20 @@ setMethod('posterior', signature(model = "BFproportion", index = "missing", data
             new("BFmcmc",chains, model = model, data = data)         
           })
 
+#' @rdname posterior-methods
+#' @aliases posterior,BFcorrelation,missing,data.frame,numeric-method
+setMethod('posterior', signature(model = "BFcorrelation", index = "missing", data = "data.frame", iterations = "numeric"), 
+          function(model, index = NULL, data, iterations, ...){
+            rscale = model@prior$rscale
+            interval = model@prior$nullInterval
+            nullModel = ( model@identifier$formula == "rho = 0" )
+            
+            chains = correlation.Metrop(y = data$y, x = data$x, nullModel, iterations = iterations,
+                                       nullInterval = interval, rscale = rscale, ...)
+            new("BFmcmc",chains, model = model, data = data)         
+          })
+
+
 
 ###########
 ## S3

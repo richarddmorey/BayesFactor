@@ -247,6 +247,18 @@ rpriorValues <- function(modelType,effectType=NULL,priorType=NULL){
     
   }
   
+  if(modelType=="correlation"){
+    return(
+      switch(priorType,
+        ultrawide=1,
+        wide=1/(2*sqrt(2)),
+        medium=1/8,
+        stop("Unknown prior type.")
+        )
+      )
+   }
+
+  
   stop("Unknown prior type.")
 }
 

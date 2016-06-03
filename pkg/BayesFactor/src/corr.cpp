@@ -1,5 +1,3 @@
-// [[Rcpp::depends(hypergeo)]]
-#include <hypergeo.h>
 #include <time.h>
 #include "bfcommon.h"
 #include "progress.h"
@@ -10,50 +8,35 @@ using namespace Rcpp;
 
 double aFunc(const double rho, const int n, const double r, const bool hg_checkmod, const int hg_iter)
 {
-  arma::vec U0(2);
-  arma::vec L0(1);
-  arma::vec z0(1);
-  
-  U0.fill( (n-1)*0.5 );
-  L0[0] = 0.5;
-  z0[0] = r * r * rho * rho;
-  
-  arma::cx_vec U( U0, arma::zeros<arma::vec>(2) );
-  arma::cx_vec L( L0, arma::zeros<arma::vec>(1) );
-  arma::cx_vec z( z0, arma::zeros<arma::vec>(1) );
+  NumericVector U(2, (n-1)*0.5);
+  NumericVector L(1, .5);
+  NumericVector z(1, r * r * rho * rho);
 
-  double hyper_term = real( hypergeo::genhypergeo_series(U, L, z, hg_checkmod, hg_iter, 0, 0)[0] );
-  return ( ( n - 1 ) * 0.5 ) * log1p( -(rho*rho) ) + log( hyper_term );
+  double hyper_term = genhypergeo_series_pos(U, L, z, hg_checkmod, hg_iter, 0, 0, 0)[0];
+  return ( ( n - 1 ) * 0.5 ) * log1p( -(rho*rho) ) + hyper_term;
 }
 
 
 double bFunc(const double rho, int const n, const double r, const bool hg_checkmod, const int hg_iter)
 {
-  arma::vec U0(2);
-  arma::vec L0(1);
-  arma::vec z0(1);
+  NumericVector U(2, n*0.5);
+  NumericVector L(1, 1.5);
+  NumericVector z(1, r * r * rho * rho);
   
-  U0.fill( n*0.5 );
-  L0[0] = 1.5;
-  z0[0] = r * r * rho * rho;
-  
-  arma::cx_vec U( U0, arma::zeros<arma::vec>(2) );
-  arma::cx_vec L( L0, arma::zeros<arma::vec>(1) );
-  arma::cx_vec z( z0, arma::zeros<arma::vec>(1) );
-  
-  double hyper_term = real( hypergeo::genhypergeo_series(U, L, z, hg_checkmod, hg_iter, 0, 0)[0] );
+  double hyper_term = genhypergeo_series_pos(U, L, z, hg_checkmod, hg_iter, 0, 0, 0)[0];
   double log_term = 2 * ( lgamma(n*0.5) - lgamma((n-1)*0.5) ) + 
     (n-1) * 0.5 * log1p( -(rho*rho) ) + log(2);
-  return r * rho * exp( log_term + log( hyper_term ) );
+  return r * rho * exp( log_term + hyper_term );
   
 }
 
-
+// [[Rcpp::export]]
 double hFunc(const double rho, const int n, const double r, const bool hg_checkmod, const int hg_iter)
 {
   return log( exp( aFunc(rho, n, r, hg_checkmod, hg_iter) ) + bFunc(rho, n, r, hg_checkmod, hg_iter) );
 }
 
+// [[Rcpp::export]]
 double jeffreys_approx_corr(const double rho, const int n, const double r)
 {
   return 0.5*(n - 1) * log1p( -(rho*rho) ) - (n - 1 - 0.5)*log1p( -(rho*r) );
