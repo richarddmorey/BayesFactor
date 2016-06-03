@@ -2,9 +2,9 @@
 ##' 
 ##' 
 ##' For the \code{rscale} argument, several named values are recognized: 
-##' "medium", "wide", and "ultrawide". These correspond 
-##' to \eqn{r} scale values of \eqn{1/8}{1/8}, \eqn{1/(2\sqrt{2}){1/(2*sqrt(2))}, and 1, 
-##' respectively.
+##' "medium.narrow", "medium", "wide", and "ultrawide". These correspond 
+##' to \eqn{r} scale values of \eqn{1/\sqrt(27)}{1/sqrt(27)}, \eqn{1/3){1/3}, 
+##' \eqn{1/\sqrt(3)}{1/sqrt(3)} and 1, respectively.
 ##' 
 ##' The Bayes factor is computed via several different methods.
 ##' @title Function for Bayesian analysis of correlations
