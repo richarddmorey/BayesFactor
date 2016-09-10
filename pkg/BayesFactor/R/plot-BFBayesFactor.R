@@ -30,6 +30,8 @@
 #' @param logbase the base of the log Bayes factors in the plot
 #' @param marginExpand an expansion factor for the left margin, in case more 
 #'   space is needed for model names
+#' @param cols a vector of length two of valid color names or numbers
+#' @param main a character vector for the plot title
 #' @param pars a list of par() settings
 #' @param ... additional arguments to pass to barplot()
 #' @method plot BFBayesFactor
@@ -39,21 +41,21 @@
 #' 
 #' bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", progress=FALSE)
 #' plot(bfs)
-plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand = .4, pars=NULL, ...){
-
+plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, logbase = c("log10", "log2","ln"), marginExpand = .4, cols = c("wheat","lightslateblue"), main = paste("vs.",x@denominator@longName), pars=NULL, ...){
+  
   # eliminate NAs
   x = x[!is.na(x)]
   
   oldPar <- par()
   on.exit(par(oldPar[c("mfrow","las",names(pars))]))
   textLogBase = logbase[1]
-
+  
   logBase <- switch(textLogBase, 
-                  log10=10,
-                  ln=exp(1),
-                  log2=2, 
-                  stop('Invalid logarithm base.'))
-
+                    log10=10,
+                    ln=exp(1),
+                    log2=2, 
+                    stop('Invalid logarithm base.'))
+  
   # Add denominator
   if(addDenom) x =  c(x, (1/x[1]) / (1/x[1]))
   if(sortbf) x = sort(x)
@@ -77,7 +79,7 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
   }
   yaxes <- seq(floor(rng[1]), ceiling(rng[2]), 1)
   ygrids <- seq(yaxes[1], yaxes[length(yaxes)], .1)
-
+  
   if(textLogBase=="ln"){
     tickLab <- paste("exp(",yaxes,")",sep="")
     tickLab[yaxes==0] = "1"
@@ -85,18 +87,20 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
     tickLab <- logBase^yaxes
     tickLab[yaxes<0] = paste("1/",logBase^abs(yaxes[yaxes<0]),sep="")
   }
-
-
-  cols = c("wheat","lightslateblue")[(bfs$bf>0) + 1]
+  
+  
+  cols = cols[(bfs$bf>0) + 1]
   pars = c(pars, list(oma=c(5,leftMargin,0,1),las=1,mar=c(0,0,2,0)))
   par(pars)
   yloc <- barplot( bfs$bf/log(logBase), 
-           names.arg=rownames(bfs), 
-           horiz=TRUE, 
-           axes=FALSE, 
-           xlim=range(yaxes), 
-           main = paste("vs.",x@denominator@longName), col=cols,...)
-
+                   names.arg=rownames(bfs), 
+                   horiz=TRUE, 
+                   axes=FALSE, 
+                   xlim=range(yaxes), 
+                   main = main, 
+                   col=cols,
+                   ...)
+  
   # add error bars
   segments(errs[,1],yloc,errs[,2],yloc,col="red")
   
@@ -104,7 +108,7 @@ plot.BFBayesFactor <- function(x, include1=TRUE, addDenom = FALSE, sortbf=TRUE, 
   if(any(whichNA)) 
     mapply(function(x,y,adj)
       text(x,y,"?",col="red",adj=adj)
-           , x=errs[whichNA,1],y=yloc[whichNA],adj=1-(errs[whichNA,1]>0))
+      , x=errs[whichNA,1],y=yloc[whichNA],adj=1-(errs[whichNA,1]>0))
   
   axis(1, at = yaxes, labels=tickLab, las=2)
   if(length(ygrids) < 50) abline(v=ygrids,col="gray",lty=2)

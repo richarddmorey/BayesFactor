@@ -6,7 +6,8 @@
 \usage{
 \method{plot}{BFBayesFactor}(x, include1 = TRUE, addDenom = FALSE,
   sortbf = TRUE, logbase = c("log10", "log2", "ln"), marginExpand = 0.4,
-  pars = NULL, ...)
+  cols = c("wheat", "lightslateblue"), main = paste("vs.",
+  x@denominator@longName), pars = NULL, ...)
 }
 \arguments{
 \item{x}{a BFBayesFactor object}
@@ -22,6 +23,10 @@
 
 \item{marginExpand}{an expansion factor for the left margin, in case more 
 space is needed for model names}
+
+\item{cols}{a vector of length two of valid color names or numbers}
+
+\item{main}{a character vector for the plot title}
 
 \item{pars}{a list of par() settings}
 
