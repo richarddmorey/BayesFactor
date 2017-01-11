@@ -18,7 +18,7 @@
 #ifndef _RcppProgress_INTERRUPTS_HPP
 #define _RcppProgress_INTERRUPTS_HPP
 
-#include <R.h>
+#include <Rcpp.h>
 
 bool checkInterrupt();
 

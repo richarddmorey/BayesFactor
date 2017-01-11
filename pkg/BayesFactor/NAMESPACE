@@ -22,7 +22,8 @@ export(logMeanExpLogs,
     logSummaryStats,
     newPriorOdds,
     "priorOdds<-",
-    "priorLogodds<-")
+    "priorLogodds<-",
+    correlationBF)
 
 importFrom(methods, show)
 importFrom(utils, head)

@@ -26,7 +26,8 @@ Imports:
     gtools,
     MatrixModels,
     Rcpp (>= 0.11.2),
-    methods
+    methods,
+    hypergeo
 Suggests:
     doMC,
     foreach,

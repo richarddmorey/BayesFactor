@@ -10,6 +10,16 @@ BFmodel <- function(type, identifier, prior, dataTypes, shortName, longName, ana
       version = BFInfo(FALSE))
 }
 
+BFcorrelation <- function(type, identifier, prior, shortName, longName, analysis = list()){
+  new("BFcorrelation", type = type,
+      identifier = identifier,
+      prior = prior,
+      shortName = shortName,
+      longName = longName,
+      analysis = analysis,
+      version = BFInfo(FALSE))
+}
+
 BFproportion <- function(type, identifier, prior, shortName, longName, analysis = list()){
   new("BFproportion", type = type,
       identifier = identifier,
@@ -286,6 +296,52 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
             stop("Unknown prior type: ", numerator@type)
           }
 })
+
+setMethod('compare', signature(numerator = "BFcorrelation", denominator = "missing", data = "data.frame"), 
+          function(numerator, data, ...){
+            
+            nullInterval=numerator@prior$nullInterval
+            
+            if( (numerator@type=="Jeffreys-beta*") ){
+              if( numerator@identifier$formula=="rho = 0" ){
+                numBF = 0
+                errorEst = 0
+              }else{
+                complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
+                bf = corr.test.bf(y=data$y, x=data$x, 
+                                   rscale=numerator@prior$rscale, nullInterval, 
+                                   complement = complement)
+                numBF = bf[['bf']]
+                errorEst = bf[['properror']]
+              }
+              numerator@analysis = bf
+              numList = list(numerator)
+              nms = numerator@shortName
+              
+              modDenominator = BFcorrelation(type = "Jeffreys-beta*", 
+                                            identifier = list(formula = "rho = 0"), 
+                                            prior=list(),
+                                            shortName = "Null, rho = 0",
+                                            longName = "Null, rho = 0",
+                                            analysis = list(method="trivial"))
+              
+              bf_df = data.frame(bf = numBF,
+                                 error = errorEst,
+                                 time = date(),
+                                 code = randomString(length(numBF)))
+              
+              rownames(bf_df) <- nms
+              
+              newBF = BFBayesFactor(numerator = numList,
+                                    denominator = modDenominator,
+                                    data = data,
+                                    bayesFactor = bf_df)
+              return(newBF)
+            }else{
+              stop("Unknown prior type: ", numerator@type)
+            }
+          })
+
 
 setMethod('compare', signature(numerator = "BFproportion", denominator = "missing", data = "data.frame"), 
           function(numerator, data, ...){

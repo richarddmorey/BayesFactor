@@ -11,7 +11,6 @@
 #ifndef _RcppProgress_PROGRESS_HPP
 #define _RcppProgress_PROGRESS_HPP
 
-#include <R.h>
 
 #include "interruptable_progress_monitor.h"
 
@@ -26,7 +25,7 @@ public:
 	 */
 	Progress(unsigned long max, bool display_progress = true) {
 		if ( _monitor_singleton != 0) { // something is wrong, two simultaneous Progress monitoring
-			error("ERROR: there is already an InterruptableProgressMonitor instance defined");
+			/*error("ERROR: there is already an InterruptableProgressMonitor instance defined");*/
 		}
 		_monitor_singleton = new InterruptableProgressMonitor(max, display_progress);
 	}

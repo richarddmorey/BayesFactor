@@ -34,7 +34,11 @@ setClass("BFmodel", representation(
   version = "character"
 ))
 
-#' @name BFcontingencyTable-class
+#' @name BFcorrelation-class
+#' @rdname model-classes
+setClass("BFcorrelation", contains = "BFmodel")
+
+#' @name BFproportion-class
 #' @rdname model-classes
 setClass("BFproportion", contains = "BFmodel")
 

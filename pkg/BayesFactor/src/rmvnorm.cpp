@@ -1,4 +1,3 @@
-#include <RcppEigen.h>
 #include "bfcommon.h"
 
 using namespace Rcpp;

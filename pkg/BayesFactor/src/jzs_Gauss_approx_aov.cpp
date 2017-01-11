@@ -1,5 +1,4 @@
 #include "bfcommon.h"
-#include <RcppEigen.h>
 
 using namespace Rcpp;
 using Eigen::MatrixXd;

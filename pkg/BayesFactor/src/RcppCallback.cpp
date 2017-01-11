@@ -1,4 +1,3 @@
-#include <Rcpp.h>
 #include <time.h>
 #include "bfcommon.h"
 

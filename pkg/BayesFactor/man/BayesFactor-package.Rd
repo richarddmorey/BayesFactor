@@ -9,7 +9,7 @@ and hypotheses.}
 \description{
 This package contains function to compute Bayes factors for a number of 
 research designs and hypotheses, including t tests, ANOVA, and linear 
-regression, and contingency tables.
+regression, correlations, proportions, and contingency tables.
 }
 \details{
 \tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
@@ -20,6 +20,8 @@ general linear models (including linear mixed effects models): \code{\link{gener
 
 linear regression: \code{\link{regressionBF}}, \code{\link{lmBF}}, 
 \code{\link{linearReg.R2stat}};
+
+linear correlation: \code{\link{correlationBF}};
 
 t tests: \code{\link{ttestBF}}, \code{\link{ttest.tstat}};
 

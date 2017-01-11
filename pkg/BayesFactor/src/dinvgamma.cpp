@@ -1,4 +1,4 @@
-#include <Rcpp.h>
+#include "bfcommon.h"
 
 using namespace Rcpp;
 

@@ -33,5 +33,14 @@ double logExpXplusExpY( const double x, const double y );
 double logExpXminusExpY( const double x, const double y );
 Eigen::MatrixXd random_multivariate_normal(const Eigen::MatrixXd mu, const Eigen::MatrixXd Sigma);
 
+NumericVector genhypergeo_series_pos( NumericVector U,
+                                      NumericVector L,
+                                      NumericVector z,
+                                      const double tol,
+                                      const int maxiter,
+                                      const bool check_mod,
+                                      const bool check_conds,
+                                      const bool polynomial);
+  
 
 #endif //BFCOMMON_HPP_
