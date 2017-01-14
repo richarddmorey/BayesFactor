@@ -70,9 +70,9 @@
 ##' @seealso \code{\link{lmBF}}, for testing specific models, and 
 ##'   \code{\link{regressionBF}} and \code{anovaBF} for other functions for
 ##'   testing multiple models simultaneously.
-generalTestBF <- 
-  function(formula, data, whichRandom = NULL, 
-           whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = options()$BFprogress,
+generalTestBF <-
+  function(formula, data, whichRandom = NULL,
+           whichModels = "withmain", neverExclude=NULL, iterations = 10000, progress = getOption('BFprogress', interactive()),
            rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", rscaleEffects = NULL, multicore = FALSE, method="auto",
            noSample=FALSE, callback=function(...) as.integer(0))
   {
@@ -85,9 +85,9 @@ generalTestBF <-
     models = enumerateGeneralModels(formula, whichModels, neverExclude, 
                                     includeBottom = whichModels!="top", 
                                     data = data)
-    
-    if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
-                                                  length(models), " > ",options()$BFMaxModels ,"). ",
+
+    if(length(models)>getOption('BFMaxModels', 50000)) stop("Maximum number of models exceeded (",
+                                                  length(models), " > ",getOption('BFMaxModels', 50000) ,"). ",
                                                   "The maximum can be increased by changing ",
                                                   "options('BFMaxModels').")
     

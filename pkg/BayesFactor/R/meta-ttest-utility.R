@@ -157,7 +157,7 @@ meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE,sh
 },"delta")
 
 
-meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1){
+meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback = NULL, callbackInterval = 1){
   if(length(t)!=length(n1)) stop("lengths of t and n1 must be equal.")
   if(!is.null(n2)){
     if(length(t) != length(n2)) stop("If n2 is defined, it must have the same length as t.")

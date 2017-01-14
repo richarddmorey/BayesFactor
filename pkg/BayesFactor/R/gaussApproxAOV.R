@@ -1,6 +1,6 @@
 Qg <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0,limit=TRUE)
 {
-  qLimits = options()$BFapproxLimits  
+  qLimits = getOption('BFapproxLimits', c(-15,15))  
   zz = jzs_log_marginal_posterior_logg(q, sumSq, N, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, limit, qLimits, which = 0)
   return(zz[["d0g"]])
 }
@@ -36,7 +36,7 @@ Qg_nlm <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,in
 
 gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
 {
-  optMethod = options()$BFapproxOptimizer
+  optMethod = getOption('BFapproxOptimizer', 'optim')
   
   # dumb starting values
   qs = rscale * 0 

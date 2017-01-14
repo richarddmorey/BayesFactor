@@ -58,7 +58,7 @@
 ##' testing many regression or ANOVA models simultaneously.
 
 lmBF <- function(formula, data, whichRandom = NULL, rscaleFixed="medium",
-                 rscaleRandom="nuisance", rscaleCont="medium", rscaleEffects=NULL, posterior=FALSE,progress=options()$BFprogress, ...)
+                 rscaleRandom="nuisance", rscaleCont="medium", rscaleEffects=NULL, posterior=FALSE,progress=getOption('BFprogress', interactive()), ...)
 {    
   data <- reFactorData(data)
   checkFormula(formula, data, analysis="lm")

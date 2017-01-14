@@ -103,7 +103,7 @@ corr.test.bf <- function(y, x, rscale, nullInterval, complement){
 
 
 
-correlation.Metrop <- function(y, x, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1){
+correlation.Metrop <- function(y, x, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback = NULL, callbackInterval = 1){
   if(length(y)!=length(x)) stop("lengths of y and x must be equal.")
   iterations = as.integer(iterations)
    

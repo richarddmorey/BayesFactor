@@ -87,7 +87,7 @@ ttestBF_indepSample = function(formula, data, mu, nullInterval, rscale, posterio
 }  
 
 
-ttestOneSample.Gibbs = function(y, nullModel, iterations, rscale, nullInterval, progress=options()$BFprogress, noSample=FALSE, callback=NULL, callbackInterval = 1){
+ttestOneSample.Gibbs = function(y, nullModel, iterations, rscale, nullInterval, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback=NULL, callbackInterval = 1){
   n = as.integer(length(y))
   
   rscale = ifelse(nullModel,1,rpriorValues("ttestOne",,rscale))
@@ -122,7 +122,7 @@ ttestOneSample.Gibbs = function(y, nullModel, iterations, rscale, nullInterval, 
   }
 }
 
-ttestIndepSample.Gibbs = function(formula, data, nullModel, iterations, rscale, nullInterval, progress=options()$BFprogress, noSample=FALSE, callback=NULL, callbackInterval = 1){
+ttestIndepSample.Gibbs = function(formula, data, nullModel, iterations, rscale, nullInterval, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback=NULL, callbackInterval = 1){
   
   depVar = as.character(formula[[2]])
   
