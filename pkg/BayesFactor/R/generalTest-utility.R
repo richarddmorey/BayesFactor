@@ -105,7 +105,7 @@ possibleRestrictionsWithMainGeneral <- function(trms, alwaysKept=NULL){
   # If there are more than 5 factors involved then the total number of models is 
   # over 7 million; fall back to search-based method (becase there may not be
   # that many)
-  if(nFactors>options()$BFfactorsMax){
+  if(nFactors>getOption('BFfactorsMax', 5)){
     warning("Falling back to slow recursive method of enumerating models due to many factors.")
     retList = possibleRestrictionsWithMainGeneralFallback(trms, alwaysKept)
     return(c(retList,list(trms)))

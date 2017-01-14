@@ -51,7 +51,7 @@ doNwaySampling<-function(method, y, X, rscale, iterations, gMap, incCont, progre
   simpSamples = NULL
   impSamples = NULL
   apx = NULL
-  testNsamples = options()$BFpretestIterations
+  testNsamples = getOption('BFpretestIterations', 100)
   
   testCallback = function(...) callback(0)
   

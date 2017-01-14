@@ -206,7 +206,7 @@ setMethod("[", signature(x = "BFodds", i = "index", j = "missing",
 
 #' @rdname recompute-methods
 #' @aliases recompute,BFodds-method
-setMethod("recompute", "BFodds", function(x, progress = options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...){
+setMethod("recompute", "BFodds", function(x, progress = getOption('BFprogress', interactive()), multicore = FALSE, callback = function(...) as.integer(0), ...){
   bf = as.BFBayesFactor(x)
   bf = recompute(bf, progress = progress, 
             multicore = multicore,

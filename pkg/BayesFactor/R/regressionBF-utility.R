@@ -54,7 +54,7 @@ integrand.regression.u=Vectorize(function(u, N, p, R2, rscaleSqr=1, log=FALSE, l
 },"u")
 
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = options()$BFprogress, callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = getOption('BFprogress', interactive()), callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
   rscale = rpriorValues("regression",,rscale)
   X = apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)

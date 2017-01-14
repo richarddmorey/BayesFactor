@@ -112,7 +112,7 @@ prop.test.bf <- function(y, N, p, rscale, interval, complement){
 
 
 
-proportion.Metrop <- function(y, N, nullModel, iterations=10000, nullInterval=NULL, p, rscale, progress=options()$BFprogress, noSample=FALSE, callback = NULL, callbackInterval = 1){
+proportion.Metrop <- function(y, N, nullModel, iterations=10000, nullInterval=NULL, p, rscale, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback = NULL, callbackInterval = 1){
   if(length(y)!=length(N)) stop("lengths of t and n1 must be equal.")
   iterations = as.integer(iterations)
    

@@ -79,7 +79,7 @@
 ##'   \code{\link{anovaBF}} for the function similar to \code{regressionBF} for 
 ##'   ANOVA models.
 
-regressionBF <- function(formula, data, whichModels = "all", progress=options()$BFprogress, rscaleCont = "medium", callback = function(...) as.integer(0), noSample=FALSE)
+regressionBF <- function(formula, data, whichModels = "all", progress=getOption('BFprogress', interactive()), rscaleCont = "medium", callback = function(...) as.integer(0), noSample=FALSE)
 {
   checkFormula(formula, data, analysis = "regression")
   dataTypes <- createDataTypes(formula, whichRandom=c(), data, analysis = "regression")
@@ -87,8 +87,8 @@ regressionBF <- function(formula, data, whichModels = "all", progress=options()$
   
   models <- enumerateRegressionModels(fmla, whichModels, data)
   
-  if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
-                                                length(models), " > ",options()$BFMaxModels ,"). ",
+  if(length(models)>getOption('BFMaxModels', 50000)) stop("Maximum number of models exceeded (", 
+                                                length(models), " > ",getOption('BFMaxModels', 50000) ,"). ",
                                                 "The maximum can be increased by changing ",
                                                 "options('BFMaxModels').")
   

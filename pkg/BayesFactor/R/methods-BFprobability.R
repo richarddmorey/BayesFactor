@@ -2,7 +2,7 @@
 BFprobability <- function(odds, normalize = 0){
   ## Add denominator 
   
-  if(options()$BFcheckProbabilityList){
+  if(getOption('BFcheckProbabilityList', TRUE)){
     ## eliminate redundant models
     if( length(odds) > 1 ){
       odds = c( odds, (1/odds[1]) / (1/odds[1]) )
@@ -37,7 +37,7 @@ setValidity("BFprobability", function(object){
   odds = object@odds
   ## Add denominator 
   
-  if(options()$BFcheckProbabilityList){
+  if(getOption('BFcheckProbabilityList', TRUE)){
     if( length(odds) > 1 ){
       odds = c( odds, (1/odds[1]) / (1/odds[1]) )  
       duplicates = 1:length(odds)

@@ -146,7 +146,7 @@
 ##'   linear regression models.
 anovaBF <- 
   function(formula, data, whichRandom = NULL, 
-           whichModels = "withmain", iterations = 10000, progress = options()$BFprogress,
+           whichModels = "withmain", iterations = 10000, progress = getOption('BFprogress', interactive()),
            rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleEffects = NULL, multicore = FALSE, method="auto", noSample=FALSE, callback=function(...) as.integer(0))
   {
     checkFormula(formula, data, analysis = "anova")
@@ -163,8 +163,8 @@ anovaBF <-
     
     models <- enumerateAnovaModels(fmla, whichModels, data)
     
-    if(length(models)>options()$BFMaxModels) stop("Maximum number of models exceeded (", 
-                                                  length(models), " > ",options()$BFMaxModels ,"). ",
+    if(length(models)>getOption('BFMaxModels', 50000)) stop("Maximum number of models exceeded (", 
+                                                  length(models), " > ",getOption('BFMaxModels', 50000) ,"). ",
                                                   "The maximum can be increased by changing ",
                                                   "options('BFMaxModels').")
     

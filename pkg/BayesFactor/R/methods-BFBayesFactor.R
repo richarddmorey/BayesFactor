@@ -46,7 +46,7 @@ setValidity("BFBayesFactor", function(object){
 
 #' @rdname recompute-methods
 #' @aliases recompute,BFBayesFactor-method
-setMethod("recompute", "BFBayesFactor", function(x, progress = options()$BFprogress, multicore = FALSE, callback = function(...) as.integer(0), ...){
+setMethod("recompute", "BFBayesFactor", function(x, progress = getOption('BFprogress', interactive()), multicore = FALSE, callback = function(...) as.integer(0), ...){
   
   modelList = c(x@numerator,x@denominator)
   
