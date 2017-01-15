@@ -149,6 +149,8 @@ anovaBF <-
            whichModels = "withmain", iterations = 10000, progress = getOption('BFprogress', interactive()),
            rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleEffects = NULL, multicore = FALSE, method="auto", noSample=FALSE, callback=function(...) as.integer(0))
   {
+    data <- marshallTibble(data)
+      
     checkFormula(formula, data, analysis = "anova")
     # pare whichRandom down to terms that appear in the formula
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]

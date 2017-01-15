@@ -76,6 +76,8 @@ generalTestBF <-
            rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleCont="medium", rscaleEffects = NULL, multicore = FALSE, method="auto",
            noSample=FALSE, callback=function(...) as.integer(0))
   {
+    data <- marshallTibble(data)
+      
     checkFormula(formula, data, analysis = "lm")
     # pare whichRandom down to terms that appear in the formula
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
