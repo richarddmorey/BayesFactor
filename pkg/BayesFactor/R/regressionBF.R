@@ -81,6 +81,8 @@
 
 regressionBF <- function(formula, data, whichModels = "all", progress=getOption('BFprogress', interactive()), rscaleCont = "medium", callback = function(...) as.integer(0), noSample=FALSE)
 {
+  data <- marshallTibble(data)
+    
   checkFormula(formula, data, analysis = "regression")
   dataTypes <- createDataTypes(formula, whichRandom=c(), data, analysis = "regression")
   fmla <- createFullRegressionModel(formula, data)

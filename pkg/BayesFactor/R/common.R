@@ -415,3 +415,12 @@ BFtry <- function(expression, silent=FALSE) {
   
   result
 }
+
+marshallTibble <- function(data) {
+    if (inherits(data, 'tbl_df')) {
+        data <- as.data.frame(data)
+        warning('data coerced from tibble to data frame', call.=FALSE)
+    }
+    data
+}
+

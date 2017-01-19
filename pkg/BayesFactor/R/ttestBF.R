@@ -90,6 +90,8 @@
 ttestBF <- function(x = NULL, y = NULL, formula = NULL, mu = 0, nullInterval = NULL, 
                     paired = FALSE, data = NULL, rscale="medium", posterior=FALSE, callback = function(...) as.integer(0), ...){
   
+  data <- marshallTibble(data)
+    
   if(!is.null(x) & !is.null(formula)) stop("Only one of x or formula should be defined.")
   
   if(!is.null(x) | !is.null(y))
