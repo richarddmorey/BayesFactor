@@ -1,5 +1,15 @@
-# Compiled source #
-###################
+
+/pkg/*
+!/pkg/BayesFactor/
+!/pkg/BayesFactor/**/*
+
+/www/
+
+.DS_Store
+.Rproj.user
+.Rhistory
+.RData
+
 *.com
 *.class
 *.dll
@@ -7,49 +17,5 @@
 *.o
 *.so
 *.rds
-
-# /
-/.Rproj.user
-/.Rhistory
-/.RData
-/bayesfactorpcl.Rproj
-/core
-
-# /pkg/
-/pkg/BayesFactor_0.8.7.tgz
-
-# /pkg/BayesFactorPCL/
-/pkg/BayesFactorPCL/src-x86_64
-/pkg/BayesFactorPCL/src-i386
-
-# /pkg/BayesFactorPCL/R/
-/pkg/BayesFactorPCL/R/nWayGibi.Rold
-/pkg/BayesFactorPCL/R/oneWayGibi.Rold
-/pkg/BayesFactorPCL/R/eqVar.Rold
-
-# /pkg/BayesFactorPCL/inst/
-/pkg/BayesFactorPCL/inst/
-
-# /pkg/BayesFactorPCL/src/
-/pkg/BayesFactorPCL/src/BayesFactor.dll
-/pkg/BayesFactorPCL/src/symbols.rds
-
-# /pkg/BayesSingleSub/
-/pkg/BayesSingleSub/src-x86_64
-/pkg/BayesSingleSub/src-i386
-
-# /pkg/Gibi/inst/rsp/
-/pkg/Gibi/inst/rsp/gibi
-
-# /www/
-/www/testBayesFactor.html
-/www/testBayesFactor.md
-/www/figure
-/www/workshop.md
-/www/glmtest.html
-/www/glmtest.md
-.Rproj.user
-
-*.Rproj
-
-pkg/BayesFactor_0.9.6.tar.gz
+*.tar.gz
+*.tgz
