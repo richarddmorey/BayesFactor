@@ -51,9 +51,10 @@
 }
 \description{
 The \code{BFBayesFactor} class is a general S4 class for representing models model comparison via Bayes factor.
-  
-  \code{BFBayesFactor} objects can be inverted by taking the reciprocal and can
-   be divided by one another, provided both objects have the same denominator. In addition, 
+}
+\details{
+\code{BFBayesFactor} objects can be inverted by taking the reciprocal and can
+   be divided by one another, provided both objects have the same denominator. In addition,
    the \code{t} (transpose) method can be used to invert Bayes factor objects.
   \describe{
   The \code{BFBayesFactor} class has the following slots defined:
@@ -79,6 +80,6 @@ b1
 b1 / b2
 
 ## Use transpose to create a BFBayesFactorList
-t(bfs) 
+t(bfs)
 }
 

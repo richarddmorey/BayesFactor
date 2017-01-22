@@ -1,73 +1,73 @@
 ##' This function computes Bayes factors corresponding to restrictions on a full model.
-##' 
+##'
 ##' See the help for \code{\link{anovaBF}} and \code{\link{anovaBF}} or details.
-##' 
-##' Models, priors, and methods of computation are provided in Rouder et al. 
+##'
+##' Models, priors, and methods of computation are provided in Rouder et al.
 ##' (2012) and Liang et al (2008).
-##' 
+##'
 ##' @title Function to compute Bayes factors for general designs
-##' @param formula a formula containing the full model for the analysis 
+##' @param formula a formula containing the full model for the analysis
 ##'   (see Examples)
 ##' @param data a data frame containing data for all factors in the formula
 ##' @param whichRandom a character vector specifying which factors are random
 ##' @param whichModels which set of models to compare; see Details
 ##' @param neverExclude a character vector containing a regular expression (see
-##' help for \link{regex} for details) that indicates which terms to always keep 
+##' help for \link{regex} for details) that indicates which terms to always keep
 ##' in the analysis
 ##' @param iterations How many Monte Carlo simulations to generate, if relevant
 ##' @param progress if \code{TRUE}, show progress with a text progress bar
-##' @param rscaleFixed prior scale for standardized, reduced fixed effects. A 
+##' @param rscaleFixed prior scale for standardized, reduced fixed effects. A
 ##'   number of preset values can be given as strings; see Details.
 ##' @param rscaleRandom prior scale for standardized random effects
 ##' @param rscaleCont prior scale for standardized slopes
-##' @param rscaleEffects A named vector of prior settings for individual factors, 
+##' @param rscaleEffects A named vector of prior settings for individual factors,
 ##'   overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.
-##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC} 
+##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC}
 ##'   package. Unavailable on Windows.
 ##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
 ##'   details.
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
-##' @return An object of class \code{BFBayesFactor}, containing the computed 
+##' @return An object of class \code{BFBayesFactor}, containing the computed
 ##'   model comparisons
-##' @param callback callback function for third-party interfaces 
+##' @param callback callback function for third-party interfaces
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @export
 ##' @references
-##'   Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) 
-##'   Default Bayes Factors for ANOVA Designs. Journal of Mathematical 
+##'   Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
+##'   Default Bayes Factors for ANOVA Designs. Journal of Mathematical
 ##'   Psychology.  56.  p. 356-374.
-##'   
-##'   Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and 
-##'   Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable 
-##'   Selection. Journal of the American Statistical Association, 103, pp. 
+##'
+##'   Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
+##'   Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable
+##'   Selection. Journal of the American Statistical Association, 103, pp.
 ##'   410-423
-##'   
-##' @note The function \code{generalTestBF} can compute Bayes factors for all 
-##'   restrictions of a full model against the null 
-##'   hypothesis that all effects are 0. The total number of tests 
-##'   computed -- if all tests are requested -- will be \eqn{2^K-1}{2^K - 1} 
+##'
+##' @note The function \code{generalTestBF} can compute Bayes factors for all
+##'   restrictions of a full model against the null
+##'   hypothesis that all effects are 0. The total number of tests
+##'   computed -- if all tests are requested -- will be \eqn{2^K-1}{2^K - 1}
 ##'   for \eqn{K} factors or covariates.
 ##'   This number increases very quickly with the number of tested predictors. An option is included to
 ##'   prevent testing too many models: \code{options('BFMaxModels')}, which defaults to 50,000, is
 ##'   the maximum number of models that will be analyzed at once. This can
 ##'   be increased by increased using \code{\link{options}}.
-##'   
-##'   It is possible to reduce the number of models tested by only testing the 
-##'   most complex model and every restriction that can be formed by removing 
-##'   one factor or interaction using the \code{whichModels} argument. See the 
+##'
+##'   It is possible to reduce the number of models tested by only testing the
+##'   most complex model and every restriction that can be formed by removing
+##'   one factor or interaction using the \code{whichModels} argument. See the
 ##'   help for \code{\link{anovaBF}} for details.
-##'   
+##'
 ##' @examples
 ##' ## Puzzles example: see ?puzzles and ?anovaBF
 ##' data(puzzles)
 ##' ## neverExclude argument makes sure that participant factor ID
 ##' ## is in all models
-##' result = generalTestBF(RT ~ shape*color + ID, data = puzzles, whichRandom = "ID", 
+##' result = generalTestBF(RT ~ shape*color + ID, data = puzzles, whichRandom = "ID",
 ##' neverExclude="ID", progress=FALSE)
 ##' result
-##' 
+##'
 ##' @keywords htest
-##' @seealso \code{\link{lmBF}}, for testing specific models, and 
+##' @seealso \code{\link{lmBF}}, for testing specific models, and
 ##'   \code{\link{regressionBF}} and \code{anovaBF} for other functions for
 ##'   testing multiple models simultaneously.
 generalTestBF <-
@@ -77,36 +77,36 @@ generalTestBF <-
            noSample=FALSE, callback=function(...) as.integer(0))
   {
     data <- marshallTibble(data)
-      
+
     checkFormula(formula, data, analysis = "lm")
     # pare whichRandom down to terms that appear in the formula
     whichRandom <- whichRandom[whichRandom %in% fmlaFactors(formula, data)[-1]]
-    
+
     dataTypes <- createDataTypes(formula, whichRandom, data, analysis = "lm")
 
-    models = enumerateGeneralModels(formula, whichModels, neverExclude, 
-                                    includeBottom = whichModels!="top", 
+    models = enumerateGeneralModels(formula, whichModels, neverExclude,
+                                    includeBottom = whichModels!="top",
                                     data = data)
 
     if(length(models)>getOption('BFMaxModels', 50000)) stop("Maximum number of models exceeded (",
                                                   length(models), " > ",getOption('BFMaxModels', 50000) ,"). ",
                                                   "The maximum can be increased by changing ",
                                                   "options('BFMaxModels').")
-    
+
     if(multicore){
       message("Note: Progress bars and callbacks are suppressed when running multicore.")
       if(!requireNamespace("doMC", quietly = TRUE)){
         stop("Required package (doMC) missing for multicore functionality.")
-      } 
-      
+      }
+
       doMC::registerDoMC()
       if(foreach::getDoParWorkers()==1){
         warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
       }
-      
+
       bfs <- foreach::"%dopar%"(
         foreach::foreach(gIndex=models, .options.multicore=mcoptions),
-        lmBF(gIndex,data = data, whichRandom = whichRandom, 
+        lmBF(gIndex,data = data, whichRandom = whichRandom,
              rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
              rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations, method=method,
              progress=FALSE,noSample=noSample)
@@ -127,7 +127,7 @@ generalTestBF <-
       for(i in 1:length(models)){
         oneModel <- lmBF(models[[i]],data = data, whichRandom = whichRandom,
           rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-          rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations, 
+          rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations,
           progress = FALSE, method = method,noSample=noSample,callback=myCallback)
         if(inherits(pb,"txtProgressBar")) setTxtProgressBar(pb, i)
         bfs = c(bfs,oneModel)
@@ -135,11 +135,11 @@ generalTestBF <-
       if(inherits(pb,"txtProgressBar")) close(pb)
       checkCallback(callback,as.integer(1000))
     }
-    
+
     # combine all the Bayes factors into one BFBayesFactor object
     bfObj = do.call("c", bfs)
-    
+
     if(whichModels=="top") bfObj = BFBayesFactorTop(bfObj)
-    
+
     return(bfObj)
   }

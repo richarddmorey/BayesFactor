@@ -34,9 +34,10 @@
 }
 \description{
 The \code{BFodds} class is a general S4 class for representing models model comparison via prior or posterior odds.
-  
-  \code{BFodds} objects can be inverted by taking the reciprocal and can
-   be divided by one another, provided both objects have the same denominator. In addition, 
+}
+\details{
+\code{BFodds} objects can be inverted by taking the reciprocal and can
+   be divided by one another, provided both objects have the same denominator. In addition,
    the \code{t} (transpose) method can be used to invert odds objects.
   \describe{
   The \code{BFodds} class has the following slots defined:

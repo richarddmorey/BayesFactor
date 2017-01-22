@@ -41,8 +41,9 @@
 }
 \description{
 The \code{BFprobability} class is a general S4 class for representing models model comparison via prior or posterior probabilities.
- 
-  \describe{
+}
+\details{
+\describe{
   The \code{BFprobability} class has the following slots defined:
    \item{odds}{A BFodds object containing the models from which to compute the probabilities}
    \item{normalize}{the sum of the probabilities of all models (will often be 1.0)}

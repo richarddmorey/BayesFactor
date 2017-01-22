@@ -11,7 +11,7 @@ as.BFprobability(object, normalize = NULL, lognormalize = NULL)
 
 \item{normalize}{the sum of the probabilities for all models in the object (1 by default)}
 
-\item{lognormalize}{alternative to \code{normalize}; the 
+\item{lognormalize}{alternative to \code{normalize}; the
 logarithm of the normalization constant (0 by default)}
 }
 \value{

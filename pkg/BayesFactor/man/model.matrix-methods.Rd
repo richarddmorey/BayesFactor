@@ -22,22 +22,22 @@ matrix contains the mapping from columns of the design matrix to g parameters
 }
 \description{
 This function returns the design matrix used for computation of the Bayes factor
-for the numerator of a \code{BFBayesFactor} object. There must not be more 
+for the numerator of a \code{BFBayesFactor} object. There must not be more
 than one numerator in the \code{BFBayesFactor} object.
 }
 \examples{
 ## Gets the design matrix for a simple analysis
 data(sleep)
 
-bf = anovaBF(extra ~ group + ID, data = sleep, whichRandom="ID", progress=FALSE)  
+bf = anovaBF(extra ~ group + ID, data = sleep, whichRandom="ID", progress=FALSE)
 X = model.matrix(bf)
 
 ## Show dimensions of X (should be 20 by 12)
-dim(X)    
+dim(X)
 }
 \references{
-Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) 
-  Default Bayes Factors for ANOVA Designs. Journal of Mathematical 
+Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
+  Default Bayes Factors for ANOVA Designs. Journal of Mathematical
   Psychology.  56.  p. 356-374.
 }
 

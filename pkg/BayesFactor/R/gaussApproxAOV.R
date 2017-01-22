@@ -1,6 +1,6 @@
 Qg <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0,limit=TRUE)
 {
-  qLimits = getOption('BFapproxLimits', c(-15,15))  
+  qLimits = getOption('BFapproxLimits', c(-15,15))
   zz = jzs_log_marginal_posterior_logg(q, sumSq, N, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, limit, qLimits, which = 0)
   return(zz[["d0g"]])
 }
@@ -13,7 +13,7 @@ dQg <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap, gMapCounts, priorX=NULL, in
 
 
 d2Qg <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0)
-{  
+{
   zz = jzs_log_marginal_posterior_logg(q, sumSq, N, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf, Inf), which = 2)
   return(zz[['d2g']])
 }
@@ -25,9 +25,9 @@ hessianQg <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL
 }
 
 Qg_nlm <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,incCont=0)
-{  
+{
   zz = jzs_log_marginal_posterior_logg(q, sumSq, N, XtCnX, CnytCnX, rscale, gMap, gMapCounts, priorX, incCont, FALSE, c(-Inf,Inf), which = 2)
-  
+
   res = -zz[['d0g']]
   attr(res, "gradient") <- -zz[['d1g']]
   attr(res, "hessian") <- -zz[['d2g']]
@@ -37,10 +37,10 @@ Qg_nlm <- function(q,sumSq,N,XtCnX,CnytCnX,rscale,gMap,gMapCounts,priorX=NULL,in
 gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
 {
   optMethod = getOption('BFapproxOptimizer', 'optim')
-  
+
   # dumb starting values
-  qs = rscale * 0 
-    
+  qs = rscale * 0
+
   N = length(y)
 
   if(!incCont){
@@ -50,14 +50,14 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
   }else{
     priorX = crossprod(X[,1:incCont]) / N
   }
-  
+
   Cny = matrix(y - mean(y), N)
   CnX = t(t(X) - colMeans(X))
   XtCnX = crossprod(CnX)
   CnytCnX = crossprod(Cny, CnX)
-  sumSq = var(y) * (N-1) 
+  sumSq = var(y) * (N-1)
   gMapCounts = table(gMap)
-  
+
   if(optMethod=="optim"){
     opt = optim(qs, Qg, gr = dQg,control=list(fnscale=-1),method="BFGS",sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
     if(opt$convergence) stop("Convergence not achieved in optim: ",opt$convergence)
@@ -71,8 +71,8 @@ gaussianApproxAOV <- function(y,X,rscale,gMap,incCont=0)
   }else{
     stop("unknown method in gaussianApproxAOV: ",optMethod)
   }
-  
-  hess = hessianQg(mu,sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)  
+
+  hess = hessianQg(mu,sumSq=sumSq,N=N,XtCnX=XtCnX,CnytCnX=CnytCnX,rscale=rscale,gMap=gMap,gMapCounts=gMapCounts,priorX=priorX,incCont=incCont)
   sig2 = -1/diag(hess)
   return(list(mu=mu,sig=sqrt(sig2),val=val))
 }
@@ -82,5 +82,5 @@ laplaceAOV <- function(y,X,rscale,gMap,incCont=0)
   apx = gaussianApproxAOV(y,X,rscale,gMap,incCont)
   approxVal = sum(dnorm(apx$mu,apx$mu,apx$sig,log=TRUE))
   apx$val - approxVal
-  
+
 }

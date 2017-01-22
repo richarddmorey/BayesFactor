@@ -2,10 +2,10 @@
 BFodds <- function(BFinit, logodds = NULL, bayesFactor = NULL){
   if(is.null(logodds)) logodds = data.frame(odds = BFinit@bayesFactor$bf * 0)
   rownames(logodds) = rownames(BFinit@bayesFactor)
-  new("BFodds", numerator = BFinit@numerator, 
+  new("BFodds", numerator = BFinit@numerator,
       denominator = BFinit@denominator,
       logodds = logodds,
-      bayesFactor = bayesFactor, 
+      bayesFactor = bayesFactor,
       version = BFInfo(FALSE))
 }
 
@@ -25,28 +25,28 @@ setValidity("BFodds", function(object){
   if( any(!numeratorsAreBFs)) return("Some numerators are not BFmodel objects.")
   # check numerators all have same data types as denominator
   dataTypeDenom = object@denominator@dataTypes
-  dataTypesEqual = unlist(lapply(object@numerator, 
-                                 function(model, compType) 
-                                   model@dataTypes %com% compType, 
-                                 compType=dataTypeDenom))  
+  dataTypesEqual = unlist(lapply(object@numerator,
+                                 function(model, compType)
+                                   model@dataTypes %com% compType,
+                                 compType=dataTypeDenom))
   if( any(!dataTypesEqual)) return("Data types are not equal across models.")
-  
+
   typeDenom = object@denominator@type
-  typesEqual = unlist(lapply(object@numerator, 
-                             function(model, compType) 
-                               identical(model@type, compType), 
+  typesEqual = unlist(lapply(object@numerator,
+                             function(model, compType)
+                               identical(model@type, compType),
                              compType=typeDenom))
-  
+
   if( any(!typesEqual)) return("Model types are not equal across models.")
-  
+
   classDenom = class(object@denominator)
-  typesEqual = unlist(lapply(object@numerator, 
-                             function(model, compType) 
-                               identical(class(model), compType), 
+  typesEqual = unlist(lapply(object@numerator,
+                             function(model, compType)
+                               identical(class(model), compType),
                              compType=classDenom))
-  
+
   if( any(!typesEqual)) return("Model classes are not equal across models.")
-  
+
   return(TRUE)
 })
 
@@ -60,7 +60,7 @@ setMethod("extractOdds", "BFodds", function(x, logodds = FALSE, onlyodds = FALSE
   }else{
     bfs = extractBF(x@bayesFactor, logbf=TRUE)
     z$odds = z$odds + bfs$bf
-    z$error = x@bayesFactor@bayesFactor$error 
+    z$error = x@bayesFactor@bayesFactor$error
   }
   if(!logodds) z$odds = exp(z$odds)
   if(onlyodds) z = z$odds
@@ -72,24 +72,24 @@ setMethod('show', "BFodds", function(object){
   if(is.prior){
     cat("Prior odds\n--------------\n")
   }else{
-    cat("Posterior odds\n--------------\n")    
+    cat("Posterior odds\n--------------\n")
   }
   odds = extractOdds(object, logodds = TRUE)
   odds$odds = sapply(odds$odds, expString)
-  
+
   indices = paste("[",1:nrow(odds),"]",sep="")
-  
+
   # pad model names
   nms = paste(indices,rownames(odds),sep=" ")
   maxwidth = max(nchar(nms))
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
-  
+
   # pad Bayes factors
   maxwidth = max(nchar(odds$odds))
   oddsString = str_pad(odds$odds,maxwidth,side="right",pad=" ")
-  
 
-  
+
+
   for(i in 1:nrow(odds)){
     if(is.prior){
       cat(nms[i]," : ",oddsString[i],"\n",sep="")
@@ -97,11 +97,11 @@ setMethod('show', "BFodds", function(object){
       cat(nms[i]," : ",oddsString[i]," \u00B1",round(odds$error[i]*100,2),"%\n",sep="")
     }
   }
-  
+
   cat("\nAgainst denominator:\n")
   cat(" ",object@denominator@longName,"\n")
   cat("---\nModel type: ",class(object@denominator)[1],", ",object@denominator@type,"\n\n",sep="")
-  
+
 })
 
 setMethod('summary', "BFodds", function(object){
@@ -132,7 +132,7 @@ setMethod('/', signature("numeric", "BFodds"), function(e1, e2){
     stop("Dividend must be 1 (to take reciprocal).")
   }else if( length(e2)>1 ){
     allNum = as(e2,"list")
-    #BFlist = BFBayesFactorList(lapply(allNum, function(num) 1 / num))    
+    #BFlist = BFBayesFactorList(lapply(allNum, function(num) 1 / num))
     stop("Length of odds object must be ==1 to take reciprocal.")
   }
 }
@@ -142,7 +142,7 @@ setMethod('/', signature("numeric", "BFodds"), function(e1, e2){
 #' @name /,BFodds,BFodds-method
 setMethod('/', signature("BFodds", "BFodds"), function(e1, e2){
   if( length(e2) > 1) stop("Length of divisor must be ==1 to divide.")
-  if( !(e1@denominator %same% e2@denominator) ) 
+  if( !(e1@denominator %same% e2@denominator) )
     stop("Odds have different denominator models; they cannot be compared.")
   if(!is.null(e1@bayesFactor) & !is.null(e1@bayesFactor)){
     bf = e1@bayesFactor / e2@bayesFactor
@@ -154,11 +154,11 @@ setMethod('/', signature("BFodds", "BFodds"), function(e1, e2){
   if( (length(e2)==1) ){
     logodds = data.frame(odds=e1@logodds$odds - e2@logodds$odds)
     rownames(logodds) = rownames(e1@logodds)
-    
+
     oddsobj = new("BFodds",numerator=e1@numerator, denominator=e2@numerator[[1]],
                   bayesFactor=bf, logodds = logodds,
                   version = BFInfo(FALSE))
-    
+
     return(oddsobj)
   }else{
     stop("Length of divisor must be ==1 to divide.")
@@ -171,10 +171,10 @@ setMethod('/', signature("BFodds", "BFodds"), function(e1, e2){
 setMethod('*', signature("BFodds", "BFBayesFactor"), function(e1, e2){
   if(!is.null(e1@bayesFactor))
     stop("Cannot multiply posterior odds object with Bayes factor.")
-  new("BFodds", numerator = e1@numerator, 
+  new("BFodds", numerator = e1@numerator,
       denominator = e1@denominator,
       logodds = e1@logodds,
-      bayesFactor = e2, 
+      bayesFactor = e2,
       version = BFInfo(FALSE))
 }
 )
@@ -208,7 +208,7 @@ setMethod("[", signature(x = "BFodds", i = "index", j = "missing",
 #' @aliases recompute,BFodds-method
 setMethod("recompute", "BFodds", function(x, progress = getOption('BFprogress', interactive()), multicore = FALSE, callback = function(...) as.integer(0), ...){
   bf = as.BFBayesFactor(x)
-  bf = recompute(bf, progress = progress, 
+  bf = recompute(bf, progress = progress,
             multicore = multicore,
             callback = callback,
             ...)
@@ -271,7 +271,7 @@ as.BFprobability.BFodds <- function(object, normalize = NULL, lognormalize = NUL
 }
 
 
-length.BFodds <- function(x) 
+length.BFodds <- function(x)
   nrow(x@logodds)
 
 c.BFodds <-
@@ -281,10 +281,10 @@ c.BFodds <-
     if(length(z)==1) return(z[[1]])
     correctClass = unlist(lapply(z, function(object) inherits(object,"BFodds")))
     if(any(!correctClass)) stop("Cannot concatenate odds with non-odds object.")
-    
+
     denoms = lapply(z, function(object){ object@denominator })
-    samedenom = unlist(lapply(denoms[-1], 
-                             function(el, cmp){ 
+    samedenom = unlist(lapply(denoms[-1],
+                             function(el, cmp){
                                el %same% cmp
                              },
                              cmp=denoms[[1]]))
@@ -295,7 +295,7 @@ c.BFodds <-
     df_rownames = make.unique(df_rownames, sep=" #")
     logodds = do.call("rbind",logodds)
     rownames(logodds) = df_rownames
-    
+
     ### Grab the Bayes factors
     is.prior = 1:length(z) * NA
     for(i in 1:length(is.prior)){
@@ -305,18 +305,18 @@ c.BFodds <-
       bfs = lapply(z, function(object){ object@bayesFactor })
       bfs = do.call("c", bfs)
       bf = BFodds(bfs,
-                  logodds = logodds, 
+                  logodds = logodds,
                   bayesFactor = bfs)
     }else if(all(is.prior)){
       numerators = unlist(lapply(z, function(object){object@numerator}),recursive=FALSE, use.names=FALSE)
-      
+
       bf = new("BFodds", numerator = numerators, denominator = z[[1]]@denominator,
                logodds = logodds, bayesFactor = NULL, version = BFInfo(FALSE))
     }else{
       stop("Cannot concatenate prior odds with posterior odds.")
     }
-    
-    return(bf)    
+
+    return(bf)
   }
 
 
@@ -367,13 +367,13 @@ tail.BFodds <- function(x, n=6L, ...){
 
 as.data.frame.BFodds <- function(x, row.names = NULL, optional=FALSE,...){
   df = extractOdds(x)
-  return(df) 
+  return(df)
 }
 
 as.vector.BFodds <- function(x, mode = "any"){
-  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)  
+  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)
   v = extractOdds(x)$odds
   names(v) = names(x)
-  return(v) 
+  return(v)
 }
 

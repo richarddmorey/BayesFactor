@@ -12,7 +12,7 @@ newPriorOdds(bf, type = "equal")
 \item{type}{The type of prior odds to create (by default "equal"; see details)}
 }
 \value{
-A (prior) BFodds object, which can then be multiplied by the 
+A (prior) BFodds object, which can then be multiplied by the
 BFBayesFactor object to obtain posterior odds.
 }
 \description{
@@ -22,7 +22,7 @@ Create a prior odds object from a Bayes factor object
 This function takes a Bayes factor object and, using its structure and
 specified type of prior odds, will create a prior odds object.
 
-For now, the only type is "equal", which assigns equal prior odds to all 
+For now, the only type is "equal", which assigns equal prior odds to all
 models.
 }
 \author{

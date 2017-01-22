@@ -6,25 +6,25 @@
 \usage{
 lmBF(formula, data, whichRandom = NULL, rscaleFixed = "medium",
   rscaleRandom = "nuisance", rscaleCont = "medium", rscaleEffects = NULL,
-  posterior = FALSE, progress = options()$BFprogress, ...)
+  posterior = FALSE, progress = getOption("BFprogress", interactive()), ...)
 }
 \arguments{
-\item{formula}{a formula containing all factors to include in the analysis 
+\item{formula}{a formula containing all factors to include in the analysis
 (see Examples)}
 
 \item{data}{a data frame containing data for all factors in the formula}
 
 \item{whichRandom}{a character vector specifying which factors are random}
 
-\item{rscaleFixed}{prior scale for standardized, reduced fixed effects. A 
+\item{rscaleFixed}{prior scale for standardized, reduced fixed effects. A
 number of preset values can be given as strings; see Details.}
 
 \item{rscaleRandom}{prior scale for standardized random effects}
 
-\item{rscaleCont}{prior scale for standardized slopes. A 
+\item{rscaleCont}{prior scale for standardized slopes. A
 number of preset values can be given as strings; see Details.}
 
-\item{rscaleEffects}{A named vector of prior settings for individual factors, 
+\item{rscaleEffects}{A named vector of prior settings for individual factors,
 overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.}
 
 \item{posterior}{if \code{TRUE}, return samples from the posterior
@@ -48,9 +48,9 @@ specific linear models (either ANOVA or regression).
 This function provides an interface for computing Bayes factors  for
 specific linear models against the intercept-only null; other tests may be
 obtained by computing two models and dividing their Bayes factors. Specifics
-about the priors for regression models -- and possible settings for 
-\code{rscaleCont} -- can be found in the help for \code{\link{regressionBF}}; 
-likewise, details for ANOVA models -- and settings for \code{rscaleFixed} 
+about the priors for regression models -- and possible settings for
+\code{rscaleCont} -- can be found in the help for \code{\link{regressionBF}};
+likewise, details for ANOVA models -- and settings for \code{rscaleFixed}
 and \code{rscaleRandom} -- can be found in the help for \code{\link{anovaBF}}.
 
 Currently, the function does not allow for general linear models, containing
@@ -70,10 +70,10 @@ bfMain = lmBF(RT ~ shape + color + ID, data = puzzles, whichRandom = "ID")
 bfMain / bfFull
 
 ## sample from the posterior of the full model
-samples = lmBF(RT ~ shape + color + shape:color + ID, 
-           data = puzzles, whichRandom = "ID", posterior = TRUE, 
+samples = lmBF(RT ~ shape + color + shape:color + ID,
+           data = puzzles, whichRandom = "ID", posterior = TRUE,
            iterations = 1000)
- 
+
 ## Aother way to sample from the posterior of the full model
 samples2 = posterior(bfFull, iterations = 1000)
 }
@@ -81,7 +81,7 @@ samples2 = posterior(bfFull, iterations = 1000)
 Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \seealso{
-\code{\link{regressionBF}} and \code{anovaBF} for 
+\code{\link{regressionBF}} and \code{anovaBF} for
 testing many regression or ANOVA models simultaneously.
 }
 \keyword{htest}

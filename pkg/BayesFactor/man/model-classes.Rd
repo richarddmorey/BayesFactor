@@ -11,7 +11,7 @@
 \alias{BFproportion-class}
 \title{General S4 classes for representing models for comparison}
 \description{
-The \code{BFmodel} is a general S4 class for representing models for comparison. The more classes 
+The \code{BFmodel} is a general S4 class for representing models for comparison. The more classes
 \code{BFlinearModel}, \code{BFindepSample}, and \code{BFoneSample} inherit directly from \code{BFmodel}.
 }
 \details{

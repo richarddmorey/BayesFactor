@@ -12,7 +12,7 @@ x \%termin\% table
 \item{table}{the terms to be matched against}
 }
 \value{
-A logical vector of the same length as x, indicating if a 
+A logical vector of the same length as x, indicating if a
 match was located for each element of x.
 }
 \description{

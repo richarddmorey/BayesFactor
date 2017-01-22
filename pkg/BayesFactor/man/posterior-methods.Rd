@@ -63,30 +63,30 @@ posterior(model, index, data, iterations, ...)
 \item{...}{arguments passed to and from related methods}
 }
 \value{
-Returns an object containing samples from the posterior distribution 
+Returns an object containing samples from the posterior distribution
   of the specified model
 }
 \description{
-This function samples from the posterior distribution of a \code{BFmodel}, 
-which can be obtained from a \code{BFBayesFactor} object. If there is more 
-than one numerator in the \code{BFBayesFactor} object, the \code{index} 
+This function samples from the posterior distribution of a \code{BFmodel},
+which can be obtained from a \code{BFBayesFactor} object. If there is more
+than one numerator in the \code{BFBayesFactor} object, the \code{index}
 argument can be passed to select one numerator.
 }
 \details{
-The data argument is used internally, and will y not be needed by 
+The data argument is used internally, and will y not be needed by
 end-users.
 
-Note that if there are fixed effects in the model, the reduced 
-parameterzation used internally (see help for \code{\link{anovaBF}}) is 
-unreduced. For a factor with two levels, the chain will contain two effect 
+Note that if there are fixed effects in the model, the reduced
+parameterzation used internally (see help for \code{\link{anovaBF}}) is
+unreduced. For a factor with two levels, the chain will contain two effect
 estimates that sum to 0.
 
-Two useful arguments that can be passed to related methods are \code{thin} 
-and \code{columnFilter}, currently implemented for methods using 
-\code{nWayAOV} (models with more than one categorical covariate, or a mix of 
-categorical and continuous covariates). \code{thin}, an integer, will keep 
-only every \code{thin} iterations. The default is \code{thin=1}, which keeps 
-all iterations. Argument \code{columnFilter} is either \code{NULL} (for no 
+Two useful arguments that can be passed to related methods are \code{thin}
+and \code{columnFilter}, currently implemented for methods using
+\code{nWayAOV} (models with more than one categorical covariate, or a mix of
+categorical and continuous covariates). \code{thin}, an integer, will keep
+only every \code{thin} iterations. The default is \code{thin=1}, which keeps
+all iterations. Argument \code{columnFilter} is either \code{NULL} (for no
 filtering) or a character vector of extended regular expressions (see
 \link{regex} help for details). Any column from an effect that matches one of
 the filters will not be saved.
@@ -95,10 +95,10 @@ the filters will not be saved.
 ## Sample from the posteriors for two models
 data(sleep)
 
-bf = lmBF(extra ~ group + ID, data = sleep, whichRandom="ID", progress=FALSE)  
-   
+bf = lmBF(extra ~ group + ID, data = sleep, whichRandom="ID", progress=FALSE)
+
 ## sample from the posterior of the numerator model
-## data argument not needed - it is included in the Bayes factor object 
+## data argument not needed - it is included in the Bayes factor object
 chains = posterior(bf, iterations = 1000, progress = FALSE)
 
 plot(chains)

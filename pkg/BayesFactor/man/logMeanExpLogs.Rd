@@ -15,7 +15,7 @@ logMeanExpLogs(v)
 \value{
 \code{logMeanExpLogs} returns a single value,
 \code{logCumMeanExpLogs} returns a vector of values of the same length as
-\var{v}, and \code{logSummaryStats} returns a list of the 
+\var{v}, and \code{logSummaryStats} returns a list of the
 log mean, log variance, and cumulative log means.
 }
 \description{
@@ -38,7 +38,7 @@ fast computations.
 # Sample 100 values
 y = log(rexp(100,1))
 
-# These will give the same value, 
+# These will give the same value,
 # since e^y is "small"
 logMeanExpLogs(y)
 log(mean(exp(y)))

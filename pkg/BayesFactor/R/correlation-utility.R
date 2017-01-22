@@ -23,7 +23,7 @@ corr.test.bf.interval <- function(y, x, rscale, nullInterval){
   n = length(x) - sum(is.na(y) | is.na(x))
   # if(n != length(x)) note(paste("Ignored",sum(is.na(y) | is.na(x)),
   #                               "rows containing missing observations."))
-  
+
   intgl = .bfCorNumerical(n, r, rscale, nullInterval[1], nullInterval[2])
   val = log(intgl$value) - prior.interval
   err = NA
@@ -106,10 +106,10 @@ corr.test.bf <- function(y, x, rscale, nullInterval, complement){
 correlation.Metrop <- function(y, x, nullModel, iterations=10000, nullInterval=NULL, rscale, progress=getOption('BFprogress', interactive()), noSample=FALSE, callback = NULL, callbackInterval = 1){
   if(length(y)!=length(x)) stop("lengths of y and x must be equal.")
   iterations = as.integer(iterations)
-   
+
   progress = as.logical(progress)
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
-  
+
   if(is.null(nullInterval) | nullModel){
     doInterval = FALSE
     nullInterval = c(-1, 1)
@@ -119,22 +119,22 @@ correlation.Metrop <- function(y, x, nullModel, iterations=10000, nullInterval=N
     intervalCompl = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
     nullInterval = range(nullInterval)
   }
-  
+
   r = cor(y, x, use="pairwise.complete.obs")
   n = length(x) - sum(is.na(y) | is.na(x))
   if(n != length(x)) note(paste("Ignored",sum(is.na(y) | is.na(x)),
                                 "rows containing missing observations."))
-  
+
   if(noSample){
     chains = matrix(as.numeric(NA),1,1)
   }else{
     if(nullModel) rscale = 0
-    chains = metropCorrRcpp_jeffreys(r, n, 1/rscale, 1/rscale, TRUE, 
-                                     iterations, doInterval, 
-                                     .5*log((1+nullInterval)/(1-nullInterval)), 
-                                     intervalCompl, nullModel, 
-                                     progress, callback, callbackInterval) 
-      
+    chains = metropCorrRcpp_jeffreys(r, n, 1/rscale, 1/rscale, TRUE,
+                                     iterations, doInterval,
+                                     .5*log((1+nullInterval)/(1-nullInterval)),
+                                     intervalCompl, nullModel,
+                                     progress, callback, callbackInterval)
+
     if(!nullModel & !noSample){
       acc.rate = mean(diff(chains) != 0)
       message("Independent-candidate M-H acceptance rate: ",round(100*acc.rate),"%")

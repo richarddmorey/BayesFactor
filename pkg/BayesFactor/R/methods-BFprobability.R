@@ -1,7 +1,7 @@
 # constructor
 BFprobability <- function(odds, normalize = 0){
-  ## Add denominator 
-  
+  ## Add denominator
+
   if(getOption('BFcheckProbabilityList', TRUE)){
     ## eliminate redundant models
     if( length(odds) > 1 ){
@@ -18,12 +18,12 @@ BFprobability <- function(odds, normalize = 0){
       which.denom = duplicates[length(odds)]
       not.duplicate = duplicates == (1:length(odds))
       not.duplicate[ which.denom ] = FALSE
-    
-      # get rid of redundant models (this could be done better)  
+
+      # get rid of redundant models (this could be done better)
       odds = odds[not.duplicate]
     }
   }
-  new("BFprobability", odds = odds, 
+  new("BFprobability", odds = odds,
       normalize = normalize,
       version = BFInfo(FALSE))
 }
@@ -35,11 +35,11 @@ setValidity("BFprobability", function(object){
   if( object@normalize > 0 )
     return("Normalization constant must be a valid probability.")
   odds = object@odds
-  ## Add denominator 
-  
+  ## Add denominator
+
   if(getOption('BFcheckProbabilityList', TRUE)){
     if( length(odds) > 1 ){
-      odds = c( odds, (1/odds[1]) / (1/odds[1]) )  
+      odds = c( odds, (1/odds[1]) / (1/odds[1]) )
       duplicates = 1:length(odds)
       for(i in 2:length(odds)){
         for(j in 1:(i-1)){
@@ -59,22 +59,22 @@ setMethod('show', "BFprobability", function(object){
   if(is.prior){
     cat("Prior probabilities\n--------------\n")
   }else{
-    cat("Posterior probabilities\n--------------\n")    
+    cat("Posterior probabilities\n--------------\n")
   }
   logprobs = extractProbabilities(object, logprobs = TRUE)
   logprobs$probs = sapply(logprobs$probs, expString)
-  
+
   indices = paste("[",1:length(object),"]",sep="")
-  
+
   # pad model names
   nms = paste(indices,rownames(logprobs),sep=" ")
   maxwidth = max(nchar(nms))
   nms = str_pad(nms,maxwidth,side="right",pad=" ")
-  
+
   # pad Bayes factors
   maxwidth = max(nchar(logprobs$probs))
   probString = str_pad(logprobs$probs,maxwidth,side="right",pad=" ")
-  
+
   for(i in 1:nrow(logprobs)){
     if(is.prior){
       cat(nms[i]," : ",probString[i],"\n",sep="")
@@ -82,10 +82,10 @@ setMethod('show', "BFprobability", function(object){
       cat(nms[i]," : ",probString[i]," \u00B1",round(logprobs$error[i]*100,2),"%\n",sep="")
     }
   }
-  
+
   cat("\nNormalized probability: ", expString(object@normalize), " \n")
   cat("---\nModel type: ",class(object@odds@denominator)[1],", ",object@odds@denominator@type,"\n\n",sep="")
-  
+
 })
 
 setMethod('summary', "BFprobability", function(object){
@@ -180,7 +180,7 @@ setMethod("[", signature(x = "BFprobability", i = "index", j = "missing",
 #' @param fixed logical. If TRUE, pattern is a string to be matched as is. See ?grepl for details.
 setMethod("filterBF", signature(x = "BFprobability", name = "character"),
           function (x, name, perl, fixed, ...) {
-            my.names = names(x) 
+            my.names = names(x)
             matches = sapply(name, function(el){
               grepl(el, my.names, fixed = fixed, perl = perl)
             })
@@ -188,7 +188,7 @@ setMethod("filterBF", signature(x = "BFprobability", name = "character"),
             x[any.matches]
           }
 )
-            
+
 
 
 ######
@@ -196,15 +196,15 @@ setMethod("filterBF", signature(x = "BFprobability", name = "character"),
 ######
 
 ##' This function coerces objects to the BFprobability class
-##' 
+##'
 ##' Function to coerce objects to the BFprobability class
-##' 
+##'
 ##' Currently, this function will only work with objects of class
 ##' \code{BFOdds}.
 ##' @title Function to coerce objects to the BFprobability class
 ##' @param object an object of appropriate class (BFodds)
 ##' @param normalize the sum of the probabilities for all models in the object (1 by default)
-##' @param lognormalize alternative to \code{normalize}; the 
+##' @param lognormalize alternative to \code{normalize}; the
 ##' logarithm of the normalization constant (0 by default)
 ##' @return An object of class \code{BFprobability}
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
@@ -214,7 +214,7 @@ as.BFprobability <- function(object, normalize = NULL, lognormalize = NULL)
   UseMethod("as.BFprobability")
 
 
-length.BFprobability <- function(x) 
+length.BFprobability <- function(x)
   nrow(extractProbabilities(x))
 
 names.BFprobability <- function(x) {
@@ -249,7 +249,7 @@ which.min.BFprobability <- function(x){
   index = which.min(extractProbabilities(x, logprobs=TRUE)$probs)
   names(index) = names(x)[index]
   return(index)
-  
+
 }
 
 head.BFprobability <- function(x, n=6L, ...){
@@ -265,14 +265,14 @@ tail.BFprobability <- function(x, n=6L, ...){
 
 as.data.frame.BFprobability <- function(x, row.names = NULL, optional=FALSE,...){
   df = extractProbabilities(x)
-  return(df) 
+  return(df)
 }
 
 as.vector.BFprobability <- function(x, mode = "any"){
-  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)  
+  if( !(mode %in% c("any", "numeric"))) stop("Cannot coerce to mode ", mode)
   v = extractProbabilities(x)$probs
   names(v) = names(x)
-  return(v) 
+  return(v)
 }
 
 sum.BFprobability <-
