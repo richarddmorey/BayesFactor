@@ -191,6 +191,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
             checkFormula(formula, data, analysis = "indept")
 
             dv = stringFromFormula(formula[[2]])
+            dv = composeTerm(dv)
             factor = fmlaFactors(formula, data)[-1]
 
             y = data[[dv]]

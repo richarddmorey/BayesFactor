@@ -208,7 +208,7 @@ numColsForFactor <- function(formula, data, dataTypes){
 termLevels <- function(formula, data, nXcols){
   trms = attr(terms(formula, data = data),"term.labels")
   sapply(trms, function(term, nXcols){
-    constit = strsplit(term, ":", fixed=TRUE)[[1]]
+    constit = decomposeTerm(term)
     prod(nXcols[constit])
   }, nXcols = nXcols)
 }
@@ -216,7 +216,7 @@ termLevels <- function(formula, data, nXcols){
 termTypes <- function(formula, data, dataTypes){
   trms = attr(terms(formula, data = data),"term.labels")
   sapply(trms, function(term, dataTypes){
-    constit = strsplit(term, ":", fixed=TRUE)[[1]]
+    constit = decomposeTerm(term)
     types = dataTypes[constit]
     if(any(types=="continuous")) return("continuous")
     if(any(types=="random")) return("random")
@@ -239,13 +239,19 @@ fullDesignMatrix <- function(fmla, data, dataTypes){
 
 oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
 {
-  effects <- unlist(strsplit(trm, ":", fixed = TRUE))
+  effects <- unlist(decomposeTerm(trm))
   #check to ensure all terms are in data
   checkEffects(effects, data, dataTypes)
 
   if(length(effects) == 1){
-    effect = paste("~",effects,"-1")
-    X = model.Matrix(formula(effect),data = data, sparse = sparse)
+
+    b64data <- data
+    colnames(b64data) <- toB64(colnames(b64data))
+    b64effects <- toB64(effects)
+
+    b64effect = paste("~",b64effects,"-1")
+
+    X = model.Matrix(formula(b64effect), data = b64data, sparse = sparse)
     if(dataTypes[effects] == "fixed"){
       X = X %*% fixedFromRandomProjection(ncol(X), sparse = sparse)
       colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
@@ -253,6 +259,7 @@ oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
     return(X)
   }else{
     Xs = lapply(effects, function(trm, data, dataTypes, sparse){
+      trm <- composeTerm(trm)
       oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)
     }, data = data, dataTypes = dataTypes, sparse = sparse)
     X = Reduce(rowMultiply, x = Xs)
@@ -326,14 +333,12 @@ fixedFromRandomProjection <- function(nlevRandom, sparse = FALSE){
 }
 
 centerContinuousColumns <- function(data){
-  mycols = lapply(data,function(colmn){
-    if(is.factor(colmn)){
-      return(colmn)
-    }else{
-      return(colmn - mean(colmn))
-    }
-  })
-  return(data.frame(mycols))
+  for (colName in colnames(data)) {
+    column <- data[[colName]]
+    if ( ! is.factor(column))
+      data[[colName]] = column - mean(column)
+  }
+  data
 }
 
 nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, rscaleEffects = NULL, posterior=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
