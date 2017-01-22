@@ -12,13 +12,13 @@ correlationBF(y, x, rscale = "medium", nullInterval = NULL,
 
 \item{x}{second continuous variable}
 
-\item{rscale}{prior scale.  A number of preset values can be given as 
+\item{rscale}{prior scale.  A number of preset values can be given as
 strings; see Details.}
 
-\item{nullInterval}{optional vector of length 2 containing 
+\item{nullInterval}{optional vector of length 2 containing
 lower and upper bounds of an interval hypothesis to test, in correlation units}
 
-\item{posterior}{if \code{TRUE}, return samples from the posterior instead 
+\item{posterior}{if \code{TRUE}, return samples from the posterior instead
 of Bayes factor}
 
 \item{callback}{callback function for third-party interfaces}
@@ -26,13 +26,13 @@ of Bayes factor}
 \item{...}{further arguments to be passed to or from methods.}
 }
 \value{
-If \code{posterior} is \code{FALSE}, an object of class 
-  \code{BFBayesFactor} containing the computed model comparisons is 
+If \code{posterior} is \code{FALSE}, an object of class
+  \code{BFBayesFactor} containing the computed model comparisons is
   returned. If \code{nullInterval} is defined, then two Bayes factors will
   be computed: The Bayes factor for the interval against the null hypothesis
   that the probability is 0, and the corresponding Bayes factor for
   the complement of the interval.
-  
+
   If \code{posterior} is \code{TRUE}, an object of class \code{BFmcmc},
   containing MCMC samples from the posterior is returned.
 }
@@ -40,17 +40,17 @@ If \code{posterior} is \code{FALSE}, an object of class
 Bayes factors or posterior samples for correlations.
 }
 \details{
-The Bayes factor provided by \code{ttestBF} tests the null hypothesis that 
-the true linear correlation \eqn{\rho}{rho} between two samples (\eqn{y}{y} and \eqn{x}{x}) 
-of size \eqn{n}{n} from normal populations is equal to 0. The Bayes factor is based on Jeffreys (1961) 
-test for linear correlation. Noninformative priors are assumed for the population means and 
-variances of the two population; a shifted, scaled beta(1/rscale,1/rscale) prior distribution 
-is assumed for \eqn{\rho}{rho} (note that \code{rscale} is called \eqn{\kappa}{kappa} by 
+The Bayes factor provided by \code{ttestBF} tests the null hypothesis that
+the true linear correlation \eqn{\rho}{rho} between two samples (\eqn{y}{y} and \eqn{x}{x})
+of size \eqn{n}{n} from normal populations is equal to 0. The Bayes factor is based on Jeffreys (1961)
+test for linear correlation. Noninformative priors are assumed for the population means and
+variances of the two population; a shifted, scaled beta(1/rscale,1/rscale) prior distribution
+is assumed for \eqn{\rho}{rho} (note that \code{rscale} is called \eqn{\kappa}{kappa} by
 Ly et al. 2015; we call it \code{rscale} for consistency with other BayesFactor functions).
 
-For the \code{rscale} argument, several named values are recognized: 
-"medium.narrow", "medium", "wide", and "ultrawide". These correspond 
-to \eqn{r} scale values of \eqn{1/\sqrt(27)}{1/sqrt(27)}, \eqn{1/3}{1/3}, 
+For the \code{rscale} argument, several named values are recognized:
+"medium.narrow", "medium", "wide", and "ultrawide". These correspond
+to \eqn{r} scale values of \eqn{1/\sqrt(27)}{1/sqrt(27)}, \eqn{1/3}{1/3},
 \eqn{1/\sqrt(3)}{1/sqrt(3)} and 1, respectively.
 
 The Bayes factor is computed via several different methods.
@@ -66,7 +66,7 @@ plot(samples[,"rho"])
 Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \references{
-Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). 
+Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015).
 Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology.
 Journal of Mathematical Psychology, Available online 28 August 2015, http://dx.doi.org/10.1016/j.jmp.2015.06.004.
 

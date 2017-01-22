@@ -9,20 +9,24 @@
 \alias{recompute,BFodds-method}
 \title{Recompute a Bayes factor computation or MCMC object.}
 \usage{
-recompute(x, progress = options()$BFprogress, multicore = FALSE,
-  callback = function(...) as.integer(0), ...)
-
-\S4method{recompute}{BFBayesFactor}(x, progress = options()$BFprogress,
+recompute(x, progress = getOption("BFprogress", interactive()),
   multicore = FALSE, callback = function(...) as.integer(0), ...)
 
-\S4method{recompute}{BFBayesFactorTop}(x, progress = options()$BFprogress,
-  multicore = FALSE, callback = function(...) as.integer(0), ...)
+\S4method{recompute}{BFBayesFactor}(x, progress = getOption("BFprogress",
+  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
+  ...)
 
-\S4method{recompute}{BFmcmc}(x, progress = options()$BFprogress,
-  multicore = FALSE, callback = function(...) as.integer(0), ...)
+\S4method{recompute}{BFBayesFactorTop}(x, progress = getOption("BFprogress",
+  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
+  ...)
 
-\S4method{recompute}{BFodds}(x, progress = options()$BFprogress,
-  multicore = FALSE, callback = function(...) as.integer(0), ...)
+\S4method{recompute}{BFmcmc}(x, progress = getOption("BFprogress",
+  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
+  ...)
+
+\S4method{recompute}{BFodds}(x, progress = getOption("BFprogress",
+  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
+  ...)
 }
 \arguments{
 \item{x}{object to recompute}
@@ -39,25 +43,25 @@ recompute(x, progress = options()$BFprogress, multicore = FALSE,
 Returns an object of the same type, after repeating the sampling (perhaps with more iterations)
 }
 \description{
-Take an object and redo the computation (useful for sampling). In cases where sampling is 
+Take an object and redo the computation (useful for sampling). In cases where sampling is
 used to compute the Bayes factor, the estimate of the precision of new samples will be added
-to the estimate precision of the old sample will be added to produce a new estimate of the 
+to the estimate precision of the old sample will be added to produce a new estimate of the
 precision.
 }
 \examples{
 ## Sample from the posteriors for two models
 data(puzzles)
 
-## Main effects model; result is a BFmcmc object, inheriting 
+## Main effects model; result is a BFmcmc object, inheriting
 ## mcmc from the coda package
-bf = lmBF(RT ~ shape + color + ID, data = puzzles, whichRandom = "ID", 
+bf = lmBF(RT ~ shape + color + ID, data = puzzles, whichRandom = "ID",
    progress = FALSE)
- 
-## recompute Bayes factor object  
+
+## recompute Bayes factor object
 recompute(bf, iterations = 1000, progress = FALSE)
-   
+
 ## Sample from posterior distribution of model above, and recompute:
 chains = posterior(bf, iterations = 1000, progress = FALSE)
-newChains = recompute(chains, iterations = 1000, progress=FALSE)     
+newChains = recompute(chains, iterations = 1000, progress=FALSE)
 }
 

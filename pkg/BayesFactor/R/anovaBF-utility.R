@@ -13,7 +13,7 @@ enumerateAnovaModels = function(fmla, whichModels, data){
   ntrms <- length(trms)
   dv = stringFromFormula(fmla[[2]])
   if(ntrms == 1 ) whichModels = "all"
-  
+
   if(whichModels=="top"){
     lst = combn2( trms, ntrms - 1 )
   }else if(whichModels=='bottom'){
@@ -38,23 +38,23 @@ enumerateAnovaModels = function(fmla, whichModels, data){
 createFixedAnovaModel <- function(dataTypes, formula){
   fixedFactors <- names(dataTypes[dataTypes=="fixed"])
   fixedPart <- paste(fixedFactors,collapse="*")
-  
+
   # get LHS of formula
   dv = stringFromFormula(formula[[2]])
-  
+
   formula(paste(dv, "~", fixedPart, collapse=""))
 }
 
 addRandomModelPart <- function(formula, dataTypes, null = FALSE){
   randomFactors <- names(dataTypes[dataTypes=="random"])
   randomPart <- paste(randomFactors,collapse="+")
-  
+
   fmla = stringFromFormula(formula)
   dv = stringFromFormula(formula[[2]])
   if(null){
     ret = formula(paste(dv, "~", randomPart, collapse=""))
   }else{
-    ret = formula(paste(fmla, "+", randomPart, collapse=""))    
+    ret = formula(paste(fmla, "+", randomPart, collapse=""))
   }
   return(ret)
 }

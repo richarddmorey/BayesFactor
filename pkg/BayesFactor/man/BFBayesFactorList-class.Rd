@@ -8,7 +8,7 @@
 \alias{[,BFBayesFactorList,index,missing,missing-method}
 \alias{[,BFBayesFactorList,missing,index,missing-method}
 \alias{t,BFBayesFactorList-method}
-\title{General S4 class for representing a collection of Bayes factor model 
+\title{General S4 class for representing a collection of Bayes factor model
 comprisons, each against a different denominator}
 \usage{
 \S4method{t}{BFBayesFactorList}(x)
@@ -39,7 +39,7 @@ comprisons, each against a different denominator}
 \item{drop}{unused}
 }
 \description{
-The \code{BFBayesFactorList} class is a general S4 class for representing 
+The \code{BFBayesFactorList} class is a general S4 class for representing
 models model comparison via Bayes factor. See the examples for demonstrations
 of BFBayesFactorList methods.
 }

@@ -7,18 +7,18 @@
 \title{Functions to compute Bayes factor hypothesis tests for common research designs
 and hypotheses.}
 \description{
-This package contains function to compute Bayes factors for a number of 
-research designs and hypotheses, including t tests, ANOVA, and linear 
+This package contains function to compute Bayes factors for a number of
+research designs and hypotheses, including t tests, ANOVA, and linear
 regression, correlations, proportions, and contingency tables.
 }
 \details{
 \tabular{ll}{ Package: \tab BayesFactor\cr Type: \tab Package\cr Version: \tab
-0.9.12-4\cr Date: \tab 2015-2-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab 
+0.9.12-4\cr Date: \tab 2015-2-20\cr License: \tab GPL 2.0\cr LazyLoad: \tab
 yes\cr } The following methods are currently implemented, with more to follow:
 
 general linear models (including linear mixed effects models): \code{\link{generalTestBF}}, \code{\link{lmBF}}
 
-linear regression: \code{\link{regressionBF}}, \code{\link{lmBF}}, 
+linear regression: \code{\link{regressionBF}}, \code{\link{lmBF}},
 \code{\link{linearReg.R2stat}};
 
 linear correlation: \code{\link{correlationBF}};
@@ -33,8 +33,8 @@ contingency tables: \code{\link{contingencyTableBF}};
 
 single proportions: \code{\link{proportionBF}};
 
-Other useful functions: \code{\link{posterior}}, for sampling from posterior 
-distributions; \code{\link{recompute}}, for re-estimating a Bayes factor or 
+Other useful functions: \code{\link{posterior}}, for sampling from posterior
+distributions; \code{\link{recompute}}, for re-estimating a Bayes factor or
 posterior distribution; \code{\link{compare}}, to compare two model
 posteriors; and \code{\link{plot.BFBayesFactor}}, for plotting Bayes factor
 objects.
@@ -46,23 +46,23 @@ objects.
 }
 \author{
 Richard D. Morey and Jeffrey N. Rouder (with contributions from Tahira Jamil)
- 
+
  Maintainer: Richard D. Morey <richarddmorey@gmail.com>
 }
 \references{
-Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and 
- Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. 
+Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
+ Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection.
  Journal of the American Statistical Association, 103, pp. 410-423
- 
- Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G. 
- (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
+
+ Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., \& Iverson, G.
+ (2009). Bayesian t-tests for accepting and rejecting the null hypothesis.
  Psychonomic Bulletin & Review, 16, 225-237
- 
- Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012) 
+
+ Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
  Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology.
  56.  p. 356-374.
- 
- Perception and Cognition Lab (University of Missouri): Bayes factor 
+
+ Perception and Cognition Lab (University of Missouri): Bayes factor
  calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \keyword{htest}

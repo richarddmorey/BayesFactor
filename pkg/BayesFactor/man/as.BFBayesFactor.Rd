@@ -27,7 +27,7 @@ and \code{regressionBF} when the \code{whichModels} argument is set to
 Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \seealso{
-\code{\link{regressionBF}}, \code{anovaBF} whose output is 
+\code{\link{regressionBF}}, \code{anovaBF} whose output is
   appropriate for use with this function when \code{whichModels='top'}
 }
 \keyword{misc}

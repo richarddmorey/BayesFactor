@@ -15,12 +15,12 @@
 
 \item{addDenom}{if \code{TRUE}, add the denominator model into the group}
 
-\item{sortbf}{sort the Bayes factors before plotting them? Defaults to 
+\item{sortbf}{sort the Bayes factors before plotting them? Defaults to
 \code{TRUE}}
 
 \item{logbase}{the base of the log Bayes factors in the plot}
 
-\item{marginExpand}{an expansion factor for the left margin, in case more 
+\item{marginExpand}{an expansion factor for the left margin, in case more
 space is needed for model names}
 
 \item{pars}{a list of par() settings}
@@ -31,15 +31,15 @@ space is needed for model names}
 Plot a Bayes factor top-down object
 }
 \details{
-This function creates a barplot of the (log) Bayes factors in a Bayes factor 
+This function creates a barplot of the (log) Bayes factors in a Bayes factor
 object. Error bars are added (though in many cases they may be too small to
-see) in red to show the error in estimation of the Bayes factor. If a red question mark 
+see) in red to show the error in estimation of the Bayes factor. If a red question mark
 appears next to a bar, then that Bayes factor has no error estimate available.
 }
 \examples{
 data(puzzles)
 
-bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", 
+bfs = anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID",
         whichModels='top', progress=FALSE)
 plot(bfs)
 }

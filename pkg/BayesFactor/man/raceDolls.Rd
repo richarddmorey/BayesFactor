@@ -4,16 +4,16 @@
 \name{raceDolls}
 \alias{raceDolls}
 \title{Hraba and Grant (1970) children's doll preference data}
-\format{A matrix with 2 rows and 2 columns. Rows give doll preference; colums give the 
+\format{A matrix with 2 rows and 2 columns. Rows give doll preference; colums give the
 race of the child.}
 \source{
-Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of 
+Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of
 racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402.
 }
 \description{
 Hraba and Grant (1970) describe a replication of Clark and Clark (1947) in which
 black and white children from Lincoln, Nebraska were shown dolls that were either black
-or white. They were then asked a series of questions, including "Give me the doll that is 
+or white. They were then asked a series of questions, including "Give me the doll that is
 a nice doll." This data set contains the frequency of children giving the same-race or different race doll in
 response to this question.
 }

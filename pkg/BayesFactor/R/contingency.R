@@ -1,87 +1,87 @@
 ##' This function computes Bayes factors for contingency tables.
-##' 
-##' The Bayes factor provided by \code{contingencyTableBF} tests the independence assumption in 
-##' contingency tables under various sampling plans, each of which is described below. 
+##'
+##' The Bayes factor provided by \code{contingencyTableBF} tests the independence assumption in
+##' contingency tables under various sampling plans, each of which is described below.
 ##' See Gunel and Dickey (1974) for more details.
-##' 
-##' For \code{sampleType="poisson"}, the sampling plan is assumed to be 
-##' one in which observations occur as a poisson process with an overall 
-##' rate, and then assignment to particular factor levels occurs with 
-##' fixed probability. Under the null hypothesis, the assignments to the 
+##'
+##' For \code{sampleType="poisson"}, the sampling plan is assumed to be
+##' one in which observations occur as a poisson process with an overall
+##' rate, and then assignment to particular factor levels occurs with
+##' fixed probability. Under the null hypothesis, the assignments to the
 ##' two factors are independent. Importantly, the total N is not fixed.
-##' 
-##' For \code{sampleType="jointMulti"} (joint multinomial), the sampling 
-##' plan is assumed to be one in which the total N is fixed, and observations 
-##' are assigned to cells with fixed probability. Under the null hypothesis, the 
+##'
+##' For \code{sampleType="jointMulti"} (joint multinomial), the sampling
+##' plan is assumed to be one in which the total N is fixed, and observations
+##' are assigned to cells with fixed probability. Under the null hypothesis, the
 ##' assignments to the two factors are independent.
-##' 
-##' For \code{sampleType="indepMulti"} (independent multinomial), the 
-##' sampling plan is assumed to be one in which row or column totals are fixed, 
-##' and the each row or column is assumed to be multinomially distributed. 
-##' Under the null hypothesis, each row or column is assumed to have the 
-##' same multinomial probabilities. The fixed margin must be given by 
+##'
+##' For \code{sampleType="indepMulti"} (independent multinomial), the
+##' sampling plan is assumed to be one in which row or column totals are fixed,
+##' and the each row or column is assumed to be multinomially distributed.
+##' Under the null hypothesis, each row or column is assumed to have the
+##' same multinomial probabilities. The fixed margin must be given by
 ##' the \code{fixedMargin} argument.
-##' 
-##' For \code{sampleType="hypergeom"} (hypergeometric), the sampling 
-##' plan is assumed to be one in which both the row and column totals are fixed. 
-##' Under the null hypothesis, the cell counts are assumed to be governed by the 
+##'
+##' For \code{sampleType="hypergeom"} (hypergeometric), the sampling
+##' plan is assumed to be one in which both the row and column totals are fixed.
+##' Under the null hypothesis, the cell counts are assumed to be governed by the
 ##' hypergeometric distribution.
-##' 
-##' For all models, the argument \code{priorConcentration} indexes 
-##' the expected deviation from the null hypothesis under the alternative, 
+##'
+##' For all models, the argument \code{priorConcentration} indexes
+##' the expected deviation from the null hypothesis under the alternative,
 ##' and corresponds to Gunel and Dickey's (1974) "a" parameter.
-##' 
+##'
 ##' @title Function for Bayesian analysis of one- and two-sample designs
 ##' @param x an m by n matrix of counts (integers m,n > 1)
 ##' @param sampleType the sampling plan (see details)
 ##' @param fixedMargin for the independent multinomial sampling plan, which margin is fixed ("rows" or "cols")
 ##' @param priorConcentration prior concentration parameter, set to 1 by default (see details)
-##' @param posterior if \code{TRUE}, return samples from the posterior instead 
+##' @param posterior if \code{TRUE}, return samples from the posterior instead
 ##'   of Bayes factor
-##' @param callback callback function for third-party interfaces 
+##' @param callback callback function for third-party interfaces
 ##' @param ... further arguments to be passed to or from methods.
-##' @return If \code{posterior} is \code{FALSE}, an object of class 
-##'   \code{BFBayesFactor} containing the computed model comparisons is 
-##'   returned. 
-##'   
+##' @return If \code{posterior} is \code{FALSE}, an object of class
+##'   \code{BFBayesFactor} containing the computed model comparisons is
+##'   returned.
+##'
 ##'   If \code{posterior} is \code{TRUE}, an object of class \code{BFmcmc},
 ##'   containing MCMC samples from the posterior is returned.
 ##' @export
 ##' @keywords htest
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @author Tahira Jamil (\email{tahjamil@@gmail.com})
-##' @references Gunel, E. and Dickey, J., (1974) 
+##' @references Gunel, E. and Dickey, J., (1974)
 ##' Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557
-##' 
+##'
 ##' @note Posterior sampling for the hypergeometric model under the alternative
 ##' has not yet been implemented.
-##' 
+##'
 ##' @examples
 ##' ## Hraba and Grant (1970) doll race data
 ##' data(raceDolls)
-##' 
+##'
 ##' ## Compute Bayes factor for independent binomial design, with
 ##' ## columns as the fixed margin
 ##' bf = contingencyTableBF(raceDolls, sampleType = "indepMulti", fixedMargin = "cols")
 ##' bf
-##' 
+##'
 ##' ## Posterior distribution of difference in probabilities, under alternative
 ##' chains = posterior(bf, iterations = 10000)
 ##' sameRaceGivenWhite = chains[,"pi[1,1]"] / chains[,"pi[*,1]"]
 ##' sameRaceGivenBlack = chains[,"pi[1,2]"] / chains[,"pi[*,2]"]
-##' hist(sameRaceGivenWhite - sameRaceGivenBlack, xlab = "Probability increase", 
+##' hist(sameRaceGivenWhite - sameRaceGivenBlack, xlab = "Probability increase",
 ##'   main = "Increase in probability of child picking\nsame race doll (white - black)",
 ##'   freq=FALSE, yaxt='n')
 ##' box()
-##' 
+##'
 
 contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentration = 1, posterior = FALSE,  callback = function(...) as.integer(0), ...)
 {
-  
+
   x.mat = as.matrix(as.integer(x))
   dim(x.mat) = dim(x)
   x = as.data.frame(x.mat)
-  
+
   if( sampleType == "indepMulti" )
     if( is.null(fixedMargin) ){
       stop("Argument fixedMargin ('rows' or 'cols') required with independent multinomial sampling plan.")
@@ -91,23 +91,23 @@ contingencyTableBF <- function(x, sampleType, fixedMargin = NULL, priorConcentra
 
   checkCallback(callback,as.integer(0))
   numerator = switch(sampleType,
-         poisson = BFcontingencyTable(type = "poisson", 
-                                               identifier = list(formula = "non-independence"), 
+         poisson = BFcontingencyTable(type = "poisson",
+                                               identifier = list(formula = "non-independence"),
                                                prior=list(a=priorConcentration),
                                                shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                                longName = paste0("Alternative, non-independence, a = ", priorConcentration)),
-         jointMulti = BFcontingencyTable(type = "joint multinomial", 
-                                         identifier = list(formula = "non-independence"), 
+         jointMulti = BFcontingencyTable(type = "joint multinomial",
+                                         identifier = list(formula = "non-independence"),
                                          prior=list(a=priorConcentration),
                                          shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                          longName = paste0("Alternative, non-independence, a = ", priorConcentration)),
-         indepMulti = BFcontingencyTable(type = "independent multinomial", 
-                                         identifier = list(formula = "non-independence", fixedMargin = fixedMargin), 
+         indepMulti = BFcontingencyTable(type = "independent multinomial",
+                                         identifier = list(formula = "non-independence", fixedMargin = fixedMargin),
                                          prior=list(a=priorConcentration, fixedMargin = fixedMargin),
                                          shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                          longName = paste0("Alternative, non-independence, a = ", priorConcentration)),
-         hypergeom = BFcontingencyTable(type = "hypergeometric", 
-                                        identifier = list(formula = "non-independence"), 
+         hypergeom = BFcontingencyTable(type = "hypergeometric",
+                                        identifier = list(formula = "non-independence"),
                                         prior=list(a=priorConcentration),
                                         shortName = paste0("Non-indep. (a=",priorConcentration,")"),
                                         longName = paste0("Alternative, non-independence, a = ", priorConcentration)),

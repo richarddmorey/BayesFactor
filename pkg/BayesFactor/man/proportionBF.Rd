@@ -14,13 +14,13 @@ proportionBF(y, N, p, rscale = "medium", nullInterval = NULL,
 
 \item{p}{the null value for the probability of a success to be tested against}
 
-\item{rscale}{prior scale.  A number of preset values can be given as 
+\item{rscale}{prior scale.  A number of preset values can be given as
 strings; see Details.}
 
-\item{nullInterval}{optional vector of length 2 containing 
+\item{nullInterval}{optional vector of length 2 containing
 lower and upper bounds of an interval hypothesis to test, in probability units}
 
-\item{posterior}{if \code{TRUE}, return samples from the posterior instead 
+\item{posterior}{if \code{TRUE}, return samples from the posterior instead
 of Bayes factor}
 
 \item{callback}{callback function for third-party interfaces}
@@ -28,13 +28,13 @@ of Bayes factor}
 \item{...}{further arguments to be passed to or from methods.}
 }
 \value{
-If \code{posterior} is \code{FALSE}, an object of class 
-  \code{BFBayesFactor} containing the computed model comparisons is 
+If \code{posterior} is \code{FALSE}, an object of class
+  \code{BFBayesFactor} containing the computed model comparisons is
   returned. If \code{nullInterval} is defined, then two Bayes factors will
   be computed: The Bayes factor for the interval against the null hypothesis
   that the probability is \eqn{p_0}{p0}, and the corresponding Bayes factor for
   the compliment of the interval.
-  
+
   If \code{posterior} is \code{TRUE}, an object of class \code{BFmcmc},
   containing MCMC samples from the posterior is returned.
 }
@@ -43,17 +43,17 @@ Bayes factors or posterior samples for binomial, geometric, or neg. binomial dat
 }
 \details{
 Given count data modeled as a binomial, geometric, or negative binomial random variable,
-the Bayes factor provided by \code{proportionBF} tests the null hypothesis that 
-the probability of a success is \eqn{p_0}{p_0} (argument \code{p}). Specifically, 
-the Bayes factor compares two hypotheses: that the probability is \eqn{p_0}{p_0}, or 
-probability is not \eqn{p_0}{p_0}. Currently, the default alternative is that 
-\deqn{\lambda~logistic(\lambda_0,r)} where 
-\eqn{\lambda_0=logit(p_0)}{lambda_0=logit(p_0)} and 
+the Bayes factor provided by \code{proportionBF} tests the null hypothesis that
+the probability of a success is \eqn{p_0}{p_0} (argument \code{p}). Specifically,
+the Bayes factor compares two hypotheses: that the probability is \eqn{p_0}{p_0}, or
+probability is not \eqn{p_0}{p_0}. Currently, the default alternative is that
+\deqn{\lambda~logistic(\lambda_0,r)} where
+\eqn{\lambda_0=logit(p_0)}{lambda_0=logit(p_0)} and
 \eqn{\lambda=logit(p)}{lambda=logit(p)}. \eqn{r}{r} serves as a prior scale parameter.
 
-For the \code{rscale} argument, several named values are recognized: 
-"medium", "wide", and "ultrawide". These correspond 
-to \eqn{r} scale values of \eqn{1/2}{1/2}, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1, 
+For the \code{rscale} argument, several named values are recognized:
+"medium", "wide", and "ultrawide". These correspond
+to \eqn{r} scale values of \eqn{1/2}{1/2}, \eqn{\sqrt{2}/2}{sqrt(2)/2}, and 1,
 respectively.
 
 The Bayes factor is computed via Gaussian quadrature, and posterior

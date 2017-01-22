@@ -19,4 +19,4 @@ BFInfo <- function(print=TRUE)
   }
   retStr = paste(packageDescription("BayesFactor")$Version)
   invisible(retStr)
-} 
+}
