@@ -93,6 +93,7 @@ setMethod('posterior', signature(model = "BFlinearModel", index = "missing", dat
     relevantDataTypes = dataTypes[names(dataTypes) %in% factors]
 
     dv = stringFromFormula(formula[[2]])
+    dv = composeTerm(dv)
     if(model@type != "JZS") stop("Unknown model type.")
 
     if( nFactors == 0 ){

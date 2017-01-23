@@ -156,7 +156,10 @@ stringFromFormula <- function(formula){
 }
 
 fmlaFactors <- function(formula, data){
-  rownames(attr(terms(formula, data = data),"factors"))
+  names <- rownames(attr(terms(formula, data = data),"factors"))
+  names <- decomposeTerms(names)
+  names <- unlist(names)
+  names
 }
 
 are.factors<-function(df) sapply(df, function(v) is.factor(v))
@@ -339,7 +342,8 @@ monotoneBooleanNice = function(m){
 
 makeTerm <- function(m,factors){
   trms = factors[binary(m,length(factors))$dicotomy]
-  paste(trms,collapse=":")
+  trms = composeTerm(trms)
+  trms
 }
 
 setMethod("%termin%", signature = c(x="character",table="character"),
@@ -422,5 +426,68 @@ marshallTibble <- function(data) {
         warning('data coerced from tibble to data frame', call.=FALSE)
     }
     data
+}
+
+# compose functions from jmvcore package
+
+composeTerm <- function(components) {
+  components <- sapply(components, function(component) {
+    if (make.names(component) != component) {
+      component <- gsub('\\', '\\\\', component, fixed=TRUE)
+      component <- gsub('`', '\\`', component, fixed=TRUE)
+      component <- paste0('`', component, '`')
+    }
+    component
+  }, USE.NAMES=FALSE)
+  term <- paste0(components, collapse=':')
+  term
+}
+
+composeTerms <- function(listOfComponents) {
+  sapply(listOfComponents, composeTerm, USE.NAMES=FALSE)
+}
+
+decomposeTerms <- function(terms) {
+    decomposed <- list()
+    for (i in seq_along(terms))
+        decomposed[[i]] <- decomposeTerm(terms[[i]])
+    decomposed
+}
+
+decomposeTerm <- function(term) {
+
+    chars <- strsplit(term, '')[[1]]
+    components <- character()
+    componentChars <- character()
+    inQuote <- FALSE
+
+    i <- 1
+    n <- length(chars)
+
+    while (i <= n) {
+        char <- chars[i]
+        if (char == '`') {
+            inQuote <- ! inQuote
+        }
+        else if (char == '\\') {
+            i <- i + 1
+            char <- chars[i]
+            componentChars <- c(componentChars, char)
+        }
+        else if (char == ':' && inQuote == FALSE) {
+            component <- paste0(componentChars, collapse='')
+            components <- c(components, component)
+            componentChars <- character()
+        }
+        else {
+            componentChars <- c(componentChars, char)
+        }
+        i <- i + 1
+    }
+
+    component <- paste0(componentChars, collapse='')
+    components <- c(components, component)
+
+    components
 }
 

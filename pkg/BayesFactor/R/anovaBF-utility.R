@@ -12,6 +12,7 @@ enumerateAnovaModels = function(fmla, whichModels, data){
   trms <- attr(terms(fmla, data = data), "term.labels")
   ntrms <- length(trms)
   dv = stringFromFormula(fmla[[2]])
+  dv = composeTerm(dv)
   if(ntrms == 1 ) whichModels = "all"
 
   if(whichModels=="top"){
@@ -37,10 +38,11 @@ enumerateAnovaModels = function(fmla, whichModels, data){
 
 createFixedAnovaModel <- function(dataTypes, formula){
   fixedFactors <- names(dataTypes[dataTypes=="fixed"])
-  fixedPart <- paste(fixedFactors,collapse="*")
+  fixedPart <- paste(composeTerms(fixedFactors),collapse="*")
 
   # get LHS of formula
   dv = stringFromFormula(formula[[2]])
+  dv = composeTerm(dv)
 
   formula(paste(dv, "~", fixedPart, collapse=""))
 }
@@ -51,6 +53,7 @@ addRandomModelPart <- function(formula, dataTypes, null = FALSE){
 
   fmla = stringFromFormula(formula)
   dv = stringFromFormula(formula[[2]])
+  dv = composeTerm(dv)
   if(null){
     ret = formula(paste(dv, "~", randomPart, collapse=""))
   }else{

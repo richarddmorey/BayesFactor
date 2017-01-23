@@ -1,5 +1,6 @@
 createDataTypes <- function(formula, whichRandom, data, analysis){
   factors <- rownames(attr(terms(formula, data = data),"factors"))[-1]
+  factors <- unlist(decomposeTerms(factors))
   cnames <- colnames(data)
 
   # check status of data columns
@@ -40,10 +41,15 @@ checkFormula <- function(formula, data, analysis){
 
   if(!is.numeric(data[,dv])) stop("Dependent variable must be numeric.")
   if(any(is.na(data[,dv])) | any(is.infinite(data[,dv]))) stop("Dependent variable must not contain missing or infinite values.")
+
   factors = fmlaFactors(formula, data)
   terms = colnames(attr(terms(formula, data = data),"factors"))
+  decom = decomposeTerms(terms)
+  terms = unlist(decom)
 
   vars = rownames(attr(terms(formula, data = data),"factors"))
+  vars = unlist(decomposeTerms(vars))
+
   if(any(is.na(data[,vars]))) stop("Predictors must not contain missing values.")
 
   if(is.null(factors)) return()
@@ -52,15 +58,16 @@ checkFormula <- function(formula, data, analysis){
 
   if(analysis=="regression"){
     RHS = stringFromFormula(formula[[3]])
-    if( grepl(":",RHS,fixed=TRUE) ) stop("Interactions not allowed in regressionBF (try generalTestBF).")
+    lengths = sapply(decom, length)
+    if (any(lengths > 1)) stop("Interactions not allowed in regressionBF (try generalTestBF).")
   }
 
   if(analysis=="lm" | analysis=="anova" | analysis == "regression" | analysis == "indept")
     if(attr(terms(formula, data = data),"intercept") == 0) stop("Formula must include intercept.")
 
   if(analysis=="indept"){
-    if( length(terms) > 1 ) stop("Indep. groups t test can only support 1 factor as predictor.")  
-    if(length(grep(":",terms,fixed=TRUE))) stop("Interaction terms are not allowed in t test.")
+    if( length(decom) > 1 ) stop("Indep. groups t test can only support 1 factor as predictor.")
+    if(length(decom[[1]]) > 1) stop("Interaction terms are not allowed in t test.")
     if(nlevels(factor(data[,terms])) > 2) stop("Indep. groups t test requires a factor with exactly 2 levels.")
   }
   invisible()
