@@ -333,12 +333,16 @@ fixedFromRandomProjection <- function(nlevRandom, sparse = FALSE){
 }
 
 centerContinuousColumns <- function(data){
-  for (colName in colnames(data)) {
-    column <- data[[colName]]
-    if ( ! is.factor(column))
-      data[[colName]] = column - mean(column)
-  }
-  data
+  mycols = lapply(data,function(colmn){
+    if(is.factor(colmn)){
+      return(colmn)
+    }else{
+      return(colmn - mean(colmn))
+    }
+  })
+  df <- data.frame(mycols)
+  colnames(df) <- colnames(data)
+  return(df)
 }
 
 nWayFormula <- function(formula, data, dataTypes, rscaleFixed=NULL, rscaleRandom=NULL, rscaleCont=NULL, rscaleEffects = NULL, posterior=FALSE, columnFilter = NULL, unreduce=TRUE, ...){
