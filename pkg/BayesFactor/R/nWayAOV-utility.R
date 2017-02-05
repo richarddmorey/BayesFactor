@@ -255,6 +255,8 @@ oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
     if(dataTypes[effects] == "fixed"){
       X = X %*% fixedFromRandomProjection(ncol(X), sparse = sparse)
       colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
+    } else {
+      colnames(X) = fromB64(colnames(X))
     }
     return(X)
   }else{
