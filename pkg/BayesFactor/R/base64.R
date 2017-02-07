@@ -90,7 +90,7 @@ fromB64 <- function(names) {
 
 fromB64string <- function(string) {
 
-  if ( ! startsWith(x, '.'))
+  if ( ! startsWith(string, '.'))
     stop('b64 names should begin with a dot')
 
   string <- substring(string, 2)
