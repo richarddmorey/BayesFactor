@@ -57,28 +57,37 @@ integrand.regression.u=Vectorize(function(u, N, p, R2, rscaleSqr=1, log=FALSE, l
 },"u")
 
 
-linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = getOption('BFprogress', interactive()), callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ...){
+linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = getOption('BFprogress', interactive()), callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ignoreCols = NULL, thin = 1, ...){
   rscale = rpriorValues("regression",,rscale)
   X = apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
   N = length(y)
+
+  P = ncol(X)
+  nGs = 1
+
+  if(is.null(ignoreCols)) ignoreCols = rep(0,P)
+
+  # Check thinning to make sure number is reasonable
+  if( (thin<1) | (thin>(iterations/3)) ) stop("MCMC thin parameter cannot be less than 1 or greater than iterations/3. Was:", thin)
+
+  gMap = rep(0, P)
 
   sig2start = sum( (X%*%solve(t(X)%*%X)%*%t(X)%*%y - y)^2 ) / N
 
   progress = as.logical(progress)
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
 
-
-  if(noSample){
-    chains = matrix(NA,ncol(covariates)+2,2)
+  if(noSample){ # Return structure of chains
+    chains = matrix(NA,2,nOutputPars + 3 + nGs)
   }else{
-    chains = GibbsLinearRegRcpp(as.integer(iterations),
-                       y, X, rscale, sig2start, FALSE,
-                       progress, callback, callbackInterval)
+    chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, 1, gMap, table(gMap), TRUE, FALSE,
+                       as.integer(ignoreCols), as.integer(thin), as.logical(progress), callback, 1)
   }
+  colnames(chains) = c("mu", colnames(covariates), "sig2", "g")
+  chains = mcmc(chains)
 
-  colnames(chains) = c(colnames(covariates),"sig2","g")
-  return(mcmc(chains))
+  return(chains)
 
 }
 
