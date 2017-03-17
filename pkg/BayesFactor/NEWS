@@ -3,11 +3,13 @@
 CHANGES
   * Fixed issue with numerical integration in proportionBF with large N
   * New function correlationBF - implements Jeffreys' correlation Bayes factor tests
+  * Fixed rare bug that prevented sampling posteriors in some circumstances
+  * Sampling regression models now provides estimate intercept. This may break some old code if you were referring to columns by number instead of name.
 
   CHANGES IN BayesFactor VERSION 0.9.12-2
 
 CHANGES
-  * Added feature allowing fine-tuning of priors on a per-effect basis: see new argument 
+  * Added feature allowing fine-tuning of priors on a per-effect basis: see new argument
     rscaleEffects of lmBF, anovaBF, and generalTestBF
   * Fixed bug that disallowed logical indexing of probability objects
   * Fixed minor typos in documentation
@@ -75,8 +77,8 @@ CHANGES
 CHANGES
   *  Fixed bugs in model enumeration code
   *  Fixed bug leading to wrong computation of number of covariate when interactions between continuous variables were included
-  *  Corrected typos/old information in the documentation 
-  *  Fixed a memory allocation bug that affected computing Bayes factors with lots of data 
+  *  Corrected typos/old information in the documentation
+  *  Fixed a memory allocation bug that affected computing Bayes factors with lots of data
   *  Added meta-analytic Bayes factor for t tests (see meta.ttestBF)
   *  Fixed bug in ttestBF that yielded Bayes factor of NaN for very extreme posterior interval probabilities
   *  Fixed several bugs causing infinite integrals; generally improved integration
@@ -116,7 +118,7 @@ CHANGES
   *  Fixed bug computing the Bayes factor of unbalanced one-way ANOVA with two levels - caused function to fail
   *  Fixed occasional problem where optimization for the importance sampler would fail, giving a numerically singular matrix
   *  Fixed problem where extremely rare large or small g values from the sampler would cause the Bayes factor to be NA (again, creating a singular numerically singular matrix). These very rare samples are now disregarded.
-  *  Added global option to turn progress bars on or off; use options(BFprogress = TRUE) or options(BFprogress = FALSE) 
+  *  Added global option to turn progress bars on or off; use options(BFprogress = TRUE) or options(BFprogress = FALSE)
   *  Added MCMC chain thinning to nWayAOV - to use, pass "thin" argument to posterior() or lmBF()
   *  Added MCMC chain column filtering, useful for low memory systems. To use, pass "columnFilter" argument to posterior() or lmBF(). See the help for posterior() for more details.
   *  Added function generalTestBF(), which allows testing of restrictions on a full model in a manner similar to regressionBF() and anovaBF().
@@ -126,7 +128,7 @@ CHANGES
   CHANGES IN BayesFactor VERSION 0.9.3
 
 CHANGES
-  *  Restricted to R 3.0.0 (due to vignette compilation). 
+  *  Restricted to R 3.0.0 (due to vignette compilation).
 
 
   CHANGES IN BayesFactor VERSION 0.9.2
@@ -139,7 +141,7 @@ CHANGES
   *  When error is missing from the BayesFactor object, plot prints "?" next to the bar to indicate no error estimate is available
   *  Default prior scale setting changed for continuous covariates; scale now defaults to sqrt(2)/4, which corresponds to the ANOVA "medium" setting (and will give the same Bayes factor in special cases where they should)
   *  Default prior scale setting in one-sample t changed to 1/2 (it was erroneously changed to sqrt(2)/2). Two-sample t test default setting remains the same, at sqrt(2)/2
-  *  Added new prior scale settings for random effects; default to "nuisance", which is the same as the old default (r=1)  
+  *  Added new prior scale settings for random effects; default to "nuisance", which is the same as the old default (r=1)
   *  New prior scale setting: "ultrawide"
   *  Fixed bug with BFManual() which caused it not to start if dynamic help had not been started yet
   *  When doing an Bayes factor analysis that requires sampling, the new default setting (method="auto") will automatically try to select the best sampler for you so that you get the most efficient samples.

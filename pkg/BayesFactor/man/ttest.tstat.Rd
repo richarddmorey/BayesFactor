@@ -23,20 +23,20 @@ ttest.tstat(t, n1, n2 = 0, nullInterval = NULL, rscale = "medium",
 \item{simple}{if \code{TRUE}, return only the Bayes factor}
 }
 \value{
-If \code{simple} is \code{TRUE}, returns the Bayes factor (against the 
-null). If \code{FALSE}, the function returns a 
+If \code{simple} is \code{TRUE}, returns the Bayes factor (against the
+null). If \code{FALSE}, the function returns a
 vector of length 3 containing the computed log(e) Bayes factor,
 along with a proportional error estimate on the Bayes factor and the method used to compute it.
 }
 \description{
-Using the classical t test statistic for a one- or two-sample design, this 
+Using the classical t test statistic for a one- or two-sample design, this
 function computes the corresponding Bayes factor test.
 }
 \details{
-This function can be used to compute the Bayes factor corresponding to a 
-one-sample, a paired-sample, or an independent-groups t test, using the 
-classical t statistic.  It can be used when you don't have access to the 
-full data set for analysis by \code{\link{ttestBF}}, but you do have the 
+This function can be used to compute the Bayes factor corresponding to a
+one-sample, a paired-sample, or an independent-groups t test, using the
+classical t statistic.  It can be used when you don't have access to the
+full data set for analysis by \code{\link{ttestBF}}, but you do have the
 test statistic.
 
 For details about the model, see the help for \code{\link{ttestBF}}, and the
@@ -46,8 +46,8 @@ The Bayes factor is computed via Gaussian quadrature.
 }
 \note{
 In version 0.9.9, the behaviour of this function has changed in order to produce more uniform results. In
-version 0.9.8 and before, this function returned two Bayes factors when \code{nullInterval} was 
-non-\code{NULL}: the Bayes factor for the interval versus the null, and the Bayes factor for the complement of 
+version 0.9.8 and before, this function returned two Bayes factors when \code{nullInterval} was
+non-\code{NULL}: the Bayes factor for the interval versus the null, and the Bayes factor for the complement of
 the interval versus the null. Starting in version 0.9.9, in order to get the Bayes factor for the complement, it is required to
 set the \code{complement} argument to \code{TRUE}, and the function only returns one Bayes factor.
 }
@@ -64,20 +64,20 @@ result <- ttest.tstat(t = -4.0621, n1 = 10)
 exp(result[['bf']])
 }
 \author{
-Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N. 
+Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N.
   Rouder (\email{rouderj@missouri.edu})
 }
 \references{
 Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for
   Testing Interval Null Hypotheses. Psychological Methods, 16, 406-419
-  
-  Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G. 
-  (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. 
+
+  Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G.
+  (2009). Bayesian t-tests for accepting and rejecting the null hypothesis.
   Psychonomic Bulletin & Review, 16, 225-237
 }
 \seealso{
-\code{\link{integrate}}, \code{\link{t.test}}; see 
-  \code{\link{ttestBF}} for the intended interface to this function, using 
+\code{\link{integrate}}, \code{\link{t.test}}; see
+  \code{\link{ttestBF}} for the intended interface to this function, using
   the full data set.
 }
 \keyword{htest}
