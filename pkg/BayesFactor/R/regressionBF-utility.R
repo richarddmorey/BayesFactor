@@ -79,7 +79,7 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
 
   if(noSample){ # Return structure of chains
-    chains = matrix(NA,2,nOutputPars + 3 + nGs)
+    chains = matrix(NA,2,nOutputPars + 2 + nGs)
   }else{
     chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, 1, gMap, table(gMap), TRUE, FALSE,
                        as.integer(ignoreCols), as.integer(thin), as.logical(progress), callback, 1)
