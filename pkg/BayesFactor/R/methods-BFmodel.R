@@ -147,6 +147,7 @@ setMethod('compare', signature(numerator = "BFoneSample", denominator = "missing
               if( attr(terms(formula, data = data),"intercept") == 0 ){
                 numBF = 0
                 errorEst = 0
+                bf = list()
               }else{
                 t = (mean(y) - mu) / sd(y) * sqrt(N)
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
@@ -212,6 +213,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
               if( length(attr(terms(formula, data = data),"term.labels")) == 0 ){
                 numBF = 0
                 errorEst = 0
+                bf = list()
               }else{
                 t = t.test(formula = formula,data=data, var.eq=TRUE)$statistic
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
@@ -262,6 +264,7 @@ setMethod('compare', signature(numerator = "BFmetat", denominator = "missing", d
               if( numerator@identifier$formula=="d = 0" ){
                 numBF = 0
                 errorEst = 0
+                bf = list()
               }else{
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
                 bf = meta.ttest.tstat(t=data$t, n1=data$n1, n2=data$n2,
@@ -307,6 +310,7 @@ setMethod('compare', signature(numerator = "BFcorrelation", denominator = "missi
               if( numerator@identifier$formula=="rho = 0" ){
                 numBF = 0
                 errorEst = 0
+                bf = list()
               }else{
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
                 bf = corr.test.bf(y=data$y, x=data$x,
@@ -353,6 +357,7 @@ setMethod('compare', signature(numerator = "BFproportion", denominator = "missin
               if( numerator@identifier$formula=="p = p0" ){
                 numBF = 0
                 errorEst = 0
+                bf = list()
               }else{
                 complement = ifelse(!is.null(attr(nullInterval,"complement")),TRUE,FALSE)
                 bf = prop.test.bf(y=data$y, N=data$N, p=numerator@prior$p0,
