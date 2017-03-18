@@ -5,6 +5,7 @@ CHANGES
   * New function correlationBF - implements Jeffreys' correlation Bayes factor tests
   * Fixed rare bug that prevented sampling posteriors in some circumstances
   * Sampling regression models now provides estimate intercept. This may break some old code if you were referring to columns by number instead of name.
+  * Fixed bug preventing recompute() from working in some cases.
 
   CHANGES IN BayesFactor VERSION 0.9.12-2
 
