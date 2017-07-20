@@ -2,6 +2,7 @@
 /pkg/*
 !/pkg/BayesFactor/
 !/pkg/BayesFactor/**/*
+/pkg/BayesFactor/build
 
 /www/
 
@@ -19,3 +20,5 @@
 *.rds
 *.tar.gz
 *.tgz
+*.jmo
+*.swp
