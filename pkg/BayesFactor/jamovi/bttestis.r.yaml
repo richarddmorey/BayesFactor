@@ -1,0 +1,144 @@
+---
+name: bttestIS
+title: Bayesian Independent Samples T-Test
+jrs: '1.0'
+
+items:
+    - name: ttest
+      title: Independent Samples T-Test
+      description: a table containing the t-test results
+      type: Table
+      rows: (vars)
+      clearWith:
+        - group
+        - hypothesis
+        - ciWidth
+        - miss
+
+      columns:
+        - name: var
+          title: ""
+          content: ($key)
+          type: text
+
+        - name: t
+          title: t
+
+        - name: df
+          title: df
+
+        - name: bf10
+          title: BF₁₀
+          visible: (bfType:BF10)
+
+        - name: bf01
+          title: BF₀₁
+          visible: (bfType:BF01)
+
+        - name: err
+          title: 'error %'
+
+        - name: md
+          title: Mean difference
+          type: number
+          visible: (meanDiff)
+
+        - name: sed
+          title: SE difference
+          type: number
+          visible: (meanDiff)
+
+        - name: es
+          title: Cohen's d
+          type: number
+          visible: (effectSize)
+
+        - name: cil
+          title: Lower
+          superTitle: '% Credible Interval'
+          type: number
+          visible: (ci)
+
+        - name: ciu
+          title: Upper
+          superTitle: '% Credible Interval'
+          type: number
+          visible: (ci)
+
+    - name: desc
+      title: Group Descriptives
+      type: Table
+      description: a table containing the group descriptives
+      visible: (desc)
+      rows: (vars)
+      clearWith:
+        - group
+        - miss
+
+      columns:
+        - name: dep
+          title: ""
+          content: ($key)
+          type: text
+
+        - name: group[1]
+          title: Group
+          type: text
+
+        - name: num[1]
+          title: "N"
+          type: integer
+
+        - name: mean[1]
+          title: Mean
+          type: number
+
+        - name: med[1]
+          title: Median
+          type: number
+
+        - name: sd[1]
+          title: SD
+          type: number
+
+        - name: se[1]
+          title: SE
+          type: number
+
+        - name: group[2]
+          title: Group
+          type: text
+
+        - name: num[2]
+          title: "N"
+          type: integer
+
+        - name: mean[2]
+          title: Mean
+          type: number
+
+        - name: med[2]
+          title: Median
+          type: number
+
+        - name: sd[2]
+          title: SD
+          type: number
+
+        - name: se[2]
+          title: SE
+          type: number
+
+    - name: plots
+      title: Plots
+      type: Array
+      description: an array of the descriptive plots
+      visible: (plots)
+      items: (vars)
+      template:
+          title: $key
+          type: Image
+          renderFun: .plot
+          clearWith:
+            - group
+            - miss

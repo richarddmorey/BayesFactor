@@ -1,0 +1,37 @@
+---
+title: BayesFactor - Bayes Factors for Common Designs
+name: BayesFactor
+version: 0.9.12-4
+jms: '1.0'
+authors:
+  - Richard D. Morey
+  - Jeffrey N. Rouder
+maintainer: Richard D. Morey
+date: '2015-02-20'
+type: R
+description: >-
+  A suite of functions for computing various Bayes factors for simple designs,
+  including contingency tables, one- and two-sample designs, one-way designs,
+  general ANOVA designs, and linear regression.
+analyses:
+  - title: Bayesian Independent Samples T-Test
+    name: bttestIS
+    ns: BayesFactor
+    menuGroup: BayesFactor
+    menuTitle: Bayesian Independent Samples T-Test
+    menuSubgroup: T-Tests
+  - title: Bayesian Paired Samples T-Test
+    name: bttestPS
+    ns: BayesFactor
+    menuGroup: BayesFactor
+    menuTitle: Bayesian Paired Samples T-Test
+    menuSubgroup: T-Tests
+    description: Provides a range of descriptive statistics
+  - title: Bayesian One Sample T-Test
+    name: bttestOneS
+    ns: BayesFactor
+    menuGroup: BayesFactor
+    menuTitle: Bayesian One Sample T-Test
+    menuSubgroup: T-Tests
+
+...
