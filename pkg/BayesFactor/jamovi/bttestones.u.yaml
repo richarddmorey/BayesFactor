@@ -1,0 +1,148 @@
+---
+name: bttestOneS
+title: Bayesian One Sample T-Test
+jus: '2.0'
+compilerMode: tame
+children:
+  - type: VariableSupplier
+    suggested:
+      - continuous
+    permitted:
+      - continuous
+      - nominal
+      - ordinal
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: vars
+            isTarget: true
+  - type: LayoutBox
+    margin: large
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        cell:
+          column: 0
+          row: 0
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Hypothesis
+            children:
+              - type: LayoutBox
+                children:
+                  - type: TextBox
+                    name: testValue
+                    label: Test value
+                    format: number
+                    inputPattern: '[0-9]+'
+              - type: RadioButton
+                name: hypothesis_dt
+                optionName: hypothesis
+                optionPart: dt
+                label: ≠ Test value
+              - type: RadioButton
+                name: hypothesis_gt
+                optionName: hypothesis
+                optionPart: gt
+                label: '> Test value'
+              - type: RadioButton
+                name: hypothesis_lt
+                optionName: hypothesis
+                optionPart: lt
+                label: < Test value
+          - type: Label
+            label: Bayes factor
+            children:
+              - type: LayoutBox
+                children:
+                  - type: RadioButton
+                    name: bfType_BF10
+                    optionName: bfType
+                    optionPart: BF10
+                  - type: RadioButton
+                    name: bfType_BF01
+                    optionName: bfType
+                    optionPart: BF01
+                    cell:
+                      column: 1
+                      row: 0
+          - type: Label
+            label: Prior
+            children:
+              - type: LayoutBox
+                children:
+                  - type: LayoutBox
+                    margin: large
+                    children:
+                      - type: TextBox
+                        name: bfPrior
+                        label: Prior width
+                        format: number
+                        inputPattern: '[0-9]+'
+                        enable: (bf)
+                        suggestedValues:
+                          - label: medium
+                            value: 0.707
+                          - label: wide
+                            value: 1
+                          - label: ultrawide
+                            value: 1.414
+          - type: Label
+            label: Missing values
+            children:
+              - type: RadioButton
+                name: miss_perAnalysis
+                optionName: miss
+                optionPart: perAnalysis
+                label: Exclude cases analysis by analysis
+              - type: RadioButton
+                name: miss_listwise
+                optionName: miss
+                optionPart: listwise
+                label: Exclude cases listwise
+      - type: LayoutBox
+        cell:
+          column: 1
+          row: 0
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Additional Statistics
+            children:
+              - type: CheckBox
+                name: meanDiff
+                label: Mean difference
+              - type: CheckBox
+                name: effectSize
+                label: Effect size
+              - type: CheckBox
+                name: ci
+                label: Credible interval
+                children:
+                  - type: TextBox
+                    name: ciWidth
+                    label: Interval
+                    suffix: '%'
+                    format: number
+                    inputPattern: '[0-9]+'
+                    enable: (ci)
+              - type: CheckBox
+                name: desc
+                label: Descriptives
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plots
+                label: Descriptives
+              - type: CheckBox
+                name: pp
+              - type: CheckBox
+                name: robust
+              - type: CheckBox
+                name: assum
+...

@@ -1,0 +1,116 @@
+---
+name: bttestPS
+title: Bayesian Paired Samples T-Test
+jrs: '1.0'
+
+items:
+    - name: ttest
+      title: Paired Samples T-Test
+      type: Table
+      description: a table containing the t-test results
+      rows: (pairs)
+      clearWith:
+          - miss
+          - hypothesis
+          - ciWidth
+
+      columns:
+        - name: var1
+          title: ""
+          type: text
+          combineBelow: true
+
+        - name: var2
+          title: ""
+          type: text
+          combineBelow: true
+
+        - name: t
+          title: t
+
+        - name: df
+          title: df
+
+        - name: bf10
+          title: BF₁₀
+          visible: (bfType:BF10)
+
+        - name: bf01
+          title: BF₀₁
+          visible: (bfType:BF01)
+
+        - name: err
+          title: 'error %'
+
+        - name: md
+          title: Mean difference
+          type: number
+          visible: (meanDiff)
+
+        - name: sed
+          title: SE difference
+          type: number
+          visible: (meanDiff)
+
+        - name: es
+          title: Cohen's d
+          type: number
+          visible: (effectSize)
+
+        - name: cil
+          title: Lower
+          superTitle: '% Credible Interval'
+          type: number
+          visible: (ci)
+
+        - name: ciu
+          title: Upper
+          superTitle: '% Credible Interval'
+          type: number
+          visible: (ci)
+
+    - name: desc
+      title: Descriptives
+      type: Table
+      description: a table containing the descriptives
+      visible: (desc)
+      clearWith:
+          - miss
+
+      columns:
+        - name: name
+          title: ""
+          content: .
+          type: text
+
+        - name: num
+          title: "N"
+          type: integer
+
+        - name: m
+          title: Mean
+          type: number
+
+        - name: med
+          title: Median
+          type: number
+
+        - name: sd
+          title: SD
+          type: number
+
+        - name: se
+          title: SE
+          type: number
+
+    - name: plots
+      title: Plots
+      description: an array of the descriptive plots
+      visible: (plots)
+      type: Array
+      items: (pairs)
+      template:
+          type: Image
+          renderFun: .plot
+          clearWith:
+              - miss

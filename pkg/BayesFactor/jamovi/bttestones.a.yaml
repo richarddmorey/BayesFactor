@@ -1,0 +1,162 @@
+---
+name:  bttestOneS
+title: Bayesian One Sample T-Test
+menuGroup: BayesFactor
+menuSubgroup: T-Tests
+version: '1.0.0'
+jas: '1.1'
+
+description:
+    R:
+        dontrun: false
+        usage: |
+            data('ToothGrowth')
+
+            bttestOneS(ToothGrowth, vars = c('len', 'dose'))
+
+completeWhenFilled: true
+
+options:
+    - name: data
+      type: Data
+      description:
+          R: the data as a data frame
+
+    - name: vars
+      title: Dependent Variables
+      type: Variables
+      suggested:
+        - continuous
+      permitted:
+        - continuous
+        - nominal
+        - ordinal
+      rejectInf: false
+      description:
+          R: a vector of strings naming the variables of interest in `data`
+
+    - name: bfType
+      title: Bayes factor
+      type: List
+      options:
+        - name: BF10
+          title: BF₁₀
+        - name: BF01
+          title: BF₀₁
+      default: BF10
+      description:
+          R: >
+            `'BF10'` (default) or `'BF01'`
+
+    - name: bfPrior
+      title: Prior width
+      type: Number
+      default: 0.707
+      min: 0.5
+      max: 2.0
+      description:
+          R: >
+            a number between 0.5 and 2 (default 0.707), the prior width to use
+            in calculating Bayes factors
+
+    - name: testValue
+      title: Test Value
+      type: Number
+      default: 0
+      description:
+          R: a number specifying the value of the null hypothesis
+
+    - name: hypothesis
+      title: Alternative hypothesis
+      type: List
+      options:
+        - dt
+        - gt
+        - lt
+      default: dt
+      description:
+          R: >
+            `'dt'` (default), `'gt'` or `'lt'`, the alternative
+            hypothesis; different to `testValue`, greater than
+            `testValue`, and less than `testValue` respectively
+
+    - name: meanDiff
+      title: Mean and standard error difference
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide means and standard deviations
+
+    - name: effectSize
+      title: Effect size
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide effect sizes
+
+    - name: ci
+      title: Credible interval
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide confidence intervals
+
+    - name: ciWidth
+      title: Confidence level
+      type: Number
+      min: 50
+      max: 99.9
+      default: 95
+      description:
+          R: >
+            a number between 50 and 99.9 (default: 95), the width of confidence
+            intervals
+
+    - name: desc
+      title: Descriptives Table
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide descriptive statistics
+
+    - name: plots
+      title: Descriptives Plots
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide descriptive plots
+
+    - name: miss
+      title: Missing values exclusion method
+      type: List
+      options:
+        - perAnalysis
+        - listwise
+      default: perAnalysis
+      description:
+          R: >
+            `'perAnalysis'` or `'listwise'`, how to handle missing
+            values; `'perAnalysis'` excludes missing values for individual
+            dependent variables, `'listwise'` excludes a row from all
+            analyses if one of its entries is missing.
+
+    - name: pp
+      title: Prior and posterior
+      type: Bool
+      default: false
+
+    - name: robust
+      title: Robustness check
+      type: Bool
+      default: false
+
+    - name: assum
+      title: Assumption checks
+      type: Bool
+      default: false
+...
