@@ -29,6 +29,7 @@ Imports:
     methods,
     hypergeo
 Suggests:
+    jmvcore,
     doMC,
     foreach,
     testthat,

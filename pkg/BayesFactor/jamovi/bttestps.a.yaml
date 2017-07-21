@@ -1,0 +1,156 @@
+---
+name: bttestPS
+title: Bayesian Paired Samples T-Test
+menuGroup: BayesFactor
+menuSubgroup: T-Tests
+version: '1.0.0'
+jas: '1.1'
+
+description:
+    R:
+        usage: |
+            data('bugs', package = 'jmv')
+
+            bttestPS(bugs, pairs = list(
+                    list(i1 = 'LDLF', i2 = 'LDHF')))
+
+
+completeWhenFilled: true
+
+options:
+    - name: data
+      type: Data
+      description:
+          R: the data as a data frame
+
+    - name: pairs
+      title: Paired Variables
+      type: Pairs
+      suggested:
+        - continuous
+      permitted:
+        - continuous
+        - nominal
+        - ordinal
+      description:
+          R: a list of lists specifying the pairs of measurement in `data`
+
+    - name: bfType
+      title: Bayes factor
+      type: List
+      options:
+        - name: BF10
+          title: BF₁₀
+        - name: BF01
+          title: BF₀₁
+      default: BF10
+      description:
+          R: >
+            `'BF10'` (default) or `'BF01'`
+
+    - name: bfPrior
+      title: Prior width
+      type: Number
+      default: 0.707
+      min: 0.5
+      max: 2.0
+      description:
+          R: >
+            a number between 0.5 and 2 (default 0.707), the prior width to use
+            in calculating Bayes factors
+
+    - name: hypothesis
+      title: Alternative hypothesis
+      type: List
+      options:
+        - different
+        - oneGreater
+        - twoGreater
+      default: different
+      description:
+          R: >
+            `'different'` (default), `'oneGreater'` or
+            `'twoGreater'`, the alternative hypothesis; group 1 different
+            to group 2, group 1 greater than group 2, and group 2 greater than
+            group 1 respectively
+
+    - name: meanDiff
+      title: Mean and standard error difference
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide means and standard errors
+
+    - name: effectSize
+      title: Effect Size
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide effect sizes
+
+    - name: ci
+      title: Credible Interval
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide credible intervals
+
+    - name: ciWidth
+      title: Credible level
+      type: Number
+      min: 50
+      max: 99.9
+      default: 95
+      description:
+          R: >
+            a number between 50 and 99.9 (default: 95), the width of credible
+            intervals
+
+    - name: desc
+      title: Descriptives Table
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide descriptive statistics
+
+    - name: plots
+      title: Descriptives Plots
+      type: Bool
+      default: false
+      description:
+          R: >
+            `TRUE` or `FALSE` (default), provide descriptive plots
+
+    - name: miss
+      title: Missing values exclusion method
+      type: List
+      options:
+        - perAnalysis
+        - listwise
+      default: perAnalysis
+      description:
+          R: >
+            `'perAnalysis'` or `'listwise'`, how to handle missing
+            values; `'perAnalysis'` excludes missing values for individual
+            dependent variables, `'listwise'` excludes a row from all
+            analyses if one of its entries is missing.
+
+    - name: pp
+      title: Prior and posterior
+      type: Bool
+      default: false
+
+    - name: robust
+      title: Robustness check
+      type: Bool
+      default: false
+
+    - name: assum
+      title: Assumption checks
+      type: Bool
+      default: false
+...
