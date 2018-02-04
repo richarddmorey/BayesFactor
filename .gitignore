@@ -3,6 +3,7 @@
 !/pkg/BayesFactor/
 !/pkg/BayesFactor/**/*
 /pkg/BayesFactor/build
+/pkg/BayesFactor/temp
 
 /www/
 
