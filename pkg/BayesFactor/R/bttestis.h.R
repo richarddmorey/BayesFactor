@@ -27,7 +27,7 @@ bttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 name='bttestIS',
                 requiresData=TRUE,
                 ...)
-        
+
             private$..vars <- jmvcore::OptionVariables$new(
                 "vars",
                 vars,
@@ -110,7 +110,7 @@ bttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "assum",
                 assum,
                 default=FALSE)
-        
+
             self$.addOption(private$..vars)
             self$.addOption(private$..group)
             self$.addOption(private$..hypothesis)
@@ -164,20 +164,17 @@ bttestISOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
 bttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
-        ttest = function() private$..ttest,
-        desc = function() private$..desc,
-        plots = function() private$..plots),
-    private = list(
-        ..ttest = NA,
-        ..desc = NA,
-        ..plots = NA),
+        ttest = function() private$.items[["ttest"]],
+        desc = function() private$.items[["desc"]],
+        plots = function() private$.items[["plots"]]),
+    private = list(),
     public=list(
         initialize=function(options) {
             super$initialize(
                 options=options,
                 name="",
                 title="Bayesian Independent Samples T-Test")
-            private$..ttest <- jmvcore::Table$new(
+            self$add(jmvcore::Table$new(
                 options=options,
                 name="ttest",
                 title="Independent Samples T-Test",
@@ -236,8 +233,8 @@ bttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `title`="Upper", 
                         `superTitle`="% Credible Interval", 
                         `type`="number", 
-                        `visible`="(ci)")))
-            private$..desc <- jmvcore::Table$new(
+                        `visible`="(ci)"))))
+            self$add(jmvcore::Table$new(
                 options=options,
                 name="desc",
                 title="Group Descriptives",
@@ -299,8 +296,8 @@ bttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     list(
                         `name`="se[2]", 
                         `title`="SE", 
-                        `type`="number")))
-            private$..plots <- jmvcore::Array$new(
+                        `type`="number"))))
+            self$add(jmvcore::Array$new(
                 options=options,
                 name="plots",
                 title="Plots",
@@ -312,10 +309,7 @@ bttestISResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     renderFun=".plot",
                     clearWith=list(
                         "group",
-                        "miss")))
-            self$add(private$..ttest)
-            self$add(private$..desc)
-            self$add(private$..plots)}))
+                        "miss"))))}))
 
 bttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "bttestISBase",
@@ -342,34 +336,34 @@ bttestISBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #'
 #' @examples
 #' data('ToothGrowth')
-#' 
+#'
 #' bttestIS(data = ToothGrowth, vars = 'len', group = 'supp')
-#' 
+#'
 #' @param data the data as a data frame
 #' @param vars a vector of strings naming the dependent variables
 #' @param group a string naming the grouping variable, must have 2 levels
-#' @param hypothesis \code{'different'} (default), \code{'oneGreater'} or 
-#'   \code{'twoGreater'}, the alternative hypothesis; group 1 different to group 
-#'   2, group 1 greater than group 2, and group 2 greater than group 1 
-#'   respectively 
-#' @param bfType \code{'BF10'} (default) or \code{'BF01'} 
-#' @param bfPrior a number between 0.5 and 2 (default 0.707), the prior width 
-#'   to use in calculating Bayes factors 
-#' @param meanDiff \code{TRUE} or \code{FALSE} (default), provide means and 
-#'   standard errors 
-#' @param effectSize \code{TRUE} or \code{FALSE} (default), provide effect 
-#'   sizes 
-#' @param ci \code{TRUE} or \code{FALSE} (default), provide credible intervals 
-#' @param ciWidth a number between 50 and 99.9 (default: 95), the width of 
-#'   credible intervals 
-#' @param desc \code{TRUE} or \code{FALSE} (default), provide descriptive 
-#'   statistics 
-#' @param plots \code{TRUE} or \code{FALSE} (default), provide descriptive 
-#'   plots 
-#' @param miss \code{'perAnalysis'} or \code{'listwise'}, how to handle 
-#'   missing values; \code{'perAnalysis'} excludes missing values for individual 
-#'   dependent variables, \code{'listwise'} excludes a row from all analyses if 
-#'   one of its entries is missing. 
+#' @param hypothesis \code{'different'} (default), \code{'oneGreater'} or
+#'   \code{'twoGreater'}, the alternative hypothesis; group 1 different to group
+#'   2, group 1 greater than group 2, and group 2 greater than group 1
+#'   respectively
+#' @param bfType \code{'BF10'} (default) or \code{'BF01'}
+#' @param bfPrior a number between 0.5 and 2 (default 0.707), the prior width
+#'   to use in calculating Bayes factors
+#' @param meanDiff \code{TRUE} or \code{FALSE} (default), provide means and
+#'   standard errors
+#' @param effectSize \code{TRUE} or \code{FALSE} (default), provide effect
+#'   sizes
+#' @param ci \code{TRUE} or \code{FALSE} (default), provide credible intervals
+#' @param ciWidth a number between 50 and 99.9 (default: 95), the width of
+#'   credible intervals
+#' @param desc \code{TRUE} or \code{FALSE} (default), provide descriptive
+#'   statistics
+#' @param plots \code{TRUE} or \code{FALSE} (default), provide descriptive
+#'   plots
+#' @param miss \code{'perAnalysis'} or \code{'listwise'}, how to handle
+#'   missing values; \code{'perAnalysis'} excludes missing values for individual
+#'   dependent variables, \code{'listwise'} excludes a row from all analyses if
+#'   one of its entries is missing.
 #' @param pp .
 #' @param robust .
 #' @param assum .
