@@ -87,7 +87,6 @@ children:
                         label: Prior width
                         format: number
                         inputPattern: '[0-9]+'
-                        enable: (bf)
                         suggestedValues:
                           - label: medium
                             value: 0.707
