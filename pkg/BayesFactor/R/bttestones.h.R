@@ -27,7 +27,7 @@ bttestOneSOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 name='bttestOneS',
                 requiresData=TRUE,
                 ...)
-        
+
             private$..vars <- jmvcore::OptionVariables$new(
                 "vars",
                 vars,
@@ -108,7 +108,7 @@ bttestOneSOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
                 "assum",
                 assum,
                 default=FALSE)
-        
+
             self$.addOption(private$..vars)
             self$.addOption(private$..bfType)
             self$.addOption(private$..bfPrior)
@@ -162,20 +162,17 @@ bttestOneSOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
 bttestOneSResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
-        ttest = function() private$..ttest,
-        descriptives = function() private$..descriptives,
-        plots = function() private$..plots),
-    private = list(
-        ..ttest = NA,
-        ..descriptives = NA,
-        ..plots = NA),
+        ttest = function() private$.items[["ttest"]],
+        descriptives = function() private$.items[["descriptives"]],
+        plots = function() private$.items[["plots"]]),
+    private = list(),
     public=list(
         initialize=function(options) {
             super$initialize(
                 options=options,
                 name="",
                 title="Bayesian One Sample T-Test")
-            private$..ttest <- jmvcore::Table$new(
+            self$add(jmvcore::Table$new(
                 options=options,
                 name="ttest",
                 title="One Sample T-Test",
@@ -229,8 +226,8 @@ bttestOneSResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                         `title`="Upper", 
                         `superTitle`="% Credible Interval", 
                         `type`="number", 
-                        `visible`="(ci)")))
-            private$..descriptives <- jmvcore::Table$new(
+                        `visible`="(ci)"))))
+            self$add(jmvcore::Table$new(
                 options=options,
                 name="descriptives",
                 title="Descriptives",
@@ -263,8 +260,8 @@ bttestOneSResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                     list(
                         `name`="se", 
                         `title`="SE", 
-                        `type`="number")))
-            private$..plots <- jmvcore::Image$new(
+                        `type`="number"))))
+            self$add(jmvcore::Image$new(
                 options=options,
                 name="plots",
                 title="Plots",
@@ -272,10 +269,7 @@ bttestOneSResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 renderFun=".plot",
                 clearWith=list(
                     "vars",
-                    "miss"))
-            self$add(private$..ttest)
-            self$add(private$..descriptives)
-            self$add(private$..plots)}))
+                    "miss")))}))
 
 bttestOneSBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "bttestOneSBase",
@@ -302,35 +296,35 @@ bttestOneSBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #'
 #' @examples
 #' data('ToothGrowth')
-#' 
+#'
 #' bttestOneS(ToothGrowth, vars = c('len', 'dose'))
-#' 
+#'
 #' @param data the data as a data frame
-#' @param vars a vector of strings naming the variables of interest in 
+#' @param vars a vector of strings naming the variables of interest in
 #'   \code{data}
-#' @param bfType \code{'BF10'} (default) or \code{'BF01'} 
-#' @param bfPrior a number between 0.5 and 2 (default 0.707), the prior width 
-#'   to use in calculating Bayes factors 
+#' @param bfType \code{'BF10'} (default) or \code{'BF01'}
+#' @param bfPrior a number between 0.5 and 2 (default 0.707), the prior width
+#'   to use in calculating Bayes factors
 #' @param testValue a number specifying the value of the null hypothesis
-#' @param hypothesis \code{'dt'} (default), \code{'gt'} or \code{'lt'}, the 
-#'   alternative hypothesis; different to \code{testValue}, greater than 
-#'   \code{testValue}, and less than \code{testValue} respectively 
-#' @param meanDiff \code{TRUE} or \code{FALSE} (default), provide means and 
-#'   standard deviations 
-#' @param effectSize \code{TRUE} or \code{FALSE} (default), provide effect 
-#'   sizes 
-#' @param ci \code{TRUE} or \code{FALSE} (default), provide confidence 
-#'   intervals 
-#' @param ciWidth a number between 50 and 99.9 (default: 95), the width of 
-#'   confidence intervals 
-#' @param desc \code{TRUE} or \code{FALSE} (default), provide descriptive 
-#'   statistics 
-#' @param plots \code{TRUE} or \code{FALSE} (default), provide descriptive 
-#'   plots 
-#' @param miss \code{'perAnalysis'} or \code{'listwise'}, how to handle 
-#'   missing values; \code{'perAnalysis'} excludes missing values for individual 
-#'   dependent variables, \code{'listwise'} excludes a row from all analyses if 
-#'   one of its entries is missing. 
+#' @param hypothesis \code{'dt'} (default), \code{'gt'} or \code{'lt'}, the
+#'   alternative hypothesis; different to \code{testValue}, greater than
+#'   \code{testValue}, and less than \code{testValue} respectively
+#' @param meanDiff \code{TRUE} or \code{FALSE} (default), provide means and
+#'   standard deviations
+#' @param effectSize \code{TRUE} or \code{FALSE} (default), provide effect
+#'   sizes
+#' @param ci \code{TRUE} or \code{FALSE} (default), provide confidence
+#'   intervals
+#' @param ciWidth a number between 50 and 99.9 (default: 95), the width of
+#'   confidence intervals
+#' @param desc \code{TRUE} or \code{FALSE} (default), provide descriptive
+#'   statistics
+#' @param plots \code{TRUE} or \code{FALSE} (default), provide descriptive
+#'   plots
+#' @param miss \code{'perAnalysis'} or \code{'listwise'}, how to handle
+#'   missing values; \code{'perAnalysis'} excludes missing values for individual
+#'   dependent variables, \code{'listwise'} excludes a row from all analyses if
+#'   one of its entries is missing.
 #' @param pp .
 #' @param robust .
 #' @param assum .
