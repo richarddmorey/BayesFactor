@@ -1,0 +1,16 @@
+---
+title: Computation of Bayes Factors for Common Designs
+name: BayesFactor
+version: 0.9.12.4
+jms: '1.0'
+authors: []
+maintainer: 'Richard D. Morey'
+date: '2018-05-06'
+type: R
+description: >-
+  A suite of functions for computing various Bayes factors for simple designs,
+  including contingency tables, one- and two-sample designs, one-way designs,
+  general ANOVA designs, and linear regression.
+analyses: []
+
+...

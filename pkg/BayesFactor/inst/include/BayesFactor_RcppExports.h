@@ -17,7 +17,7 @@ namespace BayesFactor {
             require("BayesFactor", Rcpp::Named("quietly") = true);
             typedef int(*Ptr_validate)(const char*);
             static Ptr_validate p_validate = (Ptr_validate)
-                R_GetCCallable("BayesFactor", "BayesFactor_RcppExport_validate");
+                R_GetCCallable("BayesFactor", "_BayesFactor_RcppExport_validate");
             if (!p_validate(sig)) {
                 throw Rcpp::function_not_exported(
                     "C++ function with signature '" + std::string(sig) + "' not found in BayesFactor");
@@ -30,17 +30,17 @@ namespace BayesFactor {
         static Ptr_genhypergeo_series_pos p_genhypergeo_series_pos = NULL;
         if (p_genhypergeo_series_pos == NULL) {
             validateSignature("NumericVector(*genhypergeo_series_pos)(NumericVector,NumericVector,NumericVector,const double,const int,const bool,const bool,const bool)");
-            p_genhypergeo_series_pos = (Ptr_genhypergeo_series_pos)R_GetCCallable("BayesFactor", "BayesFactor_genhypergeo_series_pos");
+            p_genhypergeo_series_pos = (Ptr_genhypergeo_series_pos)R_GetCCallable("BayesFactor", "_BayesFactor_genhypergeo_series_pos");
         }
         RObject rcpp_result_gen;
         {
             RNGScope RCPP_rngScope_gen;
-            rcpp_result_gen = p_genhypergeo_series_pos(Rcpp::wrap(U), Rcpp::wrap(L), Rcpp::wrap(z), Rcpp::wrap(tol), Rcpp::wrap(maxiter), Rcpp::wrap(check_mod), Rcpp::wrap(check_conds), Rcpp::wrap(polynomial));
+            rcpp_result_gen = p_genhypergeo_series_pos(Shield<SEXP>(Rcpp::wrap(U)), Shield<SEXP>(Rcpp::wrap(L)), Shield<SEXP>(Rcpp::wrap(z)), Shield<SEXP>(Rcpp::wrap(tol)), Shield<SEXP>(Rcpp::wrap(maxiter)), Shield<SEXP>(Rcpp::wrap(check_mod)), Shield<SEXP>(Rcpp::wrap(check_conds)), Shield<SEXP>(Rcpp::wrap(polynomial)));
         }
         if (rcpp_result_gen.inherits("interrupted-error"))
             throw Rcpp::internal::InterruptedException();
         if (rcpp_result_gen.inherits("try-error"))
-            throw Rcpp::exception(as<std::string>(rcpp_result_gen).c_str());
+            throw Rcpp::exception(Rcpp::as<std::string>(rcpp_result_gen).c_str());
         return Rcpp::as<NumericVector >(rcpp_result_gen);
     }
 

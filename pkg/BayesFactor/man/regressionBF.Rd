@@ -80,9 +80,6 @@ head(output)
 head(output / output[63])
 
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
   Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable
@@ -103,5 +100,7 @@ Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
   \code{\link{anovaBF}} for the function similar to \code{regressionBF} for
   ANOVA models.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

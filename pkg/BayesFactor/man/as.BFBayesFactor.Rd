@@ -23,12 +23,11 @@ Currently, this function will only work with objects of class
 and \code{regressionBF} when the \code{whichModels} argument is set to
 \code{'top'}
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \seealso{
 \code{\link{regressionBF}}, \code{anovaBF} whose output is
   appropriate for use with this function when \code{whichModels='top'}
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{misc}
-

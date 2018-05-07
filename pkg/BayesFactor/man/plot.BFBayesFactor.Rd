@@ -50,4 +50,3 @@ plot(bfs)
 \author{
 Richard D. Morey (\email{richarddmorey@gmail.com})
 }
-

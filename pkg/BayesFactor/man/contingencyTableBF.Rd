@@ -90,14 +90,13 @@ hist(sameRaceGivenWhite - sameRaceGivenBlack, xlab = "Probability increase",
 box()
 
 }
+\references{
+Gunel, E. and Dickey, J., (1974)
+Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557
+}
 \author{
 Richard D. Morey (\email{richarddmorey@gmail.com})
 
 Tahira Jamil (\email{tahjamil@gmail.com})
 }
-\references{
-Gunel, E. and Dickey, J., (1974)
-Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557
-}
 \keyword{htest}
-

@@ -30,4 +30,3 @@ Currently, this function will only work with objects of class
 Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \keyword{misc}
-

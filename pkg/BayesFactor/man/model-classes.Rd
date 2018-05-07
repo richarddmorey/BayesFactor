@@ -2,13 +2,14 @@
 % Please edit documentation in R/aaClasses.R
 \docType{class}
 \name{BFmodel-class}
-\alias{BFcontingencyTable-class}
-\alias{BFcorrelation-class}
-\alias{BFindepSample-class}
-\alias{BFlinearModel-class}
 \alias{BFmodel-class}
-\alias{BFoneSample-class}
+\alias{BFcorrelation-class}
 \alias{BFproportion-class}
+\alias{BFcontingencyTable-class}
+\alias{BFlinearModel-class}
+\alias{BFoneSample-class}
+\alias{BFoneSample-class}
+\alias{BFindepSample-class}
 \title{General S4 classes for representing models for comparison}
 \description{
 The \code{BFmodel} is a general S4 class for representing models for comparison. The more classes
@@ -27,4 +28,3 @@ The \code{BFmodel} is a general S4 class for representing models for comparison.
    \item{version}{character string giving the version and revision number of the package that the model was created in}
    }
 }
-

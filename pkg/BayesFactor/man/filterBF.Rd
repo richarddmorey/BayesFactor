@@ -23,4 +23,3 @@ Returns a filtered object
 \description{
 Filter the elements of an object according to some pre-specified criteria
 }
-

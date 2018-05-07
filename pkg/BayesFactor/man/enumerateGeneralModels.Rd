@@ -26,4 +26,3 @@ This is a backend function not intended for users. It is exposed for third-party
 applications.
 }
 \keyword{internal}
-

@@ -43,7 +43,7 @@ corr.test.bf <- function(y, x, rscale, nullInterval, complement){
 
   r = cor(y, x, use="pairwise.complete.obs")
   n = length(x) - sum(is.na(y) | is.na(x))
-  if(n != length(x)) note(paste("Ignored",sum(is.na(y) | is.na(x)),
+  if(n != length(x)) message(paste("Ignored",sum(is.na(y) | is.na(x)),
                                 "rows containing missing observations."))
   if(is.null(nullInterval)){
     return(.bf10Exact(n, r, rscale))
@@ -122,7 +122,7 @@ correlation.Metrop <- function(y, x, nullModel, iterations=10000, nullInterval=N
 
   r = cor(y, x, use="pairwise.complete.obs")
   n = length(x) - sum(is.na(y) | is.na(x))
-  if(n != length(x)) note(paste("Ignored",sum(is.na(y) | is.na(x)),
+  if(n != length(x)) message(paste("Ignored",sum(is.na(y) | is.na(x)),
                                 "rows containing missing observations."))
 
   if(noSample){

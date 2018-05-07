@@ -81,9 +81,6 @@ samples = posterior(bf[1], iterations = 1000, progress = FALSE)
 plot(samples)
 summary(samples)
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for Testing
   Interval Null Hypotheses. Psychological Methods, 16, 406-419
@@ -98,5 +95,7 @@ Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for Testing
 \seealso{
 \code{\link{ttestBF}}
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

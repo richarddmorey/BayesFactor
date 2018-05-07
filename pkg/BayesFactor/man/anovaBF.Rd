@@ -156,9 +156,6 @@ result
 ## In orthogonal designs, the top down Bayes factor can be
 ## interpreted as a test of the omitted effect
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Gelman, A. (2005) Analysis of Variance---why it is more
   important than ever.  Annals of Statistics, 33, pp. 1-53.
@@ -178,5 +175,7 @@ Gelman, A. (2005) Analysis of Variance---why it is more
   \code{\link{regressionBF}} for the function similar to \code{anovaBF} for
   linear regression models.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

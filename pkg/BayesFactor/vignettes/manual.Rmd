@@ -27,12 +27,12 @@ Richard D. Morey
 <div class="socialsep"></div>
 
 Share via<br/>
-<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="https://delicious.com/save?v=5&provider=BayesFactor&noui&jump=close&url=http://bayesfactorpcl.r-forge.r-project.org"><img src="extra/socialmedia/png/32x32/delicious.png" alt="bookmark on delicious" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: http://bayesfactorpcl.r-forge.r-project.org." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
+<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
 </span>
 
 ----
 
-Stable version: [CRAN page](http://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](http://cran.r-project.org/web/packages/BayesFactor/NEWS) 
+Stable version: [CRAN page](https://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](https://cran.r-project.org/web/packages/BayesFactor/NEWS) 
 
 Development version: [Development page](https://github.com/richarddmorey/BayesFactor) - [Development package NEWS](https://github.com/richarddmorey/BayesFactor/blob/master/pkg/BayesFactor/NEWS) 
 <div class="social">
@@ -56,6 +56,7 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
   * [ANOVA, mixed models (including repeated measures)](#mixed)
   * [Regression](#regression)
   * [General linear models: mixing continuous and categorical covariates](#glm)
+  * [Linear correlations](#lincor)
   * [Tests of single proportions (0.9.9+)](#proptest)
   * [Contingency Tables (0.9.9+)](#ctables) 
 * Additional tips and tricks (0.9.4+)
@@ -67,13 +68,14 @@ Development version: [Development page](https://github.com/richarddmorey/BayesFa
   
 ### Getting help <a id="help"></a>
 
-* [Help forums](https://r-forge.r-project.org/forum/?group_id=554)
+* [Help forums](https://forum.cogsci.nl/index.php?p=/categories/jasp-bayesfactor)
 * [Bug reports](https://github.com/richarddmorey/BayesFactor/issues?state=open)
 * [Developer email (richarddmorey at gmail.com)](mailto:richarddmorey@gmail.com)
 
 ```{r echo=FALSE,message=FALSE,results='hide'}
 options(markdown.HTML.stylesheet = 'extra/manual.css')
 library(knitr)
+opts_chunk$set(dpi = 200, out.width = "67%") 
 options(digits=3)
 require(graphics)
 set.seed(2)
@@ -115,6 +117,7 @@ Function                 | Description
 `regressionBF`           | Bayes factors comparing many linear regression models
 `generalTestBF`          | Bayes factors for all restrictions on a full model (0.9.4+)
 `lmBF`                   | Bayes factors for specific linear models (ANOVA or regression)
+`correlationBF`                   | Bayes factors for linear correlations
 `proportionBF`           | Bayes factors for tests of single proportions
 `contingencyTableBF`     | Bayes factors for contingency tables
 `posterior`              | Sample from the posterior distribution of the numerator of a Bayes factor object
@@ -178,7 +181,7 @@ or sampling from the posterior of the numerator model:
 chains = posterior(bf, iterations = 1000)
 summary(chains)
 ```
-The `posterior` function returns a object of type `BFmcmc`, which inherits the methods of the `mcmc` class from the [`coda` package](http://cran.r-project.org/package=coda). We can thus use `summary`, `plot`, and other useful methods on the result of `posterior`. If we were unhappy with the number of iterations we sampled for `chains`, we can `recompute` with more iterations, and then `plot` the results: 
+The `posterior` function returns a object of type `BFmcmc`, which inherits the methods of the `mcmc` class from the [`coda` package](https://cran.r-project.org/package=coda). We can thus use `summary`, `plot`, and other useful methods on the result of `posterior`. If we were unhappy with the number of iterations we sampled for `chains`, we can `recompute` with more iterations, and then `plot` the results: 
 ```{r tsamplplot,fig.width=10}
 chains2 = recompute(chains, iterations = 10000)
 plot(chains2[,1:2])
@@ -263,7 +266,7 @@ bf
 As before, we can sample from the posterior distribution for the numerator model:
 ```{r twosampletsamp,fig.width=10}
 chains = posterior(bf, iterations = 10000)
-plot(chains[,1:4])
+plot(chains[,2])
 ```
 
 Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
@@ -534,7 +537,7 @@ Compare these to the corresponding results from the classical regression analysi
 ```{r lmregressclassical}
 summary(lm(rating ~ complaints + learning, data = attitude))
 ```
-The results are quite similar.
+The results are quite similar, apart from the intercept. This is due to the Bayesian model centering the covariates before analysis, so the `mu` parameter is the mean of $y$ rather than the expected value of the response variable when all uncentered covariates are equal to 0. 
 
 <a id="glm"></a>
 General linear models: mixing continuous and categorical covariates
@@ -669,6 +672,55 @@ Two of the models score essentially equally well in terms of Bayes factors: `sup
 plot(allBFs / max(allBFs))
 ```
 
+<a id="lincor"></a>
+#### Linear correlation (0.9.12-4+)
+
+Ly, Verhagen, and Wagenmakers (2015; [link](#LyCor)) present a Bayes factor test for linear correlation. The `BayesFactor` package allows the computing of the Bayes factor and sampling from the posterior of the Bayes factor. Note that the model and priors are somewhat different from those used in the linear regression models presented above; further discussion can be found in Ly et al.
+
+We demonstrate the use of the `correlationBF` function using Fisher's `iris` data set built into `R`. See the help (`?iris` in R) for more details. We will focus on the correlation between `Sepal.Length` and `Sepal.Width`.
+
+First, we create a scatterplot.
+
+```{r}
+plot(Sepal.Width ~ Sepal.Length, data = iris)
+abline(lm(Sepal.Width ~ Sepal.Length, data = iris), col = "red")
+```
+
+There does not appear to be a substantial correlation between these two variables. We can compute a classical test of the correlation using `R`'s `cor.test` function:
+
+```{r}
+cor.test(y = iris$Sepal.Length, x = iris$Sepal.Width)
+```
+The $p$ value is nonsignificant at typical $\alpha$ levels, and the point estimate is not terribly impressive at -0.12. 
+
+To compute the corresponding Bayes factor test, we use the `correlationBF` function (note the default prior scale).
+
+```{r}
+bf = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width)
+bf
+```
+
+As would be expected from the middling $p$ value in the classical test, the Bayes factor test shows little evidence either way (about `r round(as.vector(1/bf),1)` in favor of the null).
+
+If we'd like to estimate the correlation on the assumption that it is non-zero, we can sample from the posterior distribution using the `posterior` function.
+
+```{r}
+samples = posterior(bf, iterations = 10000)
+```
+
+The important parameter is `rho`, the estimate of the true linear correlation.
+
+```{r}
+summary(samples)
+```
+
+The posterior mean and credible interval for `rho` are very close to the point estimate and confidence interval obtained from `cor.test`.
+
+We can also plot the full posterior distribution, if we like:
+
+```{r}
+plot(samples[,"rho"])
+```
 
 <a id="proptest"></a>
 ### Tests of single proportions (0.9.9+)
@@ -974,25 +1026,29 @@ Gunel, E. and Dickey, J. (1974) Bayes Factors for Independence in Contingency Ta
 Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](http://psycnet.apa.org/psycinfo/1971-03987-001)
  
 <a id="Liangetal"></a> 
-Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([PDF](http://www.isds.duke.edu/courses/Spring09/sta244/Handouts/hyper-g.pdf))
+Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([Publisher](https://www.tandfonline.com/doi/abs/10.1198/016214507000001337))
 
 <a id="Moreyarea"></a>
-Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([PDF](http://drsmorey.org/bibtex/upload/Morey:Rouder:2011.pdf))
+Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([Publisher](http://psycnet.apa.org/buy/2011-15467-001))
 
 <a id="MoreyMCMC"></a>
-Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([PDF](http://drsmorey.org/bibtex/upload/Morey:etal:2011a.pdf))
+Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([Publisher](https://www.sciencedirect.com/science/article/pii/S0022249611000666))
 
 <a id="Rouderregression"></a>
-Rouder, J. N. and Morey, R. D. (2013) Default Bayes Factors for Model Selection in Regression, Multivariate Behavioral Research, 47, pp. 877-903 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.Morey_.MBR_.2012.pdf))
+Rouder, J. N. and Morey, R. D. (2013) Default Bayes Factors for Model Selection in Regression, Multivariate Behavioral Research, 47, pp. 877-903 ([Publisher](https://www.tandfonline.com/doi/abs/10.1080/00273171.2012.734737))
 
 <a id="RouderANOVA"></a>
-Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology, 56, pp. 356–374 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.JMP_.2012.pdf))
+Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), Default Bayes Factors for ANOVA Designs. Journal of Mathematical Psychology, 56, pp. 356–374 ([Publisher](https://www.sciencedirect.com/science/article/pii/S0022249612000806))
 
 <a id="Rouderttest"></a>
-Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([PDF](http://pcl.missouri.edu/sites/default/files/Rouder.bf_.pdf))
+Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([Publisher](https://link.springer.com/article/10.3758/PBR.16.2.225))
 
 <a id="RouderMetat"></a>
-Rouder, J. N. and Morey, R. D. (2011), A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([PDF](http://drsmorey.org/bibtex/upload/Rouder:Morey:2011a.pdf))
+Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758%2Fs13423-011-0088-7))
+
+<a id="LyCor"></a>
+Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](http://dx.doi.org/10.1016/j.jmp.2015.06.004))
+
 
 
 -------

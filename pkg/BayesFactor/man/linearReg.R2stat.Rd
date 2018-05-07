@@ -57,10 +57,6 @@ summary(lm1)
 result = linearReg.R2stat(30,1,0.6813)
 exp(result[['bf']])
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N.
-  Rouder (\email{rouderj@missouri.edu})
-}
 \references{
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
   Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable
@@ -78,5 +74,8 @@ Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
   \code{\link{lmBF}} for the intended interface to this function, using
   the full data set.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N.
+  Rouder (\email{rouderj@missouri.edu})
+}
 \keyword{htest}
-

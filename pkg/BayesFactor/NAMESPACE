@@ -1,11 +1,11 @@
 useDynLib(BayesFactor)
 
-export(logMeanExpLogs, 
+export(logMeanExpLogs,
     logCumMeanExpLogs,
     BFInfo,
     ttest.tstat,
-    oneWayAOV.Fstat, 
-    linearReg.R2stat, 
+    oneWayAOV.Fstat,
+    linearReg.R2stat,
     nWayAOV,
     ttestBF,
     lmBF,
@@ -44,7 +44,7 @@ importFrom("stats", "aov", "dbinom", "dnorm", "dt", "formula",
             "pt", "qlogis", "rgamma", "sd", "t.test", "terms", "var", "dlogis")
 importFrom("utils", "combn", "setTxtProgressBar", "txtProgressBar",
             "vignette")
-
+importFrom("stats", "cor", "dbeta", "pbeta", "pnorm")
 
 exportClasses("BFmodel", "BFBayesFactor","BFlinearModel", "BFodds")
 exportClasses("BFBayesFactorList", "BFoneSample","BFindepSample","BFcontingencyTable")

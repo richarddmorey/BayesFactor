@@ -3,16 +3,17 @@
 \docType{methods}
 \name{compare}
 \alias{compare}
+\alias{compare,BFoneSample,missing,data.frame-method}
+\alias{compare,BFlinearModel,BFlinearModel,data.frame-method}
+\alias{compare,BFindepSample,missing,data.frame-method}
+\alias{compare,BFlinearModel,missing,data.frame-method}
+\alias{compare,BFmetat,missing,data.frame-method}
+\alias{compare,BFproportion,missing,data.frame-method}
 \alias{compare,BFcontingencyTable,BFcontingencyTable,data.frame-method}
 \alias{compare,BFcontingencyTable,missing,data.frame-method}
-\alias{compare,BFindepSample,missing,data.frame-method}
-\alias{compare,BFlinearModel,BFlinearModel,data.frame-method}
-\alias{compare,BFlinearModel,missing,data.frame-method}
+\alias{compare,BFcorrelation,missing,data.frame-method}
 \alias{compare,BFmcmc,BFmcmc,ANY-method}
 \alias{compare,BFmcmc,missing,ANY-method}
-\alias{compare,BFmetat,missing,data.frame-method}
-\alias{compare,BFoneSample,missing,data.frame-method}
-\alias{compare,BFproportion,missing,data.frame-method}
 \title{Compare two models, with respect to some data}
 \usage{
 compare(numerator, denominator, data, ...)
@@ -54,4 +55,3 @@ mod2 = lmBF(RT ~ shape*color + ID, data = puzzles, whichRandom = "ID",
 
 compare(mod1, mod2)
 }
-

@@ -2,8 +2,8 @@
 % Please edit documentation in R/BayesFactorPCL-package.R
 \docType{package}
 \name{BayesFactor-package}
-\alias{BayesFactor}
 \alias{BayesFactor-package}
+\alias{BayesFactor}
 \title{Functions to compute Bayes factor hypothesis tests for common research designs
 and hypotheses.}
 \description{
@@ -44,11 +44,6 @@ objects.
 ## See specific functions for examples.
 
 }
-\author{
-Richard D. Morey and Jeffrey N. Rouder (with contributions from Tahira Jamil)
-
- Maintainer: Richard D. Morey <richarddmorey@gmail.com>
-}
 \references{
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
  Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection.
@@ -65,5 +60,9 @@ Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
  Perception and Cognition Lab (University of Missouri): Bayes factor
  calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
-\keyword{htest}
+\author{
+Richard D. Morey and Jeffrey N. Rouder (with contributions from Tahira Jamil)
 
+ Maintainer: Richard D. Morey <richarddmorey@gmail.com>
+}
+\keyword{htest}

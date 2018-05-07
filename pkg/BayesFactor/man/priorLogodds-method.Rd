@@ -18,4 +18,3 @@ priorLogodds(object) <- value
 \description{
 Set prior log odds in an object
 }
-

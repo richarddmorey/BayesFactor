@@ -77,12 +77,11 @@ samples = lmBF(RT ~ shape + color + shape:color + ID,
 ## Aother way to sample from the posterior of the full model
 samples2 = posterior(bfFull, iterations = 1000)
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \seealso{
 \code{\link{regressionBF}} and \code{anovaBF} for
 testing many regression or ANOVA models simultaneously.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

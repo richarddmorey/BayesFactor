@@ -63,10 +63,6 @@ t.test(extra ~ group, data = sleep, paired=TRUE)
 result <- ttest.tstat(t = -4.0621, n1 = 10)
 exp(result[['bf']])
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N.
-  Rouder (\email{rouderj@missouri.edu})
-}
 \references{
 Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for
   Testing Interval Null Hypotheses. Psychological Methods, 16, 406-419
@@ -80,5 +76,8 @@ Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for
   \code{\link{ttestBF}} for the intended interface to this function, using
   the full data set.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com}) and Jeffrey N.
+  Rouder (\email{rouderj@missouri.edu})
+}
 \keyword{htest}
-

@@ -97,9 +97,6 @@ samples = ttestBF(x = sleep$extra[sleep$group==1],
            posterior = TRUE, iterations = 1000)
 plot(samples[,"mu"])
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Morey, R. D., Rouder, J. N., Pratte, M. S., & Speckman, P. L.
   (2011). Using MCMC chain outputs to efficiently estimate Bayes factors.
@@ -118,5 +115,7 @@ Morey, R. D., Rouder, J. N., Pratte, M. S., & Speckman, P. L.
 \seealso{
 \code{\link{integrate}}, \code{\link{t.test}}
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

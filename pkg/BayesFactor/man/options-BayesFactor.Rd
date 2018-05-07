@@ -26,4 +26,3 @@ on \code{log(g)} before the the posterior returns \code{-Inf}. This only affects
 \seealso{
 \code{\link[base]{options}}
 }
-

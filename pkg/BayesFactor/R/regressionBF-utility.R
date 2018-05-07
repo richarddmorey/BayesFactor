@@ -58,7 +58,7 @@ integrand.regression.u=Vectorize(function(u, N, p, R2, rscaleSqr=1, log=FALSE, l
 
 
 linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium", progress = getOption('BFprogress', interactive()), callback=function(...) as.integer(0), noSample=FALSE, callbackInterval = 1, ignoreCols = NULL, thin = 1, ...){
-  rscale = rpriorValues("regression",,rscale)
+  rscale = rpriorValues("allNways","continuous",rscale)
   X = apply(covariates,2,function(v) v - mean(v))
   y = matrix(y,ncol=1)
   N = length(y)
@@ -79,9 +79,9 @@ linearReg.Gibbs <- function(y, covariates, iterations = 10000, rscale = "medium"
   if(is.null(callback) | !is.function(callback)) callback=function(...) as.integer(0)
 
   if(noSample){ # Return structure of chains
-    chains = matrix(NA,2,nOutputPars + 2 + nGs)
+    chains = matrix(NA, 2, P + 2 + nGs)
   }else{
-    chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, 1, gMap, table(gMap), TRUE, FALSE,
+    chains = jzs_Gibbs(iterations, y, cbind(1,X), rscale, sig2start, gMap, table(gMap), P, FALSE,
                        as.integer(ignoreCols), as.integer(thin), as.logical(progress), callback, 1)
   }
   colnames(chains) = c("mu", colnames(covariates), "sig2", "g")

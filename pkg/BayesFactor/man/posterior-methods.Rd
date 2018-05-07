@@ -3,17 +3,17 @@
 \docType{methods}
 \name{posterior}
 \alias{posterior}
-\alias{posterior,BFBayesFactor,missing,missing,missing-method}
-\alias{posterior,BFBayesFactor,missing,missing,numeric-method}
-\alias{posterior,BFBayesFactor,numeric,missing,numeric-method}
-\alias{posterior,BFcontingencyTable,missing,data.frame,numeric-method}
-\alias{posterior,BFcorrelation,missing,data.frame,numeric-method}
-\alias{posterior,BFindepSample,missing,data.frame,numeric-method}
-\alias{posterior,BFlinearModel,missing,data.frame,numeric-method}
-\alias{posterior,BFmetat,missing,data.frame,numeric-method}
 \alias{posterior,BFmodel,missing,data.frame,missing-method}
+\alias{posterior,BFBayesFactor,missing,missing,missing-method}
+\alias{posterior,BFBayesFactor,numeric,missing,numeric-method}
+\alias{posterior,BFBayesFactor,missing,missing,numeric-method}
+\alias{posterior,BFlinearModel,missing,data.frame,numeric-method}
+\alias{posterior,BFindepSample,missing,data.frame,numeric-method}
+\alias{posterior,BFcontingencyTable,missing,data.frame,numeric-method}
 \alias{posterior,BFoneSample,missing,data.frame,numeric-method}
+\alias{posterior,BFmetat,missing,data.frame,numeric-method}
 \alias{posterior,BFproportion,missing,data.frame,numeric-method}
+\alias{posterior,BFcorrelation,missing,data.frame,numeric-method}
 \title{Sample from the posterior distribution of one of several models.}
 \usage{
 posterior(model, index, data, iterations, ...)
@@ -109,4 +109,3 @@ bf = lmBF(RT ~ shape + color + shape:color + ID, data=puzzles)
 chains = posterior(bf, iterations = 1000, progress = FALSE, columnFilter="^ID$")
 colnames(chains) # Contains no participant effects
 }
-

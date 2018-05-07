@@ -2,10 +2,10 @@
 % Please edit documentation in R/aaClasses.R, R/methods-BFodds.R
 \docType{class}
 \name{BFodds-class}
-\alias{*,BFodds,BFBayesFactor-method}
-\alias{/,BFodds,BFodds-method}
-\alias{/,numeric,BFodds-method}
 \alias{BFodds-class}
+\alias{/,numeric,BFodds-method}
+\alias{/,BFodds,BFodds-method}
+\alias{*,BFodds,BFBayesFactor-method}
 \alias{[,BFodds,index,missing,missing-method}
 \title{General S4 class for representing multiple odds model comparisons, all against the same model}
 \usage{
@@ -48,4 +48,3 @@ The \code{BFodds} class is a general S4 class for representing models model comp
    \item{version}{character string giving the version and revision number of the package that the model was created in}
    }
 }
-

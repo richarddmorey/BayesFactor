@@ -1,3 +1,10 @@
 configure
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^.*\.jmo$
+
+^temp$
+^jamovi$
+^README.md$
+^\..*$
+^.*\.tar.gz

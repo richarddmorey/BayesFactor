@@ -38,4 +38,3 @@ anovaBF(RT ~ shape*color + ID, data = puzzles, whichRandom = "ID", progress=FALS
 
 }
 \keyword{datasets}
-

@@ -18,4 +18,3 @@ match was located for each element of x.
 \description{
 Find a model term in a vector of model terms
 }
-

@@ -31,4 +31,3 @@ bf = lmBF(RT ~ shape*color + ID, data = puzzles, whichRandom="ID", progress=FALS
 
 extractBF(bf)
 }
-

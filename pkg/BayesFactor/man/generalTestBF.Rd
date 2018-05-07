@@ -88,9 +88,6 @@ neverExclude="ID", progress=FALSE)
 result
 
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
   Default Bayes Factors for ANOVA Designs. Journal of Mathematical
@@ -106,5 +103,7 @@ Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
   \code{\link{regressionBF}} and \code{anovaBF} for other functions for
   testing multiple models simultaneously.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

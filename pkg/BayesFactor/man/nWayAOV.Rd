@@ -128,10 +128,6 @@ exp(bf.full[['bf']])
 bf.full2 <- lmBF(extra ~ group + ID, data = sleep, whichRandom = "ID")
 bf.full2
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com}), Jeffery N.
-  Rouder (\email{rouderj@missouri.edu})
-}
 \references{
 Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M.,
   (2012) Default Bayes Factors for ANOVA Designs. Journal of Mathematical
@@ -142,5 +138,8 @@ See \code{\link{lmBF}} for the user-friendly front end to this
   function; see \code{\link{regressionBF}} and \code{anovaBF} for testing
   many regression or ANOVA models simultaneously.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com}), Jeffery N.
+  Rouder (\email{rouderj@missouri.edu})
+}
 \keyword{htest}
-

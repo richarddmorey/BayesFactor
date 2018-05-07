@@ -2,9 +2,10 @@
 % Please edit documentation in R/model.matrix.R
 \docType{methods}
 \name{model.matrix,BFBayesFactor-method}
-\alias{model.matrix,BFBayesFactor}
 \alias{model.matrix,BFBayesFactor-method}
+\alias{model.matrix,BFBayesFactor}
 \alias{model.matrix,BFBayesFactorTop-method}
+\alias{model.matrix,BFBayesFactor}
 \title{Design matrices for Bayes factor linear models analyses.}
 \usage{
 \S4method{model.matrix}{BFBayesFactor}(object, ...)
@@ -40,4 +41,3 @@ Rouder, J. N., Morey, R. D., Speckman, P. L., Province, J. M., (2012)
   Default Bayes Factors for ANOVA Designs. Journal of Mathematical
   Psychology.  56.  p. 356-374.
 }
-

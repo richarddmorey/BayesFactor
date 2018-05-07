@@ -58,9 +58,6 @@ Fvalue <- anova(classical)$"F value"[1]
 result <- oneWayAOV.Fstat(Fvalue, N=12, J=6)
 exp(result[['bf']])
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \references{
 Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L.
   (2011). Using MCMC chain outputs to efficiently estimate Bayes factors.
@@ -69,5 +66,7 @@ Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L.
 \seealso{
 \code{\link{integrate}}, \code{\link{aov}}; see \code{\link{lmBF}} for the intended interface to this function, using the full data set.
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

@@ -31,4 +31,3 @@ bf = contingencyTableBF(raceDolls, sampleType = "indepMulti", fixedMargin = "col
 bf
 }
 \keyword{datasets}
-

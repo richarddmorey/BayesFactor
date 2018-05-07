@@ -11,7 +11,7 @@ using namespace Rcpp;
 
 // hFunc
 double hFunc(const double rho, const int n, const double r, const bool hg_checkmod, const int hg_iter);
-RcppExport SEXP BayesFactor_hFunc(SEXP rhoSEXP, SEXP nSEXP, SEXP rSEXP, SEXP hg_checkmodSEXP, SEXP hg_iterSEXP) {
+RcppExport SEXP _BayesFactor_hFunc(SEXP rhoSEXP, SEXP nSEXP, SEXP rSEXP, SEXP hg_checkmodSEXP, SEXP hg_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,7 +26,7 @@ END_RCPP
 }
 // jeffreys_approx_corr
 double jeffreys_approx_corr(const double rho, const int n, const double r);
-RcppExport SEXP BayesFactor_jeffreys_approx_corr(SEXP rhoSEXP, SEXP nSEXP, SEXP rSEXP) {
+RcppExport SEXP _BayesFactor_jeffreys_approx_corr(SEXP rhoSEXP, SEXP nSEXP, SEXP rSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // metropCorrRcpp_jeffreys
 NumericMatrix metropCorrRcpp_jeffreys(NumericVector r, NumericVector n, double a_prior, double b_prior, bool approx, int iterations, bool doInterval, NumericVector intervalz, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_metropCorrRcpp_jeffreys(SEXP rSEXP, SEXP nSEXP, SEXP a_priorSEXP, SEXP b_priorSEXP, SEXP approxSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalzSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_metropCorrRcpp_jeffreys(SEXP rSEXP, SEXP nSEXP, SEXP a_priorSEXP, SEXP b_priorSEXP, SEXP approxSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalzSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,7 +62,7 @@ END_RCPP
 }
 // dinvgamma1_Rcpp
 double dinvgamma1_Rcpp(const double x, const double a, const double b);
-RcppExport SEXP BayesFactor_dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _BayesFactor_dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -75,7 +75,7 @@ END_RCPP
 }
 // dinvgamma1_logx_Rcpp
 double dinvgamma1_logx_Rcpp(const double x, const double a, const double b);
-RcppExport SEXP BayesFactor_dinvgamma1_logx_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _BayesFactor_dinvgamma1_logx_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -88,7 +88,7 @@ END_RCPP
 }
 // ddinvgamma1_Rcpp
 double ddinvgamma1_Rcpp(const double x, const double a, const double b);
-RcppExport SEXP BayesFactor_ddinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _BayesFactor_ddinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -101,7 +101,7 @@ END_RCPP
 }
 // d2dinvgamma1_Rcpp
 double d2dinvgamma1_Rcpp(const double x, const double a, const double b);
-RcppExport SEXP BayesFactor_d2dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
+RcppExport SEXP _BayesFactor_d2dinvgamma1_Rcpp(SEXP xSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -114,7 +114,7 @@ END_RCPP
 }
 // genhypergeo_series_pos
 NumericVector genhypergeo_series_pos(NumericVector U, NumericVector L, NumericVector z, const double tol, const int maxiter, const bool check_mod, const bool check_conds, const bool polynomial);
-static SEXP BayesFactor_genhypergeo_series_pos_try(SEXP USEXP, SEXP LSEXP, SEXP zSEXP, SEXP tolSEXP, SEXP maxiterSEXP, SEXP check_modSEXP, SEXP check_condsSEXP, SEXP polynomialSEXP) {
+static SEXP _BayesFactor_genhypergeo_series_pos_try(SEXP USEXP, SEXP LSEXP, SEXP zSEXP, SEXP tolSEXP, SEXP maxiterSEXP, SEXP check_modSEXP, SEXP check_condsSEXP, SEXP polynomialSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::traits::input_parameter< NumericVector >::type U(USEXP);
@@ -129,11 +129,11 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP_RETURN_ERROR
 }
-RcppExport SEXP BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP zSEXP, SEXP tolSEXP, SEXP maxiterSEXP, SEXP check_modSEXP, SEXP check_condsSEXP, SEXP polynomialSEXP) {
+RcppExport SEXP _BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP zSEXP, SEXP tolSEXP, SEXP maxiterSEXP, SEXP check_modSEXP, SEXP check_condsSEXP, SEXP polynomialSEXP) {
     SEXP rcpp_result_gen;
     {
         Rcpp::RNGScope rcpp_rngScope_gen;
-        rcpp_result_gen = PROTECT(BayesFactor_genhypergeo_series_pos_try(USEXP, LSEXP, zSEXP, tolSEXP, maxiterSEXP, check_modSEXP, check_condsSEXP, polynomialSEXP));
+        rcpp_result_gen = PROTECT(_BayesFactor_genhypergeo_series_pos_try(USEXP, LSEXP, zSEXP, tolSEXP, maxiterSEXP, check_modSEXP, check_condsSEXP, polynomialSEXP));
     }
     Rboolean rcpp_isInterrupt_gen = Rf_inherits(rcpp_result_gen, "interrupted-error");
     if (rcpp_isInterrupt_gen) {
@@ -151,7 +151,7 @@ RcppExport SEXP BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP 
 }
 // jzs_sampler
 NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
-RcppExport SEXP BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
+RcppExport SEXP _BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -173,7 +173,7 @@ END_RCPP
 }
 // jzs_log_marginal_posterior_logg
 Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const int N, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
-RcppExport SEXP BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP NSEXP, SEXP XtCnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
+RcppExport SEXP _BayesFactor_jzs_log_marginal_posterior_logg(SEXP qSEXP, SEXP sumSqSEXP, SEXP NSEXP, SEXP XtCnX0SEXP, SEXP CnytCnX0SEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP priorXSEXP, SEXP incContSEXP, SEXP limitSEXP, SEXP limitsSEXP, SEXP whichSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -196,7 +196,7 @@ END_RCPP
 }
 // jzs_Gibbs
 NumericMatrix jzs_Gibbs(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const double sig2start, const IntegerVector gMap, const NumericVector gMapCounts, const int incCont, bool nullModel, const IntegerVector ignoreCols, const int thin, const int progress, const Function callback, const double callbackInterval);
-RcppExport SEXP BayesFactor_jzs_Gibbs(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP sig2startSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP incContSEXP, SEXP nullModelSEXP, SEXP ignoreColsSEXP, SEXP thinSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_jzs_Gibbs(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP sig2startSEXP, SEXP gMapSEXP, SEXP gMapCountsSEXP, SEXP incContSEXP, SEXP nullModelSEXP, SEXP ignoreColsSEXP, SEXP thinSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -220,7 +220,7 @@ END_RCPP
 }
 // GibbsLinearRegRcpp
 NumericMatrix GibbsLinearRegRcpp(const int iterations, const NumericVector y, const NumericMatrix X, const double r, const double sig2start, const bool nullModel, const int progress, const Function callback, const double callbackInterval);
-RcppExport SEXP BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_GibbsLinearRegRcpp(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rSEXP, SEXP sig2startSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -239,7 +239,7 @@ END_RCPP
 }
 // log_determinant_pos_def
 double log_determinant_pos_def(Eigen::MatrixXd A);
-RcppExport SEXP BayesFactor_log_determinant_pos_def(SEXP ASEXP) {
+RcppExport SEXP _BayesFactor_log_determinant_pos_def(SEXP ASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -250,7 +250,7 @@ END_RCPP
 }
 // logSummaryStats
 List logSummaryStats(NumericVector x);
-RcppExport SEXP BayesFactor_logSummaryStats(SEXP xSEXP) {
+RcppExport SEXP _BayesFactor_logSummaryStats(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -261,7 +261,7 @@ END_RCPP
 }
 // log1pExp
 double log1pExp(double x);
-RcppExport SEXP BayesFactor_log1pExp(SEXP xSEXP) {
+RcppExport SEXP _BayesFactor_log1pExp(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -272,7 +272,7 @@ END_RCPP
 }
 // logExpXplusExpY
 double logExpXplusExpY(const double x, const double y);
-RcppExport SEXP BayesFactor_logExpXplusExpY(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _BayesFactor_logExpXplusExpY(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -284,7 +284,7 @@ END_RCPP
 }
 // logExpXminusExpY
 double logExpXminusExpY(const double x, const double y);
-RcppExport SEXP BayesFactor_logExpXminusExpY(SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _BayesFactor_logExpXminusExpY(SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -296,7 +296,7 @@ END_RCPP
 }
 // metropMetaTRcpp
 NumericMatrix metropMetaTRcpp(NumericVector t, NumericVector n1, NumericVector n2, bool twoSample, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_metropMetaTRcpp(SEXP tSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP twoSampleSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_metropMetaTRcpp(SEXP tSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP twoSampleSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -319,7 +319,7 @@ END_RCPP
 }
 // metropProportionRcpp
 NumericMatrix metropProportionRcpp(NumericVector y, NumericVector n, double p0, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_metropProportionRcpp(SEXP ySEXP, SEXP nSEXP, SEXP p0SEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_metropProportionRcpp(SEXP ySEXP, SEXP nSEXP, SEXP p0SEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -341,7 +341,7 @@ END_RCPP
 }
 // gibbsTwoSampleRcpp
 NumericMatrix gibbsTwoSampleRcpp(NumericVector ybar, NumericVector s2, NumericVector N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_gibbsTwoSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_gibbsTwoSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -363,7 +363,7 @@ END_RCPP
 }
 // gibbsOneSampleRcpp
 NumericMatrix gibbsOneSampleRcpp(double ybar, double s2, int N, double rscale, int iterations, bool doInterval, NumericVector interval, bool intervalCompl, bool nullModel, int progress, Function callback, double callbackInterval);
-RcppExport SEXP BayesFactor_gibbsOneSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
+RcppExport SEXP _BayesFactor_gibbsOneSampleRcpp(SEXP ybarSEXP, SEXP s2SEXP, SEXP NSEXP, SEXP rscaleSEXP, SEXP iterationsSEXP, SEXP doIntervalSEXP, SEXP intervalSEXP, SEXP intervalComplSEXP, SEXP nullModelSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -385,7 +385,7 @@ END_RCPP
 }
 
 // validate (ensure exported C++ functions exist before calling them)
-static int BayesFactor_RcppExport_validate(const char* sig) { 
+static int _BayesFactor_RcppExport_validate(const char* sig) { 
     static std::set<std::string> signatures;
     if (signatures.empty()) {
         signatures.insert("NumericVector(*genhypergeo_series_pos)(NumericVector,NumericVector,NumericVector,const double,const int,const bool,const bool,const bool)");
@@ -394,8 +394,39 @@ static int BayesFactor_RcppExport_validate(const char* sig) {
 }
 
 // registerCCallable (register entry points for exported C++ functions)
-RcppExport SEXP BayesFactor_RcppExport_registerCCallable() { 
-    R_RegisterCCallable("BayesFactor", "BayesFactor_genhypergeo_series_pos", (DL_FUNC)BayesFactor_genhypergeo_series_pos_try);
-    R_RegisterCCallable("BayesFactor", "BayesFactor_RcppExport_validate", (DL_FUNC)BayesFactor_RcppExport_validate);
+RcppExport SEXP _BayesFactor_RcppExport_registerCCallable() { 
+    R_RegisterCCallable("BayesFactor", "_BayesFactor_genhypergeo_series_pos", (DL_FUNC)_BayesFactor_genhypergeo_series_pos_try);
+    R_RegisterCCallable("BayesFactor", "_BayesFactor_RcppExport_validate", (DL_FUNC)_BayesFactor_RcppExport_validate);
     return R_NilValue;
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_BayesFactor_hFunc", (DL_FUNC) &_BayesFactor_hFunc, 5},
+    {"_BayesFactor_jeffreys_approx_corr", (DL_FUNC) &_BayesFactor_jeffreys_approx_corr, 3},
+    {"_BayesFactor_metropCorrRcpp_jeffreys", (DL_FUNC) &_BayesFactor_metropCorrRcpp_jeffreys, 13},
+    {"_BayesFactor_dinvgamma1_Rcpp", (DL_FUNC) &_BayesFactor_dinvgamma1_Rcpp, 3},
+    {"_BayesFactor_dinvgamma1_logx_Rcpp", (DL_FUNC) &_BayesFactor_dinvgamma1_logx_Rcpp, 3},
+    {"_BayesFactor_ddinvgamma1_Rcpp", (DL_FUNC) &_BayesFactor_ddinvgamma1_Rcpp, 3},
+    {"_BayesFactor_d2dinvgamma1_Rcpp", (DL_FUNC) &_BayesFactor_d2dinvgamma1_Rcpp, 3},
+    {"_BayesFactor_genhypergeo_series_pos", (DL_FUNC) &_BayesFactor_genhypergeo_series_pos, 8},
+    {"_BayesFactor_jzs_sampler", (DL_FUNC) &_BayesFactor_jzs_sampler, 12},
+    {"_BayesFactor_jzs_log_marginal_posterior_logg", (DL_FUNC) &_BayesFactor_jzs_log_marginal_posterior_logg, 13},
+    {"_BayesFactor_jzs_Gibbs", (DL_FUNC) &_BayesFactor_jzs_Gibbs, 14},
+    {"_BayesFactor_GibbsLinearRegRcpp", (DL_FUNC) &_BayesFactor_GibbsLinearRegRcpp, 9},
+    {"_BayesFactor_log_determinant_pos_def", (DL_FUNC) &_BayesFactor_log_determinant_pos_def, 1},
+    {"_BayesFactor_logSummaryStats", (DL_FUNC) &_BayesFactor_logSummaryStats, 1},
+    {"_BayesFactor_log1pExp", (DL_FUNC) &_BayesFactor_log1pExp, 1},
+    {"_BayesFactor_logExpXplusExpY", (DL_FUNC) &_BayesFactor_logExpXplusExpY, 2},
+    {"_BayesFactor_logExpXminusExpY", (DL_FUNC) &_BayesFactor_logExpXminusExpY, 2},
+    {"_BayesFactor_metropMetaTRcpp", (DL_FUNC) &_BayesFactor_metropMetaTRcpp, 13},
+    {"_BayesFactor_metropProportionRcpp", (DL_FUNC) &_BayesFactor_metropProportionRcpp, 12},
+    {"_BayesFactor_gibbsTwoSampleRcpp", (DL_FUNC) &_BayesFactor_gibbsTwoSampleRcpp, 12},
+    {"_BayesFactor_gibbsOneSampleRcpp", (DL_FUNC) &_BayesFactor_gibbsOneSampleRcpp, 12},
+    {"_BayesFactor_RcppExport_registerCCallable", (DL_FUNC) &_BayesFactor_RcppExport_registerCCallable, 0},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_BayesFactor(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

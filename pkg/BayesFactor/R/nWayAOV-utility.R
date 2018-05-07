@@ -234,7 +234,7 @@ fullDesignMatrix <- function(fmla, data, dataTypes){
     oneDesignMatrix(trm, data = data, dataTypes = dataTypes, sparse = sparse)
   }, data = data, dataTypes = dataTypes)
 
-  do.call("cBind" ,Xs)
+  do.call("cbind" ,Xs)
 }
 
 oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)

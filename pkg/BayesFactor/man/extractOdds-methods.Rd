@@ -23,4 +23,3 @@ Returns an object containing odds extracted from the object
 \description{
 Extract the odds from an object
 }
-

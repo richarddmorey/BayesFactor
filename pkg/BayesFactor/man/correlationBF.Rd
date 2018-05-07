@@ -59,11 +59,9 @@ The Bayes factor is computed via several different methods.
 bf = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width)
 bf
 ## Sample from the corresponding posterior distribution
-samples = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width, posterior = TRUE, iterations = 10000)
+samples = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width,
+          posterior = TRUE, iterations = 10000)
 plot(samples[,"rho"])
-}
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
 }
 \references{
 Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015).
@@ -75,5 +73,7 @@ Jeffreys, H. (1961). Theory of probability, 3rd edn. Oxford, UK: Oxford Universi
 \seealso{
 \code{\link{cor.test}}
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

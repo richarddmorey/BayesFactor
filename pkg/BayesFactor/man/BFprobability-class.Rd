@@ -2,9 +2,9 @@
 % Please edit documentation in R/aaClasses.R, R/methods-BFprobability.R
 \docType{class}
 \name{BFprobability-class}
-\alias{-,BFprobability,numeric-method}
-\alias{/,BFprobability,numeric-method}
 \alias{BFprobability-class}
+\alias{/,BFprobability,numeric-method}
+\alias{-,BFprobability,numeric-method}
 \alias{[,BFprobability,index,missing,missing-method}
 \alias{filterBF,BFprobability,character-method}
 \title{General S4 class for representing multiple model probability comparisons}
@@ -50,4 +50,3 @@ The \code{BFprobability} class is a general S4 class for representing models mod
    \item{version}{character string giving the version and revision number of the package that the model was created in}
    }
 }
-

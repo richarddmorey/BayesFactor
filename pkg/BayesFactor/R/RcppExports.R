@@ -2,90 +2,90 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 hFunc <- function(rho, n, r, hg_checkmod, hg_iter) {
-    .Call('BayesFactor_hFunc', PACKAGE = 'BayesFactor', rho, n, r, hg_checkmod, hg_iter)
+    .Call('_BayesFactor_hFunc', PACKAGE = 'BayesFactor', rho, n, r, hg_checkmod, hg_iter)
 }
 
 jeffreys_approx_corr <- function(rho, n, r) {
-    .Call('BayesFactor_jeffreys_approx_corr', PACKAGE = 'BayesFactor', rho, n, r)
+    .Call('_BayesFactor_jeffreys_approx_corr', PACKAGE = 'BayesFactor', rho, n, r)
 }
 
 metropCorrRcpp_jeffreys <- function(r, n, a_prior, b_prior, approx, iterations, doInterval, intervalz, intervalCompl, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_metropCorrRcpp_jeffreys', PACKAGE = 'BayesFactor', r, n, a_prior, b_prior, approx, iterations, doInterval, intervalz, intervalCompl, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_metropCorrRcpp_jeffreys', PACKAGE = 'BayesFactor', r, n, a_prior, b_prior, approx, iterations, doInterval, intervalz, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
 dinvgamma1_Rcpp <- function(x, a, b) {
-    .Call('BayesFactor_dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
+    .Call('_BayesFactor_dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
 dinvgamma1_logx_Rcpp <- function(x, a, b) {
-    .Call('BayesFactor_dinvgamma1_logx_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
+    .Call('_BayesFactor_dinvgamma1_logx_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
 ddinvgamma1_Rcpp <- function(x, a, b) {
-    .Call('BayesFactor_ddinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
+    .Call('_BayesFactor_ddinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
 d2dinvgamma1_Rcpp <- function(x, a, b) {
-    .Call('BayesFactor_d2dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
+    .Call('_BayesFactor_d2dinvgamma1_Rcpp', PACKAGE = 'BayesFactor', x, a, b)
 }
 
 genhypergeo_series_pos <- function(U, L, z, tol, maxiter, check_mod, check_conds, polynomial) {
-    .Call('BayesFactor_genhypergeo_series_pos', PACKAGE = 'BayesFactor', U, L, z, tol, maxiter, check_mod, check_conds, polynomial)
+    .Call('_BayesFactor_genhypergeo_series_pos', PACKAGE = 'BayesFactor', U, L, z, tol, maxiter, check_mod, check_conds, polynomial)
 }
 
 jzs_sampler <- function(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which) {
-    .Call('BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
+    .Call('_BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
 }
 
 jzs_log_marginal_posterior_logg <- function(q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
-    .Call('BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
+    .Call('_BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
 }
 
 jzs_Gibbs <- function(iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval) {
-    .Call('BayesFactor_jzs_Gibbs', PACKAGE = 'BayesFactor', iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval)
+    .Call('_BayesFactor_jzs_Gibbs', PACKAGE = 'BayesFactor', iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval)
 }
 
 GibbsLinearRegRcpp <- function(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_GibbsLinearRegRcpp', PACKAGE = 'BayesFactor', iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_GibbsLinearRegRcpp', PACKAGE = 'BayesFactor', iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval)
 }
 
 log_determinant_pos_def <- function(A) {
-    .Call('BayesFactor_log_determinant_pos_def', PACKAGE = 'BayesFactor', A)
+    .Call('_BayesFactor_log_determinant_pos_def', PACKAGE = 'BayesFactor', A)
 }
 
 logSummaryStats <- function(x) {
-    .Call('BayesFactor_logSummaryStats', PACKAGE = 'BayesFactor', x)
+    .Call('_BayesFactor_logSummaryStats', PACKAGE = 'BayesFactor', x)
 }
 
 log1pExp <- function(x) {
-    .Call('BayesFactor_log1pExp', PACKAGE = 'BayesFactor', x)
+    .Call('_BayesFactor_log1pExp', PACKAGE = 'BayesFactor', x)
 }
 
 logExpXplusExpY <- function(x, y) {
-    .Call('BayesFactor_logExpXplusExpY', PACKAGE = 'BayesFactor', x, y)
+    .Call('_BayesFactor_logExpXplusExpY', PACKAGE = 'BayesFactor', x, y)
 }
 
 logExpXminusExpY <- function(x, y) {
-    .Call('BayesFactor_logExpXminusExpY', PACKAGE = 'BayesFactor', x, y)
+    .Call('_BayesFactor_logExpXminusExpY', PACKAGE = 'BayesFactor', x, y)
 }
 
 metropMetaTRcpp <- function(t, n1, n2, twoSample, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_metropMetaTRcpp', PACKAGE = 'BayesFactor', t, n1, n2, twoSample, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_metropMetaTRcpp', PACKAGE = 'BayesFactor', t, n1, n2, twoSample, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
 metropProportionRcpp <- function(y, n, p0, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_metropProportionRcpp', PACKAGE = 'BayesFactor', y, n, p0, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_metropProportionRcpp', PACKAGE = 'BayesFactor', y, n, p0, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
 gibbsTwoSampleRcpp <- function(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_gibbsTwoSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_gibbsTwoSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
 gibbsOneSampleRcpp <- function(ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval) {
-    .Call('BayesFactor_gibbsOneSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
+    .Call('_BayesFactor_gibbsOneSampleRcpp', PACKAGE = 'BayesFactor', ybar, s2, N, rscale, iterations, doInterval, interval, intervalCompl, nullModel, progress, callback, callbackInterval)
 }
 
 # Register entry points for exported C++ functions
 methods::setLoadAction(function(ns) {
-    .Call('BayesFactor_RcppExport_registerCCallable', PACKAGE = 'BayesFactor')
+    .Call('_BayesFactor_RcppExport_registerCCallable', PACKAGE = 'BayesFactor')
 })

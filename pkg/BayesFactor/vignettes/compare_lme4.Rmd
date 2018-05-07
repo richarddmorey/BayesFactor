@@ -19,6 +19,7 @@ rversion = paste(session$version.string," on ",session$platform,sep="")
 
 options(markdown.HTML.stylesheet = 'extra/manual.css')
 library(knitr)
+opts_chunk$set(dpi = 200, out.width = "67%") 
 options(digits=3)
 require(graphics)
 set.seed(2)
@@ -268,6 +269,7 @@ par(cex=1.5)
 plot(sideBySide[-1,],pch=21,bg=rgb(0,0,1,.2),col="black",asp=TRUE,cex=1.2, main="fixed effects\n (excluding grand mean)")
 abline(0,1, lty=2)
 ```
+
 The results are quite close to one another, with a bit of Bayesian shrinkage.
 
 -------

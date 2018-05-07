@@ -41,7 +41,8 @@
 ##' bf = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width)
 ##' bf
 ##' ## Sample from the corresponding posterior distribution
-##' samples = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width, posterior = TRUE, iterations = 10000)
+##' samples = correlationBF(y = iris$Sepal.Length, x = iris$Sepal.Width,
+##'           posterior = TRUE, iterations = 10000)
 ##' plot(samples[,"rho"])
 ##' @seealso \code{\link{cor.test}}
 ##' @references Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015).

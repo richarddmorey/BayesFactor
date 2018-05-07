@@ -19,3 +19,6 @@
 *.rds
 *.tar.gz
 *.tgz
+
+pkg/BayesFactor/build/*
+pkg/BayesFactor/temp/*

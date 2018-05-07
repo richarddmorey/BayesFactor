@@ -24,4 +24,3 @@ Returns an object containing probabilities extracted from the object
 \description{
 Extract the probabilities from an object
 }
-

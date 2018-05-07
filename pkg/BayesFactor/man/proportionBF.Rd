@@ -66,11 +66,10 @@ bf
 samples =proportionBF(y = 15, N = 25, p = .5, posterior = TRUE, iterations = 10000)
 plot(samples[,"p"])
 }
-\author{
-Richard D. Morey (\email{richarddmorey@gmail.com})
-}
 \seealso{
 \code{\link{prop.test}}
 }
+\author{
+Richard D. Morey (\email{richarddmorey@gmail.com})
+}
 \keyword{htest}
-

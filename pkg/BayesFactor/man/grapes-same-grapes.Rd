@@ -19,4 +19,3 @@ Returns \code{TRUE} or \code{FALSE}
 Compare two objects to see if they are the 'same', for some loose definition
 of same
 }
-
