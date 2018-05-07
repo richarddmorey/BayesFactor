@@ -32,7 +32,7 @@ Share via<br/>
 
 ----
 
-Stable version: [CRAN page](https://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](https://cran.r-project.org/web/packages/BayesFactor/NEWS) 
+Stable version: [CRAN page](https://cran.r-project.org/package=BayesFactor) - [Package NEWS (including version changes)](https://CRAN.R-project.org/package=BayesFactor/NEWS) 
 
 Development version: [Development page](https://github.com/richarddmorey/BayesFactor) - [Development package NEWS](https://github.com/richarddmorey/BayesFactor/blob/master/pkg/BayesFactor/NEWS) 
 <div class="social">
