@@ -1,3 +1,7 @@
+## The code in this file is from the JASP project
+## (https://github.com/jasp-stats/jasp-desktop/blob/development/JASP-Engine/JASP/R/correlationbayesian.R)
+## and written by Alexander Ly (Alexander.Ly.NL@gmail.com)
+
 .bf10Exact <- function(n, r, kappa=1) {
   # Ly et al 2015
   # This is the exact result with symmetric beta prior on rho

@@ -3,11 +3,12 @@ Type: Package
 Title: Computation of Bayes Factors for Common Designs
 Version: 0.9.12-4.1
 Date: 2018-05-08
-Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre"), email = "richarddmorey@gmail.com"), 
+Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre", "cph"), email = "richarddmorey@gmail.com"), 
     person("Jeffrey N.", "Rouder", role = "aut", email = "jrouder@uci.edu"), 
-    person("Tahira", "Jamil", role = "ctb", email = "tahjamil@gmail.com"), 
-    person("Simon", "Urbanek", role = "ctb", email = "simon.urbanek@r-project.org"), 
-    person("Karl", "Forner", role = "ctb", email = "karl.forner@gmail.com"))
+    person("Tahira", "Jamil", role = c("ctb","cph"), email = "tahjamil@gmail.com"), 
+    person("Simon", "Urbanek", role = c("ctb", "cph"), email = "simon.urbanek@r-project.org"), 
+    person("Karl", "Forner", role = c("ctb", "cph"), email = "karl.forner@gmail.com"), 
+    person("Alexander", "Ly", role = c("ctb", "cph"), email = "Alexander.Ly.NL@gmail.com"))
 Description: A suite of functions for computing
     various Bayes factors for simple designs, including contingency tables,
     one- and two-sample designs, one-way designs, general ANOVA designs, and
