@@ -78,7 +78,8 @@
 ##'   details.
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
 ##' @return An object of class \code{BFBayesFactor}, containing the computed
-##'   model comparisons
+##'   model comparisons. Bayes factors can be extracted using extractBF(), as.vector()
+##'   or as.data.frame().
 ##' @param callback callback function for third-party interfaces
 ##' @author Richard D. Morey (\email{richarddmorey@@gmail.com})
 ##' @export
