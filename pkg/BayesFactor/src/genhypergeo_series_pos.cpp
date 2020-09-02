@@ -7,13 +7,13 @@
 using namespace Rcpp;
 
 bool isgood( NumericVector s, NumericVector t,  double tol)
-{ 
+{
   int i=0;
   for( i=0 ; i < t.size() ; i++){
     if(t[i] != NA_REAL)
-      if ( ( logExpXminusExpY( s[i], t[i] ) - t[i] ) > log(tol) ) 
+      if ( ( logExpXminusExpY( s[i], t[i] ) - t[i] ) > log(tol) )
         return 0;
-  }  
+  }
   return 1;
 }
 
@@ -27,13 +27,13 @@ NumericVector genhypergeo_series_pos( NumericVector U,
                                  const bool check_conds,
                                  const bool polynomial)
 {
-  
+
   NumericVector fac( z.size() );
   NumericVector temp( z.size() );
   NumericVector series( z.size() );
   LogicalVector greater( z.size() );
   int i=0,j=0;
-  
+
   if(check_conds){
     if(is_true(any(U<0)) || is_true(any(L<0)) || is_true(any(z<0))){
       stop("All arguments must be positive.");
@@ -41,7 +41,7 @@ NumericVector genhypergeo_series_pos( NumericVector U,
   }
 
   if(check_mod){
-    
+
     if( U.size() > (L.size()+1) ){
       greater = abs(z)>0;
     } else if(U.size() > L.size()) {
@@ -55,16 +55,16 @@ NumericVector genhypergeo_series_pos( NumericVector U,
       for( i = 0 ; i < z.size() ; i++){
         if( greater[i] ) z[i] = NA_REAL;
       }
-    } 
+    }
   }
-  
+
   if(maxiter==0){
     return z*0+fac;
   }
-  
+
   for ( i = 0; i < maxiter; i++ ) {
 
-    fac = fac + sum(log( U + i) )  - sum( log( L + i ) ) +  log(z) - log( i + 1 );
+    fac = fac + sum(log( U + i) )  - sum( log( L + i ) ) +  log(z) - log( i + 1.0 );
 
     for( j = 0 ; j < z.size() ; j++ ){
       series[j] = logExpXplusExpY( temp[j], fac[j] );
@@ -75,14 +75,14 @@ NumericVector genhypergeo_series_pos( NumericVector U,
     }
     temp = clone(series);
   }
-  
+
   if(polynomial){
     return series;
   }else{
     Rcpp::warning("Series not converged.");
-    return z * NA_REAL;  
+    return z * NA_REAL;
   }
-  
+
 }
 
 

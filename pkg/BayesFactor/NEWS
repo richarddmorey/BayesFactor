@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4.2
+
+CHANGES
+  * Fixed issue preventing Solaris compilation (affected 0.9.12-4 and 0.9.12-4.1)
+
   CHANGES IN BayesFactor VERSION 0.9.12-4
 
 CHANGES
