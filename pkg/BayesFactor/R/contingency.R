@@ -17,7 +17,7 @@
 ##'
 ##' For \code{sampleType="indepMulti"} (independent multinomial), the
 ##' sampling plan is assumed to be one in which row or column totals are fixed,
-##' and the each row or column is assumed to be multinomially distributed.
+##' and each row or column is assumed to be multinomially distributed.
 ##' Under the null hypothesis, each row or column is assumed to have the
 ##' same multinomial probabilities. The fixed margin must be given by
 ##' the \code{fixedMargin} argument.
