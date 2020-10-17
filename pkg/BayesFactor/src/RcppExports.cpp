@@ -140,6 +140,10 @@ RcppExport SEXP _BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP
         UNPROTECT(1);
         Rf_onintr();
     }
+    bool rcpp_isLongjump_gen = Rcpp::internal::isLongjumpSentinel(rcpp_result_gen);
+    if (rcpp_isLongjump_gen) {
+        Rcpp::internal::resumeJump(rcpp_result_gen);
+    }
     Rboolean rcpp_isError_gen = Rf_inherits(rcpp_result_gen, "try-error");
     if (rcpp_isError_gen) {
         SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
@@ -148,28 +152,6 @@ RcppExport SEXP _BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP
     }
     UNPROTECT(1);
     return rcpp_result_gen;
-}
-// jzs_sampler
-NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
-RcppExport SEXP _BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP);
-    Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP);
-    Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type importanceMu(importanceMuSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type importanceSig(importanceSigSEXP);
-    Rcpp::traits::input_parameter< const int >::type progress(progressSEXP);
-    Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP);
-    Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP);
-    Rcpp::traits::input_parameter< const int >::type which(whichSEXP);
-    rcpp_result_gen = Rcpp::wrap(jzs_sampler(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which));
-    return rcpp_result_gen;
-END_RCPP
 }
 // jzs_log_marginal_posterior_logg
 Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double sumSq, const int N, const NumericMatrix XtCnX0, const NumericMatrix CnytCnX0, const NumericVector rscale, const IntegerVector gMap, const NumericVector gMapCounts, const NumericMatrix priorX, const int incCont, const bool limit, const NumericVector limits, const int which);
@@ -215,6 +197,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP);
     Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP);
     rcpp_result_gen = Rcpp::wrap(jzs_Gibbs(iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval));
+    return rcpp_result_gen;
+END_RCPP
+}
+// jzs_sampler
+NumericVector jzs_sampler(const int iterations, const NumericVector y, const NumericMatrix X, const NumericVector rscale, const IntegerVector gMap, const int incCont, const NumericVector importanceMu, const NumericVector importanceSig, const int progress, const Function callback, const double callbackInterval, const int which);
+RcppExport SEXP _BayesFactor_jzs_sampler(SEXP iterationsSEXP, SEXP ySEXP, SEXP XSEXP, SEXP rscaleSEXP, SEXP gMapSEXP, SEXP incContSEXP, SEXP importanceMuSEXP, SEXP importanceSigSEXP, SEXP progressSEXP, SEXP callbackSEXP, SEXP callbackIntervalSEXP, SEXP whichSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int >::type iterations(iterationsSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type rscale(rscaleSEXP);
+    Rcpp::traits::input_parameter< const IntegerVector >::type gMap(gMapSEXP);
+    Rcpp::traits::input_parameter< const int >::type incCont(incContSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type importanceMu(importanceMuSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type importanceSig(importanceSigSEXP);
+    Rcpp::traits::input_parameter< const int >::type progress(progressSEXP);
+    Rcpp::traits::input_parameter< const Function >::type callback(callbackSEXP);
+    Rcpp::traits::input_parameter< const double >::type callbackInterval(callbackIntervalSEXP);
+    Rcpp::traits::input_parameter< const int >::type which(whichSEXP);
+    rcpp_result_gen = Rcpp::wrap(jzs_sampler(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -409,9 +413,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesFactor_ddinvgamma1_Rcpp", (DL_FUNC) &_BayesFactor_ddinvgamma1_Rcpp, 3},
     {"_BayesFactor_d2dinvgamma1_Rcpp", (DL_FUNC) &_BayesFactor_d2dinvgamma1_Rcpp, 3},
     {"_BayesFactor_genhypergeo_series_pos", (DL_FUNC) &_BayesFactor_genhypergeo_series_pos, 8},
-    {"_BayesFactor_jzs_sampler", (DL_FUNC) &_BayesFactor_jzs_sampler, 12},
     {"_BayesFactor_jzs_log_marginal_posterior_logg", (DL_FUNC) &_BayesFactor_jzs_log_marginal_posterior_logg, 13},
     {"_BayesFactor_jzs_Gibbs", (DL_FUNC) &_BayesFactor_jzs_Gibbs, 14},
+    {"_BayesFactor_jzs_sampler", (DL_FUNC) &_BayesFactor_jzs_sampler, 12},
     {"_BayesFactor_GibbsLinearRegRcpp", (DL_FUNC) &_BayesFactor_GibbsLinearRegRcpp, 9},
     {"_BayesFactor_log_determinant_pos_def", (DL_FUNC) &_BayesFactor_log_determinant_pos_def, 1},
     {"_BayesFactor_logSummaryStats", (DL_FUNC) &_BayesFactor_logSummaryStats, 1},

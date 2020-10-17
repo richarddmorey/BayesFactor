@@ -249,6 +249,13 @@ oneDesignMatrix <- function(trm, data, dataTypes, sparse = FALSE)
     if(dataTypes[effects] == "fixed"){
       X = X %*% fixedFromRandomProjection(ncol(X), sparse = sparse)
       colnames(X) = paste(effects,"_redu_",1:ncol(X),sep="")
+    }else if(dataTypes[effects] == "random"){
+      # We need to add in a hyphen to be consistent with the
+      # column names elsewhere
+      colnames(X) =
+      stringr::str_replace(string = colnames(X),
+                           pattern = paste0("^",effects),
+                           replacement = paste0(effects,"-"))
     }
     return(X)
   }else{

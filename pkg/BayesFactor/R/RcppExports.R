@@ -33,16 +33,16 @@ genhypergeo_series_pos <- function(U, L, z, tol, maxiter, check_mod, check_conds
     .Call('_BayesFactor_genhypergeo_series_pos', PACKAGE = 'BayesFactor', U, L, z, tol, maxiter, check_mod, check_conds, polynomial)
 }
 
-jzs_sampler <- function(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which) {
-    .Call('_BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
-}
-
 jzs_log_marginal_posterior_logg <- function(q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which) {
     .Call('_BayesFactor_jzs_log_marginal_posterior_logg', PACKAGE = 'BayesFactor', q, sumSq, N, XtCnX0, CnytCnX0, rscale, gMap, gMapCounts, priorX, incCont, limit, limits, which)
 }
 
 jzs_Gibbs <- function(iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval) {
     .Call('_BayesFactor_jzs_Gibbs', PACKAGE = 'BayesFactor', iterations, y, X, rscale, sig2start, gMap, gMapCounts, incCont, nullModel, ignoreCols, thin, progress, callback, callbackInterval)
+}
+
+jzs_sampler <- function(iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which) {
+    .Call('_BayesFactor_jzs_sampler', PACKAGE = 'BayesFactor', iterations, y, X, rscale, gMap, incCont, importanceMu, importanceSig, progress, callback, callbackInterval, which)
 }
 
 GibbsLinearRegRcpp <- function(iterations, y, X, r, sig2start, nullModel, progress, callback, callbackInterval) {
