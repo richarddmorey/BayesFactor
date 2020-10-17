@@ -4,9 +4,15 @@
 \alias{contingencyTableBF}
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
-contingencyTableBF(x, sampleType, fixedMargin = NULL,
-  priorConcentration = 1, posterior = FALSE, callback = function(...)
-  as.integer(0), ...)
+contingencyTableBF(
+  x,
+  sampleType,
+  fixedMargin = NULL,
+  priorConcentration = 1,
+  posterior = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 }
 \arguments{
 \item{x}{an m by n matrix of counts (integers m,n > 1)}
@@ -53,7 +59,7 @@ assignments to the two factors are independent.
 
 For \code{sampleType="indepMulti"} (independent multinomial), the
 sampling plan is assumed to be one in which row or column totals are fixed,
-and the each row or column is assumed to be multinomially distributed.
+and each row or column is assumed to be multinomially distributed.
 Under the null hypothesis, each row or column is assumed to have the
 same multinomial probabilities. The fixed margin must be given by
 the \code{fixedMargin} argument.
@@ -85,7 +91,7 @@ chains = posterior(bf, iterations = 10000)
 sameRaceGivenWhite = chains[,"pi[1,1]"] / chains[,"pi[*,1]"]
 sameRaceGivenBlack = chains[,"pi[1,2]"] / chains[,"pi[*,2]"]
 hist(sameRaceGivenWhite - sameRaceGivenBlack, xlab = "Probability increase",
-  main = "Increase in probability of child picking\\nsame race doll (white - black)",
+  main = "Increase in probability of child picking\nsame race doll (white - black)",
   freq=FALSE, yaxt='n')
 box()
 

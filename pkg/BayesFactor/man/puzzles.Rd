@@ -4,11 +4,13 @@
 \name{puzzles}
 \alias{puzzles}
 \title{Puzzle completion times from Hays (1994)}
-\format{A data frame with 48 observations on 3 variables.  \describe{
+\format{
+A data frame with 48 observations on 3 variables.  \describe{
 \item{RT}{Puzzle completion time, in minutes} \item{ID}{the
 subject identifier} \item{shape}{shape of the puzzle (round or
 square)} \item{color}{color content of the puzzle (monochromatic or
-color)} }}
+color)} }
+}
 \source{
 Hays, W. L. (1994), Statistics (5th edition), Harcourt Brace, Fort
 Worth, Texas

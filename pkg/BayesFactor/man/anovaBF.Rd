@@ -4,11 +4,21 @@
 \alias{anovaBF}
 \title{Function to compute Bayes factors for ANOVA designs}
 \usage{
-anovaBF(formula, data, whichRandom = NULL, whichModels = "withmain",
-  iterations = 10000, progress = getOption("BFprogress", interactive()),
-  rscaleFixed = "medium", rscaleRandom = "nuisance", rscaleEffects = NULL,
-  multicore = FALSE, method = "auto", noSample = FALSE,
-  callback = function(...) as.integer(0))
+anovaBF(
+  formula,
+  data,
+  whichRandom = NULL,
+  whichModels = "withmain",
+  iterations = 10000,
+  progress = getOption("BFprogress", interactive()),
+  rscaleFixed = "medium",
+  rscaleRandom = "nuisance",
+  rscaleEffects = NULL,
+  multicore = FALSE,
+  method = "auto",
+  noSample = FALSE,
+  callback = function(...) as.integer(0)
+)
 }
 \arguments{
 \item{formula}{a formula containing all factors to include in the analysis
@@ -44,7 +54,8 @@ details.}
 }
 \value{
 An object of class \code{BFBayesFactor}, containing the computed
-  model comparisons
+  model comparisons. Bayes factors can be extracted using extractBF(), as.vector()
+  or as.data.frame().
 }
 \description{
 This function computes Bayes factors for all main-effects and interaction

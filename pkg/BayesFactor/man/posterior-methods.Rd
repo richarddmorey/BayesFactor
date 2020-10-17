@@ -18,38 +18,27 @@
 \usage{
 posterior(model, index, data, iterations, ...)
 
-\S4method{posterior}{BFmodel,missing,data.frame,missing}(model, index, data,
-  iterations, ...)
+\S4method{posterior}{BFmodel,missing,data.frame,missing}(model, index, data, iterations, ...)
 
-\S4method{posterior}{BFBayesFactor,missing,missing,missing}(model, index, data,
-  iterations, ...)
+\S4method{posterior}{BFBayesFactor,missing,missing,missing}(model, index, data, iterations, ...)
 
-\S4method{posterior}{BFBayesFactor,numeric,missing,numeric}(model, index, data,
-  iterations, ...)
+\S4method{posterior}{BFBayesFactor,numeric,missing,numeric}(model, index, data, iterations, ...)
 
-\S4method{posterior}{BFBayesFactor,missing,missing,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFBayesFactor,missing,missing,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFlinearModel,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFlinearModel,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFindepSample,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFindepSample,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFcontingencyTable,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFcontingencyTable,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFoneSample,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFoneSample,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFmetat,missing,data.frame,numeric}(model, index = NULL,
-  data, iterations, ...)
+\S4method{posterior}{BFmetat,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFproportion,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFproportion,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 
-\S4method{posterior}{BFcorrelation,missing,data.frame,numeric}(model,
-  index = NULL, data, iterations, ...)
+\S4method{posterior}{BFcorrelation,missing,data.frame,numeric}(model, index = NULL, data, iterations, ...)
 }
 \arguments{
 \item{model}{or set of models from which to sample}

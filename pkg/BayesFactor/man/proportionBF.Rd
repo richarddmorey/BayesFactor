@@ -4,8 +4,16 @@
 \alias{proportionBF}
 \title{Function for Bayesian analysis of proportions}
 \usage{
-proportionBF(y, N, p, rscale = "medium", nullInterval = NULL,
-  posterior = FALSE, callback = function(...) as.integer(0), ...)
+proportionBF(
+  y,
+  N,
+  p,
+  rscale = "medium",
+  nullInterval = NULL,
+  posterior = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 }
 \arguments{
 \item{y}{a vector of successes}

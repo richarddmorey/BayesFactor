@@ -4,9 +4,18 @@
 \alias{lmBF}
 \title{Function to compute Bayes factors for specific linear models}
 \usage{
-lmBF(formula, data, whichRandom = NULL, rscaleFixed = "medium",
-  rscaleRandom = "nuisance", rscaleCont = "medium", rscaleEffects = NULL,
-  posterior = FALSE, progress = getOption("BFprogress", interactive()), ...)
+lmBF(
+  formula,
+  data,
+  whichRandom = NULL,
+  rscaleFixed = "medium",
+  rscaleRandom = "nuisance",
+  rscaleCont = "medium",
+  rscaleEffects = NULL,
+  posterior = FALSE,
+  progress = getOption("BFprogress", interactive()),
+  ...
+)
 }
 \arguments{
 \item{formula}{a formula containing all factors to include in the analysis

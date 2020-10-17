@@ -6,29 +6,49 @@
 \alias{recompute}
 \alias{recompute,BFBayesFactor-method}
 \alias{recompute,BFBayesFactorTop-method}
-\alias{recompute,BFBayesFactor-method}
 \alias{recompute,BFmcmc-method}
 \alias{recompute,BFodds-method}
 \title{Recompute a Bayes factor computation or MCMC object.}
 \usage{
-recompute(x, progress = getOption("BFprogress", interactive()),
-  multicore = FALSE, callback = function(...) as.integer(0), ...)
+recompute(
+  x,
+  progress = getOption("BFprogress", interactive()),
+  multicore = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 
-\S4method{recompute}{BFBayesFactor}(x, progress = getOption("BFprogress",
-  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
-  ...)
+\S4method{recompute}{BFBayesFactor}(
+  x,
+  progress = getOption("BFprogress", interactive()),
+  multicore = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 
-\S4method{recompute}{BFBayesFactorTop}(x, progress = getOption("BFprogress",
-  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
-  ...)
+\S4method{recompute}{BFBayesFactorTop}(
+  x,
+  progress = getOption("BFprogress", interactive()),
+  multicore = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 
-\S4method{recompute}{BFmcmc}(x, progress = getOption("BFprogress",
-  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
-  ...)
+\S4method{recompute}{BFmcmc}(
+  x,
+  progress = getOption("BFprogress", interactive()),
+  multicore = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 
-\S4method{recompute}{BFodds}(x, progress = getOption("BFprogress",
-  interactive()), multicore = FALSE, callback = function(...) as.integer(0),
-  ...)
+\S4method{recompute}{BFodds}(
+  x,
+  progress = getOption("BFprogress", interactive()),
+  multicore = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 }
 \arguments{
 \item{x}{object to recompute}

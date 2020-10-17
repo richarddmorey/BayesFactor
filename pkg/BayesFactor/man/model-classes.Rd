@@ -8,7 +8,6 @@
 \alias{BFcontingencyTable-class}
 \alias{BFlinearModel-class}
 \alias{BFoneSample-class}
-\alias{BFoneSample-class}
 \alias{BFindepSample-class}
 \title{General S4 classes for representing models for comparison}
 \description{

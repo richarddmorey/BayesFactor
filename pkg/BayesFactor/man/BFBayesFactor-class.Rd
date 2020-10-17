@@ -32,8 +32,7 @@
 
 \S4method{*}{BFBayesFactor,BFodds}(e1, e2)
 
-\S4method{[}{BFBayesFactorTop,index,missing,missing}(x, i, j, ...,
-  drop = TRUE)
+\S4method{[}{BFBayesFactorTop,index,missing,missing}(x, i, j, ..., drop = TRUE)
 }
 \arguments{
 \item{e1}{Numerator of the ratio}

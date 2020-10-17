@@ -4,8 +4,15 @@
 \alias{ttest.tstat}
 \title{Use t statistic to compute Bayes factor for one- and two- sample designs}
 \usage{
-ttest.tstat(t, n1, n2 = 0, nullInterval = NULL, rscale = "medium",
-  complement = FALSE, simple = FALSE)
+ttest.tstat(
+  t,
+  n1,
+  n2 = 0,
+  nullInterval = NULL,
+  rscale = "medium",
+  complement = FALSE,
+  simple = FALSE
+)
 }
 \arguments{
 \item{t}{classical t statistic}

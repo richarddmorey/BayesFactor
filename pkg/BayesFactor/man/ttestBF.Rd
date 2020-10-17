@@ -4,9 +4,19 @@
 \alias{ttestBF}
 \title{Function for Bayesian analysis of one- and two-sample designs}
 \usage{
-ttestBF(x = NULL, y = NULL, formula = NULL, mu = 0,
-  nullInterval = NULL, paired = FALSE, data = NULL, rscale = "medium",
-  posterior = FALSE, callback = function(...) as.integer(0), ...)
+ttestBF(
+  x = NULL,
+  y = NULL,
+  formula = NULL,
+  mu = 0,
+  nullInterval = NULL,
+  paired = FALSE,
+  data = NULL,
+  rscale = "medium",
+  posterior = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 }
 \arguments{
 \item{x}{a vector of observations for the first (or only) group}

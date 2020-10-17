@@ -5,7 +5,6 @@
 \alias{model.matrix,BFBayesFactor-method}
 \alias{model.matrix,BFBayesFactor}
 \alias{model.matrix,BFBayesFactorTop-method}
-\alias{model.matrix,BFBayesFactor}
 \title{Design matrices for Bayes factor linear models analyses.}
 \usage{
 \S4method{model.matrix}{BFBayesFactor}(object, ...)

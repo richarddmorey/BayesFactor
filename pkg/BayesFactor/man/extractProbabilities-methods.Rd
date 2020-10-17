@@ -8,8 +8,7 @@
 \usage{
 extractProbabilities(x, logprobs = FALSE, onlyprobs = FALSE)
 
-\S4method{extractProbabilities}{BFprobability}(x, logprobs = FALSE,
-  onlyprobs = FALSE)
+\S4method{extractProbabilities}{BFprobability}(x, logprobs = FALSE, onlyprobs = FALSE)
 }
 \arguments{
 \item{x}{object from which to extract}

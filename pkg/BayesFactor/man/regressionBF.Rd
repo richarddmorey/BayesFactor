@@ -4,9 +4,15 @@
 \alias{regressionBF}
 \title{Function to compute Bayes factors for regression designs}
 \usage{
-regressionBF(formula, data, whichModels = "all",
-  progress = getOption("BFprogress", interactive()), rscaleCont = "medium",
-  callback = function(...) as.integer(0), noSample = FALSE)
+regressionBF(
+  formula,
+  data,
+  whichModels = "all",
+  progress = getOption("BFprogress", interactive()),
+  rscaleCont = "medium",
+  callback = function(...) as.integer(0),
+  noSample = FALSE
+)
 }
 \arguments{
 \item{formula}{a formula containing all covariates to include in the

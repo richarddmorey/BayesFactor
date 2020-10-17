@@ -4,10 +4,18 @@
 \alias{plot.BFBayesFactor}
 \title{Plot a Bayes factor object}
 \usage{
-\method{plot}{BFBayesFactor}(x, include1 = TRUE, addDenom = FALSE,
-  sortbf = TRUE, logbase = c("log10", "log2", "ln"), marginExpand = 0.4,
-  cols = c("wheat", "lightslateblue"), main = paste("vs.",
-  x@denominator@longName), pars = NULL, ...)
+\method{plot}{BFBayesFactor}(
+  x,
+  include1 = TRUE,
+  addDenom = FALSE,
+  sortbf = TRUE,
+  logbase = c("log10", "log2", "ln"),
+  marginExpand = 0.4,
+  cols = c("wheat", "lightslateblue"),
+  main = paste("vs.", x@denominator@longName),
+  pars = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{a BFBayesFactor object}

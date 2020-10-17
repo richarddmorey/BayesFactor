@@ -15,8 +15,7 @@
 
 \S4method{[}{BFprobability,index,missing,missing}(x, i, j, ..., drop = TRUE)
 
-\S4method{filterBF}{BFprobability,character}(x, name, perl = FALSE,
-  fixed = FALSE, ...)
+\S4method{filterBF}{BFprobability,character}(x, name, perl = FALSE, fixed = FALSE, ...)
 }
 \arguments{
 \item{e1}{BFprobability object}

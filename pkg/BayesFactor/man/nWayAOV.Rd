@@ -4,11 +4,22 @@
 \alias{nWayAOV}
 \title{Use ANOVA design matrix to compute Bayes factors or sample posterior}
 \usage{
-nWayAOV(y, X, gMap, rscale, iterations = 10000,
+nWayAOV(
+  y,
+  X,
+  gMap,
+  rscale,
+  iterations = 10000,
   progress = getOption("BFprogress", interactive()),
-  callback = function(...) as.integer(0), gibbs = NULL, posterior = FALSE,
-  ignoreCols = NULL, thin = 1, method = "auto", continuous = FALSE,
-  noSample = FALSE)
+  callback = function(...) as.integer(0),
+  gibbs = NULL,
+  posterior = FALSE,
+  ignoreCols = NULL,
+  thin = 1,
+  method = "auto",
+  continuous = FALSE,
+  noSample = FALSE
+)
 }
 \arguments{
 \item{y}{vector of observations}

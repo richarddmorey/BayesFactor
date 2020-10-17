@@ -4,9 +4,16 @@
 \alias{plot.BFBayesFactorTop}
 \title{Plot a Bayes factor top-down object}
 \usage{
-\method{plot}{BFBayesFactorTop}(x, include1 = TRUE, addDenom = FALSE,
-  sortbf = FALSE, logbase = c("log10", "log2", "ln"), marginExpand = 0.4,
-  pars = NULL, ...)
+\method{plot}{BFBayesFactorTop}(
+  x,
+  include1 = TRUE,
+  addDenom = FALSE,
+  sortbf = FALSE,
+  logbase = c("log10", "log2", "ln"),
+  marginExpand = 0.4,
+  pars = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{a BFBayesFactorTop object}

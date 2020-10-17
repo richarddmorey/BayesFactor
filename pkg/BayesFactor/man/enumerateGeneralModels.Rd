@@ -4,8 +4,13 @@
 \alias{enumerateGeneralModels}
 \title{Function for generation of nested linear models}
 \usage{
-enumerateGeneralModels(fmla, whichModels, neverExclude = NULL,
-  includeBottom = TRUE, data = NULL)
+enumerateGeneralModels(
+  fmla,
+  whichModels,
+  neverExclude = NULL,
+  includeBottom = TRUE,
+  data = NULL
+)
 }
 \arguments{
 \item{fmla}{formula for the "full" model}

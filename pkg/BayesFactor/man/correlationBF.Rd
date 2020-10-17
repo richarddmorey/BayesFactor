@@ -4,8 +4,15 @@
 \alias{correlationBF}
 \title{Function for Bayesian analysis of correlations}
 \usage{
-correlationBF(y, x, rscale = "medium", nullInterval = NULL,
-  posterior = FALSE, callback = function(...) as.integer(0), ...)
+correlationBF(
+  y,
+  x,
+  rscale = "medium",
+  nullInterval = NULL,
+  posterior = FALSE,
+  callback = function(...) as.integer(0),
+  ...
+)
 }
 \arguments{
 \item{y}{first continuous variable}

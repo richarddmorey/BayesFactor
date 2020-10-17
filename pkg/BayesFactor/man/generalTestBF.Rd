@@ -4,12 +4,23 @@
 \alias{generalTestBF}
 \title{Function to compute Bayes factors for general designs}
 \usage{
-generalTestBF(formula, data, whichRandom = NULL, whichModels = "withmain",
-  neverExclude = NULL, iterations = 10000,
-  progress = getOption("BFprogress", interactive()), rscaleFixed = "medium",
-  rscaleRandom = "nuisance", rscaleCont = "medium", rscaleEffects = NULL,
-  multicore = FALSE, method = "auto", noSample = FALSE,
-  callback = function(...) as.integer(0))
+generalTestBF(
+  formula,
+  data,
+  whichRandom = NULL,
+  whichModels = "withmain",
+  neverExclude = NULL,
+  iterations = 10000,
+  progress = getOption("BFprogress", interactive()),
+  rscaleFixed = "medium",
+  rscaleRandom = "nuisance",
+  rscaleCont = "medium",
+  rscaleEffects = NULL,
+  multicore = FALSE,
+  method = "auto",
+  noSample = FALSE,
+  callback = function(...) as.integer(0)
+)
 }
 \arguments{
 \item{formula}{a formula containing the full model for the analysis

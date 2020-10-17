@@ -17,11 +17,9 @@ comprisons, each against a different denominator}
 
 \S4method{[}{BFBayesFactorList,index,index,missing}(x, i, j, ..., drop = TRUE)
 
-\S4method{[}{BFBayesFactorList,index,missing,missing}(x, i, j, ...,
-  drop = TRUE)
+\S4method{[}{BFBayesFactorList,index,missing,missing}(x, i, j, ..., drop = TRUE)
 
-\S4method{[}{BFBayesFactorList,missing,index,missing}(x, i, j, ...,
-  drop = TRUE)
+\S4method{[}{BFBayesFactorList,missing,index,missing}(x, i, j, ..., drop = TRUE)
 }
 \arguments{
 \item{x}{a BFBayesFactorList object}

@@ -4,8 +4,10 @@
 \name{raceDolls}
 \alias{raceDolls}
 \title{Hraba and Grant (1970) children's doll preference data}
-\format{A matrix with 2 rows and 2 columns. Rows give doll preference; colums give the
-race of the child.}
+\format{
+A matrix with 2 rows and 2 columns. Rows give doll preference; colums give the
+race of the child.
+}
 \source{
 Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of
 racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402.
