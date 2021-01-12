@@ -50,8 +50,8 @@ number of preset values can be given as strings; see Details.}
 \item{rscaleEffects}{A named vector of prior settings for individual factors,
 overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.}
 
-\item{multicore}{if \code{TRUE} use multiple cores through the \code{doMC}
-package. Unavailable on Windows.}
+\item{multicore}{if \code{TRUE} use multiple cores through the \pkg{parallel}
+package.}
 
 \item{method}{approximation method, if needed. See \code{\link{nWayAOV}} for
 details.}
