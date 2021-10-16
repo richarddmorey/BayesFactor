@@ -130,7 +130,7 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   prior.interval = logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
   delta.est = t/sqrt(N)
   mean.delta = sum((delta.est * N)/sum(N))
-  scale.delta = 1/sqrt(N)
+  scale.delta = 1/sqrt(sum(N))
   log.const = meta.t.like(mean.delta,t,N,df,rscale,log=TRUE)
   intgl = integrate(meta.t.like,
                     lower = (lower-mean.delta)/scale.delta,
