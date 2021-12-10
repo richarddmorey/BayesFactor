@@ -2,7 +2,7 @@ Package: BayesFactor
 Type: Package
 Title: Computation of Bayes Factors for Common Designs
 Version: 0.9.12-4.3
-Date: 2020-09-02
+Date: 2021-12-10
 Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre", "cph"), email = "richarddmorey@gmail.com"), 
     person("Jeffrey N.", "Rouder", role = "aut", email = "jrouder@uci.edu"), 
     person("Tahira", "Jamil", role = c("ctb","cph"), email = "tahjamil@gmail.com"), 
@@ -44,4 +44,4 @@ URL: https://richarddmorey.github.io/BayesFactor/
 BugReports: https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
 LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
