@@ -17,17 +17,13 @@ Richard D. Morey
 -----------------
 
 <div class="social">
-<a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
-</div>
-
-<div class="social">
-<a target="_blank" href="http://bayesfactor.blogspot.nl/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
+<a target="_blank" href="https://bayesfactor.blogspot.co.uk/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
 </div>
 
 <div class="socialsep"></div>
 
 Share via<br/>
-<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
+<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="https://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
 </span>
 
 ----
@@ -725,7 +721,7 @@ plot(samples[,"rho"])
 <a id="proptest"></a>
 ### Tests of single proportions (0.9.9+)
 
-The default test for a proportion assumes that all observations were independent with fixed probability $\pi$. The rule for stopping can be fixed $N$ ([binomial sampling](http://en.wikipedia.org/wiki/Binomial_distribution)) or a fixed number of successes ([negative binomial sampling](http://en.wikipedia.org/wiki/Negative_binomial_distribution)); unlike a significance test, the Bayes factor does not depend on the stopping rule.
+The default test for a proportion assumes that all observations were independent with fixed probability $\pi$. The rule for stopping can be fixed $N$ ([binomial sampling](https://en.wikipedia.org/wiki/Binomial_distribution)) or a fixed number of successes ([negative binomial sampling](https://en.wikipedia.org/wiki/Negative_binomial_distribution)); unlike a significance test, the Bayes factor does not depend on the stopping rule.
 
 For the Bayes factor test of a single proportion, there are two hypotheses; the null hypothesis assumes that the probability $\pi$ is a fixed, known value $p$; under the alternative, the log-odds corresponding to $\pi$, denoted $\omega = \log(\pi/(1-\pi))$, has a logistic distribution centered on the log-odds corresponding to the null value $p$ (denoted $\omega_0 = \log(p/(1-p))$:
 \[
@@ -853,7 +849,7 @@ puzzleGenBF
 
 The resulting 9 models are the full model, plus the models that can be built by removing a single term at a time from the full model. By default, the `generalTestBF` function will not eliminate a term that is involved in a higher-order interaction (for instance, we will not remove `shape` unless the `shape:color` interaction is also removed); this behavior can be modified through the `whichModels` argument.
 
-It is often the case that some terms are nuisance terms that we would like to always keep in the model. For instance, `ID` in the `puzzles` data set is a participant effect; we would not generally consider models without a participant effect to be plausible. We can use the `neverExclude` argument to the function to specify a set of search terms (technically, [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html)) that, if matched, will specify that the term is always to be kept, and never excluded. To keep the `ID` term:
+It is often the case that some terms are nuisance terms that we would like to always keep in the model. For instance, `ID` in the `puzzles` data set is a participant effect; we would not generally consider models without a participant effect to be plausible. We can use the `neverExclude` argument to the function to specify a set of search terms (technically, [extended regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html)) that, if matched, will specify that the term is always to be kept, and never excluded. To keep the `ID` term:
 ```{r}
 puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + ID, data=puzzles, whichRandom="ID", neverExclude="ID")
 
@@ -865,7 +861,7 @@ puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, d
 
 puzzleGenBF
 ```
-The `shape:ID` interaction is never eliminated, because it matches the `ID` search term from `neverExclude`. [Regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html) are useful here. There are special characters representing the beginning and ending of a string (`^` and `$`, respectively) that we can use to construct a regular expression that will match `ID` but not `shape:ID`:
+The `shape:ID` interaction is never eliminated, because it matches the `ID` search term from `neverExclude`. [Regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html) are useful here. There are special characters representing the beginning and ending of a string (`^` and `$`, respectively) that we can use to construct a regular expression that will match `ID` but not `shape:ID`:
 ```{r}
 puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, data=puzzles, whichRandom="ID", neverExclude="^ID$")
 
@@ -892,7 +888,7 @@ done = puzzleCullBF[ !is.na(puzzleCullBF) ]
 
 missing
 ```
-The variable `missing` now contains all models for which we lack a Bayes factor. At this point, we decide which of the Bayes factors we would like to compute. We can do this in any way we like: we could simple specify a subset, like `missing[1:3]` or we could do something more complicated. Here, we will include based on the model formula, using the R function `grepl` ([?grepl](http://stat.ethz.ch/R-manual/R-devel/library/base/html/grep.html)). Suppose we only wanted models that did not include *both* `shape` and `color`. First, we obtain the names of the models in `missing`, and then test the names to see if they match our restriction with `grepl`. We can use the result to restrict the models to compare to only those of interest.
+The variable `missing` now contains all models for which we lack a Bayes factor. At this point, we decide which of the Bayes factors we would like to compute. We can do this in any way we like: we could simple specify a subset, like `missing[1:3]` or we could do something more complicated. Here, we will include based on the model formula, using the R function `grepl` ([?grepl](https://stat.ethz.ch/R-manual/R-devel/library/base/html/grep.html)). Suppose we only wanted models that did not include *both* `shape` and `color`. First, we obtain the names of the models in `missing`, and then test the names to see if they match our restriction with `grepl`. We can use the result to restrict the models to compare to only those of interest.
 
 ```{r}
 # get the names of the numerator models
@@ -957,7 +953,7 @@ fullModelFiltered = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, 
 
 fullModelFiltered
 ```
-Like the `neverExclude` argument discussed [above](#generalTestBF), the `columnFilter` argument is a character vector of [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html). If a model term is matched by a search term in `columnFilter`, then all columns for term are eliminated from the MCMC output. Remember that `"ID"` will match anything containing letters `ID`; it would, for instance, also eliminate terms `GID` and `ID:shape`, if they existed. See the [manual section on `generalTestBF`](#generalTestBF) for details about how to use specific regular expressions to avoid eliminating columns by accident.
+Like the `neverExclude` argument discussed [above](#generalTestBF), the `columnFilter` argument is a character vector of [extended regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html). If a model term is matched by a search term in `columnFilter`, then all columns for term are eliminated from the MCMC output. Remember that `"ID"` will match anything containing letters `ID`; it would, for instance, also eliminate terms `GID` and `ID:shape`, if they existed. See the [manual section on `generalTestBF`](#generalTestBF) for details about how to use specific regular expressions to avoid eliminating columns by accident.
 
 #### Chain thinning
 MCMC chains are characterized by the fact that successive iterations are correlated with one another: that is, they are not indepenedent samples from the posterior distribution. To see this, we sample from the posterior of the full model and plot the results:
@@ -966,7 +962,7 @@ MCMC chains are characterized by the fact that successive iterations are correla
 # Sample 10000 iterations, eliminating ID columns
 chains = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, posterior = TRUE, iterations=10000,columnFilter="ID")
 ```
-The figure below shows the first 1000 iterations of the MCMC chain for a selected parameter (left), and the *autocorrelation function* [[CRAN](http://stat.ethz.ch/R-manual/R-patched/library/stats/html/acf.html) / [Wikipedia](http://en.wikipedia.org/wiki/Autocorrelation)] for the same parameter (right).
+The figure below shows the first 1000 iterations of the MCMC chain for a selected parameter (left), and the *autocorrelation function* [[CRAN](https://stat.ethz.ch/R-manual/R-patched/library/stats/html/acf.html) / [Wikipedia](https://en.wikipedia.org/wiki/Autocorrelation)] for the same parameter (right).
 
 ```{r acfplot,fig.width=10,fig.height=5,echo=FALSE}
 par(mfrow=c(1,2))
@@ -1020,16 +1016,16 @@ Conover, W. J. (1971), Practical nonparametric statistics. New York: John Wiley 
 
 <a id="GunelDickey"></a>
 Gunel, E. and Dickey, J. (1974) Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557.
- ([JSTOR](http://www.jstor.org/stable/2334738))
+ ([JSTOR](https://www.jstor.org/stable/2334738))
  
 <a id="HrabaGrant"></a>
-Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](http://psycnet.apa.org/psycinfo/1971-03987-001)
+Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](https://psycnet.apa.org/psycinfo/1971-03987-001)
  
 <a id="Liangetal"></a> 
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([Publisher](https://www.tandfonline.com/doi/abs/10.1198/016214507000001337))
 
 <a id="Moreyarea"></a>
-Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([Publisher](http://psycnet.apa.org/buy/2011-15467-001))
+Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([Publisher](https://psycnet.apa.org/buy/2011-15467-001))
 
 <a id="MoreyMCMC"></a>
 Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([Publisher](https://www.sciencedirect.com/science/article/pii/S0022249611000666))
@@ -1047,11 +1043,11 @@ Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (
 Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758%2Fs13423-011-0088-7))
 
 <a id="LyCor"></a>
-Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](http://dx.doi.org/10.1016/j.jmp.2015.06.004))
+Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](https://dx.doi.org/10.1016/j.jmp.2015.06.004))
 
 
 
 -------
-<p>Social media icons by <a href="http://www.awicons.com/">Lokas Software</a>.</p>
+<p>Social media icons by <a href="https://www.awicons.com/">Lokas Software</a>.</p>
 
 *This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*

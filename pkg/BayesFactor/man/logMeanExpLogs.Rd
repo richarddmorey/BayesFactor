@@ -57,8 +57,8 @@ log(mean(exp(largeVals)))
 \references{
 For details of the approximation of \eqn{\log(1+e^x)}{log(1+e^x)}
 used to prevent loss of precision, see
-\url{http://www.codeproject.com/Articles/25294/Avoiding-Overflow-Underflow-and-Loss-of-Precision} and
-\url{http://www.johndcook.com/blog/standard_deviation/}.
+\url{https://www.codeproject.com/Articles/25294/Avoiding-Overflow-Underflow-and-Loss-of-Precision} and
+\url{https://www.johndcook.com/blog/standard_deviation/}.
 }
 \author{
 Richard D. Morey (\email{richarddmorey@gmail.com})

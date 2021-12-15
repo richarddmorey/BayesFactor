@@ -294,7 +294,7 @@ names.BFBayesFactor <- function(x) {
 length.BFBayesFactor <- function(x)
   nrow(x@bayesFactor)
 
-# See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
+# See https://www-stat.stanford.edu/~jmc4/classInheritance.pdf
 sort.BFBayesFactor <- function(x, decreasing = FALSE, ...){
   ord = order(x@bayesFactor$bf, decreasing = decreasing)
   return(x[ord])

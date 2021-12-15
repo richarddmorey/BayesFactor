@@ -324,7 +324,7 @@ names.BFodds <- function(x) {
   rownames(extractOdds(x))
 }
 
-# See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
+# See https://www-stat.stanford.edu/~jmc4/classInheritance.pdf
 sort.BFodds <- function(x, decreasing = FALSE, ...){
   ord = order(extractOdds(x, logodds=TRUE)$odds, decreasing = decreasing)
   return(x[ord])

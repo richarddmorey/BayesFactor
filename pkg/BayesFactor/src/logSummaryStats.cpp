@@ -4,7 +4,7 @@
 using namespace Rcpp;
 
 // Welford's method
-// http://www.johndcook.com/blog/standard_deviation/
+// https://www.johndcook.com/blog/standard_deviation/
 // [[Rcpp::export]]
 List logSummaryStats(NumericVector x) 
 {

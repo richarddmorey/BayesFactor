@@ -221,7 +221,7 @@ names.BFprobability <- function(x) {
   rownames(extractProbabilities(x))
 }
 
-# See http://www-stat.stanford.edu/~jmc4/classInheritance.pdf
+# See https://www-stat.stanford.edu/~jmc4/classInheritance.pdf
 sort.BFprobability <- function(x, decreasing = FALSE, ...){
   ord = order(extractProbabilities(x, logprobs=TRUE)$probs, decreasing = decreasing)
   return(x[ord])
