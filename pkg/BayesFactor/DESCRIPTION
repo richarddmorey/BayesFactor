@@ -25,7 +25,6 @@ Imports:
     stringr,
     utils,
     graphics,
-    gtools,
     MatrixModels,
     Rcpp (>= 0.11.2),
     methods,
