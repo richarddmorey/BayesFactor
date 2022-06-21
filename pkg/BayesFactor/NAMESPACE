@@ -31,7 +31,6 @@ importFrom(utils, tail)
 importFrom(graphics, plot)
 importFrom(utils, packageDescription)
 importFrom(Rcpp, evalCpp)
-importFrom(gtools, rdirichlet)
 importFrom(MatrixModels, model.Matrix)
 import(mvtnorm, pbapply, stringr, coda, Matrix)
 
