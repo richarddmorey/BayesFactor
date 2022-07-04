@@ -48,7 +48,7 @@ Rcpp::List jzs_log_marginal_posterior_logg(const NumericVector q, const double s
   
   if( limit ){
     for( i = 0; i < nGs ; i++ ){
-      if( ( q(i) < limits(0) ) | ( q(i) > limits(1) ) ){
+      if( ( q(i) < limits(0) ) || ( q(i) > limits(1) ) ){
         return Rcpp::List::create(Rcpp::Named("d0g") = -INFINITY,
                           Rcpp::Named("d1g") = wrap(d1g),
                           Rcpp::Named("d2g") = wrap(d2g));;

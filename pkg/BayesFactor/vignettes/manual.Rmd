@@ -1040,7 +1040,7 @@ Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), D
 Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([Publisher](https://link.springer.com/article/10.3758/PBR.16.2.225))
 
 <a id="RouderMetat"></a>
-Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758%2Fs13423-011-0088-7))
+Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758/s13423-011-0088-7))
 
 <a id="LyCor"></a>
 Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](https://dx.doi.org/10.1016/j.jmp.2015.06.004))
