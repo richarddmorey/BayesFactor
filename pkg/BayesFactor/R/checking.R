@@ -68,7 +68,7 @@ checkFormula <- function(formula, data, analysis){
   if(analysis=="indept"){
     if( length(decom) > 1 ) stop("Indep. groups t test can only support 1 factor as predictor.")
     if(length(decom[[1]]) > 1) stop("Interaction terms are not allowed in t test.")
-    if(nlevels(factor(data[,terms])) > 2) stop("Indep. groups t test requires a factor with exactly 2 levels.")
+    if(nlevels(as.factor(data[,terms])) > 2) stop("Indep. groups t test requires a factor with exactly 2 levels.")
   }
   invisible()
 }

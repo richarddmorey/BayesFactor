@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4.5
+
+CHANGES
+* Fixed unclear error message when ttestBF is used with a factor with more than two levels
+
   CHANGES IN BayesFactor VERSION 0.9.12-4.4
 
 * Removes dependence on the orphaned {gtools} package.
