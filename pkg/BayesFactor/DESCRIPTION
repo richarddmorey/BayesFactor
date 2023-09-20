@@ -43,5 +43,5 @@ URL: https://richarddmorey.github.io/BayesFactor/
 BugReports: https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
 LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Encoding: UTF-8

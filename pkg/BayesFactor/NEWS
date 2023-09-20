@@ -2,6 +2,7 @@
 
 CHANGES
 * Fixed unclear error message when ttestBF is used with a factor with more than two levels
+* Changed the conditions under which an approximation is used to compute posterior areas for t tests (and corrected the description of the approximation)
 
   CHANGES IN BayesFactor VERSION 0.9.12-4.4
 
