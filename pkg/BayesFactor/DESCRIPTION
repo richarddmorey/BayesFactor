@@ -2,7 +2,7 @@ Package: BayesFactor
 Type: Package
 Title: Computation of Bayes Factors for Common Designs
 Version: 0.9.12-4.5
-Date: 2023-08-24
+Date: 2023-09-21
 Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre", "cph"), email = "richarddmorey@gmail.com"), 
     person("Jeffrey N.", "Rouder", role = "aut", email = "jrouder@uci.edu"), 
     person("Tahira", "Jamil", role = c("ctb","cph"), email = "tahjamil@gmail.com"), 
