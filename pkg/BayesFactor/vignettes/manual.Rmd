@@ -157,7 +157,7 @@ diffScores = sleep$extra[1:10] - sleep$extra[11:20]
 t.test(diffScores)
 ```
 
-We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference $latex \delta=(\mu-\mu_0)/\sigma_\epsilon$ is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(\sqrt{2}/2\). See `?ttestBF` for more details.
+We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference $\delta=(\mu-\mu_0)/\sigma_\epsilon$ is assumed to be 0 under the null hypothesis, and $\text{Cauchy}(\text{scale}=r)$ under the alternative. The default $r$ scale in `BayesFactor` for t tests is $\sqrt{2}/2$. See `?ttestBF` for more details.
 
 ```{r onesampt}
 bf = ttestBF(x = diffScores)
@@ -185,13 +185,13 @@ plot(chains2[,1:2])
 
 Directional hypotheses can also be tested with `ttestBF` ([Morey & Rouder, 2011](#Moreyarea)). The argument `nullInterval` can be passed as a vector of length 2, and defines an interval to compare to the point null. If null interval is defined, _two_ Bayes factors are returned: the Bayes factor of the null interval against the alternative, and the Bayes factor of the _complement_ of the interval to the point null.
 
-Suppose, for instance, we wanted to test the one-sided hypotheses that \(\delta<0\) versus the point null. We set `nullInterval` to `c(-Inf,0)`:
+Suppose, for instance, we wanted to test the one-sided hypotheses that $\delta<0$ versus the point null. We set `nullInterval` to `c(-Inf,0)`:
 ```{r onesamptinterval}
 bfInterval = ttestBF(x = diffScores, nullInterval=c(-Inf,0))
 bfInterval
 ```
 
-We may not be interested in tests against the point null. If we are interested in the Bayes factor test that \(\delta<0\) versus \(\delta>0\) we can compute it using the result above. Since the object contains two Bayes factors, both with the same denominator, and
+We may not be interested in tests against the point null. If we are interested in the Bayes factor test that $\delta<0$ versus $\delta>0$ we can compute it using the result above. Since the object contains two Bayes factors, both with the same denominator, and
 $$
 \left.\frac{A}{C}\middle/\frac{B}{C}\right. = \frac{A}{B},
 $$
@@ -265,7 +265,7 @@ chains = posterior(bf, iterations = 10000)
 plot(chains[,2])
 ```
 
-Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
+Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the $r$ scale parameter between the two models. 
 
 <a id="metat"></a>
 ### Meta-analytic t tests (0.9.8+)
@@ -346,9 +346,9 @@ The model with the main effect of `supp` and the `supp:dose` interaction is pref
 
 There are a number of other options for how to select subsets of models to test. The `whichModels` argument to `anovaBF` controls which subsets are tested. As described previously, the default is `withmain`, where interactions are only allowed if all constituent sub-effects are included. The other three options currently available are `all`, which tests all models; `top`, which includes the full model and all models that can be formed by removing one interaction or main effect; and `bottom`, which adds single effects one at a time to the null model. 
 
-The argument `whichModels='all'` should be used with caution: a three-way ANOVA model will contain \(2^{2^3-1}-1 = 127\) model comparisons; a four-way ANOVA, \(2^{2^4-1}-1 = 32767\) models, and a five-way ANOVA just over 2.1 billion models. Depending on the speed of your computer, a four-way ANOVA may take several hours to a day, but a five-way ANOVA is probably not feasible.
+The argument `whichModels='all'` should be used with caution: a three-way ANOVA model will contain $2^{2^3-1}-1 = 127$ model comparisons; a four-way ANOVA, $2^{2^4-1}-1 = 32767$ models, and a five-way ANOVA just over 2.1 billion models. Depending on the speed of your computer, a four-way ANOVA may take several hours to a day, but a five-way ANOVA is probably not feasible.
 
-One alternative is `whichModels='top'`, which reduces the number of comparisons to \(2^k-1\), where \(k\) is the number of factors, which is manageable. In orthogonal designs, one can construct tests of each main effect or interaction by comparing the full model to the model with all effects except the one of interest: 
+One alternative is `whichModels='top'`, which reduces the number of comparisons to $2^k-1$, where $k$ is the number of factors, which is manageable. In orthogonal designs, one can construct tests of each main effect or interaction by comparing the full model to the model with all effects except the one of interest: 
 
 ```{r }
 bf = anovaBF(len ~ supp*dose, data=ToothGrowth, whichModels="top")
@@ -464,7 +464,7 @@ The period (`.`) is shorthand for all remaining columns, besides `rating`. The p
 bf = regressionBF(rating ~ ., data = attitude)
 length(bf)
 ```
-The object `bf` now contains \(2^p-1\), or `r length(bf)`, model comparisons. Large numbers of comparisons can get unweildy, so we can use the functions built into R to manipulate the Bayes factor object.
+The object `bf` now contains $2^p-1$, or `r length(bf)`, model comparisons. Large numbers of comparisons can get unweildy, so we can use the functions built into R to manipulate the Bayes factor object.
 ```{r regressSelect}
 ## Choose a specific model
 bf["privileges + learning + raises + critical + advance"]
@@ -970,9 +970,9 @@ plot(as.vector(chains[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="pa
 acf(chains[,"shape-round"])
 ```
 
-The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every \(k\) iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
+The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every $k$ iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
 
-The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every \(k=2\) iterations using the `thin` argument:
+The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every $k=2$ iterations using the `thin` argument:
 ```{r}
 chainsThinned = recompute(chains, iterations=20000, thin=2)
 
