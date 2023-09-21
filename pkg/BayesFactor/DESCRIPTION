@@ -35,6 +35,7 @@ Suggests:
     testthat,
     knitr,
     markdown,
+    rmarkdown,
     arm,
     lme4,
     xtable,
