@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4.6
+  
+CHANGES
+* Fixed REprintf format to correctly escape "%"; removes compile warning
+
   CHANGES IN BayesFactor VERSION 0.9.12-4.5
 
 CHANGES
