@@ -8,7 +8,8 @@ Authors@R: c(person("Richard D.", "Morey", role = c("aut", "cre", "cph"), email 
     person("Tahira", "Jamil", role = c("ctb","cph"), email = "tahjamil@gmail.com"), 
     person("Simon", "Urbanek", role = c("ctb", "cph"), email = "simon.urbanek@r-project.org"), 
     person("Karl", "Forner", role = c("ctb", "cph"), email = "karl.forner@gmail.com"), 
-    person("Alexander", "Ly", role = c("ctb", "cph"), email = "Alexander.Ly.NL@gmail.com"))
+    person("Alexander", "Ly", role = c("ctb", "cph"), email = "Alexander.Ly.NL@gmail.com"),
+    person("Marius", "Barth", role = c("ctb", "cph"), email = "marius.barth.uni.koeln@gmail.com", comment = c(orcid = "0000-0002-3421-6665")))
 Description: A suite of functions for computing
     various Bayes factors for simple designs, including contingency tables,
     one- and two-sample designs, one-way designs, general ANOVA designs, and
@@ -28,10 +29,9 @@ Imports:
     MatrixModels,
     Rcpp (>= 0.11.2),
     methods,
-    hypergeo
+    hypergeo,
+    parallel
 Suggests:
-    doMC,
-    foreach,
     testthat,
     knitr,
     markdown,
@@ -44,5 +44,5 @@ URL: https://richarddmorey.github.io/BayesFactor/
 BugReports: https://github.com/richarddmorey/BayesFactor/issues
 LazyLoad: yes
 LinkingTo: Rcpp (>= 0.11.2), RcppEigen (>= 0.3.2.2.0)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.1.1
 Encoding: UTF-8

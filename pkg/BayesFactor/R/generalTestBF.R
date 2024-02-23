@@ -22,8 +22,8 @@
 ##' @param rscaleCont prior scale for standardized slopes
 ##' @param rscaleEffects A named vector of prior settings for individual factors,
 ##'   overriding rscaleFixed and rscaleRandom. Values are scales, names are factor names.
-##' @param multicore if \code{TRUE} use multiple cores through the \code{doMC}
-##'   package. Unavailable on Windows.
+##' @param multicore if \code{TRUE} use multiple cores through the \pkg{parallel}
+##'   package.
 ##' @param method approximation method, if needed. See \code{\link{nWayAOV}} for
 ##'   details.
 ##' @param noSample if \code{TRUE}, do not sample, instead returning NA.
@@ -93,24 +93,46 @@ generalTestBF <-
                                                   "The maximum can be increased by changing ",
                                                   "options('BFMaxModels').")
 
-    if(multicore){
+    # On Windows, the parallel package can only create PSOCK clusters;
+    # these seem to hamper performance (compared to single-core operation)
+    if(isTRUE(multicore && .Platform$OS.type == "unix")){
       message("Note: Progress bars and callbacks are suppressed when running multicore.")
-      if(!requireNamespace("doMC", quietly = TRUE)){
-        stop("Required package (doMC) missing for multicore functionality.")
+      # Create a cluster only if no default cluster is available
+      if(is.null(parallel::getDefaultCluster())) {
+        cl <- parallel::makeForkCluster(nnodes = getOption("mc.cores", default = parallel::detectCores()))
+        on.exit(parallel::stopCluster(cl))
+      } else {
+        cl <- parallel::getDefaultCluster()
       }
-
-      doMC::registerDoMC()
-      if(foreach::getDoParWorkers()==1){
-        warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
+      
+      # first split models into batches (to reduce cross-talk between workers)
+      n_workers <- length(cl)
+      idx <- rep(
+        seq_len(n_workers),
+        each = ceiling(length(models)/n_workers),
+        length.out = length(models)
+      )
+      
+      nested_models <- vector(mode = "list", length = n_workers)
+      for (i in seq_along(nested_models)) {
+        nested_models[[i]] <- models[idx == i]
       }
-
-      bfs <- foreach::"%dopar%"(
-        foreach::foreach(gIndex=models, .options.multicore=mcoptions),
-        lmBF(gIndex,data = data, whichRandom = whichRandom,
-             rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
-             rscaleCont = rscaleCont, rscaleEffects = rscaleEffects, iterations = iterations, method=method,
-             progress=FALSE,noSample=noSample)
-        )
+      
+      # then use clusterMap() for each batch
+      bfs <- unlist(parallel::clusterMap(
+        cl = cl,
+        nested_models,
+        MoreArgs = list(
+          FUN = lmBF,
+          data = data,
+          whichRandom = whichRandom,
+          rscaleFixed = rscaleFixed, rscaleRandom = rscaleRandom,
+          rscaleEffects = rscaleEffects, iterations = iterations,
+          method=method, progress=FALSE, noSample = noSample
+        ),
+        fun = lapply, 
+        SIMPLIFY = TRUE)
+      )
     }else{ # Single core
       checkCallback(callback,as.integer(0))
       bfs = NULL
