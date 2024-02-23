@@ -23,7 +23,7 @@ double jzs_importance_marg_like2(const NumericVector q, const NumericVector mu, 
 
 
 // sign function 
-// from http://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
+// from https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }

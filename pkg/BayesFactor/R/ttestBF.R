@@ -55,15 +55,13 @@
 ##'   (2011). Using MCMC chain outputs to efficiently estimate Bayes factors.
 ##'   Journal of Mathematical Psychology, 55, 368-378
 ##'
-##'   Morey, R. D. \& Rouder, J. N. (2011). Bayes Factor Approaches for Testing
+##'   Morey, R. D. & Rouder, J. N. (2011). Bayes Factor Approaches for Testing
 ##'   Interval Null Hypotheses. Psychological Methods, 16, 406-419
 ##'
 ##'   Rouder, J. N., Speckman, P. L., Sun, D., Morey, R. D., & Iverson, G.
 ##'   (2009). Bayesian t-tests for accepting and rejecting the null hypothesis.
 ##'   Psychonomic Bulletin & Review, 16, 225-237
 ##'
-##'   Perception and Cognition Lab (University of Missouri): Bayes factor
-##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
 ##' @note The default priors have changed from 1 to \eqn{\sqrt{2}/2}. The
 ##'   factor of \eqn{\sqrt{2}}  is to be consistent
 ##'   with Morey et al. (2011) and

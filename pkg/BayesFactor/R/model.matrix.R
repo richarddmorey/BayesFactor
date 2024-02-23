@@ -3,7 +3,7 @@ designMatrix = function(bf, ...){
 
   model = bf@numerator[[1]]
 
-  if( class(model) != "BFlinearModel" ) stop("Model matrix not defined for this model type.")
+  if( !inherits(model, "BFlinearModel") ) stop("Model matrix not defined for this model type.")
   designMatrixJZS_LM(bf, ...)
 }
 

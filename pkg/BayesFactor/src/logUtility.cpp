@@ -3,7 +3,7 @@
 using namespace Rcpp;
 
 // return log(1 + exp(x)), preventing cancellation and overflow */
-// From http://www.codeproject.com/KB/recipes/avoiding_overflow.aspx
+// From https://www.codeproject.com/KB/recipes/avoiding_overflow.aspx
 // [[Rcpp::export]]
 double log1pExp(double x)
 {

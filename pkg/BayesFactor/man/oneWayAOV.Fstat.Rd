@@ -59,7 +59,7 @@ result <- oneWayAOV.Fstat(Fvalue, N=12, J=6)
 exp(result[['bf']])
 }
 \references{
-Morey, R. D., Rouder, J. N., Pratte, M. S., \& Speckman, P. L.
+Morey, R. D., Rouder, J. N., Pratte, M. S., and Speckman, P. L.
   (2011). Using MCMC chain outputs to efficiently estimate Bayes factors.
   Journal of Mathematical Psychology, 55, 368-378
 }

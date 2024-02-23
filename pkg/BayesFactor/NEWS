@@ -1,3 +1,28 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4.6
+  
+CHANGES
+* Fixed REprintf format to correctly escape "%"; removes compile warning
+
+  CHANGES IN BayesFactor VERSION 0.9.12-4.5
+
+CHANGES
+* Fixed unclear error message when ttestBF is used with a factor with more than two levels
+* Changed the conditions under which an approximation is used to compute posterior areas for t tests (and corrected the description of the approximation)
+* Fixed issue with base R paired t test and formula interface in examples (by not using formula interface)
+
+  CHANGES IN BayesFactor VERSION 0.9.12-4.4
+
+* Removes dependence on the orphaned {gtools} package.
+
+  CHANGES IN BayesFactor VERSION 0.9.12-4.3
+
+CHANGES
+* Fixed issue computing Bayes factor in t test with very large N
+* Fixed issue sampling posteriors when an interaction was included with out its constituent effects
+* Fixed consistency between model matrix column names
+* Fixed issue with special characters in column names
+* Fixed various typos in manuals
+
   CHANGES IN BayesFactor VERSION 0.9.12-4.2
 
 CHANGES

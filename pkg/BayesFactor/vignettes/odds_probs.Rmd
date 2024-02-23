@@ -17,18 +17,15 @@ Richard D. Morey
 -----------------
 
 <div class="social">
-<a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
-</div>
-
-<div class="social">
-<a target="_blank" href="http://bayesfactor.blogspot.nl/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
+<a target="_blank" href="https://bayesfactor.blogspot.co.uk/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
 </div>
 
 <div class="socialsep"></div>
 
 Share via<br/>
-<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
+<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="https://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
 </span>
+
 
 ----
 
@@ -121,7 +118,7 @@ In the future, the ability to filter these objects will be added, as well as mod
 
 
 -------
-<p>Social media icons by <a href="http://www.awicons.com/">Lokas Software</a>.</p>
+<p>Social media icons by <a href="https://www.awicons.com/">Lokas Software</a>.</p>
 
 *This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*
 

@@ -1,34 +1,20 @@
-<!--
-%\VignetteEngine{knitr}
-%\VignetteIndexEntry{User's manual}
-\usepackage[utf8]{inputenc}
--->
+---
+title: "Using the 'BayesFactor' package, version 0.9.2+"
+author: "Richard D. Morey"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{User's manual}
+  \usepackage[utf8]{inputenc}
+output:
+  knitr:::html_vignette:
+    toc: no
+---
 
-<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
+<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://upload.wikimedia.org/wikipedia/commons/e/ef/GitHub_forkme_ribbon_right_green.png" alt="Fork me on GitHub"></a>
 
-![BayesFactor logo](extra/logo.png)
 
-------
-
-Using the 'BayesFactor' package, version 0.9.2+
-===============================
-
-Richard D. Morey
------------------
-
-<div class="social">
-<a target="_blank" href="https://www.facebook.com/BayesFactor"><img src="extra/socialmedia/png/48x48/facebook.png" alt="BayesFactor on facebook" border="0"/><span class="socialtext">&nbsp;Find us on facebook</span></a>
-</div>
-
-<div class="social">
-<a target="_blank" href="http://bayesfactor.blogspot.nl/"><img src="extra/socialmedia/png/48x48/blogger.png" alt="BayesFactor blog" border="0"/><span class="socialtext">&nbsp;Follow the BayesFactor blog</span></a>
-</div>
-
-<div class="socialsep"></div>
-
-Share via<br/>
-<span class="social"><a target="_blank" href="https://www.facebook.com/sharer.php?u=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/facebook.png" alt="share on facebook"/></a> <a target="_blank" href="https://twitter.com/share?text=Check%20out%20BayesFactor%20for%20Bayesian%20data%20analysis:&url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/twitter.png" alt="tweet BayesFactor"/></a> <a target="_blank" href="http://www.reddit.com/submit?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/reddit.png" alt="submit to reddit" border="0" /></a> <a target="_blank" href="https://plus.google.com/share?url=https://richarddmorey.github.io/BayesFactor/"><img src="extra/socialmedia/png/32x32/google_plus.png" alt="submit to google plus" border="0" /></a> <a target="_blank" href="mailto:?subject=BayesFactor R package&amp;body=Check out the BayesFactor software for Bayesian analysis: https://richarddmorey.github.io/BayesFactor/." title="share by email"><img src="extra/socialmedia/png/32x32/email.png" alt="share by email" border="0" /></a>
-</span>
+![BayesFactor](extra/logo.png)
 
 ----
 
@@ -36,7 +22,7 @@ Stable version: [CRAN page](https://cran.r-project.org/package=BayesFactor) - [P
 
 Development version: [Development page](https://github.com/richarddmorey/BayesFactor) - [Development package NEWS](https://github.com/richarddmorey/BayesFactor/blob/master/pkg/BayesFactor/NEWS) 
 <div class="social">
-<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img src="extra/github.png" alt="fork on github" border="0"/><span class="socialtext">&nbsp;on github</span></a>
+<a target="_blank" href="https://github.com/richarddmorey/BayesFactor"><img src="extra/github.png" alt="fork on github" border="0"/><!--span class="socialtext">&nbsp;on github</span--></a>
 </div>
 
 
@@ -81,14 +67,16 @@ require(graphics)
 set.seed(2)
 ```
 
-<a id="intro"></a>
-### Introduction
+
+### Introduction <a id="intro"></a>
+
 The `BayesFactor` package enables the computation of Bayes factors in standard designs, such as one- and two- sample designs, ANOVA designs, and regression. The Bayes factors are based on  work spread across several papers. This document is designed to show users how to compute Bayes factors using the package by example. It is not designed to present the models used in the comparisons in detail; for that, see the `BayesFactor` help and especially the references listed in this manual. Complete references are given at the [end of this document](#references).
 
 If you need help or think you've found a bug, please use the links at the top of this document to contact the developers. When asking a question or reporting a bug, please send example code and data, the exact errors you're seeing (a cut-and-paste from the R console will work) and instructions for reproducing it. Also, report the output of `BFInfo()` and `sessionInfo()`, and let us know what operating system you're running.
 
-<a id="loading"></a>
-### Loading the package 
+
+### Loading the package <a id="loading"></a>
+
 The `BayesFactor` package must be installed and loaded before it can be used. Installing the package can be done in several ways and will not be covered here. Once it is installed, use the `library` function to load it:
 
 ```{r message=FALSE}
@@ -105,8 +93,8 @@ rversion = paste(session$version.string," on ",session$platform,sep="")
 
 This command will make the `BayesFactor` package ready to use.
 
-<a id="functions"></a>
-### Some useful functions 
+
+### Some useful functions <a id="functions"></a>
 
 The table below lists some of the functions in the `BayesFactor` package that will be demonstrated in this manual.  For more complete help on the use of these functions, see the corresponding `help()` page in R.
 
@@ -144,11 +132,13 @@ Function                 | Description
 `as.data.frame`          | Convert to data.frame (denominator will be lost!)
 
 ### One- and two-sample designs (t tests) 
+
 The `ttestBF` function is used to obtain Bayes factors corresponding to tests of a single sample's mean, or tests that two independent samples have the same mean.
 
 
-<a id="onesample"></a>
-#### One-sample tests (and paired)
+
+#### One-sample tests (and paired) <a id="onesample"></a>
+
 We use the `sleep` data set in R to demonstrate a one-sample t test. This is a paired design; for details about the data set, see `?sleep`. One way of analyzing these data is to compute difference scores by subtracting a participant's score in one condition from their score in the other:
 
 ```{r onesampdata}
@@ -161,7 +151,7 @@ diffScores = sleep$extra[1:10] - sleep$extra[11:20]
 t.test(diffScores)
 ```
 
-We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference $latex \delta=(\mu-\mu_0)/\sigma_\epsilon$ is assumed to be 0 under the null hypothesis, and \(\text{Cauchy}(\text{scale}=r)\) under the alternative. The default \(r\) scale in `BayesFactor` for t tests is \(\sqrt{2}/2\). See `?ttestBF` for more details.
+We can do a Bayesian version of this analysis using the `ttestBF` function, which performs the "JZS" t test described by [Rouder, Speckman, Sun, Morey, and Iverson (2009)](#Rouderttest). In this model, the true standardized difference $\delta=(\mu-\mu_0)/\sigma_\epsilon$ is assumed to be 0 under the null hypothesis, and $\text{Cauchy}(\text{scale}=r)$ under the alternative. The default $r$ scale in `BayesFactor` for t tests is $\sqrt{2}/2$. See `?ttestBF` for more details.
 
 ```{r onesampt}
 bf = ttestBF(x = diffScores)
@@ -182,20 +172,20 @@ chains = posterior(bf, iterations = 1000)
 summary(chains)
 ```
 The `posterior` function returns a object of type `BFmcmc`, which inherits the methods of the `mcmc` class from the [`coda` package](https://cran.r-project.org/package=coda). We can thus use `summary`, `plot`, and other useful methods on the result of `posterior`. If we were unhappy with the number of iterations we sampled for `chains`, we can `recompute` with more iterations, and then `plot` the results: 
-```{r tsamplplot,fig.width=10}
+```{r tsamplplot,fig.width=10,fig.cap=''}
 chains2 = recompute(chains, iterations = 10000)
 plot(chains2[,1:2])
 ```
 
 Directional hypotheses can also be tested with `ttestBF` ([Morey & Rouder, 2011](#Moreyarea)). The argument `nullInterval` can be passed as a vector of length 2, and defines an interval to compare to the point null. If null interval is defined, _two_ Bayes factors are returned: the Bayes factor of the null interval against the alternative, and the Bayes factor of the _complement_ of the interval to the point null.
 
-Suppose, for instance, we wanted to test the one-sided hypotheses that \(\delta<0\) versus the point null. We set `nullInterval` to `c(-Inf,0)`:
+Suppose, for instance, we wanted to test the one-sided hypotheses that $\delta<0$ versus the point null. We set `nullInterval` to `c(-Inf,0)`:
 ```{r onesamptinterval}
 bfInterval = ttestBF(x = diffScores, nullInterval=c(-Inf,0))
 bfInterval
 ```
 
-We may not be interested in tests against the point null. If we are interested in the Bayes factor test that \(\delta<0\) versus \(\delta>0\) we can compute it using the result above. Since the object contains two Bayes factors, both with the same denominator, and
+We may not be interested in tests against the point null. If we are interested in the Bayes factor test that $\delta<0$ versus $\delta>0$ we can compute it using the result above. Since the object contains two Bayes factors, both with the same denominator, and
 $$
 \left.\frac{A}{C}\middle/\frac{B}{C}\right. = \frac{A}{B},
 $$
@@ -213,7 +203,7 @@ allbf
 The object `allbf` now contains three Bayes factors, all of which share the same denominator. If you try to concatenate Bayes factors that do _not_ share the same denominator, `BayesFactor` will return an error.
 
 When you have a Bayes factor object with several numerators, there are several interesting ways to manipulate them. For instance, we can plot the Bayes factor object to obtain a graphical representation of the Bayes factors:
-```{r plotonesamp,fig.width=10,fig.height=5}
+```{r plotonesamp,fig.width=10,fig.height=5,fig.cap=''}
 plot(allbf)
 ```
 
@@ -234,8 +224,9 @@ t(bfmat[,1:2])
 ```
 If these values are desired in matrix form, the `as.matrix` function can be used to obtain a matrix.
 
-<a id="twosample"></a>
-#### Two-sample test (independent groups) 
+
+#### Two-sample test (independent groups) <a id="twosample"></a>
+
 The `ttestBF` function can also be used to compute Bayes factors in the two sample case as well. We use the `chickwts` data set to demonstrate the two-sample t test. The `chickwts` data set has six groups, but we reduce it to two for the demonstration.
 
 ```{r twosampledata}
@@ -264,15 +255,15 @@ bf = ttestBF(formula = weight ~ feed, data = chickwts)
 bf
 ```
 As before, we can sample from the posterior distribution for the numerator model:
-```{r twosampletsamp,fig.width=10}
+```{r twosampletsamp,fig.width=10,fig.cap=''}
 chains = posterior(bf, iterations = 10000)
 plot(chains[,2])
 ```
 
-Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the \(r\) scale parameter between the two models. 
+Note that the samples assume an (equivalent) ANOVA model; see `?ttestBF` and for notes on the differences in interpretation of the $r$ scale parameter between the two models. 
 
-<a id="metat"></a>
-### Meta-analytic t tests (0.9.8+)
+
+### Meta-analytic t tests (0.9.8+) <a id="metat"></a>
 
 Rouder and Morey (2011; [link](#RouderMetat)) discuss a meta-analytic extension of the $t$ test, whereby multiple $t$ statistics, along with their corresponding sample sizes, are combined in a single meta-analytic analysis. The $t$ statistics are assumed to arise from a a common effect size $\delta$. The prior for the effect size $\delta$ is the same as that for the $t$ tests described above.
 
@@ -296,7 +287,7 @@ Notice that as above, the analysis yields a Bayes factor for our selected interv
 
 We can also sample from the posterior distribution of the standardized effect size $\delta$, as above, using the `posterior` function:
 
-```{r bemposterior,fig.width=10}
+```{r bemposterior,fig.width=10,fig.cap=''}
 ## Do analysis again, without nullInterval restriction
 bf = meta.ttestBF(t=t, n1=N, rscale=1)
 
@@ -313,13 +304,15 @@ See `?meta.ttestBF` for more information.
 
 
 ### ANOVA 
+
 The `BayesFactor` package has two main functions that allow the comparison of models with factors as predictors (ANOVA): `anovaBF`, which computes several model estimates at once, and `lmBF`, which computes one comparison at a time. We begin by demonstrating a 3x2 fixed-effect ANOVA using the `ToothGrowth` data set. For details about the data set, see `?ToothGrowth`.
 
-<a id="fixed"></a>
-#### Fixed-effects ANOVA
+
+#### Fixed-effects ANOVA <a id="fixed"></a>
+
 The `ToothGrowth` data set contains three columns: `len`, the dependent variable, each of which is the length of a guinea pig's tooth after treatment with Vitamin C; `supp`, which is the supplement type (orange juice or ascorbic acid); and `dose`, which is the amount of Vitamin C administered.
 
-```{r fixeddata,fig.width=10,fig.height=5}
+```{r fixeddata,fig.width=10,fig.height=5,fig.cap=''}
 data(ToothGrowth)
 
 ## Example plot from ?ToothGrowth
@@ -342,7 +335,7 @@ bf
 The function will build the requested models from the terms included in the right-hand side of the formula; we could have specified the sum of the two terms, and we would have gotten the same models.
 
 The Bayes factor analysis is consistent with the classical ANOVA analysis; the favored model is the full model, with both main effects and the two-way interaction. Suppose we were interested in comparing the two main-effects model and the full model to the `dose`-only model. We could use indexing and division, along with the `plot` function, to see a graphical representation of these comparisons:  
-```{r fixedbf,fig.width=10,fig.height=5}
+```{r fixedbf,fig.width=10,fig.height=5,fig.cap=''}
 plot(bf[3:4] / bf[2])
 ```
 
@@ -350,9 +343,9 @@ The model with the main effect of `supp` and the `supp:dose` interaction is pref
 
 There are a number of other options for how to select subsets of models to test. The `whichModels` argument to `anovaBF` controls which subsets are tested. As described previously, the default is `withmain`, where interactions are only allowed if all constituent sub-effects are included. The other three options currently available are `all`, which tests all models; `top`, which includes the full model and all models that can be formed by removing one interaction or main effect; and `bottom`, which adds single effects one at a time to the null model. 
 
-The argument `whichModels='all'` should be used with caution: a three-way ANOVA model will contain \(2^{2^3-1}-1 = 127\) model comparisons; a four-way ANOVA, \(2^{2^4-1}-1 = 32767\) models, and a five-way ANOVA just over 2.1 billion models. Depending on the speed of your computer, a four-way ANOVA may take several hours to a day, but a five-way ANOVA is probably not feasible.
+The argument `whichModels='all'` should be used with caution: a three-way ANOVA model will contain $2^{2^3-1}-1 = 127$ model comparisons; a four-way ANOVA, $2^{2^4-1}-1 = 32767$ models, and a five-way ANOVA just over 2.1 billion models. Depending on the speed of your computer, a four-way ANOVA may take several hours to a day, but a five-way ANOVA is probably not feasible.
 
-One alternative is `whichModels='top'`, which reduces the number of comparisons to \(2^k-1\), where \(k\) is the number of factors, which is manageable. In orthogonal designs, one can construct tests of each main effect or interaction by comparing the full model to the model with all effects except the one of interest: 
+One alternative is `whichModels='top'`, which reduces the number of comparisons to $2^k-1$, where $k$ is the number of factors, which is manageable. In orthogonal designs, one can construct tests of each main effect or interaction by comparing the full model to the model with all effects except the one of interest: 
 
 ```{r }
 bf = anovaBF(len ~ supp*dose, data=ToothGrowth, whichModels="top")
@@ -389,8 +382,9 @@ And we can plot the posteriors of some selected effects:
 plot(chains[,4:6])
 ```
 
-<a id="mixed"></a>
-#### Mixed models (including repeated measures)
+
+#### Mixed models (including repeated measures) <a id="mixed"></a>
+
 In order to demonstrate the analysis of mixed models using `BayesFactor`, we will load the `puzzles` data set, which is part of the `BayesFactor` package. See `?puzzles` for details. The data set consists of four columns: `RT` the dependent variable, which is the number of seconds that it took to complete a puzzle; `ID` which is a participant identifier; and `shape` and `color`, which are two factors that describe the type of puzzle solved. `shape` and `color` each have two levels, and each of 12 participants completed puzzles within combination of `shape` and `color`. The design is thus 2x2 factorial within-subjects.
 
 We first load the data, then perform a traditional within-subjects ANOVA.
@@ -398,7 +392,7 @@ We first load the data, then perform a traditional within-subjects ANOVA.
 data(puzzles)
 ```
 
-```{r puzzlesplot,fig.width=7,fig.height=5,echo=FALSE}
+```{r puzzlesplot,fig.width=7,fig.height=5,echo=FALSE,fig.cap=''}
 ## plot the data
 aovObj = aov(RT ~ shape*color + Error(ID/(shape*color)), data=puzzles)
 
@@ -425,7 +419,7 @@ We alert `anovaBF` to the random factor using the `whichRandom` argument. `which
 bf
 ```
 The main effects model is preferred against all models. We can plot the Bayes factor object to obtain a graphical representation of the model comparisons:
-```{r testplot,fig.width=10,fig.height=5}
+```{r testplot,fig.width=10,fig.height=5,fig.cap=''}
 plot(bf)
 ```
 
@@ -452,8 +446,9 @@ The model with `ID` is preferred by a factor of over 1 million, which is not sur
 
 Any model that is a combination of fixed and random factors, including interations between fixed and random factors, can be constructed and tested with `lmBF`. `anovaBF` is designed to be a convenience function as is therefore somewhat limited in flexibility with respect to the models types it can test; however, because random effects are often nuisance effects, we believe `anovaBF` will be sufficient for most researchers' use. 
 
-<a id="regression"></a>
-### Linear regression 
+
+### Linear regression <a id="regression"></a>
+
 Model comparison in multiple linear regression using `BayesFactor` is done via the approach of [Liang, Paulo, Molina, Clyde, and Berger (2008)](#Liangetal). Further discussion can be found in [Rouder & Morey (in press)](#Rouderregression). To demonstrate Bayes factor model comparison in a linear regression context, we use the `attitude` data set in R. See `?attitude`. The `attitude` consists of the dependent variable `rating`, along with 6 predictors. We can use `BayesFactor` to compute the Bayes factors for many models simultaneously, or single Bayes factors against the model containing no predictors. 
 
 ```{r regressData}
@@ -468,7 +463,7 @@ The period (`.`) is shorthand for all remaining columns, besides `rating`. The p
 bf = regressionBF(rating ~ ., data = attitude)
 length(bf)
 ```
-The object `bf` now contains \(2^p-1\), or `r length(bf)`, model comparisons. Large numbers of comparisons can get unweildy, so we can use the functions built into R to manipulate the Bayes factor object.
+The object `bf` now contains $2^p-1$, or `r length(bf)`, model comparisons. Large numbers of comparisons can get unweildy, so we can use the functions built into R to manipulate the Bayes factor object.
 ```{r regressSelect}
 ## Choose a specific model
 bf["privileges + learning + raises + critical + advance"]
@@ -501,7 +496,7 @@ The model preferred by Bayes factor is the `complaints`-only model, followed by 
 
 We might also be interested in comparing the most complex model to all models that can be formed by removing a single covariate, or, similarly, comparing the intercept-only model to all models that can be formed by added a covariate. These comparisons can be done by setting the `whichModels` argument to `'top'` and `'bottom'`, respectively. For example, for testing against the most complex model:
 
-```{r regresstop, fig.width=10, fig.height=5}
+```{r regresstop, fig.width=10, fig.height=5,fig.cap=''}
 bf = regressionBF(rating ~ ., data = attitude, whichModels = "top")
 ## The seventh model is the most complex
 bf
@@ -511,7 +506,7 @@ plot(bf)
 With all other covariates in the model, the model containing `complaints` is preferred to the model not containing `complaints` by a factor of almost 80. The model containing `learning`, is only barely favored to the one without (a factor of about 1.3).
 
 A similar "bottom-up" test can be done, by setting `whichModels` to `'bottom'`.
-```{r regressbottom, fig.width=10, fig.height=5}
+```{r regressbottom, fig.width=10, fig.height=5,fig.cap=''}
 bf = regressionBF(rating ~ ., data = attitude, whichModels = "bottom")
 plot(bf)
 ```
@@ -592,7 +587,7 @@ The left panel of the figure below shows the data and linear fits. The green poi
 chainsNoInt <- posterior(noInteraction, iterations = 10000)
 ```
 
-```{r GLMplot,echo=FALSE,fig.width=10, fig.height=5}
+```{r GLMplot,echo=FALSE,fig.width=10, fig.height=5,fig.cap=''}
 ToothGrowth$dose <- ToothGrowth$dose - mean(ToothGrowth$dose)
 
 cmeans <- colMeans(chainsFull)[1:6]
@@ -668,12 +663,12 @@ allBFs / max(allBFs)
 
 Two of the models score essentially equally well in terms of Bayes factors: `supp + dose + supp:dose` and `supp + dose`, suggesting that the interaction adds little. The Bayes factors where dose is treated as a factor are all worse than when dose is treated as a continuous covariate. This is likely due to a  the added flexibility allowed by including more parameters. Plotting the Bayes factors shows how large the differences are:
 
-```{r GLMplot2,echo=FALSE,fig.width=10, fig.height=5}
+```{r GLMplot2,echo=FALSE,fig.width=10, fig.height=5,fig.cap=''}
 plot(allBFs / max(allBFs))
 ```
 
-<a id="lincor"></a>
-#### Linear correlation (0.9.12-4+)
+
+#### Linear correlation (0.9.12-4+) <a id="lincor"></a>
 
 Ly, Verhagen, and Wagenmakers (2015; [link](#LyCor)) present a Bayes factor test for linear correlation. The `BayesFactor` package allows the computing of the Bayes factor and sampling from the posterior of the Bayes factor. Note that the model and priors are somewhat different from those used in the linear regression models presented above; further discussion can be found in Ly et al.
 
@@ -722,10 +717,10 @@ We can also plot the full posterior distribution, if we like:
 plot(samples[,"rho"])
 ```
 
-<a id="proptest"></a>
-### Tests of single proportions (0.9.9+)
 
-The default test for a proportion assumes that all observations were independent with fixed probability $\pi$. The rule for stopping can be fixed $N$ ([binomial sampling](http://en.wikipedia.org/wiki/Binomial_distribution)) or a fixed number of successes ([negative binomial sampling](http://en.wikipedia.org/wiki/Negative_binomial_distribution)); unlike a significance test, the Bayes factor does not depend on the stopping rule.
+### Tests of single proportions (0.9.9+) <a id="proptest"></a>
+
+The default test for a proportion assumes that all observations were independent with fixed probability $\pi$. The rule for stopping can be fixed $N$ ([binomial sampling](https://en.wikipedia.org/wiki/Binomial_distribution)) or a fixed number of successes ([negative binomial sampling](https://en.wikipedia.org/wiki/Negative_binomial_distribution)); unlike a significance test, the Bayes factor does not depend on the stopping rule.
 
 For the Bayes factor test of a single proportion, there are two hypotheses; the null hypothesis assumes that the probability $\pi$ is a fixed, known value $p$; under the alternative, the log-odds corresponding to $\pi$, denoted $\omega = \log(\pi/(1-\pi))$, has a logistic distribution centered on the log-odds corresponding to the null value $p$ (denoted $\omega_0 = \log(p/(1-p))$:
 \[
@@ -733,7 +728,7 @@ For the Bayes factor test of a single proportion, there are two hypotheses; the 
 \]
 The default prior $r$ scale is 1/2. The figure below shows the prior distribution assuming the null hypothesis $p=0.5$, for the three named prior scale settings $r$ ("medium", "wide", and "ultrawide"). The default is "medium":
 
-```{r propprior,echo=FALSE,fig.width=10, fig.height=5}
+```{r propprior,echo=FALSE,fig.width=10, fig.height=5,fig.cap=''}
 p0 = .5
 rnames = c("medium","wide","ultrawide")
 r = sapply(rnames,function(rname) BayesFactor:::rpriorValues("proptest",,rname))
@@ -779,14 +774,15 @@ binom.test(682, 682 + 243, p = 3/4)
 
 Using the `posterior` function, we can draw samples from the posterior distribution of the true log odds and true probability and plot the estimate of the posterior.
 
-```{r proppost,fig.width=10, fig.height=5}
+```{r proppost,fig.width=10, fig.height=5,fig.cap=''}
 chains = posterior(bf, iterations = 10000)
 plot(chains[,"p"], main = "Posterior of true probability\nof 'giant' progeny")
 ```
 
 
-<a id="ctables"></a>
-### Contingency tables (0.9.9+)
+
+### Contingency tables (0.9.9+) <a id="ctables"></a>
+
 The `BayesFactor` package implements versions of [Gunel and Dickey's (1974)](#GunelDickey) contingency table Bayes factor tests. Bayes factors for contingency tests are computed using the `contingencyTableBF` function. The necessary arguments are a matrix of cell frequencies and details about the sampling plan that produced the data. 
 
 Here, we provide an example analysis of [Hraba and Grant's (1970)](#HrabaGrant) data, included as part of the `BayesFactor` package as the `raceDolls` data set. 71 white children and 89 black children from Lincoln, Nebraska were offered two dolls, one of whose "race" was the same as the child's and one that was different (either white or black). The children were then asked to select one of the dolls, with prompts such as "Give me the doll that is a nice doll." 50 of the 71 white children (70%) selected the white doll, while 48 of the 89 black children (54%) selected the black doll. These data are shown in the table below:
@@ -825,7 +821,7 @@ sameRaceGivenBlack = chains[,"pi[1,2]"] / chains[,"pi[*,2]"]
 ```
 
 ...and then plot the MCMC estimate of the difference:
-```{r ctablechains,fig.width=10, fig.height=5}
+```{r ctablechains,fig.width=10, fig.height=5,fig.cap=''}
 plot(mcmc(sameRaceGivenWhite - sameRaceGivenBlack), main = "Increase in probability of child picking\nsame race doll (white - black)")
 ```
 
@@ -836,8 +832,8 @@ Additional tips and tricks (0.9.4+)
 ---------
 In this section, tricks to help save time and memory are described. These tricks work with version BayesFactor version 0.9.4+, unless otherwise indicated.
 
-<a id="generalTestBF"></a>
-### Testing restrictions on linear models: generalTestBF
+
+### Testing restrictions on linear models: generalTestBF <a id="generalTestBF"></a>
 
 The convienience functions  `anovaBF` and `regressionBF` are specifically designed for cetagorical and continuous covariates respectively, and have limitations that make those functions easier to use. For instance, `anovaBF` cannot incorporate continuous covariates, and treats random effects as untested nuissance parameters. The `regressionBF` on the other hand, being strictly for multiple regression, cannot incorporate categorical covariates. These functions exist for particular purposes, since guessing what model comparisons a user wants in general is difficult. The `lmBF` function, on the other hand, can handle any model but is limited to a single model comparison: the specified model against the intercept-only model.
 
@@ -853,7 +849,7 @@ puzzleGenBF
 
 The resulting 9 models are the full model, plus the models that can be built by removing a single term at a time from the full model. By default, the `generalTestBF` function will not eliminate a term that is involved in a higher-order interaction (for instance, we will not remove `shape` unless the `shape:color` interaction is also removed); this behavior can be modified through the `whichModels` argument.
 
-It is often the case that some terms are nuisance terms that we would like to always keep in the model. For instance, `ID` in the `puzzles` data set is a participant effect; we would not generally consider models without a participant effect to be plausible. We can use the `neverExclude` argument to the function to specify a set of search terms (technically, [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html)) that, if matched, will specify that the term is always to be kept, and never excluded. To keep the `ID` term:
+It is often the case that some terms are nuisance terms that we would like to always keep in the model. For instance, `ID` in the `puzzles` data set is a participant effect; we would not generally consider models without a participant effect to be plausible. We can use the `neverExclude` argument to the function to specify a set of search terms (technically, [extended regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html)) that, if matched, will specify that the term is always to be kept, and never excluded. To keep the `ID` term:
 ```{r}
 puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + ID, data=puzzles, whichRandom="ID", neverExclude="ID")
 
@@ -865,7 +861,7 @@ puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, d
 
 puzzleGenBF
 ```
-The `shape:ID` interaction is never eliminated, because it matches the `ID` search term from `neverExclude`. [Regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html) are useful here. There are special characters representing the beginning and ending of a string (`^` and `$`, respectively) that we can use to construct a regular expression that will match `ID` but not `shape:ID`:
+The `shape:ID` interaction is never eliminated, because it matches the `ID` search term from `neverExclude`. [Regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html) are useful here. There are special characters representing the beginning and ending of a string (`^` and `$`, respectively) that we can use to construct a regular expression that will match `ID` but not `shape:ID`:
 ```{r}
 puzzleGenBF <- generalTestBF(RT ~ shape + color + shape:color + shape:ID + ID, data=puzzles, whichRandom="ID", neverExclude="^ID$")
 
@@ -873,8 +869,9 @@ puzzleGenBF
 ```
 The `shape:ID` interaction term is now eliminated in some models, because it does not match `"^ID$"`. Multiple terms may be provided to `neverExclude` by providing a character vector; terms which match any element in the vector will always be included in model comparisons.
 
-<a id="preculltricks"></a>
-### Saving time: Pre-culling Bayes factor objects
+
+### Saving time: Pre-culling Bayes factor objects <a id="preculltricks"></a>
+
 In cases where the default analysis produces many models to compare, the sampling approach to computing Bayes factors can be time consuming. The `BayesFactor` package identifies situations where sampling is not needed and thus saves time, but any model in which there is more than one categorical factor or a mix of categorical and continuous predictors will require sampling. When a default analysis produces many models that are not of interest, much of the time spent sampling may be wasted.
 
 The main functions in the `BayesFactor` package include the `noSample` argument which, if true, will prevent sampling. If a Bayes factor can be computed without sampling, the package will compute it, returning `NA` for Bayes factors that would require sampling. Continuing using the `puzzles` dataset:
@@ -892,7 +889,7 @@ done = puzzleCullBF[ !is.na(puzzleCullBF) ]
 
 missing
 ```
-The variable `missing` now contains all models for which we lack a Bayes factor. At this point, we decide which of the Bayes factors we would like to compute. We can do this in any way we like: we could simple specify a subset, like `missing[1:3]` or we could do something more complicated. Here, we will include based on the model formula, using the R function `grepl` ([?grepl](http://stat.ethz.ch/R-manual/R-devel/library/base/html/grep.html)). Suppose we only wanted models that did not include *both* `shape` and `color`. First, we obtain the names of the models in `missing`, and then test the names to see if they match our restriction with `grepl`. We can use the result to restrict the models to compare to only those of interest.
+The variable `missing` now contains all models for which we lack a Bayes factor. At this point, we decide which of the Bayes factors we would like to compute. We can do this in any way we like: we could simple specify a subset, like `missing[1:3]` or we could do something more complicated. Here, we will include based on the model formula, using the R function `grepl` ([?grepl](https://stat.ethz.ch/R-manual/R-devel/library/base/html/grep.html)). Suppose we only wanted models that did not include *both* `shape` and `color`. First, we obtain the names of the models in `missing`, and then test the names to see if they match our restriction with `grepl`. We can use the result to restrict the models to compare to only those of interest.
 
 ```{r}
 # get the names of the numerator models
@@ -927,8 +924,8 @@ Note that we're still left with one model that contains both `shape` and `color`
 
 The `noSample` argument will also work with the sampling of posteriors. This is especially useful, for instance, if one would like to know what order the MCMC chain results will be output in before sampling.
 
-<a id="mcmctricks"></a>
-### Saving memory: Thinning and filtering MCMC chains
+
+### Saving memory: Thinning and filtering MCMC chains <a id="mcmctricks"></a>
 
 Modern computer systems, which have many gigabytes of RAM, contain sufficient memory to perform analyses of moderate scale using the `BayesFactor` package. Some systems &mdash; particularly older 32-bit systems &mdash; are limited in the amount of memory that can address. Posterior sampling can create output that is hundreds of megabytes in size. If a user conducts several of these analyses, R may not have sufficient memory to store the results.
 
@@ -957,26 +954,27 @@ fullModelFiltered = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, 
 
 fullModelFiltered
 ```
-Like the `neverExclude` argument discussed [above](#generalTestBF), the `columnFilter` argument is a character vector of [extended regular expressions](http://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html). If a model term is matched by a search term in `columnFilter`, then all columns for term are eliminated from the MCMC output. Remember that `"ID"` will match anything containing letters `ID`; it would, for instance, also eliminate terms `GID` and `ID:shape`, if they existed. See the [manual section on `generalTestBF`](#generalTestBF) for details about how to use specific regular expressions to avoid eliminating columns by accident.
+Like the `neverExclude` argument discussed [above](#generalTestBF), the `columnFilter` argument is a character vector of [extended regular expressions](https://stat.ethz.ch/R-manual/R-patched/library/base/html/regex.html). If a model term is matched by a search term in `columnFilter`, then all columns for term are eliminated from the MCMC output. Remember that `"ID"` will match anything containing letters `ID`; it would, for instance, also eliminate terms `GID` and `ID:shape`, if they existed. See the [manual section on `generalTestBF`](#generalTestBF) for details about how to use specific regular expressions to avoid eliminating columns by accident.
 
 #### Chain thinning
+
 MCMC chains are characterized by the fact that successive iterations are correlated with one another: that is, they are not indepenedent samples from the posterior distribution. To see this, we sample from the posterior of the full model and plot the results:
 
 ```{r}
 # Sample 10000 iterations, eliminating ID columns
 chains = lmBF(RT ~ shape + color + shape:color + ID, data = puzzles, posterior = TRUE, iterations=10000,columnFilter="ID")
 ```
-The figure below shows the first 1000 iterations of the MCMC chain for a selected parameter (left), and the *autocorrelation function* [[CRAN](http://stat.ethz.ch/R-manual/R-patched/library/stats/html/acf.html) / [Wikipedia](http://en.wikipedia.org/wiki/Autocorrelation)] for the same parameter (right).
+The figure below shows the first 1000 iterations of the MCMC chain for a selected parameter (left), and the *autocorrelation function* [[CRAN](https://stat.ethz.ch/R-manual/R-patched/library/stats/html/acf.html) / [Wikipedia](https://en.wikipedia.org/wiki/Autocorrelation)] for the same parameter (right).
 
-```{r acfplot,fig.width=10,fig.height=5,echo=FALSE}
+```{r acfplot,fig.width=10,fig.height=5,echo=FALSE,fig.cap=''}
 par(mfrow=c(1,2))
 plot(as.vector(chains[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
 acf(chains[,"shape-round"])
 ```
 
-The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every \(k\) iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
+The autocorrelation here is minimal, which will be the case in general for chains from the `BayesFactor` package. If we wanted to reduce it even further, we might consider *thinning* the chain: that is, keeping only every $k$ iterations. Thinning throws away information, and is generally not necessary or recommended; however, if memory is at a premium, we might prefer storing nearly independent samples to storing somewhat dependent samples.
 
-The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every \(k=2\) iterations using the `thin` argument:
+The autocorrelation plot shows that the autocorrelation is reduced to 0 after 2 iterations. To get nearly independent samples, then, we could thin to every $k=2$ iterations using the `thin` argument:
 ```{r}
 chainsThinned = recompute(chains, iterations=20000, thin=2)
 
@@ -985,14 +983,14 @@ dim(chainsThinned)
 ```
 Notice that we are left with 10,000 iterations, instead of the 20,000 we sampled, because half were thinned. The figure below shows the resulting MCMC chain and autocorrelation functions. The MCMC chain does not visually look very different, because the autocorrelation was minimal in the first place. However, the autocorrelation function no longer shows autocorrelation from one iteration to the next, implying that we have obtained 10,000 nearly independent samples.
 
-```{r acfplot2,fig.width=10,fig.height=5,echo=FALSE}
+```{r acfplot2,fig.width=10,fig.height=5,echo=FALSE,fig.cap=''}
 par(mfrow=c(1,2))
 plot(as.vector(chainsThinned[1:1000,"shape-round"]),type="l",xlab="Iterations",ylab="parameter shape-round")
 acf(chainsThinned[,"shape-round"])
 ```
 
-<a id="priorscales"></a>
-### Fine-tuning of prior scales (0.9.12-2+)
+
+### Fine-tuning of prior scales (0.9.12-2+) <a id="priorscales"></a>
 
 Previous to version `0.9.12-2`, it was only possible to change the priors on a per-effect-type basis; ie, fixed effects all had the same prior scale, random effects had a different prior scale, and slopes had third prior scale. As of `0.9.12-2`, it is possible to change the prior on a per-effect basis for fixed and random effects (slopes still share a common prior, due to the use of the Liang et al. hyper-g priors for the slopes). This is accomplished via the `rscaleEffects` argument to `lmBF`, `anovaBF`, and `generalTestBF`.
 
@@ -1011,25 +1009,25 @@ The other fixed effects, `shape` and `shape:color`, retain the prior scale of $r
 
 
 
-<a id="references"></a>
-References 
+
+References <a id="references"></a>
 ---------
 
-<a id="Conover"</a>
+<a id="Conover"></a>
 Conover, W. J. (1971), Practical nonparametric statistics. New York: John Wiley & Sons. Pages 97–104.
 
 <a id="GunelDickey"></a>
 Gunel, E. and Dickey, J. (1974) Bayes Factors for Independence in Contingency Tables. Biometrika, 61, 545-557.
- ([JSTOR](http://www.jstor.org/stable/2334738))
+ ([JSTOR](https://www.jstor.org/stable/2334738))
  
 <a id="HrabaGrant"></a>
-Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](http://psycnet.apa.org/psycinfo/1971-03987-001)
+Hraba, J. and Grant, G. (1970). Black is Beautiful: A reexamination of racial preference and identification. Journal of Personality and Social Psychology, 16, 398-402. [psychnet.apa.org](https://psycnet.apa.org/psycinfo/1971-03987-001)
  
 <a id="Liangetal"></a> 
 Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and Berger, J. O. (2008). Mixtures of g-priors for Bayesian Variable Selection. Journal of the American Statistical Association, 103, pp. 410-423 ([Publisher](https://www.tandfonline.com/doi/abs/10.1198/016214507000001337))
 
 <a id="Moreyarea"></a>
-Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([Publisher](http://psycnet.apa.org/buy/2011-15467-001))
+Morey, R. D. and Rouder, J. N. (2011). Bayes Factor Approaches for Testing Interval Null Hypotheses. Psychological Methods, 16, pp. 406-419 ([Publisher](https://psycnet.apa.org/buy/2011-15467-001))
 
 <a id="MoreyMCMC"></a>
 Morey, R. D. and Rouder, J. N. and Pratte, M. S. and Speckman, P. L. (2011). Using MCMC chain outputs to efficiently estimate Bayes factors. Journal of Mathematical Psychology, 55, pp. 368-378 ([Publisher](https://www.sciencedirect.com/science/article/pii/S0022249611000666))
@@ -1044,14 +1042,13 @@ Rouder, J. N. and Morey, R. D. and Speckman, P. L. and Province, J. M. (2012), D
 Rouder, J. N. and Speckman, P. L. and Sun, D. and Morey, R. D. and Iverson, G. (2009). Bayesian t-tests for accepting and rejecting the null hypothesis. Psychonomic Bulletin and Review, 16, pp. 225-237 ([Publisher](https://link.springer.com/article/10.3758/PBR.16.2.225))
 
 <a id="RouderMetat"></a>
-Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758%2Fs13423-011-0088-7))
+Rouder, J. N. and Morey, R. D. (2011). A Bayes Factor Meta-Analysis of Bem's ESP Claim. Psychonomic Bulletin &amp; Review 18, pp. 682-689 ([Publisher](https://link.springer.com/article/10.3758/s13423-011-0088-7))
 
 <a id="LyCor"></a>
-Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](http://dx.doi.org/10.1016/j.jmp.2015.06.004))
+Ly, A., Verhagen, A. J. & Wagenmakers, E.-J. (2015). Harold Jeffreys's Default Bayes Factor Hypothesis Tests: Explanation, Extension, and Application in Psychology. Journal of Mathematical Psychology ([Publisher](https://dx.doi.org/10.1016/j.jmp.2015.06.004))
 
 
 
 -------
-<p>Social media icons by <a href="http://www.awicons.com/">Lokas Software</a>.</p>
 
 *This document was compiled with version `r bfversion` of BayesFactor (`r rversion`).*

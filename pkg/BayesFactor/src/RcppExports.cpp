@@ -9,6 +9,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // hFunc
 double hFunc(const double rho, const int n, const double r, const bool hg_checkmod, const int hg_iter);
 RcppExport SEXP _BayesFactor_hFunc(SEXP rhoSEXP, SEXP nSEXP, SEXP rSEXP, SEXP hg_checkmodSEXP, SEXP hg_iterSEXP) {
@@ -148,7 +153,7 @@ RcppExport SEXP _BayesFactor_genhypergeo_series_pos(SEXP USEXP, SEXP LSEXP, SEXP
     if (rcpp_isError_gen) {
         SEXP rcpp_msgSEXP_gen = Rf_asChar(rcpp_result_gen);
         UNPROTECT(1);
-        Rf_error(CHAR(rcpp_msgSEXP_gen));
+        Rf_error("%s", CHAR(rcpp_msgSEXP_gen));
     }
     UNPROTECT(1);
     return rcpp_result_gen;

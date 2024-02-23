@@ -52,11 +52,6 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
   if(length(interval)!=2 & !is.null(interval))
     stop("argument interval must have two elements.")
 
-  if(any(abs(t)>15)){
-    message("t is large; approximation invoked.")
-    meta.bf.interval = meta.bf.interval_approx
-  }
-
   if(is.null(interval)){
     return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
   }
@@ -70,12 +65,7 @@ meta.t.bf <- function(t,N,df,interval=NULL,rscale, complement = FALSE){
       return(meta.bf.interval(-Inf,Inf,t,N,df,rscale))
     }
   }
-
-  if(any(abs(t)>5)){
-    message("t is large; approximation invoked.")
-    meta.bf.interval = meta.bf.interval_approx
-  }
-
+  
   if(any(is.infinite(interval))){
     if(!complement){
       bf = meta.bf.interval(interval[1],interval[2],t,N,df,rscale)
@@ -130,10 +120,18 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   prior.interval = logExpXminusExpY(logPriorProbs[1], logPriorProbs[2])
   delta.est = t/sqrt(N)
   mean.delta = sum((delta.est * N)/sum(N))
+  scale.delta = 1/sqrt(sum(N))
   log.const = meta.t.like(mean.delta,t,N,df,rscale,log=TRUE)
-  intgl = integrate(meta.t.like,lower-mean.delta,upper-mean.delta,t=t,N=N,df=df,rscale=rscale,log.const=log.const,shift=mean.delta)
-
-  val = log(intgl[[1]]) + log.const - prior.interval - nullLike
+  intgl = integrate(meta.t.like,
+                    lower = (lower-mean.delta)/scale.delta,
+                    upper = (upper-mean.delta)/scale.delta,
+                    t=t,N=N,df=df,rscale=rscale,log.const=log.const,
+                    shift=mean.delta,scale=scale.delta)
+  if(intgl[[1]] == 0 || is.nan(intgl[[1]]) || is.na(intgl[[1]])){
+    message("t approximation invoked.")
+    return(meta.bf.interval_approx(lower,upper,t,N,df,rscale))
+  }
+  val = log(intgl[[1]]*scale.delta) + log.const - prior.interval - nullLike
   err = exp(log(intgl[[2]]) - val)
 
   return(
@@ -145,9 +143,9 @@ meta.bf.interval <- function(lower,upper,t,N,df,rscale){
   )
 }
 
-meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE,shift=0){
+meta.t.like <- Vectorize(function(delta,t,N,df,rscale=1,log.const=0,log=FALSE,shift=0,scale=1){
   ans = suppressWarnings(
-    sum(dt(t,df,ncp=(delta + shift)*sqrt(N),log=TRUE)) + dcauchy(delta+shift,scale=rscale,log=TRUE) - log.const
+    sum(dt(t,df,ncp=(scale*delta + shift)*sqrt(N),log=TRUE)) + dcauchy(scale*delta+shift,scale=rscale,log=TRUE) - log.const
   )
   if(log){
     return(ans)
@@ -202,7 +200,7 @@ meta.t.Metrop <- function(t, n1, n2=NULL, nullModel, iterations=10000, nullInter
 
 meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
 
-  ## Savage-Dickey using t approximation to posterior of delta
+  ## Using t approximation to posterior of delta
   delta.est = t/sqrt(N)
   mean.delta = sum((delta.est * N)/sum(N))
   var.delta = 1/sum(N)
@@ -229,7 +227,7 @@ meta.bf.interval_approx <- function(lower,upper,t,N,df,rscale){
     list(
       bf = val,
       properror = err,
-      method = "Savage-Dickey t approximation"
+      method = "t approximation to posterior"
     )
   )
 }

@@ -185,7 +185,7 @@ public: // ===== methods related to DISPLAY, should not be called directly =====
 	void display_progress_bar() {
 		if ( !is_display_on() )
 			return;
-		REprintf("0%   10   20   30   40   50   60   70   80   90   100%\n");
+		REprintf("0%%   10   20   30   40   50   60   70   80   90   100%%\n");
 		REprintf("|----|----|----|----|----|----|----|----|----|----|\n");
 	}
 

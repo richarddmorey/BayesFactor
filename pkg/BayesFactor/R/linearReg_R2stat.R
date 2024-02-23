@@ -33,8 +33,6 @@
 ##'   Rouder, J. N.  and Morey, R. D. (in press, Multivariate Behavioral Research). Bayesian testing in
 ##'   regression.
 ##'
-##'   Perception and Cognition Lab (University of Missouri): Bayes factor
-##'   calculators. \url{http://pcl.missouri.edu/bayesfactor}
 ##' @seealso \code{\link{integrate}}, \code{\link{lm}}; see
 ##'   \code{\link{lmBF}} for the intended interface to this function, using
 ##'   the full data set.

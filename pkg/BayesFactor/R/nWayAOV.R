@@ -160,7 +160,7 @@ nWayAOV<- function(y, X, gMap, rscale, iterations = 10000, progress = getOption(
     # Sort chains so that continuous covariates are together, and first
     sortX = order(!continuous)
     revSortX = order(sortX)
-    X = X[,sortX]
+    X = X[,sortX,drop=FALSE]
     gMap = gMap[sortX]
     ignoreCols = ignoreCols[sortX]
     continuous = continuous[sortX]

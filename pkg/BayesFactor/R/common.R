@@ -91,7 +91,7 @@ propErrorEst = function(logX){
 combineModels <- function(modelList, checkCodes = TRUE){
   are.same = sapply(modelList[-1],function(m) modelList[[1]] %same% m)
   if( any(!are.same) ) stop("Cannot combine models that are not the same.")
-  if(class(modelList[[1]]) != "BFlinearModel") return(modelList[[1]])
+  if(!inherits(modelList[[1]], "BFlinearModel")) return(modelList[[1]])
 
   hasanalysis = sapply(modelList, .hasSlot, name = "analysis")
 

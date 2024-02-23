@@ -65,9 +65,6 @@ Liang, F. and Paulo, R. and Molina, G. and Clyde, M. A. and
 
   Rouder, J. N.  and Morey, R. D. (in press, Multivariate Behavioral Research). Bayesian testing in
   regression.
-
-  Perception and Cognition Lab (University of Missouri): Bayes factor
-  calculators. \url{http://pcl.missouri.edu/bayesfactor}
 }
 \seealso{
 \code{\link{integrate}}, \code{\link{lm}}; see

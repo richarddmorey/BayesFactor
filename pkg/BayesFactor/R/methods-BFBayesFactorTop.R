@@ -1,5 +1,5 @@
 BFBayesFactorTop <- function(bf){
-  if( class(bf@denominator) != "BFlinearModel" )
+  if( !inherits(bf@denominator, "BFlinearModel") )
     stop("BFBayesFactorTopcan only be created from linear model objects.")
 
   len = sapply(bf@numerator, function(m){
@@ -23,7 +23,7 @@ BFBayesFactorTop <- function(bf){
 }
 
 setValidity("BFBayesFactorTop", function(object){
-  if(class(object@denominator) != "BFlinearModel")
+  if(!inherits(object@denominator, "BFlinearModel"))
     return("BFBayesFactorTop objects can only currently be created from BFlinearModel-type models.")
 
   omitted = lapply(object@numerator, whichOmitted, full = object@denominator)
