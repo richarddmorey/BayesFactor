@@ -1,3 +1,8 @@
+  CHANGES IN BayesFactor VERSION 0.9.12-4.7
+
+CHANGES
+* Fixed CRAN NOTE requiring :: notation in vignette engine specification
+
   CHANGES IN BayesFactor VERSION 0.9.12-4.6
   
 CHANGES

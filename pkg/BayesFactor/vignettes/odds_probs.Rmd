@@ -1,5 +1,5 @@
 <!--
-%\VignetteEngine{knitr}
+%\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Odds and probabilities}
 \usepackage[utf8]{inputenc}
 -->
