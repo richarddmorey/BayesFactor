@@ -1,4 +1,4 @@
-##' This function computes mata-analytic Bayes factors, or samples from the posterior, for
+##' This function computes meta-analytic Bayes factors, or samples from the posterior, for
 ##' one- and two-sample designs where multiple t values have been observed.
 ##'
 ##' The Bayes factor provided by \code{meta.ttestBF} tests the null hypothesis that
