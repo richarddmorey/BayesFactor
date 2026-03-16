@@ -49,21 +49,45 @@ setValidity("BFBayesFactor", function(object){
 setMethod("recompute", "BFBayesFactor", function(x, progress = getOption('BFprogress', interactive()), multicore = FALSE, callback = function(...) as.integer(0), ...){
 
   modelList = c(x@numerator,x@denominator)
-
-  if(multicore){
+  
+  # On Windows, the parallel package can only create PSOCK clusters;
+  # these seem to hamper performance (compared to single-core operation)
+  if(isTRUE(multicore && .Platform$OS.type == "unix")){
     callback = function(...) as.integer(0)
     message("Note: Progress bars and callbacks are suppressed when running multicore.")
-    if( !suppressMessages( requireNamespace("doMC", quietly = TRUE) ) ){
-      stop("Required package (doMC) missing for multicore functionality.")
+    # Create a cluster if and only if no default cluster is available
+    if(is.null(parallel::getDefaultCluster())) {
+      cl <- parallel::makeForkCluster(nnodes = getOption("mc.cores", default = parallel::detectCores()))
+      on.exit(parallel::stopCluster(cl))
+    } else {
+      cl <- parallel::getDefaultCluster()
     }
-    doMC::registerDoMC()
-    if(foreach::getDoParWorkers()==1){
-      warning("Multicore specified, but only using 1 core. Set options(cores) to something >1.")
-    }
-    bfs = foreach::"%dopar%"(
-      foreach::foreach(gIndex=modelList, .options.multicore=mcoptions),
-      compare(numerator = gIndex, data = x@data, ...)
+    
+    # first split models into batches (to reduce cross-talk between workers)
+    n_workers <- length(cl)
+    idx <- rep(
+      seq_len(n_workers),
+      each = ceiling(length(modelList)/n_workers),
+      length.out = length(modelList)
     )
+    
+    nested_models <- vector(mode = "list", length = n_workers)
+    for (i in seq_along(nested_models)) {
+      nested_models[[i]] <- modelList[idx == i]
+    }
+    
+    # then use clusterMap() for each batch
+    bfs <- unlist(parallel::clusterMap(
+      cl = cl,
+      nested_models,
+      MoreArgs = list(
+        FUN = compare,
+        data = x@data,
+        ...
+      ),
+      fun = lapply,
+      SIMPLIFY = TRUE,
+    ))
 
   }else{ # No multicore
     checkCallback(callback,as.integer(0))
