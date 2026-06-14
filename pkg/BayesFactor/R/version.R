@@ -15,8 +15,8 @@ BFInfo <- function(print=TRUE)
 {
   if(print){
     cat("Package BayesFactor\n")
-	  cat(packageDescription("BayesFactor")$Version,"\n")
+	  cat(packageDescription("BayesFactor", fields = "Version"),"\n")
   }
-  retStr = paste(packageDescription("BayesFactor")$Version)
+  retStr = paste(packageDescription("BayesFactor", fields = "Version"))
   invisible(retStr)
 }
