@@ -198,7 +198,7 @@ setMethod('compare', signature(numerator = "BFindepSample", denominator = "missi
             y = data[[dv]]
             if(!is.null(factor)){
               iv = data[[factor]]
-              ns = table(iv)
+              ns = table(factor(iv))
             }else{
               iv = NULL
               ns = NULL
